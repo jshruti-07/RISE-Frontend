@@ -63,16 +63,16 @@ A full-featured Human Resource Management System built with **Flask**, designed 
 ```
 ┌──────────────────────┐          ┌──────────────────────────┐
 │   Frontend (Flask)   │  HTTP    │    Backend API Server     │
-│   app.py — port 5002 │ ───────> │    port 5001 (remote)    │
+│   run.py — port 5002 │ ───────> │    port 5001 (remote)    │
 │                      │          │                          │
-│  • Jinja2 templates  │          │  • REST API endpoints    │
+│  • Blueprint Modular │          │  • REST API endpoints    │
 │  • Session mgmt      │          │  • MySQL database        │
 │  • Proxy routes       │          │  • JWT authentication    │
-│  • Static assets      │          │  • File uploads          │
+│  • .env config        │          │  • File uploads          │
 └──────────────────────┘          └──────────────────────────┘
 ```
 
-The **frontend** Flask server (`app.py`) handles rendering, session management, and role-based access control. It **proxies** all data operations to a **separate backend API** via HTTP requests. The backend manages the database (MySQL), JWT authentication, and file storage.
+The **frontend** is a modular Flask application using the **Application Factory** pattern. It handles rendering, session management, and role-based access control across several logical Blueprints. It **proxies** all data operations to a **separate backend API** via HTTP requests.
 
 ---
 
@@ -80,12 +80,11 @@ The **frontend** Flask server (`app.py`) handles rendering, session management, 
 
 | Layer           | Technology                                              |
 |-----------------|--------------------------------------------------------|
-| **Frontend**    | Flask, Jinja2 templates, HTML5, CSS3, JavaScript        |
+| **Frontend**    | Flask (Blueprints), Jinja2, HTML5, CSS3, JavaScript     |
 | **Backend API** | Flask (separate server), Flask Blueprints               |
-| **Database**    | MySQL                                                   |
+| **Config**      | `python-dotenv` (.env file support)                     |
+| **Database**    | MySQL (Backend), `projects.json` (Local fallback)       |
 | **Auth**        | JWT (JSON Web Tokens)                                   |
-| **Styling**     | Custom CSS (`static/css/style.css`)                    |
-| **Data Format** | JSON (API communication), `projects.json` (local store) |
 
 ---
 
@@ -93,43 +92,25 @@ The **frontend** Flask server (`app.py`) handles rendering, session management, 
 
 ```
 Altzor3/
-├── app.py                    # Main Flask application (frontend server)
-├── app_calendar_endpoint.py  # Calendar API logic
+├── run.py                    # Main entry point (starts the app)
+├── app/                      # Main application package
+│   ├── __init__.py           # Application factory & Blueprint registration
+│   ├── utils.py              # Shared decorators, helpers, and config
+│   └── routes/               # Modular route definitions (Blueprints)
+│       ├── auth.py           # Login, Logout, Password management
+│       ├── dashboard.py      # Main dashboard logic
+│       ├── employees.py      # Employee management
+│       ├── projects.py       # Project tracking
+│       ├── work_management.py # Timesheets, Leaves, Attendance
+│       ├── admin.py          # Helpdesk, Reimbursements, Assets, Policies
+│       └── user.py           # Profile and Bank verification
+├── .env                      # Environment variables (Secret keys, API URLs)
 ├── projects.json             # Local project data store
 ├── helpdesk_messages.json    # Local storage for ticket messaging
 ├── app.log                   # Application logs
-│
-├── templates/
-│   ├── base.html             # Base layout with sidebar navigation
-│   ├── login.html            # Login page
-│   ├── forgot_password.html  # Forgot password form
-│   ├── reset_password.html   # Reset password form
-│   ├── dashboard.html        # Main dashboard with stats & alerts
-│   ├── profile.html          # Employee profile & document progress
-│   ├── all_employees.html    # Employee list (HR/Manager view)
-│   ├── leaves.html           # Leave records list
-│   ├── add_leave.html        # Apply for leave form (Full/Half day)
-│   ├── timesheets.html       # Timesheet list & calendar view
-│   ├── add_timesheet.html    # Daily timesheet submission
-│   ├── add_weekly_timesheet.html # Weekly timesheet submission
-│   ├── projects.html         # Project list
-│   ├── helpdesk.html         # Help Desk ticketing interface
-│   ├── assets.html           # Asset tracking (HR)
-│   ├── agreement.html        # Digital device agreement & signature
-│   ├── reimbursement.html    # Reimbursement claim & approval
-│   ├── attendance.html       # Advanced attendance tracking
-│   ├── payslips.html         # Payslip records
-│   ├── policies.html         # Company policies
-│   ├── bank_admin.html       # Bank detail verification (HR)
-│   └── change_password.html  # Password change page
-│
-├── static/
-│   ├── css/
-│   │   └── style.css         # Global stylesheet
-│   ├── images/               # Logos and avatars
-│   └── videos/               # Video assets
-│
-└── uploads/                  # Uploaded files directory (receipts, docs)
+├── templates/                # Jinja2 templates (updated for Blueprints)
+├── static/                   # Global CSS, JS, and Images
+└── uploads/                  # Uploaded files directory
 ```
 
 ---
@@ -161,25 +142,51 @@ Altzor3/
 
 3. **Install dependencies**
    ```bash
-   pip install flask requests
+   pip install flask requests python-dotenv
    ```
 
 ### Configuration
 
-Edit the `BASE_URL` variable in `app.py` to point to your backend API server:
+Create a `.env` file in the root directory (copy from `.env.example` if available) and configure your environment variables:
 
-```python
-# app.py
-BASE_URL = "http://<BACKEND_IP>:5001"
+```ini
+# .env
+SECRET_KEY=your_secure_random_string
+BACKEND_URL=http://<BACKEND_IP>:5001
 ```
 
 ### Running the Application
 
 ```bash
-python app.py
+python run.py
 ```
 
 The application will start on **http://localhost:5002**.
+
+---
+
+## 📱 Mobile & Tablet Access
+
+To access the Altzor HR system from any device (Mobile, Tablet, Laptop) on your local network:
+
+1. **Find your Local IP Address**:
+   - **Windows**: Open Command Prompt and type `ipconfig`. Look for "IPv4 Address" (e.g., `192.168.1.5`).
+   - **Mac/Linux**: Open Terminal and type `ifconfig` or `ip addr`.
+
+2. **Configure .env**:
+   Ensure your `.env` file uses your actual IP instead of `localhost` for the backend so your mobile device can reach it:
+   ```ini
+   BACKEND_URL=http://192.168.1.5:5001
+   ```
+
+3. **Open Browser on Device**:
+   Connect your device to the same Wi-Fi network and enter the following in your mobile browser:
+   ```
+   http://192.168.1.5:5002
+   ```
+
+4. **Responsive UI**:
+   The interface is optimized for all screen sizes. On mobile, the sidebar collapses into a slide-out menu to maximize screen space.
 
 ---
 

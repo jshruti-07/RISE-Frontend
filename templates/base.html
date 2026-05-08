@@ -4,6 +4,8 @@
 
 <head>
 
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}EMS{% endblock %}</title>
 
 
@@ -488,57 +490,35 @@
                         }
                     })
                     .catch(function () { });
-            }
         })();
 
-
-
         function toggleSidebar() {
-
-
-
             var sidebar = document.getElementById("sidebar");
+            var isMobile = window.innerWidth <= 992;
 
-            sidebar.classList.toggle("collapsed");
+            if (isMobile) {
+                sidebar.classList.toggle("show-mobile");
+            } else {
+                sidebar.classList.toggle("collapsed");
+            }
 
-
-
-            if (sidebar.classList.contains("collapsed")) {
-
-
-
+            if (sidebar.classList.contains("collapsed") || (isMobile && !sidebar.classList.contains("show-mobile"))) {
                 document.querySelectorAll(".submenu").forEach(function (menu) {
-
                     menu.classList.remove("show");
-
-                    menu.style.display = "none"; // FORCE HIDE
-
+                    menu.style.display = "none";
                 });
-
-
 
                 document.querySelectorAll(".menu-title").forEach(function (title) {
-
                     title.classList.remove("active");
-
-
-
                     var arrow = title.querySelector(".arrow");
-
                     if (arrow) arrow.innerText = "+";
-
                 });
-
-
-
-            } else
-
-            // restore when expanding
-            {
+            } else {
                 document.querySelectorAll(".submenu").forEach(function (menu) {
-                    menu.style.display = ""; // reset
+                    menu.style.display = ""; 
                 });
             }
+        }
         }
 
 

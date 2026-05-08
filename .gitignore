@@ -1,3 +1,7 @@
 .env
 __pycache__/
 *.pyc
+*.log
+projects.json
+helpdesk_messages.json
+.vscode/
