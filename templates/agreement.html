@@ -1,0 +1,335 @@
+{% extends "base.html" %}
+
+{% block title %}Device Usage Agreement | Altzor{% endblock %}
+
+{% block extra_css %}
+<style>
+    .agreement-container {
+        max-width: 900px;
+        margin: 2rem auto;
+    }
+    .document-paper {
+        background: white;
+        padding: 4rem;
+        border-radius: 16px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        position: relative;
+        overflow: hidden;
+    }
+    .document-header {
+        text-align: center;
+        margin-bottom: 3rem;
+        border-bottom: 2px solid #f0f2f5;
+        padding-bottom: 2rem;
+    }
+    .company-logo {
+        height: 50px;
+        margin-bottom: 1rem;
+    }
+    .document-title {
+        font-family: 'Outfit', sans-serif;
+        font-weight: 700;
+        color: #1a1a1a;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+    .document-content {
+        font-size: 1.05rem;
+        line-height: 1.8;
+        color: #4a4a4a;
+        text-align: justify;
+    }
+    .field-label {
+        font-weight: 600;
+        color: #1a1a1a;
+        min-width: 150px;
+        display: inline-block;
+    }
+    .field-value {
+        border-bottom: 1px dashed #ced4da;
+        padding: 0 10px;
+        color: #0d6efd;
+        font-weight: 500;
+    }
+    .policy-section {
+        background: #f8f9fa;
+        padding: 2rem;
+        border-radius: 12px;
+        margin: 2rem 0;
+        border-left: 4px solid #0d6efd;
+    }
+    .signature-area {
+        margin-top: 3rem;
+        padding-top: 2rem;
+        border-top: 2px solid #f0f2f5;
+    }
+    #signature-canvas {
+        border: 2px dashed #dee2e6;
+        border-radius: 12px;
+        background: #fafafa;
+        cursor: crosshair;
+        width: 100%;
+        height: 200px;
+    }
+    .canvas-actions {
+        margin-top: 10px;
+    }
+    .document-footer {
+        margin-top: 4rem;
+        text-align: center;
+        font-size: 0.9rem;
+        color: #adb5bd;
+    }
+    .status-badge-floating {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        transform: rotate(15deg);
+        font-size: 1.5rem;
+        padding: 0.5rem 2rem;
+        border: 4px solid;
+        opacity: 0.3;
+        display: none;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Hidden session values -->
+<input type="hidden" id="sessionToken" value="{{ session.get('token', '') }}">
+
+<div class="container agreement-container py-5">
+    <div class="document-paper animate__animated animate__fadeIn">
+        <div id="signed-stamp" class="status-badge-floating text-success border-success">SIGNED</div>
+        
+        <div class="document-header">
+            <img src="/static/logo.png" alt="Altzor" class="company-logo" onerror="this.src='https://via.placeholder.com/150x50?text=Altzor'">
+            <h4 class="document-title">Device Usage Agreement</h4>
+        </div>
+
+        <div class="document-content">
+            <p>To,<br>The Director<br><strong>Altzor Pvt. Ltd.</strong></p>
+            
+            <p class="mt-4">Subject: <strong>Altzor Laptop/MacBook Usage Agreement</strong></p>
+            
+            <p>Dear Sir/Madam,</p>
+            
+            <p>I hereby acknowledge that I have received a company-issued Laptop/MacBook with the following details:</p>
+            
+            <div class="my-4 ps-4">
+                <div class="mb-2"><span class="field-label">● Model:</span> <span class="field-value" id="disp-model">Loading...</span></div>
+                <div class="mb-2"><span class="field-label">● Serial Number:</span> <span class="field-value" id="disp-serial">Loading...</span></div>
+                <div class="mb-2"><span class="field-label">● Date of Issue:</span> <span class="field-value" id="disp-date">Loading...</span></div>
+                <div class="mb-2"><span class="field-label">● Employee Name:</span> <span class="field-value" id="disp-name">Loading...</span></div>
+                <div class="mb-2"><span class="field-label">● Employee ID:</span> <span class="field-value" id="disp-id">Loading...</span></div>
+            </div>
+
+            <p>I agree to use the assigned Laptop/MacBook strictly for official purposes, both within and outside the premises of Altzor Pvt. Ltd. I accept full responsibility for the device, including its hardware, installed software, and all data stored on it.</p>
+
+            <div class="policy-section">
+                <h6 class="fw-bold mb-3"><i class="bi bi-shield-check me-2"></i>Key Usage Policies</h6>
+                <ul class="small mb-0">
+                    <li>The device must be used strictly for official and authorized work purposes.</li>
+                    <li>Passcodes must be strong and changed periodically.</li>
+                    <li>Confidentiality of company data must be maintained without exception.</li>
+                    <li>Any loss, theft, or security incident must be reported immediately.</li>
+                    <li>The device must not be shared with unauthorized individuals.</li>
+                </ul>
+            </div>
+
+            <p>I acknowledge that any misuse, negligence, or violation of the stated policies may result in disciplinary action as per company rules.</p>
+
+            <div class="signature-area" id="signature-section">
+                <h6 class="fw-bold mb-3">Declaration & Signature</h6>
+                <div class="form-check mb-4">
+                    <input class="form-check-input" type="checkbox" id="agree-check">
+                    <label class="form-check-label text-dark fw-medium" for="agree-check">
+                        I have read, understood, and agree to abide by all the terms and conditions stated in this document and the annexed policy.
+                    </label>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <label class="small text-muted mb-2">Draw your signature below:</label>
+                        <canvas id="signature-canvas"></canvas>
+                        <div class="canvas-actions d-flex gap-2">
+                            <button class="btn btn-sm btn-link text-danger p-0" onclick="clearCanvas()">Clear</button>
+                            <span class="text-muted mx-2">|</span>
+                            <label class="btn btn-sm btn-link text-primary p-0 m-0" for="sig-upload">Upload Image</label>
+                            <input type="file" id="sig-upload" hidden accept="image/*" onchange="handleUpload(this)">
+                        </div>
+                    </div>
+                    <div class="col-md-6 d-flex flex-column justify-content-end">
+                        <button class="btn btn-primary btn-lg rounded-pill px-5 fw-bold w-100 mb-2" id="submit-btn" onclick="submitAgreement()">
+                            Confirm & Sign Agreement
+                        </button>
+                        <p class="text-center text-muted small">By clicking submit, you are applying a legally binding digital signature.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="document-footer">
+                Altzor Pvt. Ltd. | E-Mail: support@altzor.com | Website: www.altzor.com
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const assetId = {{ asset_id }};
+    let assignmentId = null;
+    let canvas, ctx;
+    let drawing = false;
+
+    function getHeaders() {
+        return {
+            'Authorization': `Bearer ${document.getElementById('sessionToken').value}`,
+            'Content-Type': 'application/json'
+        };
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        initCanvas();
+        loadAgreementData();
+    });
+
+    function initCanvas() {
+        canvas = document.getElementById('signature-canvas');
+        ctx = canvas.getContext('2d');
+        
+        // Match display size
+        canvas.width = canvas.offsetWidth;
+        canvas.height = canvas.offsetHeight;
+        
+        ctx.strokeStyle = "#1a1a1a";
+        ctx.lineWidth = 2;
+        ctx.lineJoin = 'round';
+        ctx.lineCap = 'round';
+
+        canvas.addEventListener('mousedown', startDraw);
+        canvas.addEventListener('mousemove', draw);
+        canvas.addEventListener('mouseup', stopDraw);
+        canvas.addEventListener('mouseout', stopDraw);
+        
+        // Touch support
+        canvas.addEventListener('touchstart', e => { e.preventDefault(); startDraw(e.touches[0]); });
+        canvas.addEventListener('touchmove', e => { e.preventDefault(); draw(e.touches[0]); });
+        canvas.addEventListener('touchend', stopDraw);
+    }
+
+    function startDraw(e) {
+        drawing = true;
+        ctx.beginPath();
+        const rect = canvas.getBoundingClientRect();
+        ctx.moveTo(e.clientX - rect.left, e.clientY - rect.top);
+    }
+
+    function draw(e) {
+        if (!drawing) return;
+        const rect = canvas.getBoundingClientRect();
+        ctx.lineTo(e.clientX - rect.left, e.clientY - rect.top);
+        ctx.stroke();
+    }
+
+    function stopDraw() {
+        drawing = false;
+    }
+
+    function clearCanvas() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
+
+    function handleUpload(input) {
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = new Image();
+                img.onload = function() {
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    // Center and scale image
+                    const scale = Math.min(canvas.width / img.width, canvas.height / img.height);
+                    const x = (canvas.width / 2) - (img.width / 2) * scale;
+                    const y = (canvas.height / 2) - (img.height / 2) * scale;
+                    ctx.drawImage(img, x, y, img.width * scale, img.height * scale);
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+
+    function loadAgreementData() {
+        fetch(`/api/assets/${assetId}/agreement`, { headers: getHeaders() })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    const ag = data.agreement;
+                    assignmentId = ag.assignment_id;
+                    document.getElementById('disp-model').textContent = ag.device.brand + ' ' + ag.device.model;
+                    document.getElementById('disp-serial').textContent = ag.device.serial_number;
+                    document.getElementById('disp-date').textContent = new Date(ag.assigned_date).toLocaleDateString('en-GB', {
+                        day: 'numeric', month: 'long', year: 'numeric'
+                    });
+                    document.getElementById('disp-name').textContent = ag.employee_name;
+                    document.getElementById('disp-id').textContent = ag.employee_id;
+                } else {
+                    alert('Error: ' + data.error);
+                }
+            });
+    }
+
+    async function submitAgreement() {
+        if (!document.getElementById('agree-check').checked) {
+            alert('Please check the declaration checkbox before signing.');
+            return;
+        }
+
+        // Check if canvas is empty (simplified check)
+        const blank = document.createElement('canvas');
+        blank.width = canvas.width;
+        blank.height = canvas.height;
+        if (canvas.toDataURL() === blank.toDataURL()) {
+            alert('Please provide a signature.');
+            return;
+        }
+
+        const btn = document.getElementById('submit-btn');
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Signing...';
+
+        try {
+            // Convert canvas to blob
+            const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
+            
+            const formData = new FormData();
+            formData.append('signature', blob, 'signature.png');
+            formData.append('assignment_id', assignmentId);
+
+            const res = await fetch(`/api/assets/${assetId}/accept`, {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${document.getElementById('sessionToken').value}` },
+                body: formData
+            });
+
+            const data = await res.json();
+            if (data.success) {
+                document.getElementById('signed-stamp').style.display = 'block';
+                document.getElementById('signature-section').style.opacity = '0.5';
+                document.getElementById('signature-section').style.pointerEvents = 'none';
+                btn.innerHTML = '<i class="bi bi-check-circle me-2"></i>Signed Successfully';
+                btn.classList.replace('btn-primary', 'btn-success');
+                
+                setTimeout(() => {
+                    window.location.href = '/dashboard';
+                }, 2000);
+            } else {
+                throw new Error(data.error);
+            }
+        } catch (err) {
+            alert('Error submitting agreement: ' + err.message);
+            btn.disabled = false;
+            btn.innerHTML = 'Confirm & Sign Agreement';
+        }
+    }
+</script>
+{% endblock %}

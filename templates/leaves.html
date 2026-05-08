@@ -1,0 +1,491 @@
+{% extends "base.html" %}
+{% block title %}Leave Application{% endblock %}
+
+{% block content %}
+<style>
+    .leave-card-mini {
+        background: #fff;
+        border: 1px solid #e2e8f0;
+        border-radius: 10px;
+        padding: 10px 14px;
+        transition: all 0.3s ease;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        position: relative;
+        overflow: hidden;
+    }
+    .leave-card-mini:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        border-color: #cbd5e1;
+    }
+    .lc-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0;
+    }
+    .lc-label {
+        font-size: 0.75rem;
+        font-weight: 700;
+        color: #64748b;
+        text-transform: uppercase;
+        letter-spacing: 0.025em;
+    }
+    .lc-icon, .lc-fraction {
+        font-size: 0.85rem;
+        color: #1e293b;
+    }
+    .lc-fraction {
+        background: #f1f5f9;
+        padding: 2px 8px;
+        border-radius: 6px;
+        font-size: 0.7rem;
+    }
+    
+    /* Variants */
+    .leave-card-mini.total { border-left: 4px solid #6366f1; }
+    .leave-card-mini.casual { border-left: 4px solid #3b82f6; }
+    .leave-card-mini.sick { border-left: 4px solid #ef4444; }
+    .leave-card-mini.earned { border-left: 4px solid #22c55e; }
+    
+    .leave-card-mini.total .lc-icon { color: #6366f1; }
+    .leave-card-mini.casual .lc-icon { color: #3b82f6; }
+    .leave-card-mini.sick .lc-icon { color: #ef4444; }
+    .leave-card-mini.earned .lc-icon { color: #22c55e; }
+</style>
+<!-- Hidden session token for API authentication -->
+<input type="hidden" id="sessionToken" value="{{ session.get('token', '') }}">
+
+<div class="container-fluid py-4">
+    <!-- Header Section (Always visible) -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h4 class="mb-0 fw-bold">Leave Application</h4>
+        <a href="{{ url_for('work.add_leave') }}" class="btn btn-primary">
+            Apply Leave
+        </a>
+    </div>
+
+    <!-- Leave Summary Section (Visible to all for their own balance) -->
+    <div class="row mb-4" id="leaveSummarySection">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-4">
+                    <h5 class="card-title mb-3 fw-semibold">My Leave Balance Summary</h5>
+                    <div class="row" id="leaveBalanceCards">
+                        <div class="col-md-4 mb-3">
+                            <div class="text-center py-3 bg-light rounded">
+                                <div class="spinner-border text-primary" role="status"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Calendar Section (Everyone) -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-4">
+                    <h5 class="card-title mb-4 fw-semibold">Leave Calendar</h5>
+                    <div id="calendar" style="background: white; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.05);"></div>
+                    
+                    <!-- Calendar Legend -->
+                    <div class="mt-3 d-flex flex-wrap gap-2 justify-content-center pb-2">
+                        <div class="calendar-legend-item">
+                            <span class="legend-dot" style="background-color: #22c55e;"></span>
+                            Approved
+                        </div>
+                        <div class="calendar-legend-item">
+                            <span class="legend-dot" style="background-color: #eab308;"></span>
+                            Pending
+                        </div>
+                        <div class="calendar-legend-item">
+                            <span class="legend-dot" style="background-color: #ef4444;"></span>
+                            Rejected
+                        </div>
+                        <div class="calendar-legend-item">
+                            <span class="legend-dot" style="background-color: #f97316;"></span>
+                            Half Day
+                        </div>
+                        <div class="calendar-legend-item">
+                            <span class="legend-dot" style="background-color: #3b82f6;"></span>
+                            Holiday
+                        </div>
+                        <div class="calendar-legend-item">
+                            <span class="legend-dot" style="background-color: #94a3b8;"></span>
+                            Weekend
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if session.role == 'employee' %}
+<!-- Employee Table View -->
+<div class="form-card">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5 class="mb-0">My Leave Applications</h5>
+    </div>
+
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                <th>Employee</th>
+                <th>Type</th>
+                <th>Start</th>
+                <th>End</th>
+                <th>Reason</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for l in leaves %}
+        <tr>
+            <td>{{ l.employee_name }}</td>
+            <td>{{ l.leave_type }}</td>
+            <td>{{ l.start_date[:10] if l.start_date else '' }}</td>
+            <td>{{ l.end_date[:10] if l.end_date else '' }}</td>
+            <td>{{ l.reason }}</td>
+            <td>
+                <span class="badge 
+                    {% if l.status == 'approved' %}bg-success
+                    {% elif l.status == 'pending' %}bg-warning
+                    {% else %}bg-danger{% endif %}">
+                    {{ l.status|capitalize }}
+                </span>
+            </td>
+        </tr>
+        {% else %}
+        <tr>
+            <td colspan="6" class="text-center">No leaves found</td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<!-- Admin/Manager/HR View - Original Table -->
+<div class="form-card">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5 class="mb-0">All Leave Applications</h5>
+    </div>
+
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                <th>Employee</th>
+                <th>Type</th>
+                <th>Start</th>
+                <th>End</th>
+                <th>Reason</th>
+                <th>Status</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for l in leaves %}
+        <tr>
+            <td>{{ l.employee_name }}</td>
+            <td>{{ l.leave_type }}</td>
+            <td>{{ l.start_date[:10] if l.start_date else '' }}</td>
+            <td>{{ l.end_date[:10] if l.end_date else '' }}</td>
+            <td>{{ l.reason }}</td>
+            <td>
+                <span class="badge 
+                    {% if l.status == 'approved' %}bg-success
+                    {% elif l.status == 'pending' %}bg-warning
+                    {% else %}bg-danger{% endif %}">
+                    {{ l.status }}
+                </span>
+            </td>
+            <td>
+                {% if session.role in ['manager','hr'] and l.status == 'pending' %}
+                    <button class="btn btn-sm btn-success" onclick="updateLeave('{{ l.id }}', 'approved', this)">Approve</button>
+                    <button class="btn btn-sm btn-danger" onclick="updateLeave('{{ l.id }}', 'rejected', this)">Reject</button>
+                {% else %}
+                    -
+                {% endif %}
+            </td>
+        </tr>
+        {% else %}
+        <tr>
+            <td colspan="7" class="text-center">No leaves found</td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endif %}
+
+<link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>
+
+<style>
+    /* Leave Balance Cards */
+    .leave-balance-card {
+        background: white;
+        border: 1px solid #e5e7eb;
+        border-radius: 12px;
+        padding: 20px;
+        text-align: center;
+        transition: all 0.3s ease;
+    }
+    .leave-balance-card:hover {
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        transform: translateY(-2px);
+    }
+    .leave-balance-card .leave-type {
+        font-size: 0.9rem;
+        color: #6b7280;
+        font-weight: 500;
+        margin-bottom: 8px;
+    }
+    .leave-balance-card .leave-count {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #1f2937;
+    }
+    .leave-balance-card .leave-total {
+        font-size: 0.85rem;
+        color: #9ca3af;
+    }
+    
+    /* Premium Calendar Styling */
+    .fc { background: transparent !important; font-family: 'Inter', sans-serif !important; border: none !important; }
+    .fc-theme-standard td, .fc-theme-standard th { border: 1px solid #f1f5f9 !important; }
+    .fc-toolbar { margin-bottom: 1rem !important; padding: 0 10px !important; }
+    .fc-button-group { background: #f1f5f9; padding: 4px; border-radius: 12px; }
+    .fc-button-primary { background: transparent !important; border: none !important; color: #475569 !important; font-weight: 600 !important; border-radius: 8px !important; padding: 8px 16px !important; box-shadow: none !important; }
+    .fc-button-primary.fc-button-active, .fc-button-primary:hover { background: white !important; color: #4f46e5 !important; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1) !important; }
+    .fc-today-button { background: white !important; border: 1px solid #e2e8f0 !important; color: #4f46e5 !important; border-radius: 10px !important; margin-left: 12px !important; font-weight: 700 !important; }
+    .fc-col-header { background: #f8fafc; border-radius: 12px 12px 0 0; overflow: hidden; }
+    .fc-col-header-cell { padding: 8px 0 !important; border: none !important; }
+    .fc-col-header-cell-cushion { font-size: 0.75rem !important; font-weight: 700 !important; color: #94a3b8 !important; letter-spacing: 0.1em; }
+    .fc-daygrid-day { transition: all 0.2s ease; border: 1px solid #f1f5f9 !important; }
+    .fc-daygrid-day-top { flex-direction: row !important; padding: 4px 8px !important; }
+    .fc-daygrid-day-number { font-size: 0.85rem !important; font-weight: 700 !important; color: #1e293b !important; text-decoration: none !important; padding: 2px !important; }
+    .day-weekend { background-color: #fbfcfe !important; }
+    .day-today { background-color: #f0f7ff !important; border: 2px solid #3b82f6 !important; z-index: 1; }
+    .fc-day-other { background-color: #f8fafc !important; opacity: 0.3 !important; pointer-events: none !important; }
+    .fc-day-other .fc-daygrid-day-number { color: #94a3b8 !important; }
+    .fc-day-future:not(.fc-day-other) { cursor: pointer; }
+    .fc-day-future:not(.fc-day-other) .fc-daygrid-day-number { color: #1e293b !important; opacity: 1 !important; }
+    .fc-event { border-radius: 6px !important; padding: 2px 8px !important; font-size: 0.68rem !important; font-weight: 700 !important; border: none !important; margin: 2px 4px !important; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04); display: flex; align-items: center; gap: 4px; }
+    
+    /* Calendar Status Colors */
+    .status-approved { background: #dcfce7 !important; color: #15803d !important; border-left: 3px solid #22c55e !important; }
+    .status-pending { background: #fef9c3 !important; color: #a16207 !important; border-left: 3px solid #eab308 !important; }
+    .status-rejected { background: #fee2e2 !important; color: #b91c1c !important; border-left: 3px solid #ef4444 !important; }
+    .status-half-day { background: #ffedd5 !important; color: #c2410c !important; border-left: 3px solid #f97316 !important; }
+    .status-holiday { background: #dbeafe !important; color: #1d4ed8 !important; border-left: 3px solid #3b82f6 !important; }
+    
+    .calendar-legend-item { padding: 4px 10px; background: #f8fafc; border-radius: 10px; font-size: 0.7rem; color: #475569; border: 1px solid #f1f5f9; display: flex; align-items: center; gap: 6px; }
+    .legend-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const isEmployee = '{{ session.role }}' === 'employee';
+    
+    // Load Leave Balance for all roles
+    loadLeaveBalance();
+    
+    if (isEmployee) {
+        // Initialize Inline Calendar for employees
+        initializeInlineCalendar();
+    }
+    
+    // Load leave balance from API
+    function loadLeaveBalance() {
+        fetch('/api/leaves/balance')
+            .then(res => res.json())
+            .then(data => {
+                console.log('Leave Balance Data:', data); // Debug logging
+                const container = document.getElementById('leaveBalanceCards');
+                if (!container) return;
+                
+                if (data.success && (data.balances || data.summary)) {
+                    const summary = data.summary || {};
+                    const balances = data.balances || [];
+                    
+                    // Helper to get balance for a type
+                    const getBal = (type) => {
+                        // 1. Try to find in balances array
+                        const b = balances.find(item => {
+                            const ltype = (item.leave_type || '').toLowerCase();
+                            return ltype.includes(type.toLowerCase());
+                        });
+                        
+                        if (b) {
+                            const used = b.used_leaves !== undefined ? b.used_leaves : (b.used || 0);
+                            const total = b.total_leaves !== undefined ? b.total_leaves : (b.total || (used + (b.remaining_leaves || b.remaining || 0)));
+                            return { used, total };
+                        }
+                        
+                        // 2. Try to find in summary object
+                        if (type === 'total') {
+                            const used = summary.used_leaves !== undefined ? summary.used_leaves : (summary.total_used || 0);
+                            const total = summary.total_leaves !== undefined ? summary.total_leaves : (summary.total_quota || 30);
+                            return { used, total };
+                        }
+                        
+                        // Check common prefixes/suffixes in summary
+                        const used = summary[`${type}_used`] || summary[`${type}_leaves_used`] || summary[`used_${type}_leaves`] || 0;
+                        const remaining = summary[`${type}_remaining`] || summary[`${type}_leaves_remaining`] || summary[`remaining_${type}_leaves`] || summary[`${type}_leaves`] || 0;
+                        const total = summary[`${type}_total`] || summary[`${type}_leaves_total`] || (used + remaining) || 10;
+                        
+                        return { used, total };
+                    };
+
+                    const categories = [
+                        { label: 'Total Leaves', ...getBal('total') },
+                        { label: 'Casual Leaves', ...getBal('casual') },
+                        { label: 'Sick Leaves', ...getBal('sick') },
+                        { label: 'Earned Leaves', ...getBal('earned') }
+                    ];
+
+                    let html = '';
+                    categories.forEach(cat => {
+                        const remaining = cat.total - cat.used;
+                        const colorClass = cat.label.includes('Total') ? 'total' : cat.label.toLowerCase().split(' ')[0];
+                        
+                        html += `
+                            <div class="col-md-3 col-sm-6 mb-2">
+                                <div class="leave-card-mini ${colorClass}">
+                                    <div class="lc-header">
+                                        <span class="lc-label">${cat.label}</span>
+                                        <div class="text-end">
+                                            <span class="lc-fraction fw-bold">${remaining} / ${cat.total}</span>
+                                            <div style="font-size: 0.6rem; color: #94a3b8; font-weight: 700; margin-top: 1px; letter-spacing: 0.5px;">AVAILABLE</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    container.innerHTML = html;
+                } else {
+                    const msg = data.error || 'No leave balance data available';
+                    container.innerHTML = `<div class="col-12 text-center text-muted py-4">${msg}</div>`;
+                }
+            })
+            .catch(err => {
+                console.error('Error loading leave balance:', err);
+                const container = document.getElementById('leaveBalanceCards');
+                if (container) {
+                    container.innerHTML = '<div class="col-12 text-center text-danger">Failed to load leave balance</div>';
+                }
+            });
+    }
+    
+    // Initialize inline calendar
+    function initializeInlineCalendar() {
+        const calendarEl = document.getElementById('calendar');
+        if (!calendarEl) return;
+        
+        const calendar = new FullCalendar.Calendar(calendarEl, {
+            initialView: 'dayGridMonth',
+            headerToolbar: { left: 'prev,next today', center: 'title', right: '' },
+            height: 'auto',
+            contentHeight: 'auto',
+            handleWindowResize: true,
+            expandRows: true,
+            selectable: true,
+            dayCellDidMount: function(info) {
+                const dateStr = info.date.toISOString().split('T')[0];
+                const todayStr = new Date().toISOString().split('T')[0];
+                if (info.date.getDay() === 0 || info.date.getDay() === 6) {
+                    info.el.classList.add('day-weekend');
+                }
+                if (dateStr > todayStr) {
+                    info.el.classList.add('fc-day-future');
+                }
+                if (dateStr === todayStr) {
+                    info.el.classList.add('day-today');
+                }
+            },
+            events: function(fetchInfo, successCallback, failureCallback) {
+                const middleDate = new Date((fetchInfo.start.getTime() + fetchInfo.end.getTime()) / 2);
+                const year = middleDate.getFullYear();
+                const month = middleDate.getMonth() + 1;
+                fetch(`/api/leaves/calendar?year=${year}&month=${month}`)
+                    .then(res => res.json())
+                    .then(data => {
+                        if (!data.success) throw new Error(data.error);
+                        const events = [];
+                        Object.entries(data.days).forEach(([dateStr, dayData]) => {
+                            if (dayData.status === 'leave') {
+                                // Check leave status from extended props
+                                const leaveStatus = dayData.leave_status || 'approved';
+                                events.push({
+                                    title: leaveStatus === 'approved' ? 'Approved' : (leaveStatus === 'pending' ? 'Pending' : 'Rejected'),
+                                    start: dateStr,
+                                    allDay: true,
+                                    display: 'block',
+                                    extendedProps: dayData,
+                                    className: `status-${leaveStatus}`
+                                });
+                            } else if (dayData.status === 'half_day') {
+                                const periodLabel = dayData.half_day_period ? 
+                                    (dayData.half_day_period === 'first_half' ? ' (1st Half)' : ' (2nd Half)') : '';
+                                const leaveStatus = dayData.leave_status || 'approved';
+                                events.push({
+                                    title: 'Half Day' + periodLabel,
+                                    start: dateStr,
+                                    allDay: true,
+                                    display: 'block',
+                                    extendedProps: dayData,
+                                    className: 'status-half-day'
+                                });
+                            } else if (dayData.status === 'holiday') {
+                                events.push({
+                                    title: dayData.holiday.holiday_name || 'Holiday',
+                                    start: dateStr,
+                                    allDay: true,
+                                    display: 'block',
+                                    extendedProps: dayData,
+                                    className: 'status-holiday'
+                                });
+                            }
+                        });
+                        successCallback(events);
+                    })
+                    .catch(err => {
+                        console.error('Calendar error:', err);
+                        failureCallback(err);
+                    });
+            },
+            dateClick: function(info) {
+                const dateStr = info.dateStr;
+                const todayStr = new Date().toISOString().split('T')[0];
+                if (dateStr >= todayStr) {
+                    window.location.href = `/add-leave?date=${dateStr}`;
+                }
+            }
+        });
+        calendar.render();
+    }
+});
+
+function updateLeave(leaveId, status, btn) {
+    if (!confirm("Are you sure?")) return;
+    fetch(`/update-leave/${leaveId}/${status}`, { method: "PUT" })
+    .then(res => res.json())
+    .then(data => {
+        if (!data.success) throw new Error(data.error || "Failed to update leave");
+        const row = btn.closest("tr");
+        const statusCell = row.children[row.children.length - 2];
+        let badgeClass = status === "approved" ? "bg-success" : "bg-danger";
+        statusCell.innerHTML = `<span class="badge ${badgeClass}">${status}</span>`;
+        row.children[row.children.length - 1].innerHTML = "-";
+    })
+    .catch(err => { alert(err.message || "Error updating leave"); });
+}
+</script>
+{% endblock %}

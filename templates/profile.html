@@ -1,0 +1,512 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="container mt-4">
+    <div class="card-ui p-4 mb-4">
+
+        <div class="d-flex justify-content-between align-items-center">
+
+            <!-- LEFT -->
+            <div class="d-flex gap-4 align-items-center">
+
+                <!-- PROFILE PHOTO -->
+                <form method="POST" action="/upload-photo" enctype="multipart/form-data">
+                    <label style="cursor:pointer" title="Click to change photo">
+                        <img src="{% if employee.photo_url %}{{ employee.photo_url }}{% elif employee.photo %}{{ employee.photo }}{% else %}{{ url_for('static', filename='images/default.png') }}{% endif %}"
+                            width="100" height="100" class="rounded-circle"
+                            style="object-fit:cover; border:2px solid #ddd;"
+                            onerror="this.src='{{ url_for('static', filename='images/default.png') }}'">
+                        <input type="file" name="photo" hidden accept="image/png,image/jpeg,image/webp,image/gif" onchange="this.form.submit()">
+                        <input type="hidden" name="employee_id" value="{{ employee.id }}">
+                    </label>
+                </form>
+
+                <!-- DETAILS -->
+                <div>
+                    <h4 class="mb-1">{{ employee.name }}</h4>
+                    <small class="text-muted">ID: {{ employee.id }}</small>
+
+                    <div class="mt-2">
+                        <div>Email: {{ employee.email }}</div>
+                        {% if employee.get('date_of_birth') %}
+                            <div>DOB: {{ employee.date_of_birth[:11] }}</div>
+                        {% else %}
+                            <div>DOB: Not set</div>
+                        {% endif %}
+                        {% if employee.get('date_of_joining') %}
+                            <div>DOJ: {{ employee.date_of_joining[:11] }}</div>
+                        {% else %}
+                            <div>DOJ: Not set</div>
+                        {% endif %}
+                        <div>Leave Balance: {{ summary.remaining_leaves }} days</div>
+
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- RIGHT: PROGRESS -->
+            <div style="width:250px">
+
+                <label class="mb-1">Documents Completion</label>
+
+                <div class="progress" style="height:20px;">
+                    <div class="progress-bar bg-success" style="width: {{ percent }}%">
+                        {{ percent }}%
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- 🏦 BANK INFORMATION SECTION -->
+    <div class="card-ui p-4 mb-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h5 class="mb-0">Bank Information</h5>
+            <div id="bankStatusBadge">
+                {% if bank_details %}
+                    {% if bank_details.status == 'completed' %}
+                        <span class="badge bg-success"><i class="bi bi-patch-check"></i> Completed</span>
+                    {% elif bank_details.status == 'rejected' %}
+                        <span class="badge bg-danger"><i class="bi bi-x-circle"></i> Rejected</span>
+                    {% else %}
+                        <span class="badge bg-warning text-dark"><i class="bi bi-clock-history"></i> Submitted</span>
+                    {% endif %}
+                {% else %}
+                    <span class="badge bg-secondary"><i class="bi bi-exclamation-triangle"></i> Not Provided</span>
+                {% endif %}
+            </div>
+        </div>
+
+        <div id="bankView" class="{% if not bank_details or editing_bank %}d-none{% endif %}">
+            {% if bank_details and bank_details.status == 'submitted' %}
+            <div class="alert alert-info py-2 px-3 small border-0 mb-4"
+                style="background-color: #e3f2fd; color: #0d47a1;">
+                <i class="bi bi-info-circle-fill me-2"></i> Your bank details are under review. You can still update them if needed.
+            </div>
+            {% elif bank_details and bank_details.status == 'rejected' %}
+            <div class="alert alert-danger py-2 px-3 small border-0 mb-4">
+                <i class="bi bi-x-circle-fill me-2"></i> Rejected: {{ bank_details.rejection_reason or 'No reason provided' }}
+            </div>
+            {% endif %}
+
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <label class="small text-muted d-block">Account Holder</label>
+                    <span id="view_holder" class="fw-medium text-dark">{{ bank_details.account_holder_name if bank_details else '-' }}</span>
+                </div>
+                <div class="col-md-4">
+                    <label class="small text-muted d-block">Bank Name</label>
+                    <span id="view_bank" class="fw-medium text-dark">{{ bank_details.bank_name if bank_details else '-' }}</span>
+                </div>
+                <div class="col-md-4">
+                    <label class="small text-muted d-block">Account Number</label>
+                    <div class="d-flex align-items-center gap-2">
+                        <span id="view_account" class="font-monospace fw-medium text-dark" data-full="{{ bank_details.account_number if bank_details else '' }}">
+                            {% if bank_details %}
+                                ••••••{{ bank_details.account_number[-4:] if bank_details.account_number|length > 4 else bank_details.account_number }}
+                            {% else %}
+                                -
+                            {% endif %}
+                        </span>
+                        {% if bank_details %}
+                        <button class="btn btn-link p-0 text-muted" onclick="toggleAccountNumberVisibility()" title="Toggle Visibility">
+                            <i id="toggleEyeIcon" class="bi bi-eye"></i>
+                        </button>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <label class="small text-muted d-block">IFSC Code</label>
+                    <span id="view_ifsc" class="fw-medium text-dark">{{ bank_details.ifsc_code if bank_details else '-' }}</span>
+                </div>
+                <div class="col-md-4">
+                    <label class="small text-muted d-block">Branch</label>
+                    <span id="view_branch" class="fw-medium text-dark">{{ bank_details.branch_name if bank_details else '-' }}</span>
+                </div>
+            </div>
+            
+            {% if not is_hr_view %}
+            <div class="mt-4">
+                <button class="btn btn-sm btn-outline-primary" onclick="toggleBankEdit(true)">
+                    <i class="bi bi-pencil"></i> {% if bank_details %}Update Bank Details{% else %}Add Bank Details{% endif %}
+                </button>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Bank Form -->
+        <div id="bankFormContainer" class="{% if bank_details and not editing_bank %}d-none{% endif %}">
+            <form id="bankDetailsForm" class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label">Account Holder Name</label>
+                    <input type="text" class="form-control" name="account_holder_name" required
+                        value="{{ bank_details.account_holder_name if bank_details else '' }}">
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Bank Name</label>
+                    <input type="text" class="form-control" name="bank_name" required
+                        value="{{ bank_details.bank_name if bank_details else '' }}">
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Account Number</label>
+                    <div class="input-group">
+                        <input type="password" class="form-control" name="account_number" id="bank_account_input" required
+                            placeholder="Enter full account number" value="{{ bank_details.account_number if bank_details else '' }}">
+                        <button class="btn btn-outline-secondary" type="button" onclick="toggleInputVisibility('bank_account_input', this)">
+                            <i class="bi bi-eye"></i>
+                        </button>
+                    </div>
+                    <small class="text-muted">Data is stored securely and sent for verification.</small>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">IFSC Code</label>
+                    <input type="text" class="form-control" name="ifsc_code" required pattern="^[A-Z]{4}0[A-Z0-9]{6}$"
+                        title="Invalid IFSC format (e.g. SBIN0001234)"
+                        value="{{ bank_details.ifsc_code if bank_details else '' }}">
+                </div>
+                <div class="col-md-12">
+                    <label class="form-label">Branch Name</label>
+                    <input type="text" class="form-control" name="branch_name" required
+                        value="{{ bank_details.branch_name if bank_details else '' }}">
+                </div>
+                <div class="col-12 mt-4">
+                    <button type="submit" class="btn btn-primary">Submit for Verification</button>
+                    {% if bank_details %}
+                    <button type="button" class="btn btn-link text-muted"
+                        onclick="toggleBankEdit(false)">Cancel</button>
+                    {% endif %}
+                </div>
+            </form>
+        </div>
+    </div>
+
+
+    <div class="card-ui p-4">
+
+        <h5 class="mb-4">Documents</h5>
+
+        {% set doc_list = [
+        ('pan_card','PAN Card'),
+        ('aadhar_card','Aadhar Card'),
+        ('tenth_cert','10th Certificate'),
+        ('twelfth_cert','12th/Diploma'),
+        ('graduation_cert','Graduation'),
+        ('postgrad_cert','Post Graduation')
+        ] %}
+
+        {% for key, label in doc_list %}
+        <div class="d-flex justify-content-between align-items-center mb-3 border-bottom pb-2">
+
+            <!-- NAME -->
+            <div style="width:200px;">
+                <strong>{{ label }}</strong>
+            </div>
+
+            <!-- STATUS -->
+            <div style="width:150px;">
+                {% if documents and documents.get(key) %}
+                <span class="badge bg-success">Uploaded</span>
+                {% else %}
+                <span class="badge bg-danger">Missing</span>
+                {% endif %}
+            </div>
+
+            <!-- ACTION -->
+            <div style="flex:1;" class="d-flex gap-2 align-items-center">
+
+                {% if documents and documents.get(key) %}
+
+                {% if documents and documents.get(key) %}
+                <button class="btn btn-sm btn-info" onclick="previewDoc('{{ BASE_URL }}/{{ documents[key] }}')">
+                    View
+                </button>
+                {% endif %}
+
+                {% endif %}
+
+                {% if not is_hr_view %}
+                <form method="POST" action="/upload-document" enctype="multipart/form-data" class="d-flex gap-2">
+                    <input type="file" name="file" class="form-control form-control-sm" required>
+                    <input type="hidden" name="type" value="{{ key }}">
+                    <input type="hidden" name="employee_id" value="{{ employee.id }}">
+                    <button class="btn">Upload</button>
+                </form>
+                {% endif %}
+
+            </div>
+
+        </div>
+        {% endfor %}
+
+        <div class="modal fade" id="previewModal" tabindex="-1">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+
+                    <div class="modal-header">
+                        <h5 class="modal-title">Document Preview</h5>
+                        <button class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+
+                    <div class="modal-body text-center">
+
+                        <!-- IMAGE -->
+                        <img id="imgPreview" class="img-fluid rounded" style="display:none; max-height:500px;">
+
+                        <!-- PDF -->
+                        <iframe id="pdfPreview" class="w-100 border rounded"
+                            style="height:500px; display:none;"></iframe>
+
+                    </div>
+
+                </div>
+            </div>
+        </div>
+        <script>
+
+            function previewDoc(url) {
+
+                const img = document.getElementById("imgPreview");
+                const pdf = document.getElementById("pdfPreview");
+
+                img.style.display = "none";
+                pdf.style.display = "none";
+
+                // DEBUG LOG
+                console.log("Preview URL:", url);
+
+                if (url.toLowerCase().endsWith(".pdf")) {
+                    pdf.src = url;
+                    pdf.style.display = "block";
+                } else {
+                    img.src = url;
+                    img.style.display = "block";
+                }
+
+                new bootstrap.Modal(document.getElementById('previewModal')).show();
+            }
+
+            // Handle document upload with percentage update
+            function handleDocumentUpload(form) {
+                const formData = new FormData(form);
+                const submitButton = form.querySelector('button[type="submit"]');
+                const originalText = submitButton.textContent;
+
+                // Show loading state
+                submitButton.disabled = true;
+                submitButton.textContent = 'Uploading...';
+
+                fetch('/upload-document', {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            // Show success message
+                            showAlert('Document uploaded successfully!', 'success');
+
+                            // Update the document status
+                            const docType = formData.get('type');
+                            updateDocumentStatus(docType, true);
+
+                            // Update percentage
+                            updatePercentage();
+
+                            // Reset form
+                            form.reset();
+                        } else {
+                            showAlert('Upload failed: ' + (data.error || 'Unknown error'), 'danger');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Upload error:', error);
+                        showAlert('Upload failed. Please try again.', 'danger');
+                    })
+                    .finally(() => {
+                        // Reset button
+                        submitButton.disabled = false;
+                        submitButton.textContent = originalText;
+                    });
+
+                return false;
+            }
+
+            // Update document status badge
+            function updateDocumentStatus(docType, isUploaded) {
+                const badges = document.querySelectorAll('.badge');
+                badges.forEach(badge => {
+                    const row = badge.closest('.d-flex');
+                    if (row && row.textContent.includes(getDocumentLabel(docType))) {
+                        const statusBadge = row.querySelector('.badge');
+                        if (statusBadge) {
+                            if (isUploaded) {
+                                statusBadge.className = 'badge bg-success';
+                                statusBadge.textContent = 'Uploaded';
+                            } else {
+                                statusBadge.className = 'badge bg-danger';
+                                statusBadge.textContent = 'Missing';
+                            }
+                        }
+                    }
+                });
+            }
+
+            // Get document label from type
+            function getDocumentLabel(docType) {
+                const labels = {
+                    'pan_card': 'PAN Card',
+                    'aadhar_card': 'Aadhar Card',
+                    'tenth_cert': '10th Certificate',
+                    'twelfth_cert': '12th/Diploma',
+                    'graduation_cert': 'Graduation',
+                    'postgrad_cert': 'Post Graduation'
+                };
+                return labels[docType] || docType;
+            }
+
+            // Update percentage
+            function updatePercentage() {
+                const totalDocs = 6; // Total document types
+                let uploadedDocs = 0;
+
+                // Count uploaded documents specifically in the documents list
+                const docBadges = document.querySelectorAll('.border-bottom .badge.bg-success');
+                uploadedDocs = docBadges.length;
+
+                const percentage = Math.round((uploadedDocs / totalDocs) * 100);
+
+                const progressBar = document.querySelector('.progress-bar');
+                if (progressBar) {
+                    progressBar.style.width = percentage + '%';
+                    progressBar.textContent = percentage + '%';
+                }
+            }
+
+            // Show alert message
+            function showAlert(message, type) {
+                // Remove existing alerts
+                const existingAlerts = document.querySelectorAll('.alert');
+                existingAlerts.forEach(alert => alert.remove());
+
+                // Create new alert
+                const alertDiv = document.createElement('div');
+                alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
+                alertDiv.innerHTML = `
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+
+                // Insert at the top of the container
+                const container = document.querySelector('.container');
+                if (container) {
+                    container.insertBefore(alertDiv, container.firstChild);
+                }
+
+                // Auto-dismiss after 5 seconds
+                setTimeout(() => {
+                    if (alertDiv.parentNode) {
+                        alertDiv.remove();
+                    }
+                }, 5000);
+            }
+
+            // Add event listeners to all upload forms
+            document.addEventListener('DOMContentLoaded', function () {
+                // 🏦 BANK DETAILS LOGIC [NEW]
+                const bankForm = document.getElementById('bankDetailsForm');
+                if (bankForm) {
+                    bankForm.addEventListener('submit', function (e) {
+                        e.preventDefault();
+                        handleBankSubmit(this);
+                    });
+                }
+
+                const uploadForms = document.querySelectorAll('form[action="/upload-document"]');
+                uploadForms.forEach(form => {
+                    form.addEventListener('submit', function (e) {
+                        e.preventDefault();
+                        handleDocumentUpload(this);
+                    });
+                });
+            });
+
+            function toggleBankEdit(show) {
+                document.getElementById('bankView').classList.toggle('d-none', show);
+                document.getElementById('bankFormContainer').classList.toggle('d-none', !show);
+            }
+
+            function toggleAccountNumberVisibility() {
+                const el = document.getElementById('view_account');
+                const icon = document.getElementById('toggleEyeIcon');
+                const fullNum = el.getAttribute('data-full');
+                const isMasked = el.textContent.includes('•');
+
+                if (isMasked) {
+                    el.textContent = fullNum;
+                    icon.className = 'bi bi-eye-slash';
+                } else {
+                    const masked = '••••••' + fullNum.slice(-4);
+                    el.textContent = masked;
+                    icon.className = 'bi bi-eye';
+                }
+            }
+
+            function toggleInputVisibility(inputId, btn) {
+                const input = document.getElementById(inputId);
+                const icon = btn.querySelector('i');
+                if (input.type === 'password') {
+                    input.type = 'text';
+                    icon.className = 'bi bi-eye-slash';
+                } else {
+                    input.type = 'password';
+                    icon.className = 'bi bi-eye';
+                }
+            }
+
+            function handleBankSubmit(form) {
+                const formData = new FormData(form);
+                const data = Object.fromEntries(formData.entries());
+                const submitBtn = form.querySelector('button[type="submit"]');
+
+                submitBtn.disabled = true;
+                submitBtn.textContent = 'Submitting...';
+
+                fetch('/update-bank-details', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: JSON.stringify(data)
+                })
+                    .then(response => response.json())
+                    .then(result => {
+                        if (result.success) {
+                            showAlert(result.message || 'Bank details submitted and sent for verification', 'success');
+                            setTimeout(() => location.reload(), 1500);
+                        } else {
+                            showAlert('Error: ' + result.error, 'danger');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        showAlert('Failed to update bank details', 'danger');
+                    })
+                    .finally(() => {
+                        submitBtn.disabled = false;
+                        submitBtn.textContent = 'Submit for Verification';
+                    });
+            }
+        </script>
+
+    </div>
+    {% endblock %}

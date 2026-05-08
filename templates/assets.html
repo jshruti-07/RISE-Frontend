@@ -1,0 +1,827 @@
+{% extends "base.html" %}
+{% block title %}Asset Management{% endblock %}
+
+{% block content %}
+<style>
+    .asset-container {
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    .glass-card {
+        background: #ffffff;
+        border-radius: 20px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+        border: 1px solid #f1f5f9;
+        overflow: hidden;
+    }
+
+    /* Tab Styling */
+    .asset-tabs {
+        display: flex;
+        background: #f8fafc;
+        padding: 8px;
+        gap: 8px;
+        border-bottom: 1px solid #e2e8f0;
+    }
+
+    .asset-tab {
+        flex: 1;
+        padding: 12px;
+        text-align: center;
+        cursor: pointer;
+        border-radius: 12px;
+        font-weight: 700;
+        color: #64748b;
+        transition: all 0.2s;
+        border: none;
+        background: transparent;
+    }
+
+    .asset-tab.active {
+        background: white;
+        color: #4f46e5;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    }
+
+    .asset-tab:hover:not(.active) {
+        background: #f1f5f9;
+        color: #1e293b;
+    }
+
+    /* Section Styling */
+    .view-section {
+        display: none;
+        padding: 32px;
+    }
+
+    .view-section.active {
+        display: block;
+        animation: fadeIn 0.3s ease-out;
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* Form Specific Styles */
+    .section-header {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 24px;
+        padding-bottom: 12px;
+        border-bottom: 2px solid #f8fafc;
+    }
+
+    .section-icon {
+        width: 32px;
+        height: 32px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #e0f2fe;
+        color: #0369a1;
+        font-size: 1.1rem;
+    }
+
+    .section-title {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #1e293b;
+        margin: 0;
+    }
+
+    .detail-label {
+        font-size: 0.75rem;
+        font-weight: 700;
+        color: #64748b;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-bottom: 8px;
+        display: block;
+    }
+
+    .form-control,
+    .form-select {
+        border-radius: 12px;
+        padding: 12px 16px;
+        border: 1px solid #e2e8f0;
+        background-color: #f8fafc;
+        transition: all 0.2s;
+    }
+
+    .form-control:focus {
+        background-color: #fff;
+        border-color: #6366f1;
+        box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+    }
+
+    .form-control:read-only {
+        background-color: #f1f5f9;
+        cursor: not-allowed;
+    }
+
+    /* Autocomplete */
+    .autocomplete-results {
+        position: absolute;
+        z-index: 1000;
+        width: 100%;
+        background: white;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        max-height: 200px;
+        overflow-y: auto;
+        display: none;
+    }
+
+    .autocomplete-item {
+        padding: 10px 16px;
+        cursor: pointer;
+    }
+
+    .autocomplete-item:hover {
+        background: #f1f5f9;
+    }
+
+    /* Badge Styles */
+    .status-available {
+        background: #dcfce7;
+        color: #166534;
+    }
+
+    .status-assigned {
+        background: #e0f2fe;
+        color: #0369a1;
+    }
+
+    .status-maintenance {
+        background: #fee2e2;
+        color: #b91c1c;
+    }
+
+    /* History Timeline */
+    .history-item {
+        position: relative;
+        padding-left: 24px;
+        padding-bottom: 20px;
+        border-left: 2px solid #e2e8f0;
+    }
+
+    .history-item::before {
+        content: '';
+        position: absolute;
+        left: -7px;
+        top: 0;
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: white;
+        border: 2px solid #6366f1;
+    }
+
+    .history-item:last-child {
+        border-left-color: transparent;
+    }
+</style>
+
+<input type="hidden" id="sessionToken" value="{{ session.get('token', '') }}">
+
+<div class="asset-container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h3 class="fw-bold text-dark mb-1">Asset Management</h3>
+            <p class="text-muted">Track and allocate company hardware</p>
+        </div>
+        <button class="btn btn-outline-secondary rounded-pill px-4" onclick="location.href='{{ url_for('admin.helpdesk') }}'">
+            <i class="bi bi-arrow-left me-2"></i> Back to Help Desk
+        </button>
+    </div>
+
+    <div class="glass-card">
+        <!-- Tabs -->
+        <div class="asset-tabs">
+            <button class="asset-tab active" id="tabInventory" onclick="switchTab('inventory')">
+                <i class="bi bi-list-ul me-2"></i> Asset Inventory
+            </button>
+            <button class="asset-tab" id="tabAssign" onclick="switchTab('assign')">
+                <i class="bi bi-plus-circle me-2"></i> Assign New Asset
+            </button>
+        </div>
+
+        <!-- Section 1: Inventory List -->
+        <section id="sectionInventory" class="view-section active">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="bg-light">
+                        <tr>
+                            <th class="border-0 rounded-start-3">Device Name</th>
+                            <th class="border-0">Device ID</th>
+                            <th class="border-0">Device Type</th>
+                            <th class="border-0">Serial Number</th>
+                            <th class="border-0">Alloted To</th>
+                            <th class="border-0">Agreement</th>
+                            <th class="border-0 text-end rounded-end-3">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="assetsTableBody">
+                        <!-- Data loaded via JS -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Section 2: Assignment Form -->
+        <section id="sectionAssign" class="view-section">
+            <form id="assetForm">
+                <!-- Asset Details -->
+                <div class="section-header">
+                    <div class="section-icon"><i class="bi bi-box-seam"></i></div>
+                    <h5 class="section-title">Device Specification</h5>
+                </div>
+                <div class="row g-4 mb-5">
+                    <div class="col-md-6">
+                        <label class="detail-label">Device Name</label>
+                        <input type="text" class="form-control" name="device_name" required
+                            placeholder="e.g. MacBook Pro">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="detail-label">Device ID</label>
+                        <input type="text" class="form-control" name="asset_tag" required
+                            placeholder="e.g. LAP-2024-001">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="detail-label">Device Type</label>
+                        <select class="form-select" name="device_type" required>
+                            <option value="Laptop">Laptop</option>
+                            <option value="Desktop">Desktop</option>
+                            <option value="Mobile">Mobile</option>
+                            <option value="Tablet">Tablet</option>
+                            <option value="Peripherals">Peripherals</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="detail-label">Serial Number</label>
+                        <input type="text" class="form-control" name="serial_number" required placeholder="Unique SN">
+                    </div>
+                    <div class="col-md-12">
+                        <label class="detail-label">Asset Images</label>
+                        <input type="file" class="form-control" id="assetImage" accept="image/*"
+                            style="padding: 8px 16px;" multiple>
+                        <small class="text-muted">Optional: Upload one or more photos of the device.</small>
+                    </div>
+                </div>
+
+                <!-- Employee Details -->
+                <div class="section-header">
+                    <div class="section-icon"><i class="bi bi-person-badge"></i></div>
+                    <h5 class="section-title">Assignment Allocation</h5>
+                </div>
+                <div class="row g-4 mb-5">
+                    <div class="col-md-8 position-relative">
+                        <label class="detail-label">Employee Name</label>
+                        <input type="text" class="form-control" id="employeeSearch" autocomplete="off"
+                            placeholder="Search by name...">
+                        <div id="searchResults" class="autocomplete-results"></div>
+                        <input type="hidden" name="employee_name" id="selectedEmployeeName">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="detail-label">Employee ID</label>
+                        <input type="text" class="form-control" id="displayEmployeeId" readonly
+                            placeholder="Auto-filled">
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-end gap-3">
+                    <button type="button" class="btn btn-light rounded-pill px-4"
+                        onclick="switchTab('inventory')">Cancel</button>
+                    <button type="button" class="btn btn-primary rounded-pill px-4 fw-bold" id="submitBtn"
+                        onclick="handleAssignment()">
+                        Confirm & Assign Asset
+                    </button>
+                </div>
+            </form>
+        </section>
+    </div>
+</div>
+
+<!-- Detail Modal -->
+<div class="modal fade" id="assetDetailModal" tabindex="-1">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 24px; overflow: hidden;">
+            <div class="modal-body p-0">
+                <div class="row g-0">
+                    <div class="col-md-5 p-5 bg-white">
+                        <h4 class="fw-bold mb-4" id="detailAssetTag">Asset Details</h4>
+                        <div id="detailImageContainer" class="mb-4 text-center" style="display: none;">
+                            <div id="imageCarousel" class="carousel slide" data-bs-ride="carousel">
+                                <div class="carousel-inner rounded-4 shadow-sm" id="carouselInner"></div>
+                                <button class="carousel-control-prev" type="button" data-bs-target="#imageCarousel"
+                                    data-bs-slide="prev">
+                                    <span class="carousel-control-prev-icon"></span>
+                                </button>
+                                <button class="carousel-control-next" type="button" data-bs-target="#imageCarousel"
+                                    data-bs-slide="next">
+                                    <span class="carousel-control-next-icon"></span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div id="detailStatus" class="mb-4"></div>
+
+                        <div class="row g-3 mb-4">
+                            <div class="col-6">
+                                <label class="detail-label">Device</label>
+                                <div class="fw-bold" id="detailDeviceName"></div>
+                            </div>
+                            <div class="col-6">
+                                <label class="detail-label">Model</label>
+                                <div class="fw-bold" id="detailModel"></div>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="detail-label">Serial Number</label>
+                            <div class="fw-bold" id="detailSerial"></div>
+                        </div>
+
+                        <div class="p-3 bg-light rounded-4 border mb-4">
+                            <label class="detail-label text-primary">Current Owner</label>
+                            <div class="d-flex align-items-center gap-2 mt-1">
+                                <i class="bi bi-person-circle fs-4 text-primary"></i>
+                                <div id="detailEmployee">Unassigned</div>
+                            </div>
+                        </div>
+
+                        <div class="p-3 bg-light rounded-4 border mb-4" id="detailAgreementSection" style="display: none;">
+                            <label class="detail-label text-warning">Device Usage Agreement</label>
+                            <div id="detailAgreementStatus" class="mt-1"></div>
+                            <div id="detailAgreementAction" class="mt-2"></div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="detail-label">Device ID</label>
+                            <div class="fw-bold text-primary" id="detailDeviceId"></div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="detail-label">Device Type</label>
+                            <div class="fw-bold" id="detailDeviceType"></div>
+                        </div>
+
+                        <div class="mt-4">
+                            <label class="detail-label">Update Owner</label>
+                            <div class="d-flex gap-2">
+                                <select class="form-select" id="reassignSelect"></select>
+                                <button class="btn btn-primary fw-bold" onclick="reassignAsset()">Update</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-7 p-5 bg-light border-start">
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <h5 class="fw-bold m-0">Activity History</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div id="assetHistory" class="no-scrollbar mb-5" style="max-height: 300px; overflow-y: auto;"></div>
+                        
+                        <div class="pt-4 border-top">
+                            <h5 class="fw-bold mb-4">Related Helpdesk Tickets</h5>
+                            <div id="assetTickets" class="no-scrollbar" style="max-height: 300px; overflow-y: auto;">
+                                <p class="text-muted small">Loading tickets...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let employees = [];
+    let currentAssetId = null;
+
+    function getHeaders() {
+        return {
+            'Authorization': `Bearer ${document.getElementById('sessionToken').value}`,
+            'Content-Type': 'application/json'
+        };
+    }
+
+    function switchTab(tab) {
+        document.querySelectorAll('.asset-tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.view-section').forEach(s => s.classList.remove('active'));
+
+        if (tab === 'inventory') {
+            document.getElementById('tabInventory').classList.add('active');
+            document.getElementById('sectionInventory').classList.add('active');
+            loadAssets();
+        } else {
+            document.getElementById('tabAssign').classList.add('active');
+            document.getElementById('sectionAssign').classList.add('active');
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const urlParams = new URLSearchParams(window.location.search);
+        
+        // Load employees first, THEN load assets to ensure name lookup works
+        loadEmployees().then(() => {
+            if (urlParams.get('action') === 'assign') {
+                switchTab('assign');
+            } else {
+                loadAssets();
+            }
+        });
+    });
+
+    // --- INVENTORY LOGIC ---
+    function loadAssets() {
+        fetch('/api/assets/', { headers: getHeaders() })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) renderAssets(data.assets);
+            });
+    }
+
+    function renderAssets(assets) {
+        const tbody = document.getElementById('assetsTableBody');
+        if (!assets || assets.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="6" class="text-center py-5 text-muted">No assets registered.</td></tr>';
+            return;
+        }
+
+        tbody.innerHTML = assets.map(a => {
+            const deviceName = a.device_name || a.brand || 'Unknown';
+            const deviceId = a.id || 'N/A';
+            const deviceType = a.device_type || 'N/A';
+            const serialNumber = a.serial_number || 'N/A';
+            
+            // Identify ID from common variations
+            const empId = a.employee_id || a.assigned_to || a.user_id || a.emp_id || a.allotted_to || a.allotted_id;
+            const isAssigned = (a.status && (a.status.toLowerCase() === 'assigned' || a.status.toLowerCase() === 'allotted')) || !!empId;
+            
+            let allottedDisplay = '<span class="text-muted small">Available</span>';
+            
+            if (isAssigned) {
+                const emp = (empId && typeof employees !== 'undefined') ? employees.find(e => String(e.id) === String(empId)) : null;
+                let empName = emp ? emp.name : 'Assigned';
+                
+                // Display name starting from the 3rd character (index 2) to remove prefixes like "T_" or "H_"
+                const formattedName = empName.length > 2 ? empName.substring(2) : empName;
+                
+                const displayId = empId || (emp ? emp.id : 'N/A');
+                allottedDisplay = `<div><strong>${formattedName}</strong></div><div class="small text-muted">ID: ${displayId}</div>`;
+            }
+
+            return `
+                <tr>
+                    <td><span class="fw-bold text-dark">${deviceName}</span></td>
+                    <td><code class="small text-primary fw-bold">${deviceId}</code></td>
+                    <td><span class="text-muted small">${deviceType}</span></td>
+                    <td><span class="text-muted small font-monospace">${serialNumber}</span></td>
+                    <td>${allottedDisplay}</td>
+                    <td id="ag-status-${deviceId}">
+                        ${isAssigned ? '<span class="spinner-border spinner-border-sm text-primary opacity-50"></span>' : '<span class="text-muted small">N/A</span>'}
+                    </td>
+                    <td class="text-end">
+                        <div class="d-flex justify-content-end gap-1">
+                            <button class="btn btn-sm btn-outline-primary rounded-pill px-3 fw-bold" onclick="viewAsset('${deviceId}')">Details</button>
+                            <button class="btn btn-sm btn-outline-danger rounded-pill px-2" onclick="deleteAsset('${deviceId}')" title="Delete Device">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `;
+        }).join('');
+
+        // Fetch Agreement Status for all assigned assets
+        assets.forEach(a => {
+            const deviceId = a.id || a.device_id;
+            const empId = a.employee_id || a.assigned_to || a.user_id || a.emp_id || a.allotted_to || a.allotted_id;
+            const isAssigned = (a.status && (a.status.toLowerCase() === 'assigned' || a.status.toLowerCase() === 'allotted')) || !!empId;
+            
+            if (isAssigned && deviceId) {
+                fetch(`/api/assets/${deviceId}/acceptance-status`, { headers: getHeaders() })
+                    .then(r => r.json())
+                    .then(data => {
+                        const cell = document.getElementById(`ag-status-${deviceId}`);
+                        if (!cell) return;
+                        
+                        if (data.success && data.status) {
+                            if (data.status.acceptance_status === 'accepted') {
+                                cell.innerHTML = '<span class="badge bg-success-subtle text-success rounded-pill border border-success-subtle"><i class="bi bi-check-circle-fill me-1"></i>Signed</span>';
+                            } else if (data.status.acceptance_status === 'rejected') {
+                                cell.innerHTML = '<span class="badge bg-danger-subtle text-danger rounded-pill border border-danger-subtle"><i class="bi bi-x-circle-fill me-1"></i>Rejected</span>';
+                            } else {
+                                cell.innerHTML = '<span class="badge bg-warning-subtle text-warning rounded-pill border border-warning-subtle"><i class="bi bi-clock-fill me-1"></i>Pending</span>';
+                            }
+                        } else {
+                            cell.innerHTML = '<span class="text-muted small">Unknown</span>';
+                        }
+                    })
+                    .catch(() => {
+                        const cell = document.getElementById(`ag-status-${deviceId}`);
+                        if (cell) cell.innerHTML = '<span class="text-muted small">Error</span>';
+                    });
+            }
+        });
+    }
+
+    // --- ASSIGNMENT LOGIC ---
+    const searchInput = document.getElementById('employeeSearch');
+    const resultsDiv = document.getElementById('searchResults');
+    const nameHidden = document.getElementById('selectedEmployeeName');
+    const idField = document.getElementById('displayEmployeeId');
+
+    function loadEmployees() {
+        return fetch('/api/employees', { headers: getHeaders() })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    employees = data.employees;
+                    document.getElementById('reassignSelect').innerHTML = '<option value="">-- Unassign --</option>' +
+                        employees.map(e => `<option value="${e.id}">${e.name}</option>`).join('');
+                }
+            });
+    }
+
+    searchInput.addEventListener('input', (e) => {
+        const val = e.target.value.toLowerCase();
+        resultsDiv.innerHTML = '';
+        if (!val) { resultsDiv.style.display = 'none'; return; }
+
+        const filtered = employees.filter(emp => emp.name.toLowerCase().includes(val));
+        if (filtered.length > 0) {
+            resultsDiv.innerHTML = filtered.map(emp => `
+                <div class="autocomplete-item" onclick="selectEmployee('${emp.name}', '${emp.id}')">
+                    <div class="fw-bold">${emp.name}</div>
+                    <div class="small text-muted">ID: ${emp.id}</div>
+                </div>
+            `).join('');
+            resultsDiv.style.display = 'block';
+        } else {
+            resultsDiv.style.display = 'none';
+        }
+    });
+
+    function selectEmployee(name, id) {
+        searchInput.value = name;
+        nameHidden.value = name;
+        idField.value = id;
+        resultsDiv.style.display = 'none';
+    }
+
+    async function handleAssignment() {
+        const form = document.getElementById('assetForm');
+        const formData = new FormData();
+
+        // Manual collection to handle all fields correctly for saving
+        formData.append('device_name', form.device_name.value);
+        formData.append('device_type', form.device_type.value);
+        formData.append('serial_number', form.serial_number.value);
+        formData.append('asset_tag', form.asset_tag.value);
+
+        const imageFiles = document.getElementById('assetImage').files;
+        for (let i = 0; i < imageFiles.length; i++) {
+            formData.append('images', imageFiles[i]);
+        }
+
+        const employeeId = document.getElementById('displayEmployeeId').value;
+        const employeeName = document.getElementById('selectedEmployeeName').value;
+
+        const btn = document.getElementById('submitBtn');
+        btn.disabled = true;
+        btn.innerHTML = 'Processing...';
+
+        try {
+            // Step 1: Create Asset
+            const createRes = await fetch('/api/assets', {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${document.getElementById('sessionToken').value}` },
+                body: formData
+            });
+            const createData = await createRes.json();
+            if (!createData.success) throw new Error(createData.error);
+
+            // Step 2: Assign Asset (Backend stores ID)
+            const assignRes = await fetch(`/api/assets/${createData.asset.id}/assign`, {
+                method: 'POST',
+                headers: getHeaders(),
+                body: JSON.stringify({ 
+                    employee_id: employeeId,
+                    employee_name: employeeName // Still sending for good measure
+                })
+            });
+            const assignData = await assignRes.json();
+            if (!assignData.success) throw new Error(assignData.error);
+
+            alert('Success!');
+            form.reset();
+            switchTab('inventory');
+        } catch (err) {
+            alert('Error: ' + err.message);
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = 'Confirm & Assign Asset';
+        }
+    }
+
+    // --- DETAIL LOGIC ---
+    function viewAsset(id) {
+        currentAssetId = id;
+        fetch(`/api/assets/${id}`, { headers: getHeaders() })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    displayAsset(data.asset);
+
+                    // Fetch History
+                    fetch(`/api/assets/${id}/history`, { headers: getHeaders() })
+                        .then(r => r.json())
+                        .then(hData => {
+                            const cont = document.getElementById('assetHistory');
+                            cont.innerHTML = (hData.history || []).map(h => `
+                                <div class="history-item">
+                                    <div class="fw-bold small">${(h.action || 'update').replace('_', ' ')}</div>
+                                    <div class="small text-muted">${new Date(h.timestamp).toLocaleString()}</div>
+                                    <div class="small">${h.details || ''}</div>
+                                </div>
+                            `).join('') || '<p class="text-muted small">No history available for this asset.</p>';
+                        });
+
+                    // Fetch Related Tickets
+                    fetch(`/api/helpdesk/?search=${id}`, { headers: getHeaders() })
+                        .then(r => r.json())
+                        .then(tData => {
+                            const cont = document.getElementById('assetTickets');
+                            if (tData.success && tData.tickets && tData.tickets.length > 0) {
+                                cont.innerHTML = tData.tickets.map(t => `
+                                    <div class="p-3 bg-white border rounded-4 mb-2 shadow-sm">
+                                        <div class="d-flex justify-content-between">
+                                            <span class="fw-bold text-primary small">#${t.ticket_ref}</span>
+                                            <span class="badge-soft status-${t.status} small" style="font-size: 0.65rem;">${t.status}</span>
+                                        </div>
+                                        <div class="fw-bold small mt-1">${t.title}</div>
+                                        <div class="text-muted" style="font-size: 0.7rem;">${new Date(t.created_at).toLocaleDateString()}</div>
+                                    </div>
+                                `).join('');
+                            } else {
+                                cont.innerHTML = '<p class="text-muted small">No related helpdesk tickets found.</p>';
+                            }
+                        });
+
+                    bootstrap.Modal.getOrCreateInstance(document.getElementById('assetDetailModal')).show();
+                } else {
+                    alert('Error loading asset: ' + data.error);
+                }
+            })
+            .catch(err => {
+                console.error('Fetch Error:', err);
+                alert('Failed to connect to asset service.');
+            });
+    }
+
+    function displayAsset(a) {
+        // 1. Identify the Employee ID (Comprehensive scan)
+        let assignedId = a.employee_id || a.employeeId || a.emp_id || a.empId || 
+                         a.assigned_employee_id || a.assignedEmployeeId || 
+                         a.user_id || a.userId || a.owner_id ||
+                         a.allotted_to || a.allotted_id || a.allottedTo ||
+                         a.assigned_to || a.assignedTo;
+
+        // Deep scan fallback
+        if (!assignedId) {
+            for (let key in a) {
+                const k = key.toLowerCase();
+                if ((k.includes('emp') || k.includes('user') || k.includes('allot') || k.includes('assign') || k.includes('holder')) && !k.includes('asset') && !k.includes('device') && k !== 'id') {
+                    const val = a[key];
+                    if (val && (typeof val === 'number' || (typeof val === 'string' && !isNaN(val)))) {
+                        assignedId = val;
+                        break;
+                    }
+                }
+            }
+        }
+        if (!assignedId && a.assigned_to && typeof a.assigned_to === 'object') assignedId = a.assigned_to.id;
+        if (!assignedId && a.employee && typeof a.employee === 'object') assignedId = a.employee.id;
+
+        // 2. Resolve the Name
+        let assignedName = a.employee_name || a.assigned_employee || a.assigned_to_name || a.holder_name || a.allotted_employee ||
+                            (a.employee && a.employee.name ? a.employee.name : '') ||
+                            (typeof a.assigned_to === 'string' && isNaN(a.assigned_to) ? a.assigned_to : (a.assigned_to && a.assigned_to.name ? a.assigned_to.name : ''));
+        
+        // Lookup fallback
+        if (!assignedName && assignedId && typeof employees !== 'undefined') {
+            const emp = employees.find(e => String(e.id) === String(assignedId));
+            if (emp) assignedName = emp.name;
+        }
+        
+        document.getElementById('reassignSelect').value = a.employee_id || '';
+
+        // --- AGREEMENT STATUS ---
+        const agSection = document.getElementById('detailAgreementSection');
+        const agStatus = document.getElementById('detailAgreementStatus');
+        const agAction = document.getElementById('detailAgreementAction');
+
+        if (isAssigned && (a.id || a.device_id)) {
+            agSection.style.display = 'block';
+            agStatus.innerHTML = '<span class="spinner-border spinner-border-sm text-warning"></span>';
+            agAction.innerHTML = '';
+
+            fetch(`/api/assets/${a.id || a.device_id}/acceptance-status`, { headers: getHeaders() })
+                .then(r => r.json())
+                .then(data => {
+                    if (data.success && data.status) {
+                        const status = data.status.acceptance_status;
+                        if (status === 'accepted') {
+                            agStatus.innerHTML = '<span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-3"><i class="bi bi-check-circle-fill me-1"></i>SIGNED</span>';
+                            agAction.innerHTML = `<button class="btn btn-sm btn-outline-primary rounded-pill w-100 mt-2" onclick="window.open('/assets/agreement/${a.id || a.device_id}')">View Signed Agreement</button>`;
+                        } else {
+                            agStatus.innerHTML = '<span class="badge bg-warning-subtle text-warning border border-warning-subtle rounded-pill px-3"><i class="bi bi-clock-fill me-1"></i>PENDING SIGNATURE</span>';
+                            agAction.innerHTML = `<button class="btn btn-sm btn-warning rounded-pill w-100 mt-2" onclick="alert('Reminder Sent to Employee')">Send Reminder</button>`;
+                        }
+                    } else {
+                        agStatus.innerHTML = '<span class="text-muted small">Not initiated</span>';
+                    }
+                })
+                .catch(() => { agStatus.innerHTML = '<span class="text-danger small">Error loading status</span>'; });
+        } else {
+            agSection.style.display = 'none';
+        }
+
+        const imgCont = document.getElementById('detailImageContainer');
+        const inner = document.getElementById('carouselInner');
+
+        const images = a.image_urls || (a.image_url ? [a.image_url] : []);
+
+        if (images.length > 0) {
+            inner.innerHTML = images.map((url, i) => `
+                <div class="carousel-item ${i === 0 ? 'active' : ''}">
+                    <img src="${url.startsWith('http') ? url : window.location.origin + url}" class="d-block w-100 rounded-4" style="max-height: 250px; object-fit: cover;">
+                </div>
+            `).join('');
+            imgCont.style.display = 'block';
+
+            // Hide controls if only one image
+            document.querySelectorAll('.carousel-control-prev, .carousel-control-next').forEach(btn => {
+                btn.style.display = images.length > 1 ? 'flex' : 'none';
+            });
+        } else {
+            imgCont.style.display = 'none';
+        }
+    }
+
+    function reassignAsset() {
+        const select = document.getElementById('reassignSelect');
+        const empId = select.value;
+        const empName = empId ? select.options[select.selectedIndex].text : '';
+
+        fetch(`/api/assets/${currentAssetId}/assign`, {
+            method: 'POST',
+            headers: getHeaders(),
+            body: JSON.stringify({ 
+                employee_id: empId,
+                employee_name: empName 
+            })
+        }).then(() => { 
+            alert('Updated!'); 
+            viewAsset(currentAssetId); 
+            loadAssets(); 
+        });
+    }
+
+    function deleteAsset(id) {
+        if (!confirm('Are you sure you want to delete this device permanently?')) return;
+        
+        fetch(`/api/assets/${id}`, {
+            method: 'DELETE',
+            headers: getHeaders()
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                alert('Device deleted successfully');
+                loadAssets();
+            } else {
+                alert('Error deleting device: ' + data.error);
+            }
+        })
+        .catch(err => {
+            console.error('Delete Error:', err);
+            alert('Failed to delete device.');
+        });
+    }
+</script>
+{% endblock %}

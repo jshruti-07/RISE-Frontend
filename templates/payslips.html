@@ -1,0 +1,240 @@
+{% extends "base.html" %}
+{% block title %}Payslips{% endblock %}
+
+{% block content %}
+<div class="form-card">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h5>
+            <i class="bi bi-file-earmark-text me-2"></i>
+            My Payslips
+        </h5>
+        {% if session.role == 'manager' %}
+        <small class="text-muted">
+            <i class="bi bi-info-circle me-1"></i>
+            Viewing all team members' payslips
+        </small>
+        {% endif %}
+    </div>
+
+    {% if error %}
+        <div class="row">
+            <div class="col-12">
+                <div class="alert alert-danger">
+                    <i class="bi bi-exclamation-triangle me-2"></i>
+                    {{ error }}
+                </div>
+            </div>
+        </div>
+    {% elif payslips %}
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead class="table-light">
+                    <tr>
+                        {% if session.role == 'manager' %}
+                        <th>Employee Name</th>
+                        {% endif %}
+                        <th>Month</th>
+                        <th>Year</th>
+                        <th>Created Date</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for payslip in payslips %}
+                    <tr>
+                        {% if session.role == 'manager' %}
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <i class="bi bi-person-circle me-2 text-muted"></i>
+                                {{ payslip.employee_name }}
+                            </div>
+                        </td>
+                        {% endif %}
+                        <td>
+                            <span class="badge bg-info">
+                                {{ payslip.month|title }}
+                            </span>
+                        </td>
+                        <td>{{ payslip.year }}</td>
+                        <td>
+                            <small class="text-muted">
+                                {{ payslip.created_at[:10] if payslip.created_at else 'N/A' }}
+                            </small>
+                        </td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-primary" onclick="downloadPayslip({{ payslip.id }})">
+                                <i class="bi bi-download me-1"></i>
+                                Download
+                            </button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        {% if not payslips %}
+        <div class="text-center py-5">
+            <i class="bi bi-file-earmark-text display-4 text-muted"></i>
+            <p class="text-muted mt-3">No payslips found</p>
+            <small class="text-muted">
+                {% if session.role == 'manager' %}
+                No payslips have been uploaded for any team members yet.
+                {% else %}
+                No payslips have been uploaded for you yet.
+                {% endif %}
+            </small>
+        </div>
+        {% endif %}
+    {% else %}
+        <div class="text-center py-5">
+            <i class="bi bi-file-earmark-text display-4 text-muted"></i>
+            <p class="text-muted mt-3">No payslips available</p>
+            <small class="text-muted">
+                {% if session.role == 'manager' %}
+                Payslips will appear here once they are uploaded by HR.
+                {% else %}
+                Your payslips will appear here once they are uploaded by HR.
+                {% endif %}
+            </small>
+        </div>
+    {% endif %}
+</div>
+
+<!-- Hidden input to store session token for API calls -->
+<input type="hidden" id="sessionToken" value="{{ session.get('token', '') }}">
+
+<script>
+function downloadPayslip(payslipId) {
+    console.log('Downloading payslip:', payslipId);
+    
+    var token = getToken();
+    if (!token) {
+        alert('Authentication token not found. Please refresh the page and try again.');
+        return;
+    }
+    
+    // Show loading state
+    var downloadBtn = event.target.closest('button');
+    var originalContent = downloadBtn.innerHTML;
+    downloadBtn.innerHTML = '<i class="bi bi-hourglass-split me-1"></i> Downloading...';
+    downloadBtn.disabled = true;
+    
+    // Create download URL
+    var downloadUrl = `${BASE_URL}/payslips/download/${payslipId}`;
+    
+    console.log('Download URL:', downloadUrl);
+    
+    // Fetch the payslip file
+    fetch(downloadUrl, {
+        method: 'GET',
+        headers: {
+            'Authorization': 'Bearer ' + token
+        }
+    })
+    .then(response => {
+        console.log('Download response status:', response.status);
+        
+        if (response.ok) {
+            // Get filename from Content-Disposition header or use default
+            var filename = 'payslip.pdf';
+            var contentDisposition = response.headers.get('Content-Disposition');
+            if (contentDisposition) {
+                var filenameMatch = contentDisposition.match(/filename="?([^"]+)"?/);
+                if (filenameMatch) {
+                    filename = filenameMatch[1];
+                }
+            }
+            
+            return response.blob().then(blob => {
+                // Create download link
+                var url = window.URL.createObjectURL(blob);
+                var a = document.createElement('a');
+                a.href = url;
+                a.download = filename;
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+                
+                console.log('Download completed successfully');
+            });
+        } else {
+            return response.json().then(data => {
+                throw new Error(data.error || 'Download failed');
+            });
+        }
+    })
+    .catch(error => {
+        console.error('Download error:', error);
+        alert('Error downloading payslip: ' + error.message);
+    })
+    .finally(() => {
+        // Restore button state
+        downloadBtn.innerHTML = originalContent;
+        downloadBtn.disabled = false;
+    });
+}
+
+function getToken() {
+    // Get token from hidden input field
+    var tokenInput = document.getElementById('sessionToken');
+    return tokenInput ? tokenInput.value : '';
+}
+
+// Add table row hover effects
+document.addEventListener('DOMContentLoaded', function() {
+    var tableRows = document.querySelectorAll('tbody tr');
+    tableRows.forEach(function(row) {
+        row.addEventListener('mouseenter', function() {
+            this.style.backgroundColor = '#f8f9fa';
+        });
+        row.addEventListener('mouseleave', function() {
+            this.style.backgroundColor = '';
+        });
+    });
+});
+</script>
+
+<style>
+.table-hover tbody tr:hover {
+    background-color: #f8f9fa;
+    cursor: pointer;
+}
+
+.btn-outline-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0,123,255,0.2);
+}
+
+.badge {
+    font-size: 0.75rem;
+    padding: 0.35rem 0.65rem;
+}
+
+.text-muted {
+    font-size: 0.875rem;
+}
+
+.display-4 {
+    font-size: 3rem;
+}
+
+.table-responsive {
+    border-radius: 0.375rem;
+    box-shadow: 0 0.125rem 0.25rem rgba(0,0,0,0.075);
+}
+
+.table {
+    margin-bottom: 0;
+}
+
+.table th {
+    border-top: none;
+    font-weight: 600;
+    color: #495057;
+    background-color: #f8f9fa;
+}
+</style>
+
+{% endblock %}

@@ -1,0 +1,445 @@
+{% extends "base.html" %}
+{% block title %}Weekly Timesheet{% endblock %}
+
+{% block content %}
+<input type="hidden" id="empName" value="{{ session.get('employee_name', '') }}">
+<input type="hidden" id="sessionToken" value="{{ session.get('token', '') }}">
+<div class="form-card" style="background: transparent; border: none; padding: 0;">
+    <!-- Header Navigation -->
+    <div class="d-flex justify-content-between align-items-center mb-4 p-4 bg-white rounded-4 shadow-sm">
+        <div class="d-flex align-items-center gap-3">
+            <h5 class="mb-0 fw-bold">Timesheet</h5>
+            <div class="pill-toggle">
+                <button class="btn btn-sm" onclick="location.href='/timesheets'">Daily</button>
+                <button class="btn btn-sm active">Weekly</button>
+            </div>
+        </div>
+
+        <div class="d-flex align-items-center gap-4">
+            <div class="d-flex gap-3 small text-muted fw-bold text-uppercase"
+                style="letter-spacing: 0.05em; font-size: 0.75rem;">
+                <span class="d-flex align-items-center gap-1"><span
+                        style="width:10px; height:10px; background:#e9d5ff; border-radius:50%; display:inline-block;"></span>
+                    Leave</span>
+                <span class="d-flex align-items-center gap-1"><span
+                        style="width:10px; height:10px; background:#fef3c7; border-radius:50%; display:inline-block;"></span>
+                    Holiday</span>
+                <span class="d-flex align-items-center gap-1"><span
+                        style="width:10px; height:10px; background:#f1f5f9; border-radius:50%; display:inline-block;"></span>
+                    Weekly Off</span>
+            </div>
+            <button class="btn btn-outline-secondary btn-sm rounded-circle shadow-sm border-0 bg-light p-2"
+                onclick="location.href='/timesheets'">
+                <i class="bi bi-x-lg px-1"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Main Grid -->
+    <div class="bg-white rounded-4 shadow-sm overflow-hidden mb-4">
+        <div class="table-responsive">
+            <table class="table table-bordered mb-0 align-middle text-center" id="weeklyTable"
+                style="min-width: 1200px; border-color: #f1f5f9;">
+                <thead style="background: #f8fafc;">
+                    <tr class="align-middle">
+                        <th
+                            style="width: 150px; padding: 18px 10px; color: #475569; font-weight: 700; text-transform: uppercase; font-size: 0.8rem;">
+                            Project</th>
+                        <th
+                            style="width: 150px; color: #475569; font-weight: 700; text-transform: uppercase; font-size: 0.8rem;">
+                            Task</th>
+                        <th
+                            style="width: 140px; color: #475569; font-weight: 700; text-transform: uppercase; font-size: 0.8rem;">
+                            Status</th>
+
+                        <!-- Mon-Fri -->
+                        {% for day in ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'] %}
+                        <th class="day-header" style="width: 140px;" data-idx="{{ loop.index0 }}">
+                            <div class="d-flex align-items-center justify-content-center gap-2">
+                                {% if loop.first %}<i class="bi bi-chevron-left cursor-pointer text-primary"
+                                    onclick="changeWeek(-1)"></i>{% endif %}
+                                <div>
+                                    <div class="small fw-normal text-muted">{{ day }}</div>
+                                    <div class="date-lbl fw-bold small text-dark"></div>
+                                </div>
+                                {% if loop.last %}<div style="width: 15px;"></div>{% endif %}
+                            </div>
+                        </th>
+                        {% endfor %}
+
+                        <!-- Sat-Sun (Weekly Off) -->
+                        <th class="day-header bg-light bg-opacity-50" style="width: 140px;" data-idx="5"
+                            style="color: #64748b;">
+                            <div class="small fw-normal">Sat</div>
+                            <div class="date-lbl fw-bold small"></div>
+                        </th>
+                        <th class="day-header bg-light bg-opacity-50" style="width: 140px;" data-idx="6"
+                            style="color: #64748b;">
+                            <div class="d-flex align-items-center justify-content-center gap-2">
+                                <div>
+                                    <div class="small fw-normal">Sun</div>
+                                    <div class="date-lbl fw-bold small"></div>
+                                </div>
+                                <i class="bi bi-chevron-right cursor-pointer text-primary" onclick="changeWeek(1)"></i>
+                            </div>
+                        </th>
+                        <th
+                            style="width: 100px; color: #475569; font-weight: 700; text-transform: uppercase; font-size: 0.8rem;">
+                            Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="ts-row">
+                        <td class="p-3">
+                            <select
+                                class="form-select border-0 bg-light rounded-3 project-sel shadow-none py-2 px-3 fw-semibold text-dark">
+                                <option value="">Select Project</option>
+                                {% for p in projects %}
+                                <option value="{{ p.name }}">{{ p.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </td>
+                        <td class="p-3">
+                            <input type="text"
+                                class="form-control border-0 bg-light rounded-3 task-inp shadow-none py-2 px-3 fw-medium"
+                                placeholder="Task description...">
+                        </td>
+                        <td class="text-center p-3">
+                            <button class="btn btn-primary btn-sm rounded-pill fw-bold w-100 py-2 shadow-sm"
+                                style="background: #0a038c; border: none;" onclick="submitRow(this)">
+                                Submit
+                            </button>
+                        </td>
+
+                        <!-- Mon-Fri Inputs -->
+                        {% for i in range(5) %}
+                        <td class="p-2">
+                            <div class="d-flex flex-column gap-2">
+                                <input type="text"
+                                    class="form-control day-inp border-0 bg-light text-center rounded-2 py-3 shadow-none"
+                                    value="0:00" data-day="{{ i }}" onfocus="this.select()">
+                                <textarea class="form-control desc-inp border-0 bg-white rounded-2 small text-muted p-2"
+                                    style="font-size: 0.7rem; height: 60px; resize: none;" placeholder="Activity..."
+                                    data-day="{{ i }}"></textarea>
+                            </div>
+                        </td>
+                        {% endfor %}
+
+                        <!-- Sat-Sun (Readonly) -->
+                        {% for i in range(5, 7) %}
+                        <td class="p-2 bg-light bg-opacity-50">
+                            <div class="d-flex flex-column gap-2 opacity-50">
+                                <input type="text"
+                                    class="form-control day-inp border-0 bg-white text-center rounded-2 py-3"
+                                    value="0:00" data-day="{{ i }}" readonly>
+                                <textarea class="form-control desc-inp border-0 bg-white rounded-2 small p-2"
+                                    style="font-size: 0.7rem; height: 60px; resize: none;" value="-"
+                                    readonly></textarea>
+                            </div>
+                        </td>
+                        {% endfor %}
+
+                        <td class="text-center fw-bold row-tot fs-6 text-dark p-3">00:00</td>
+                    </tr>
+                </tbody>
+                <tfoot class="fw-bold bg-light">
+                    <tr>
+                        <td colspan="3" class="text-end py-4 px-3 text-muted text-uppercase small"
+                            style="letter-spacing: 0.1em;">Daily Total</td>
+                        {% for i in range(5) %}
+                        <td class="col-tot py-4" data-day="{{ i }}">00:00</td>
+                        {% endfor %}
+                        <td class="col-tot py-4 bg-white bg-opacity-50" data-day="5">00:00</td>
+                        <td class="col-tot py-4 bg-white bg-opacity-50" data-day="6">00:00</td>
+                        <td class="grand-tot py-4 fs-5 text-primary border-0" style="background: #fefeff;">00:00</td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Premium Toggle Style */
+    .pill-toggle {
+        background: #f1f5f9;
+        padding: 4px;
+        border-radius: 12px;
+        display: flex;
+        gap: 2px;
+    }
+
+    .pill-toggle .btn {
+        border-radius: 8px;
+        border: none;
+        font-weight: 600;
+        font-size: 0.75rem;
+        padding: 6px 20px;
+        color: #64748b;
+        background: transparent;
+    }
+
+    .pill-toggle .btn.active {
+        background: white;
+        color: #4f46e5;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    }
+
+    .day-header {
+        padding: 15px 5px !important;
+    }
+
+    .date-lbl {
+        font-size: 0.8rem;
+    }
+
+    .day-inp {
+        height: 40px;
+        font-weight: 600;
+        font-size: 0.85rem;
+    }
+
+    .day-inp:not([readonly]):focus {
+        background: white !important;
+        box-shadow: 0 0 0 2px #4f46e5 !important;
+        outline: none;
+        z-index: 10;
+        cursor: text;
+    }
+
+    .desc-inp:not([readonly]):focus {
+        background: #fff !important;
+        box-shadow: 0 0 0 2px #4f46e5 !important;
+        z-index: 10;
+    }
+
+    .cursor-pointer {
+        cursor: pointer;
+        transition: color 0.2s;
+    }
+
+    .cursor-pointer:hover {
+        color: #4338ca !important;
+    }
+
+    .table td {
+        border-color: #f1f5f9 !important;
+    }
+
+    /* Status Backgrounds */
+    .status-leave { 
+        background-color: #e9d5ff !important; 
+    }
+    .status-holiday { 
+        background-color: #fef3c7 !important; 
+    }
+    .status-weekly-off { 
+        background-color: #f1f5f9 !important; 
+    }
+</style>
+
+<script>
+    let offset = 0;
+    async function updateDates() {
+        const today = new Date();
+        const monday = new Date(today);
+        const day = today.getDay();
+        const diff = today.getDate() - day + (day === 0 ? -6 : 1) + (offset * 7);
+        monday.setDate(diff);
+
+        const labels = document.querySelectorAll('.date-lbl');
+        const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        
+        // Determine months to fetch
+        const startDate = new Date(monday);
+        const endDate = new Date(monday);
+        endDate.setDate(monday.getDate() + 6);
+        
+        const monthYearPairs = new Set();
+        monthYearPairs.add(`${startDate.getFullYear()}-${startDate.getMonth() + 1}`);
+        monthYearPairs.add(`${endDate.getFullYear()}-${endDate.getMonth() + 1}`);
+        
+        const token = document.getElementById('sessionToken').value;
+        let allDayStatus = {};
+        for (const pair of monthYearPairs) {
+            const [y, m] = pair.split('-');
+            try {
+                const res = await fetch(`/api/timesheets/calendar?year=${y}&month=${m}`, {
+                    headers: { 'Authorization': 'Bearer ' + token }
+                });
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data.success && data.days) {
+                        allDayStatus = { ...allDayStatus, ...data.days };
+                    }
+                }
+            } catch (err) {
+                console.error("Error fetching calendar data:", err);
+            }
+        }
+
+        labels.forEach((label, i) => {
+            const d = new Date(monday);
+            d.setDate(monday.getDate() + i);
+            const iso = d.toISOString().split('T')[0];
+            label.textContent = `${d.getDate().toString().padStart(2, '0')}-${months[d.getMonth()]}-${d.getFullYear()}`;
+            label.dataset.iso = iso;
+
+            // Apply status styling
+            const header = label.closest('.day-header');
+            const status = allDayStatus[iso]?.status;
+            
+            // Remove existing status classes
+            header.classList.remove('status-leave', 'status-holiday', 'status-weekly-off');
+            
+            // Apply new status class
+            if (status === 'leave') {
+                header.classList.add('status-leave');
+            } else if (status === 'holiday') {
+                header.classList.add('status-holiday');
+            } else if (status === 'weekend') {
+                header.classList.add('status-weekly-off');
+            }
+
+            // Also style the corresponding input cells
+            const rows = document.querySelectorAll('.ts-row');
+            rows.forEach(row => {
+                const dayInputs = row.querySelectorAll('td.p-2');
+                const cell = dayInputs[i];
+                if (cell) {
+                    cell.classList.remove('status-leave', 'status-holiday', 'status-weekly-off');
+                    if (status === 'leave') cell.classList.add('status-leave');
+                    else if (status === 'holiday') cell.classList.add('status-holiday');
+                    else if (status === 'weekend') cell.classList.add('status-weekly-off');
+                }
+            });
+        });
+    }
+    function changeWeek(amt) { offset += amt; updateDates(); }
+
+    function parseTime(str) {
+        if (!str || str === '0' || str === '0:00') return 0;
+        if (str.includes(':')) {
+            const [h, m] = str.split(':').map(Number);
+            return (h || 0) + (m || 0) / 60;
+        }
+        return parseFloat(str) || 0;
+    }
+    function formatTime(val) {
+        const h = Math.floor(val);
+        const m = Math.round((val - h) * 60);
+        return `${h.toString().padStart(1, '0')}:${m.toString().padStart(2, '0')}`;
+    }
+
+    function calculate() {
+        const rows = document.querySelectorAll('.ts-row');
+        const colHours = [0, 0, 0, 0, 0, 0, 0];
+        let grand = 0;
+
+        rows.forEach(row => {
+            let rt = 0;
+            row.querySelectorAll('.day-inp').forEach((inp, i) => {
+                const h = parseTime(inp.value);
+                rt += h;
+                colHours[i] += h;
+            });
+            const rtEl = row.querySelector('.row-tot');
+            if (rtEl) rtEl.textContent = formatTime(rt);
+            grand += rt;
+        });
+
+        document.querySelectorAll('.col-tot').forEach((c, i) => {
+            if (c) c.textContent = formatTime(colHours[i]);
+        });
+        const gtEl = document.querySelector('.grand-tot');
+        if (gtEl) gtEl.textContent = formatTime(grand);
+    }
+
+    document.addEventListener('input', e => {
+        if (e.target.classList.contains('day-inp')) calculate();
+    });
+
+    async function submitRow(btn) {
+        const row = btn.closest('.ts-row');
+        const project = row.querySelector('.project-sel').value;
+        const task = row.querySelector('.task-inp').value;
+        const dayInps = row.querySelectorAll('.day-inp');
+        const descInps = row.querySelectorAll('.desc-inp');
+        const dates = document.querySelectorAll('.date-lbl');
+
+        if (!project || !task) return;
+
+        btn.disabled = true;
+        const originalContent = btn.innerHTML;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span>';
+
+        const submissions = [];
+        const empName = document.getElementById('empName').value;
+
+        dayInps.forEach((inp, i) => {
+            // Skip readonly fields for submission
+            if (inp.hasAttribute('readonly')) return;
+
+            const hrs = parseTime(inp.value);
+            if (hrs > 0) {
+                submissions.push({
+                    employee_name: empName,
+                    project: project,
+                    task: task,
+                    description: descInps[i].value || "",
+                    hours: hrs,
+                    start_date: dates[i].dataset.iso
+                });
+            }
+        });
+
+        if (submissions.length === 0) {
+            btn.disabled = false;
+            btn.innerHTML = originalContent;
+            return;
+        }
+
+        let success = 0;
+        let errors = [];
+
+        for (const sub of submissions) {
+            try {
+                const res = await fetch('/add-timesheet', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: new URLSearchParams(sub)
+                });
+
+                const text = await res.text();
+                if (res.ok) {
+                    // Check if the response HTML contains an error message (Flash)
+                    if (text.toLowerCase().includes('error')) {
+                        const parser = new DOMParser();
+                        const doc = parser.parseFromString(text, 'text/html');
+                        const alert = doc.querySelector('.alert-danger') || doc.body;
+                        errors.push(`${sub.start_date}: ${alert.innerText.trim().substring(0, 100)}`);
+                    } else {
+                        success++;
+                    }
+                } else {
+                    errors.push(`${sub.start_date}: Server Error (${res.status}) - ${text.substring(0, 50)}`);
+                }
+            } catch (err) {
+                errors.push(`${sub.start_date}: Connection Error`);
+            }
+        }
+
+        if (errors.length > 0) {
+            btn.disabled = false;
+            btn.innerHTML = originalContent;
+        } else {
+            location.href = '/timesheets';
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        updateDates();
+        calculate();
+    });
+</script>
+{% endblock %}

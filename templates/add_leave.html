@@ -1,0 +1,130 @@
+{% extends "base.html" %}
+{% block title %}Apply Leave{% endblock %}
+
+{% block content %}
+<div class="form-card">
+
+    <!-- HEADER ROW -->
+    <div class="d-flex justify-content-between align-items-start mb-3">
+
+        <!-- LEFT -->
+        <div>
+            <h5 class="mb-0">Apply Leave</h5>
+            <small class="text-muted">Fill details</small>
+        </div>
+
+        <!-- RIGHT: LEAVE BALANCE -->
+        <div class="card-ui p-1 leave-balance-box">
+
+            {% if balance %}
+            <div class="mb-1">
+                <select class="form-control">
+                    <option value="">Leave Balance: {{ summary.remaining_leaves }} days</option>
+                    <option value="">Casual Leaves: {{ summary.casual_leaves }} days</option>
+                    <option value="">Sick Leaves: {{ summary.sick_leaves }} days</option>
+                    <option value="">Earned Leaves: {{ summary.earned_leaves }} days</option>
+                </select>
+            </div>
+            {% else %}
+            <div class="text-center text-muted py-1">
+                <i class="bi bi-info-circle"></i> No balance data available
+            </div>
+            {% endif %}
+
+        </div>
+
+    </div>
+
+    <!-- FORM -->
+    <form method="POST">
+
+        <input type="hidden" name="employee_name" value="{{ session.employee_name }}">
+
+        <div class="mb-3">
+            <label>Leave Type</label>
+            <select name="leave_type" class="form-control" required>
+                <option value="">Select Leave Type</option>
+                <option value="sick">Sick Leave</option>
+                <option value="casual">Casual Leave</option>
+                <option value="earned">Earned Leave</option>
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label>Leave Type Category</label>
+            <select name="leave_type_category" class="form-control" id="leaveTypeCategory" required>
+                <option value="full_day" selected>Full Day</option>
+                <option value="half_day">Half Day</option>
+            </select>
+        </div>
+
+        <div class="mb-3" id="halfDayPeriodContainer" style="display: none;">
+            <label>Half Day Period</label>
+            <select name="half_day_period" class="form-control" id="halfDayPeriod">
+                <option value="">Select Period</option>
+                <option value="first_half">First Half</option>
+                <option value="second_half">Second Half</option>
+            </select>
+        </div>
+
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <label>Start Date</label>
+                <input type="date" name="start_date" class="form-control" id="startDate" required>
+            </div>
+
+            <div class="col-md-6">
+                <label>End Date</label>
+                <input type="date" name="end_date" class="form-control" id="endDate" required>
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <label>Reason</label>
+            <textarea name="reason" class="form-control"></textarea>
+        </div>
+
+        <div class="d-flex gap-2">
+            <button class="btn btn-primary">Submit</button>
+            <a href="{{ url_for('work.leaves_list') }}" class="btn btn-light">Cancel</a>
+        </div>
+
+    </form>
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const leaveTypeCategory = document.getElementById('leaveTypeCategory');
+    const halfDayPeriodContainer = document.getElementById('halfDayPeriodContainer');
+    const halfDayPeriod = document.getElementById('halfDayPeriod');
+    const startDate = document.getElementById('startDate');
+    const endDate = document.getElementById('endDate');
+
+    // Show/hide half day period field based on category
+    leaveTypeCategory.addEventListener('change', function() {
+        if (this.value === 'half_day') {
+            halfDayPeriodContainer.style.display = 'block';
+            halfDayPeriod.required = true;
+            // Restrict to single date
+            endDate.value = startDate.value;
+            endDate.readOnly = true;
+        } else {
+            halfDayPeriodContainer.style.display = 'none';
+            halfDayPeriod.required = false;
+            halfDayPeriod.value = '';
+            endDate.readOnly = false;
+        }
+    });
+
+    // When half-day is selected, sync end date with start date
+    startDate.addEventListener('change', function() {
+        if (leaveTypeCategory.value === 'half_day') {
+            endDate.value = this.value;
+        }
+    });
+});
+</script>
+{% endblock %}

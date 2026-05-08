@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+{% block title %}My Projects{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <div class="form-card">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h5>
+                <i class="bi bi-folder-fill text-primary me-2"></i>
+                My Assigned Projects
+            </h5>
+        </div>
+
+        <div id="projectsContainer">
+            <div class="text-center text-muted py-5">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <p class="mt-3">Loading your projects...</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Load manager's projects
+function loadManagerProjects() {
+    
+    fetch('/projects', {
+        method: 'GET'
+    })
+    .then(response => {
+        return response.json();
+    })
+    .then(data => {
+        const projectsContainer = document.getElementById('projectsContainer');
+        
+        if (data.projects && data.projects.length > 0) {
+            const projectsHtml = data.projects.map(project => {
+                const startDate = new Date(project.start_date).toLocaleDateString();
+                const endDate = new Date(project.end_date).toLocaleDateString();
+                const statusBadge = project.status === 'active' ? 'bg-success' : 'bg-secondary';
+                const statusText = project.status === 'active' ? 'Active' : 'Inactive';
+                
+                return `
+                    <div class="card mb-3">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div class="flex-grow-1">
+                                    <h6 class="card-title mb-1">${project.name}</h6>
+                                    <p class="text-muted small mb-2">
+                                        <strong>Customer:</strong> ${project.customer_name}<br>
+                                        <strong>Contact:</strong> ${project.customer_contact || project.contact_person || project.contact || 'Not Set'}<br>
+                                        <strong>Period:</strong> ${startDate} - ${endDate}
+                                    </p>
+                                    <div class="d-flex align-items-center">
+                                        <span class="badge ${statusBadge}">${statusText}</span>
+                                        <span class="badge bg-info ms-2">${project.team_members.length} Team Members</span>
+                                    </div>
+                                </div>
+                                <div class="text-end">
+                                    <a href="/project_details/${project.id}" class="btn btn-sm btn-primary">
+                                        <i class="bi bi-eye me-1"></i>
+                                        View Details
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            projectsContainer.innerHTML = projectsHtml;
+        } else {
+            projectsContainer.innerHTML = `
+                <div class="text-center text-muted py-5">
+                    <i class="bi bi-folder-slash" style="font-size: 3rem;"></i>
+                    <p class="mt-3">No projects assigned to you</p>
+                    <small class="text-muted">You'll see projects here when HR assigns them to you</small>
+                </div>
+            `;
+        }
+    })
+    .catch(error => {
+        console.error('Error loading projects:', error);
+        document.getElementById('projectsContainer').innerHTML = `
+            <div class="alert alert-danger">
+                <i class="bi bi-exclamation-triangle me-2"></i>
+                Error loading projects: ${error.message}
+            </div>
+        `;
+    });
+}
+
+// Load projects when page loads
+document.addEventListener('DOMContentLoaded', function() {
+    loadManagerProjects();
+});
+
+// Auto-refresh every 30 seconds to check for new projects
+setInterval(function() {
+    loadManagerProjects();
+}, 30000);
+</script>
+{% endblock %}

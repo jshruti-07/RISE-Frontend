@@ -1,0 +1,129 @@
+{% extends "base.html" %}
+{% block title %}Employees{% endblock %}
+
+{% block content %}
+<style>
+    .badge-pastel-success { background-color: #D1E7DD; color: #0F5132; }
+    .badge-pastel-warning { background-color: #FFF3CD; color: #664D03; }
+    .badge-pastel-danger { background-color: #F8D7DA; color: #842029; }
+</style>
+
+<div class="form-card">
+
+<div class="d-flex justify-content-between mb-3">
+    <h5>Employee Records</h5>
+    {% if session.role in ['hr','admin'] %}
+    <a href="{{ url_for('employees.add_employee') }}" class="btn btn-primary">+ Add Employee</a>
+    {% endif %}
+</div>
+
+<table class="table table-hover">
+<thead>
+<tr>
+    <th>ID</th>
+    <th>Name</th>
+    <th>Email</th>
+    <th>Joining Date</th>
+    <th class="text-center">Role</th>
+    <th class="text-center">Leave Balance</th>
+    <th>Actions</th>
+</tr>
+</thead>
+
+<tbody>
+
+{% set colors = ['bg-primary','bg-danger','bg-success','bg-warning','bg-dark'] %}
+
+{% for emp in employees %}
+<tr>
+    <td>#{{ emp.id }}</td>
+
+    <td>
+        <div class="d-flex align-items-center gap-2">
+            <a href="{{ url_for('view_profile', employee_name=emp.name) }}" class="text-decoration-none fw-semibold text-dark hover-primary">
+                {{ emp.name[2:] }}
+            </a>
+        </div>
+    </td>
+
+    <td>{{ emp.email }}</td>
+    <td>{{ emp.date_of_joining[:11] if emp.date_of_joining else '' }}</td>
+    <td class="text-center"><span class="badge bg-secondary">{{ emp.role | upper }}</span></td>
+    <td class="text-center">
+        <span class="badge {{ 'badge-pastel-success' if emp.leave_balance > 5 else 'badge-pastel-warning' if emp.leave_balance > 2 else 'badge-pastel-danger' }} rounded-pill">
+            {{ emp.leave_balance }} days
+        </span>
+    </td>
+    <td>
+        {% if session.role in ['hr','admin'] %}
+        <a href="{{ url_for('edit_employee', id=emp.id) }}" class="btn btn-sm" style="background-color: rgb(245, 245, 245); color: rgb(130, 130, 130); min-width: 70px;" >Edit</a>
+
+        <button class="btn btn-sm" style="background-color: rgb(245, 245, 245); color: rgb(255, 80, 80); min-width: 70px;" 
+            data-bs-toggle="modal"
+            data-bs-target="#deleteModal"
+            onclick="setDeleteData('{{ emp.id }}','{{ emp.name }}')">
+            Delete
+        </button>
+        {% endif %}
+    </td>
+</tr>
+
+{% endfor %}
+
+</tbody>
+</table>
+
+</div>
+
+<!-- KEEP YOUR MODAL EXACTLY -->
+
+<div class="modal fade" id="deleteModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+
+      <!-- HEADER -->
+      <div class="modal-header">
+        <h5 class="modal-title text-danger">
+            <i class="bi bi-exclamation-triangle"></i> Confirm Delete
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+
+      <!-- BODY -->
+      <div class="modal-body">
+        <p>
+            Are you sure you want to delete 
+            <strong id="deleteEmpName"></strong>?
+        </p>
+        <p class="text-muted small">
+            This action cannot be undone.
+        </p>
+      </div>
+
+      <!-- FOOTER -->
+      <div class="modal-footer">
+
+        <button type="button" class="btn btn-light" data-bs-dismiss="modal">
+            Cancel
+        </button>
+
+        <form id="deleteForm" method="POST">
+            <button type="submit" class="btn btn-danger">
+                <i class="bi bi-trash"></i> Delete
+            </button>
+        </form>
+
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+function setDeleteData(id, name) {
+    document.getElementById('deleteEmpName').textContent = name;
+    document.getElementById('deleteForm').action = '/delete/' + id;
+}
+</script>
+
+{% endblock %}

@@ -1,0 +1,177 @@
+{% extends "base.html" %}
+{% block title %}Notifications{% endblock %}
+
+{% block content %}
+<div class="form-card">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h5>
+            <i class="bi bi-bell-fill text-primary me-2"></i>
+            My Notifications
+        </h5>
+        <button class="btn btn-sm btn-outline-danger" onclick="clearAllNotifications()">
+            <i class="bi bi-trash"></i> Clear All
+        </button>
+    </div>
+
+    <div id="notificationsContainer">
+        <div class="text-center text-muted py-5">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <p class="mt-3">Loading notifications...</p>
+        </div>
+    </div>
+</div>
+
+<!-- Notification Detail Modal -->
+<div class="modal fade" id="notificationModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="notificationModalTitle">
+                    <i class="bi bi-info-circle"></i> Notification Details
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="notificationModalContent">
+                    <!-- Content will be populated dynamically -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Load and display notifications
+function loadNotifications() {
+    const currentUser = '{{ session.employee_name }}';
+    if (!currentUser) {
+        document.getElementById('notificationsContainer').innerHTML = `
+            <div class="text-center text-muted py-5">
+                <i class="bi bi-person-x" style="font-size: 3rem;"></i>
+                <p class="mt-3">Please log in to view notifications</p>
+            </div>
+        `;
+        return;
+    }
+
+    const notifications = JSON.parse(localStorage.getItem('timesheetNotifications') || '[]');
+    const userNotifications = notifications.filter(n => n.employeeName === currentUser);
+    
+    // Sort by timestamp (newest first)
+    userNotifications.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+    
+    if (userNotifications.length === 0) {
+        document.getElementById('notificationsContainer').innerHTML = `
+            <div class="text-center text-muted py-5">
+                <i class="bi bi-bell-slash" style="font-size: 3rem;"></i>
+                <p class="mt-3">No notifications found</p>
+                <small class="text-muted">You'll see notifications here when your timesheets are approved or rejected</small>
+            </div>
+        `;
+        return;
+    }
+
+    const notificationsHtml = userNotifications.map(notification => {
+        const date = new Date(notification.timestamp);
+        const formattedDate = date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
+        const isRead = notification.read;
+        const actionIcon = notification.action === 'approved' ? 'check-circle-fill text-success' : 'x-circle-fill text-warning';
+        const actionText = notification.action === 'approved' ? 'Approved' : 'Rejected';
+        
+        return `
+            <div class="card mb-3 ${isRead ? 'opacity-75' : ''}" onclick="showNotificationDetails('${notification.timestamp}')" style="cursor: pointer;">
+                <div class="card-body">
+                    <div class="d-flex align-items-start">
+                        <div class="me-3">
+                            <i class="bi bi-${actionIcon}" style="font-size: 1.5rem;"></i>
+                        </div>
+                        <div class="flex-grow-1">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div>
+                                    <h6 class="card-title mb-1">Timesheet ${actionText}</h6>
+                                    <p class="card-text mb-2">
+                                        Your timesheet has been ${notification.action.toLowerCase()}.
+                                        ${notification.comments ? '<br><strong>Comments:</strong> ' + notification.comments : ''}
+                                    </p>
+                                </div>
+                                <div class="text-end">
+                                    <small class="text-muted">${formattedDate}</small>
+                                    ${!isRead ? '<span class="badge bg-primary ms-2">New</span>' : ''}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+    }).join('');
+
+    document.getElementById('notificationsContainer').innerHTML = notificationsHtml;
+    
+    // Mark all as read
+    userNotifications.forEach(notification => {
+        notification.read = true;
+    });
+    localStorage.setItem('timesheetNotifications', JSON.stringify(notifications));
+}
+
+// Show notification details
+function showNotificationDetails(timestamp) {
+    const currentUser = '{{ session.employee_name }}';
+    const notifications = JSON.parse(localStorage.getItem('timesheetNotifications') || '[]');
+    const notification = notifications.find(n => n.employeeName === currentUser && n.timestamp === timestamp);
+    
+    if (!notification) return;
+    
+    const date = new Date(notification.timestamp);
+    const formattedDate = date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
+    const actionIcon = notification.action === 'approved' ? 'check-circle-fill text-success' : 'x-circle-fill text-warning';
+    const actionText = notification.action === 'approved' ? 'Approved' : 'Rejected';
+    
+    const modalContent = `
+        <div class="text-center mb-3">
+            <i class="bi bi-${actionIcon}" style="font-size: 3rem;"></i>
+        </div>
+        <h5 class="text-center">Timesheet ${actionText}</h5>
+        <p class="text-muted text-center">${formattedDate}</p>
+        <hr>
+        <p><strong>Status:</strong> Your timesheet has been ${notification.action.toLowerCase()}.</p>
+        ${notification.comments ? `<p><strong>Comments:</strong> ${notification.comments}</p>` : ''}
+        <p class="text-muted small"><strong>Employee:</strong> ${notification.employeeName}</p>
+    `;
+    
+    document.getElementById('notificationModalContent').innerHTML = modalContent;
+    
+    const modal = new bootstrap.Modal(document.getElementById('notificationModal'));
+    modal.show();
+}
+
+// Clear all notifications
+function clearAllNotifications() {
+    if (!confirm('Are you sure you want to clear all notifications? This action cannot be undone.')) {
+        return;
+    }
+    
+    const currentUser = '{{ session.employee_name }}';
+    const notifications = JSON.parse(localStorage.getItem('timesheetNotifications') || '[]');
+    const filteredNotifications = notifications.filter(n => n.employeeName !== currentUser);
+    
+    localStorage.setItem('timesheetNotifications', JSON.stringify(filteredNotifications));
+    loadNotifications();
+    
+    showToast('Notifications Cleared', 'All notifications have been cleared', 'info');
+}
+
+// Load notifications on page load
+document.addEventListener('DOMContentLoaded', function() {
+    loadNotifications();
+});
+</script>
+{% endblock %}

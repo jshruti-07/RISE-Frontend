@@ -1,0 +1,1014 @@
+{% extends "base.html" %}
+{% block title %}Projects{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h5>
+            <i class="bi bi-folder-fill text-primary me-2"></i>
+            {% if user_role == 'hr' %}All Projects{% else %}My Projects{% endif %}
+        </h5>
+        {% if user_role == 'hr' %}
+        <a href="{{ url_for('projects.create_project') }}" class="btn btn-primary">
+            <i class="bi bi-plus-circle me-2"></i>
+            Create Project
+        </a>
+        {% endif %}
+    </div>
+
+    <!-- Projects Cards -->
+    <div id="projectsContainer" class="row g-4">
+        {% if projects %}
+        {% for project in projects %}
+        <div class="col-md-6 col-lg-4">
+            <div class="card shadow-sm border-0 rounded-4 h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <h6 class="card-title fw-bold">{{ project.name }}</h6>
+                        <div class="d-flex flex-column align-items-end gap-1">
+                            <span class="badge bg-success">{{ project.status }}</span>
+                            <span class="badge bg-info text-dark" style="font-size: 0.7rem;">
+                                {% if project.project_type == 'tm' %}
+                                <i class="bi bi-clock-history me-1"></i> T&M
+                                {% else %}
+                                <i class="bi bi-cash-stack me-1"></i> Fixed Cost
+                                {% endif %}
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="project-info mb-3">
+                        <div class="mb-2">
+                            <small class="text-muted">Manager:</small>
+                            <div class="fw-semibold">{{ project.assigned_manager or project.manager_name or
+                                project.manager or 'Not Set' }}</div>
+                        </div>
+                        <div class="mb-2">
+                            <small class="text-muted">Customer:</small>
+                            <div class="fw-semibold">{{ project.customer_name }}</div>
+                        </div>
+                        <div class="mb-2">
+                            <small class="text-muted">Duration:</small>
+                            <div class="fw-semibold">
+                                {{ (project.start_date|string)[:16] if project.start_date else 'N/A' }} to
+                                {{ (project.end_date|string)[:16] if project.end_date else 'N/A' }}
+                            </div>
+                        </div>
+                        <div class="mb-2">
+                            <small class="text-muted">Contact:</small>
+                            <div class="fw-semibold">{{ project.customer_contact or project.contact_person or
+                                project.contact or 'Not Set' }}</div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center">
+                        <small class="text-muted">
+                            Created: {{ project.created_at }}
+                        </small>
+                        <div class="btn-group btn-group-sm">
+                            <button class="btn btn-outline-primary" onclick="viewProjectDetails({{ project.id }})">
+                                <i class="bi bi-eye"></i>
+                            </button>
+                            {% if user_role == 'hr' %}
+                            <button class="btn btn-outline-warning" onclick="editProject({{ project.id }})">
+                                <i class="bi bi-pencil"></i>
+                            </button>
+                            <button class="btn btn-outline-danger"
+                                onclick="deleteProject({{ project.id }}, '{{ project.name }}')">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+        {% else %}
+        <div class="col-12">
+            <div class="text-center py-5">
+                <i class="bi bi-folder-x text-muted" style="font-size: 3rem;"></i>
+                <h6 class="mt-3 text-muted">No Projects Found</h6>
+                {% if user_role == 'hr' %}
+                <p class="text-muted">Create your first project to get started.</p>
+                <a href="{{ url_for('projects.create_project') }}" class="btn btn-primary">
+                    <i class="bi bi-plus-circle me-2"></i>
+                    Create Project
+                </a>
+                {% else %}
+                <p class="text-muted">You haven't been assigned to any projects yet.</p>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Delete Project Modal -->
+<div class="modal fade" id="deleteProjectModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="bi bi-exclamation-triangle-fill text-warning me-2"></i>
+                    Delete Project
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete the project <strong id="deleteProjectName"></strong>?</p>
+                <p class="text-muted small">This action cannot be undone.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Delete Project</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Project Details Modal -->
+<div class="modal fade" id="projectDetailsModal" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="bi bi-folder-fill text-primary me-2"></i>
+                    Project Details
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="projectDetailsContent">
+                <!-- Content will be populated dynamically -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Project Modal -->
+<div class="modal fade" id="editProjectModal" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="bi bi-pencil-fill text-warning me-2"></i>
+                    Edit Project
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="editProjectForm">
+                    <input type="hidden" id="editProjectId">
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="editProjectName" class="form-label">Project Name *</label>
+                            <input type="text" class="form-control" id="editProjectName" required>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label for="editStartDate" class="form-label">Start Date *</label>
+                            <input type="date" class="form-control" id="editStartDate" required>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="editCustomerName" class="form-label">Customer Name *</label>
+                            <input type="text" class="form-control" id="editCustomerName" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="editEndDate" class="form-label">End Date *</label>
+                            <input type="date" class="form-control" id="editEndDate" required>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="editCustomerContact" class="form-label">Customer Contact Person *</label>
+                            <input type="text" class="form-control" id="editCustomerContact" required>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label for="editCustomerPhone" class="form-label">Customer Contact Number *</label>
+                            <input type="tel" class="form-control" id="editCustomerPhone" required>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="editCustomerEmail" class="form-label">Customer Email *</label>
+                            <input type="email" class="form-control" id="editCustomerEmail" required>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label for="editAssignedManager" class="form-label">Assigned Manager *</label>
+                            <select class="form-select" id="editAssignedManager" required>
+                                <option value="">Select Manager...</option>
+                            </select>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-warning" onclick="updateProject()">
+                    <i class="bi bi-pencil me-2"></i>
+                    Update Project
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Employee Selection Modal -->
+<div class="modal fade" id="employeeSelectionModal" tabindex="-1" aria-labelledby="employeeSelectionModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="employeeSelectionModalLabel">
+                    <i class="bi bi-people-fill me-2"></i>
+                    Select Team Members for <span id="modalProjectName"></span>
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h6 class="mb-0">Available Employees</h6>
+                        <div>
+                            <button type="button" class="btn btn-sm btn-outline-primary" onclick="selectAllEmployees()">
+                                <i class="bi bi-check-all me-1"></i>Select All
+                            </button>
+                            <button type="button" class="btn btn-sm btn-outline-secondary"
+                                onclick="clearAllEmployees()">
+                                <i class="bi bi-x-square me-1"></i>Clear All
+                            </button>
+                        </div>
+                    </div>
+                    <div class="border rounded p-3" style="max-height: 400px; overflow-y: auto;">
+                        <div id="availableEmployeesList">
+                            <!-- Employees will be loaded here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer d-flex justify-content-between align-items-center">
+                <div id="allocationTracker" class="badge bg-secondary p-2">
+                    Selected Allocation: <span id="totalAllocValue">0</span>%
+                </div>
+                <div>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" onclick="assignSelectedEmployees()">
+                        <i class="bi bi-person-plus me-2"></i>
+                        Assign Selected Employees
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    let projectToDelete = null;
+
+    function viewProjectDetails(projectId) {
+        // Find project data from the current page state
+        var projectCards = document.querySelectorAll('.col-md-6.col-lg-4');
+        var project = null;
+
+        // Look for the project in the current DOM
+        for (var i = 0; i < projectCards.length; i++) {
+            var card = projectCards[i];
+            var viewBtn = card.querySelector('button[onclick*="viewProjectDetails(' + projectId + '"]');
+            if (viewBtn) {
+                // Extract project data from the card
+                var cardTitle = card.querySelector('.card-title');
+                var cardContent = card.querySelector('.project-info');
+
+                if (cardTitle && cardContent) {
+                    project = {
+                        id: projectId,
+                        name: cardTitle.textContent.trim(),
+                        // We'll need to extract other data from the card or fetch it
+                    };
+                    break;
+                }
+            }
+        }
+
+        // If we can't find it in DOM, fall back to the static data
+        if (!project) {
+            var projectsData = {{ projects| tojson }};
+        
+            project = projectsData.find(function (p) { return p.id == projectId; });
+        }
+        if (project) {
+            // Fetch fresh project data from the server
+            var fetchUrl = '/get_project_details/' + projectId;
+            fetch(fetchUrl)
+                .then(function (response) {
+                    if (response.ok) {
+                        return response.json();
+                    } else {
+                        throw new Error('Failed to fetch project details');
+                    }
+                })
+                .then(function (data) {
+                    if (data.success) {
+                        displayProjectDetails(data.project);
+                    } else {
+                        // Fallback to static data if API fails
+                        displayProjectDetails(project);
+                    }
+                })
+                .catch(function (error) {
+                    console.error('Error fetching project details:', error);
+                    // Fallback to static data
+                    displayProjectDetails(project);
+                });
+        }
+    }
+
+    function displayProjectDetails(project) {
+        var userRole = ('{{ user_role }}' || '').toLowerCase();
+        var employeeName = '{{ session.employee_name }}';
+        
+        var detailsHtml = '<div class="row">' +
+            '<div class="col-md-6">' +
+            '<h6 class="text-muted">Project Information</h6>' +
+            '<table class="table table-sm">' +
+            '<tr><td><strong>Project Name:</strong></td><td>' + (project.name || project.project_name || 'N/A') + '</td></tr>' +
+            '<tr><td><strong>Status:</strong></td><td><span class="badge bg-success">' + (project.status || 'Active') + '</span></td></tr>' +
+            '<tr><td><strong>Assigned Manager:</strong></td><td>' + (project.assigned_manager || project.manager_name || project.manager || 'N/A') + '</td></tr>' +
+            '<tr><td><strong>Created By:</strong></td><td>' + (project.created_by || 'N/A') + '</td></tr>' +
+            '<tr><td><strong>Created At:</strong></td><td>' + (project.created_at || 'N/A') + '</td></tr>' +
+            '</table>' +
+            '</div>';
+
+        // Add customer information only for managers and HR
+        if (userRole !== 'employee') {
+            detailsHtml += '<div class="col-md-6">' +
+                '<h6 class="text-muted">Customer Information</h6>' +
+                '<table class="table table-sm">' +
+                '<tr><td><strong>Customer Name:</strong></td><td>' + (project.customer_name || 'N/A') + '</td></tr>' +
+                '<tr><td><strong>Contact Person:</strong></td><td>' + (project.customer_contact || project.contact_person || project.contact || 'N/A') + '</td></tr>' +
+                '<tr><td><strong>Phone:</strong></td><td>' + (project.customer_phone || 'N/A') + '</td></tr>' +
+                '<tr><td><strong>Email:</strong></td><td>' + (project.customer_email || 'N/A') + '</td></tr>' +
+                '</table>' +
+                '</div>';
+        }
+
+        detailsHtml += '</div>' +
+            '<div class="row mt-3">' +
+            '<div class="col-12">' +
+            '<h6 class="text-muted">Project Timeline</h6>' +
+            '<table class="table table-sm">' +
+            '<tr><td><strong>Start Date:</strong></td><td>' + (project.start_date || 'N/A') + '</td></tr>' +
+            '<tr><td><strong>End Date:</strong></td><td>' + (project.end_date || 'N/A') + '</td></tr>' +
+            '</table>' +
+            '</div>' +
+            '</div>';
+
+        // Standardize manager name
+        var projectManager = project.assigned_manager || project.manager_name || project.manager || project.assigned_manager_name;
+        
+        // Debug: Log raw project data
+        console.log("DEBUG: Full Data for " + project.name, project);
+
+        // Merge all possible keys and prioritize objects over strings
+        var rawTeamLists = [
+            project.team_members,
+            project.team,
+            project.assignments,
+            project.project_team,
+            project.team_list,
+            project.members,
+            project.employees,
+            project.member_list
+        ];
+        
+        var teamMap = {}; // Use map to prefer objects over strings for same name
+
+        rawTeamLists.forEach(function(list) {
+            if (!list) return;
+            var arr = Array.isArray(list) ? list : [list];
+            
+            arr.forEach(function(member) {
+                var mName = typeof member === 'string' ? member : (member.name || member.employee_name || member.employee || member.employeeName || member.member_name || member.m_name);
+                if (mName) {
+                    // Update if it's the first time, OR if current is string and new is object (more data)
+                    if (!teamMap[mName] || (typeof teamMap[mName] === 'string' && typeof member === 'object')) {
+                        teamMap[mName] = member;
+                    }
+                }
+            });
+        });
+        
+        var teamList = Object.values(teamMap);
+
+        if (teamList.length > 0) {
+            detailsHtml += '<div class="row mt-3">' +
+                '<div class="col-12">' +
+                '<div class="d-flex justify-content-between align-items-center mb-1">' +
+                '<h6 class="text-muted mb-0">' + (userRole === 'employee' ? 'Your Allocation' : 'Team Members & Workload') + '</h6>' +
+                '<small class="text-muted">' + teamList.length + ' Members</small>' +
+                '</div>' +
+                '<div class="list-group list-group-flush border rounded" style="max-height: 250px; overflow-y: auto;">';
+
+            for (var i = 0; i < teamList.length; i++) {
+                var member = teamList[i];
+                var mName = typeof member === 'string' ? member : (member.name || member.employee_name || member.employee || member.employeeName || member.member_name || member.m_name);
+                
+                // For employees, only show their own entry
+                if (userRole === 'employee' && mName !== employeeName) continue;
+
+                // Robust allocation check
+                var allocation = '100';
+                if (typeof member !== 'string') {
+                    // Check for multiple possible keys for percentage
+                    var val = (member.allocation !== undefined) ? member.allocation : 
+                             (member.allocation_percentage !== undefined ? member.allocation_percentage :
+                             (member.billable_percentage !== undefined ? member.billable_percentage :
+                             (member.billable_pct !== undefined ? member.billable_pct : 
+                             (member.percentage !== undefined ? member.percentage : '100'))));
+                    allocation = val;
+                }
+                
+                var billingType = typeof member === 'string' ? 'Billable' : (member.billing_type || (member.is_billable ? 'Billable' : 'Non-Billable'));
+                var statusClass = billingType.toLowerCase() === 'billable' ? 'bg-success' : 'bg-warning';
+
+                detailsHtml += '<div class="list-group-item d-flex justify-content-between align-items-center py-2">' +
+                    '<div>' +
+                    '<div class="fw-bold">' + mName + '</div>' +
+                    '</div>' +
+                    '<div class="text-end">' +
+                    '<span class="badge bg-primary rounded-pill me-1">' + allocation + '% Alloc.</span>' +
+                    '<span class="badge ' + statusClass + ' rounded-pill">' + billingType + '</span>' +
+                    '</div>' +
+                    '</div>';
+            }
+
+            detailsHtml += '</div></div></div>';
+        } else {
+            detailsHtml += '<div class="row mt-3"><div class="col-12"><div class="alert alert-info py-2">No team members found for this project.</div></div></div>';
+        }
+
+        // Add "Add Members" button for HR, admin, or for the manager assigned to this project
+        var projectManager = project.assigned_manager || project.manager_name || project.manager;
+        var isAssignedManager = (userRole === 'manager' && projectManager === employeeName);
+        var isHr = (userRole === 'hr' || userRole === 'admin');
+
+        if (isHr || isAssignedManager) {
+            detailsHtml += '<div class="row mt-3">' +
+                '<div class="col-12">' +
+                '<button class="btn btn-primary w-100" onclick="openEmployeeSelectionModal(' + project.id + ', \'' + project.name + '\')">' +
+                '<i class="bi bi-person-plus me-2"></i>' +
+                'Add Team Members' +
+                '</button>' +
+                '</div>' +
+                '</div>';
+        }
+
+        document.getElementById('projectDetailsContent').innerHTML = detailsHtml;
+        var modal = new bootstrap.Modal(document.getElementById('projectDetailsModal'));
+        modal.show();
+    }
+
+    function deleteProject(projectId, projectName) {
+        projectToDelete = projectId;
+        document.getElementById('deleteProjectName').textContent = projectName;
+
+        const modal = new bootstrap.Modal(document.getElementById('deleteProjectModal'));
+        modal.show();
+    }
+
+    document.getElementById('confirmDeleteBtn').addEventListener('click', function () {
+        if (projectToDelete) {
+            // Make API call to delete the project
+            var deleteUrl = '/delete_project/' + projectToDelete;
+            fetch(deleteUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Close the modal
+                        const modal = bootstrap.Modal.getInstance(document.getElementById('deleteProjectModal'));
+                        modal.hide();
+
+                        // Show success message
+                        alert('Project deleted successfully');
+
+                        // Reload the page to show updated project list
+                        window.location.reload();
+                    } else {
+                        alert('Error deleting project: ' + data.error);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error deleting project. Please try again.');
+                });
+        }
+    });
+
+    // Team Member Management Functions
+    let currentProjectId = null;
+    let currentProjectMembers = [];
+
+    function getMemberName(member) {
+        if (typeof member === 'string') return member;
+        if (!member || typeof member !== 'object') return '';
+        return member.name || member.employee_name || member.employee || member.member_name || member.m_name || '';
+    }
+
+    function getMemberAllocation(member) {
+        if (typeof member === 'string') return 100;
+        if (!member || typeof member !== 'object') return 100;
+        const raw = member.allocation ?? member.allocation_percentage ?? member.billable_percentage ?? member.billable_pct ?? member.percentage ?? 100;
+        const parsed = parseInt(raw, 10);
+        return Number.isFinite(parsed) ? parsed : 100;
+    }
+
+    function getProjectMembers(project) {
+        const candidateLists = [
+            project && project.team_members,
+            project && project.team,
+            project && project.assignments,
+            project && project.project_team,
+            project && project.members,
+            project && project.employees,
+            project && project.member_list
+        ];
+
+        const unique = {};
+        candidateLists.forEach((list) => {
+            if (!Array.isArray(list)) return;
+            list.forEach((member) => {
+                const name = getMemberName(member);
+                if (!name) return;
+                if (!unique[name] || typeof unique[name] === 'string') {
+                    unique[name] = member;
+                }
+            });
+        });
+
+        return Object.values(unique);
+    }
+
+    function openEmployeeSelectionModal(projectId, projectName) {
+        currentProjectId = projectId;
+        document.getElementById('modalProjectName').textContent = projectName || 'Project';
+
+        const projectsData = {{ projects | tojson }};
+        const project = projectsData.find((p) => p.id == projectId);
+        currentProjectMembers = project ? getProjectMembers(project) : [];
+
+        const openModal = (availableEmployees) => {
+            populateEmployeeList(currentProjectMembers, availableEmployees);
+            const modal = new bootstrap.Modal(document.getElementById('employeeSelectionModal'));
+            modal.show();
+        };
+
+        const fetchEmployeesAndOpenModal = () => {
+            fetch('/api/employees_with_allocation')
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        openModal(data.employees);
+                    } else {
+                        alert("Error fetching employees: " + data.error);
+                    }
+                })
+                .catch(err => {
+                    console.error("Error fetching employees:", err);
+                    alert("Failed to fetch employees.");
+                });
+        };
+
+        if (project) {
+            fetchEmployeesAndOpenModal();
+            return;
+        }
+
+        fetch('/get_project_details/' + projectId)
+            .then((response) => response.json())
+            .then((data) => {
+                if (data.success && data.project) {
+                    currentProjectMembers = getProjectMembers(data.project);
+                }
+                fetchEmployeesAndOpenModal();
+            })
+            .catch(() => {
+                fetchEmployeesAndOpenModal();
+            });
+    }
+
+function populateEmployeeList(currentTeamMembers, availableEmployees) {
+    const currentMemberNames = new Set((currentTeamMembers || []).map(getMemberName).filter(Boolean));
+    const filteredEmployees = availableEmployees.filter((emp) => !currentMemberNames.has(emp.employee_name || emp.name));
+    const container = document.getElementById('availableEmployeesList');
+
+    if (filteredEmployees.length === 0) {
+        container.innerHTML = '<div class="text-center py-4"><i class="bi bi-person-check text-success" style="font-size: 2rem;"></i><p class="mt-2 text-muted">All eligible employees are already assigned.</p></div>';
+        updateAllocationTracker();
+        return;
+    }
+
+    let html = '';
+    filteredEmployees.forEach((emp, i) => {
+        let statusClass = 'bg-success';
+        if (emp.availability_status === 'fully_allocated') statusClass = 'bg-danger';
+        else if (emp.availability_status === 'over_allocated') statusClass = 'bg-warning text-dark';
+        else if (emp.availability_status === 'partially_available') statusClass = 'bg-info text-dark';
+        
+        const empName = emp.employee_name || emp.name;
+        const empDesignation = emp.designation || emp.role || 'Employee';
+        const currentAlloc = parseInt((emp.workload && emp.workload.total_allocation) || 0, 10) || 0;
+        
+        // Capacity is out of 150%
+        const maxCapacity = 150;
+        const remainingTo150 = Math.max(0, maxCapacity - currentAlloc);
+        const remainingTo100 = Math.max(0, 100 - currentAlloc);
+        
+        const allowOverAllocation = Boolean(emp.allow_over_allocation);
+        const isDisabled = remainingTo150 <= 0 ? 'disabled' : '';
+        const inputMax = remainingTo150;
+        // Default to what gets them to 100%, minimum 1, max inputMax
+        const defaultAlloc = Math.max(1, Math.min(100, remainingTo100 > 0 ? remainingTo100 : inputMax));
+
+        const overAllocBadge = currentAlloc > 100 ? `<span class="badge bg-warning text-dark ms-1" style="font-size: 0.65rem;">Over-allocated</span>` : '';
+
+        html += `
+            <div class="assignment-row py-3 border-bottom"
+                 data-name="${empName}"
+                 data-capacity="${inputMax}"
+                 data-allow-overallocation="${allowOverAllocation ? '1' : '0'}"
+                 data-current-alloc="${currentAlloc}"
+                 data-projects='${JSON.stringify(emp.workload ? emp.workload.projects : []).replace(/'/g, "&apos;")}'>
+                <div class="row align-items-center">
+                    <div class="col-7">
+                        <div class="form-check d-flex align-items-start">
+                            <input class="form-check-input me-3 member-checkbox" type="checkbox" value="${empName}" id="emp_${i}" onchange="toggleAssignmentInputs(this)" ${isDisabled}>
+                            <label class="form-check-label" for="emp_${i}">
+                                <div class="fw-bold">${empName}</div>
+                                <small class="text-muted d-block">${empDesignation}</small>
+                                <span class="badge ${statusClass} mt-1" style="font-size: 0.65rem;">${currentAlloc}% Allocated</span>
+                                <span class="dynamic-badges">
+                                    ${overAllocBadge}
+                                </span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="col-5 text-end">
+                        <div class="capacity-indicator">
+                            <small class="text-muted d-block mb-1">Max Capacity (150%)</small>
+                            <div class="progress" style="height: 6px; width: 80px; margin-left: auto;">
+                                <div class="progress-bar ${remainingTo150 < 20 ? 'bg-danger' : (remainingTo150 < 50 ? 'bg-warning' : 'bg-success')}"
+                                     role="progressbar" style="width: ${(remainingTo150 / 150) * 100}%"></div>
+                            </div>
+                            <small class="fw-bold ${remainingTo150 <= 0 ? 'text-danger' : 'text-success'}">${remainingTo150}% Free</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="assignment-inputs d-none mt-3 p-3 bg-light rounded-3 border">
+                    <div class="row g-3">
+                        <div class="col-6">
+                            <label class="small fw-bold text-muted mb-1 d-block">Allocation (%)</label>
+                            <div class="input-group input-group-sm">
+                                <input type="number" class="form-control allocation-input"
+                                       value="${defaultAlloc}"
+                                       min="1" max="${inputMax}"
+                                       oninput="validateAndTrack(this, ${inputMax}, ${allowOverAllocation ? 'true' : 'false'})">
+                                <span class="input-group-text">/ ${inputMax}%</span>
+                            </div>
+                            <div class="invalid-feedback d-block" style="font-size: 0.65rem; display:none;">Exceeds max 150% capacity!</div>
+                        </div>
+                        <div class="col-6">
+                            <label class="small fw-bold text-muted mb-1 d-block">Billing Type</label>
+                            <select class="form-select form-select-sm billing-type-input">
+                                <option value="billable" selected>Billable</option>
+                                <option value="non-billable">Non-Billable</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>`;
+    });
+
+    container.innerHTML = html;
+    updateAllocationTracker();
+}
+
+    function toggleAssignmentInputs(checkbox) {
+        const row = checkbox.closest('.assignment-row');
+        if (!row) return;
+        const inputs = row.querySelector('.assignment-inputs');
+        if (!inputs) return;
+
+        if (checkbox.checked) {
+            inputs.classList.remove('d-none');
+        } else {
+            inputs.classList.add('d-none');
+        }
+        updateAllocationTracker();
+    }
+
+    function validateAndTrack(input, max, allowOverAllocation = false) {
+        const val = parseInt(input.value, 10) || 0;
+        const row = input.closest('.assignment-row');
+        const errorDiv = row ? row.querySelector('.invalid-feedback') : null;
+        const currentAlloc = parseInt(row.dataset.currentAlloc, 10) || 0;
+        const totalAlloc = currentAlloc + val;
+
+        if (val > max || val <= 0) {
+            input.classList.add('is-invalid');
+            if (errorDiv) {
+                errorDiv.textContent = 'Exceeds max 150% capacity!';
+                errorDiv.style.display = 'block';
+            }
+        } else {
+            input.classList.remove('is-invalid');
+            if (errorDiv) errorDiv.style.display = 'none';
+            
+            let badgeContainer = row.querySelector('.dynamic-badges');
+            if (badgeContainer) {
+                if (totalAlloc > 100) {
+                    badgeContainer.innerHTML = `<span class="badge bg-warning text-dark ms-1" style="font-size: 0.65rem;">Over-allocated (${totalAlloc}%)</span>`;
+                } else {
+                    badgeContainer.innerHTML = '';
+                }
+            }
+        }
+        updateAllocationTracker();
+    }
+
+    function editProject(projectId) {
+        // Find project data
+        var projectsData = {{ projects | tojson }};
+        var project = projectsData.find(function (p) { return p.id == projectId; });
+
+        if (project) {
+            // Standardize data from different possible backend keys
+            var pName = project.name || project.project_name || '';
+            var pManager = project.assigned_manager || project.manager_name || project.assigned_manager_name || '';
+            var pCustomer = project.customer_name || project.customer || '';
+            var pContact = project.customer_contact || project.contact_person || project.contact || '';
+            var pPhone = project.customer_phone || project.phone || '';
+            var pEmail = project.customer_email || project.email || '';
+
+            // Populate form with project data
+            document.getElementById('editProjectId').value = project.id;
+            document.getElementById('editProjectName').value = pName;
+            document.getElementById('editStartDate').value = project.start_date || '';
+            document.getElementById('editEndDate').value = project.end_date || '';
+            document.getElementById('editCustomerName').value = pCustomer;
+            document.getElementById('editCustomerContact').value = pContact;
+            document.getElementById('editCustomerPhone').value = pPhone;
+            document.getElementById('editCustomerEmail').value = pEmail;
+
+            // Populate manager dropdown
+            populateManagerDropdown('editAssignedManager', pManager);
+
+            // Show modal
+            var modal = new bootstrap.Modal(document.getElementById('editProjectModal'));
+            modal.show();
+        }
+    }
+
+    function populateManagerDropdown(selectId, selectedManager) {
+        var select = document.getElementById(selectId);
+
+        var managers = {{ managers | tojson if managers else '[]' }};
+
+    // Clear existing options
+    select.innerHTML = '<option value="">Select Manager...</option>';
+
+    // Add manager options
+    for (var i = 0; i < managers.length; i++) {
+        var option = document.createElement('option');
+        option.value = managers[i].name;
+        option.textContent = managers[i].name;
+        if (managers[i].name === selectedManager) {
+            option.selected = true;
+        }
+        select.appendChild(option);
+    }
+    }
+
+    function updateProject() {
+        var projectId = document.getElementById('editProjectId').value;
+
+        // Get form data
+        var formData = {
+            id: parseInt(projectId),
+            name: document.getElementById('editProjectName').value,
+            start_date: document.getElementById('editStartDate').value,
+            end_date: document.getElementById('editEndDate').value,
+            customer_name: document.getElementById('editCustomerName').value,
+            customer_contact: document.getElementById('editCustomerContact').value,
+            customer_phone: document.getElementById('editCustomerPhone').value,
+            customer_email: document.getElementById('editCustomerEmail').value,
+            assigned_manager: document.getElementById('editAssignedManager').value
+        };
+
+        // Validate required fields
+        if (!formData.name || !formData.start_date || !formData.end_date ||
+            !formData.customer_name || !formData.customer_contact ||
+            !formData.customer_phone || !formData.customer_email ||
+            !formData.assigned_manager) {
+            alert('Please fill in all required fields');
+            return;
+        }
+
+        // Call the backend API to update the project
+        fetch("{{ url_for('update_project') }}", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(formData)
+        })
+            .then(function (response) {
+                if (response.ok) {
+                    return response.json();
+                } else {
+                    throw new Error('Failed to update project');
+                }
+            })
+            .then(function (data) {
+                if (data.success) {
+                    // Close modal
+                    var modal = bootstrap.Modal.getInstance(document.getElementById('editProjectModal'));
+                    modal.hide();
+
+                    // Show success message
+                    alert('Project updated successfully!');
+
+                    // Reload page to show updated data
+                    window.location.reload();
+                } else {
+                    alert('Error updating project: ' + (data.error || 'Unknown error'));
+                }
+            })
+            .catch(function (error) {
+                console.error('Error updating project:', error);
+                alert('Error updating project. Please try again.');
+            });
+    }
+
+    // Update allocation tracker in modal
+    function updateAllocationTracker() {
+        let total = 0;
+        const currentMembers = Array.isArray(currentProjectMembers) ? currentProjectMembers : [];
+
+        // Base: existing members NOT being re-assigned
+        const selectedMemberNames = Array.from(document.querySelectorAll('#availableEmployeesList .member-checkbox:checked')).map(cb => cb.value);
+
+        currentMembers.forEach(m => {
+            const mName = getMemberName(m);
+            const mAlloc = getMemberAllocation(m);
+            if (!selectedMemberNames.includes(mName)) {
+                total += parseInt(mAlloc) || 0;
+            }
+        });
+
+        // Add new selections
+        document.querySelectorAll('#availableEmployeesList .assignment-row').forEach(row => {
+            const checkbox = row.querySelector('.member-checkbox');
+            if (checkbox && checkbox.checked) {
+                total += parseInt(row.querySelector('.allocation-input').value) || 0;
+            }
+        });
+
+        const tracker = document.getElementById('totalAllocValue');
+        const badge = document.getElementById('allocationTracker');
+        if (tracker) tracker.textContent = total;
+
+        if (badge) {
+            if (total > 100) {
+                badge.classList.remove('bg-secondary', 'bg-success');
+                badge.classList.add('bg-danger');
+            } else if (total === 100) {
+                badge.classList.remove('bg-secondary', 'bg-danger');
+                badge.classList.add('bg-success');
+            } else {
+                badge.classList.remove('bg-success', 'bg-danger');
+                badge.classList.add('bg-secondary');
+            }
+        }
+    }
+
+    // Refresh projects page after successful project creation
+    function refreshProjects() {
+        window.location.reload();
+    }
+
+    // Employee Selection Modal Functions
+    function selectAllEmployees() {
+        const checkboxes = document.querySelectorAll('#availableEmployeesList .member-checkbox:not(:disabled)');
+        checkboxes.forEach(checkbox => {
+            checkbox.checked = true;
+            toggleAssignmentInputs(checkbox);
+        });
+    }
+
+    function clearAllEmployees() {
+        const checkboxes = document.querySelectorAll('#availableEmployeesList .member-checkbox');
+        checkboxes.forEach(checkbox => {
+            checkbox.checked = false;
+            toggleAssignmentInputs(checkbox);
+        });
+    }
+
+    function assignSelectedEmployees() {
+        const rows = document.querySelectorAll('#availableEmployeesList .assignment-row');
+        const selectedMembers = [];
+
+        for (let i = 0; i < rows.length; i++) {
+            const row = rows[i];
+            const checkbox = row.querySelector('.member-checkbox');
+            const allocationInput = row.querySelector('.allocation-input');
+            
+            if (checkbox.checked) {
+                const name = checkbox.value;
+                const allocation = parseInt(allocationInput.value) || 0;
+                const billingType = row.querySelector('.billing-type-input').value;
+                const max = parseInt(row.dataset.capacity) || 0;
+                const allowOverAllocation = row.dataset.allowOverallocation === '1';
+
+                if (allocation > max) {
+                    alert('Error: ' + name + ' cannot exceed max 150% capacity.');
+                    allocationInput.classList.add('is-invalid');
+                    return;
+                }
+
+                if (allocation <= 0) {
+                    alert('Allocation for ' + name + ' must be greater than 0');
+                    allocationInput.classList.add('is-invalid');
+                    return;
+                }
+
+                selectedMembers.push({
+                    name: name,
+                    employee_name: name,
+                    allocation: allocation,
+                    allocation_percentage: allocation,
+                    billable_percentage: allocation,
+                    billing_type: billingType,
+                    is_billable: billingType === 'billable'
+                });
+            }
+        }
+
+        if (selectedMembers.length === 0) {
+            alert('Please select at least one employee to assign');
+            return;
+        }
+
+        const formData = {
+            project_id: currentProjectId,
+            team_members: selectedMembers
+        };
+
+
+        fetch("{{ url_for('add_team_members') }}", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(formData)
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Close modal
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('employeeSelectionModal'));
+                    if (modal) {
+                        modal.hide();
+                    }
+
+                    // Refresh project details
+                    viewProjectDetails(currentProjectId);
+                } else {
+                    const details = Array.isArray(data.details) && data.details.length ? ('\n' + data.details.join('\n')) : '';
+                    alert('Error: ' + (data.error || 'Assignment failed') + details);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error assigning employees. Please try again.');
+            });
+    }
+</script>
+{% endblock %}

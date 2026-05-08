@@ -1,0 +1,150 @@
+from flask import Blueprint, request, jsonify, render_template, redirect, url_for, session, flash
+import requests
+import re
+from app.utils import BASE_URL, get_headers
+
+auth_bp = Blueprint('auth', __name__)
+
+@auth_bp.route('/login', methods=['GET', 'POST'])
+def login():
+    session.pop('_flashes', None)
+    
+    if request.method == 'POST':
+        payload = {
+            "username": request.form.get("username"),
+            "password": request.form.get("password")
+        }
+        try:
+            res = requests.post(f"{BASE_URL}/auth/login", json=payload)
+            data = res.json()
+        except Exception as e:
+            print("LOGIN ERROR:", e)
+            if request.headers.get("X-Requested-With") == "XMLHttpRequest":
+                return jsonify({"success": False, "error": "Server not reachable"}), 500
+            flash("Server not reachable", "danger")
+            return render_template('login.html')
+
+        if res.status_code == 200 and data.get("success"):
+            if 'token' in data and data['token']:
+                session['token'] = data['token']
+                session['user'] = data['user']['username']
+                session['role'] = data['user']['role']
+                session['employee_name'] = data['user']['employee_name']
+                session['employee_id'] = data['user'].get('id', 'N/A')
+
+                if request.headers.get("X-Requested-With") == "XMLHttpRequest":
+                    return jsonify({
+                        "success": True, 
+                        "password_change_required": data['user'].get("password_change_required", False)
+                    })
+                
+                if data['user'].get('password_change_required'):
+                    flash("Password change required. Please set a new password to continue.", "warning")
+                    return redirect(url_for('auth.change_password'))
+                
+                session.pop('_flashes', None)
+                return redirect(url_for('dashboard.dashboard'))
+
+            else:
+                if request.headers.get("X-Requested-With") == "XMLHttpRequest":
+                    return jsonify({"success": False, "error": "Authentication failed - no token received"}), 401
+                flash("Authentication failed - no token received", "danger")
+                return redirect(url_for('auth.login'))
+        else:
+            if request.headers.get("X-Requested-With") == "XMLHttpRequest":
+                return jsonify({"success": False, "error": data.get("error", "Invalid login")}), 401
+            flash(data.get("error", "Invalid login"), "danger")
+
+    return render_template('login.html')
+
+@auth_bp.route('/forgot-password', methods=['GET'])
+def forgot_password():
+    return render_template('forgot_password.html')
+
+@auth_bp.route('/forgot-password', methods=['POST'])
+def handle_forgot_password():
+    try:
+        data = request.get_json() or {}
+        email = data.get('email', '').strip().lower()
+        
+        if not email:
+            return jsonify({'success': False, 'error': 'Email is required'}), 400
+        
+        res = requests.post(
+            f"{BASE_URL}/auth/forgot-password",
+            json={'email': email},
+            headers={'Content-Type': 'application/json'}
+        )
+        
+        response_data = res.json()
+        return jsonify(response_data), res.status_code
+    except Exception as e:
+        print("Forgot password error:", e)
+        return jsonify({'success': False, 'error': 'Server error occurred'}), 500
+
+@auth_bp.route('/reset-password', methods=['GET'])
+def reset_password():
+    token = request.args.get('token', '')
+    return render_template('reset_password.html', token=token)
+
+@auth_bp.route('/reset-password', methods=['POST'])
+def handle_reset_password():
+    try:
+        data = request.get_json() or {}
+        token = data.get('token', '')
+        new_password = data.get('new_password', '')
+        confirm_password = data.get('confirm_password', '')
+        
+        if not all([token, new_password, confirm_password]):
+            return jsonify({'success': False, 'error': 'All fields are required'}), 400
+        
+        if new_password != confirm_password:
+            return jsonify({'success': False, 'error': 'Passwords do not match'}), 400
+        
+        if len(new_password) < 8 or not re.search(r"[A-Z]", new_password) or not re.search(r"[@$!%*?&]", new_password):
+            return jsonify({'success': False, 'error': 'Password must be 8+ chars and include a capital and a special character'}), 400
+        
+        res = requests.post(
+            f"{BASE_URL}/auth/reset-password",
+            json={
+                'token': token,
+                'new_password': new_password,
+                'confirm_password': confirm_password
+            },
+            headers={'Content-Type': 'application/json'}
+        )
+        
+        response_data = res.json()
+        return jsonify(response_data), res.status_code
+    except Exception as e:
+        print("Reset password error:", e)
+        return jsonify({'success': False, 'error': 'Server error occurred'}), 500
+
+@auth_bp.route('/change-password', methods=['GET', 'POST'])
+def change_password():
+    if 'token' not in session:
+        return redirect(url_for('auth.login'))
+    if request.method == 'POST':
+        payload = {
+            "new_password": request.form.get("new_password"),
+            "confirm_password": request.form.get("confirm_password")
+        }
+        try:
+            res = requests.post(f"{BASE_URL}/auth/change-password", json=payload, headers=get_headers())
+            data = res.json()
+            if res.status_code == 200 and data.get("success"):
+                if data.get("token"):
+                    session['token'] = data['token']
+                flash("Password changed successfully!", "success")
+                return redirect(url_for('dashboard.dashboard'))
+            else:
+                flash(data.get("error", "Failed to change password"), "danger")
+        except Exception as e:
+            print("Password change error:", e)
+            flash("Server error occurred", "danger")
+    return render_template('change_password.html')
+
+@auth_bp.route('/logout')
+def logout():
+    session.clear()
+    return redirect(url_for('auth.login'))

@@ -1,0 +1,1578 @@
+{% extends "base.html" %}
+{% block title %}Timesheets{% endblock %}
+
+{% block content %}
+<style>
+    .timesheet-table {
+        font-size: 0.85rem;
+    }
+    .timesheet-table th {
+        white-space: nowrap;
+    }
+    .timesheet-table td {
+        vertical-align: middle;
+    }
+</style>
+
+<!-- Hidden session token for API authentication -->
+<input type="hidden" id="sessionToken" value="{{ session.get('token', '') }}">
+
+<div class="form-card">
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div class="d-flex align-items-center gap-2">
+            <h5 class="mb-0">Timesheet Records</h5>
+            <button class="btn btn-outline-primary btn-sm" onclick="location.href='/timesheets'"
+                style="border-radius: 10px;">Daily</button>
+            <button class="btn btn-outline-primary btn-sm" onclick="location.href='/add-weekly-timesheet'"
+                style="border-radius: 10px;">Weekly</button>
+            <button class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#calendarModal"
+                style="border-radius: 10px;">
+                <i class="bi bi-calendar3"></i> View Calendar
+            </button>
+        </div>
+
+        <!-- 📦 CALENDAR DATA STORAGE [UPDATED] -->
+        <script id="calendarData" type="application/json">
+            {
+                "holidays": {{ holidays|tojson|safe if holidays else '[]' }},
+                "missing_timesheets": {{ missing_timesheets|tojson|safe if missing_timesheets else '[]' }},
+                "submitted_timesheets": {{ timesheets|tojson|safe if timesheets else '[]' }},
+                "project_map": {{ project_map|tojson|safe if project_map else '{}' }}
+            }
+        </script>
+
+        <div class="d-flex align-items-center gap-2">
+            <button type="button" class="btn btn-outline-success btn-sm" id="exportExcelBtn"
+                style="border-radius: 10px;">
+                <i class="bi bi-file-earmark-excel"></i> Export Excel
+            </button>
+            {% if session.role in ['employee','hr','admin'] %}
+            <a href="{{ url_for('work.add_timesheet') }}" class="btn btn-primary">Add Timesheet</a>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Filters Section -->
+    <div class="row g-2 mb-3">
+        {% if session.role in ['hr', 'admin'] %}
+        <div class="col-md-2">
+            <input type="text" id="filterEmployee" class="form-control form-control-sm" placeholder="Search Employee..." style="border-radius: 8px;">
+        </div>
+        {% endif %}
+        <div class="col-md-2">
+            <input type="text" id="filterProject" class="form-control form-control-sm" placeholder="Search Project..." style="border-radius: 8px;">
+        </div>
+        <div class="col-md-2">
+            <input type="text" id="filterManager" class="form-control form-control-sm" placeholder="Search Manager..." style="border-radius: 8px;">
+        </div>
+        <div class="col-md-2">
+            <input type="date" id="filterDate" class="form-control form-control-sm" style="border-radius: 8px;">
+        </div>
+        <div class="col-md-2">
+            <select id="filterStatus" class="form-control form-control-sm" style="border-radius: 8px;">
+                <option value="">All Statuses</option>
+                <option value="submitted">Submitted</option>
+                <option value="approved">Approved</option>
+                <option value="rejected">Rejected</option>
+            </select>
+        </div>
+        <div class="col-md-1">
+            <button class="btn btn-outline-secondary btn-sm w-100" id="clearFilters" style="border-radius: 8px;">Clear</button>
+        </div>
+    </div>
+
+    <!-- Manager/HR Approval Section -->
+
+    <table class="table table-hover timesheet-table">
+        <thead>
+            <tr>
+                <th>Employee</th>
+                <th>Project</th>
+                <th>Project Manager</th>
+                <th>Task</th>
+                <th>Description</th>
+                <th>Hours</th>
+                <th>Date</th>
+                {% if session.role not in ['hr', 'admin'] %}
+                <th>Status</th>
+                {% endif %}
+                <th class="text-center">Actions</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            {% for t in timesheets %}
+            {% set manager_name = project_manager_map.get((t.project|string).strip().lower(), '-') %}
+            <tr class="timesheet-row" 
+                data-employee="{{ t.employee_name|lower }}" 
+                data-project="{{ t.project|lower }}" 
+                data-manager="{{ manager_name|lower }}" 
+                data-date="{{ t.start_date[:10] }}" 
+                data-status="{{ t.status|lower }}">
+                <td>{{ t.employee_name }}</td>
+                <td>{{ t.project }}</td>
+                <td>{{ project_manager_map.get((t.project|string).strip().lower(), '-') }}</td>
+                <td>{{ t.task }}</td>
+                <td>{{ t.description or '-' }}</td>
+                <td>{{ t.hours }}</td>
+                <td style="white-space: nowrap;">{{ t.start_date[:11] if t.start_date else '' }}</td>
+                {% if session.role not in ['hr', 'admin'] %}
+                <td>
+                    {% if t.status == 'submitted' %}
+                    <span class="badge text-dark" style="background-color:#e0ecfe; font-size: 0.7rem; padding: 0.35em 0.65em;">Submitted</span>
+                    {% elif t.status == 'approved' %}
+                    <span class="badge text-dark" style="background-color:#d9f7e9; font-size: 0.7rem; padding: 0.35em 0.65em;">Approved</span>
+                    {% elif t.status == 'rejected' %}
+                    <span class="badge text-dark" style="background-color:#ffd7da; font-size: 0.7rem; padding: 0.35em 0.65em;">Rejected</span>
+                    {% else %}
+                    <span class="badge bg-secondary" style="font-size: 0.7rem; padding: 0.35em 0.65em;">{{ t.status|capitalize }}</span>
+                    {% endif %}
+                </td>
+                {% endif %}
+                <td class="text-center">
+                    <div class="d-flex flex-wrap gap-2 justify-content-center">
+                        {% if session.role in ['employee','hr','admin'] and t.employee_name == session.employee_name and
+                        t.status == 'submitted' %}
+                        <a href="/edit-timesheet/{{ t.id }}" class="btn btn-sm btn-outline-primary rounded-pill px-2"
+                            style="font-size: 0.7rem; min-width: 80px; display: inline-flex; align-items: center; justify-content: center; gap: 4px; white-space: nowrap;">
+                            <i class="bi bi-pencil"></i> Edit
+                        </a>
+                        {% endif %}
+
+                        {% if session.role in ['admin', 'manager', 'hr'] %}
+                        {% if t.status == 'submitted' %}
+                            {% if (t.employee_role == 'hr' and session.role == 'admin') or 
+                                  (t.employee_role != 'hr' and session.role in ['admin', 'manager', 'hr']) %}
+                                {% if t.employee_name != session.employee_name %}
+                                    <button class="btn btn-sm approve-btn border-0 rounded-pill px-2" data-timesheet-id="{{ t.id }}"
+                                        data-employee-name="{{ t.employee_name }}"
+                                        style="background-color: #D1E7DD; color: #000000; font-size: 0.7rem; min-width: 80px; display: inline-flex; align-items: center; justify-content: center; gap: 4px; white-space: nowrap;">
+                                        <i class="bi bi-check-circle"></i> Approve
+                                    </button>
+                                    <button class="btn btn-sm reject-btn border-0 rounded-pill px-2" data-timesheet-id="{{ t.id }}"
+                                        data-employee-name="{{ t.employee_name }}"
+                                        style="background-color: #F8D7DA; color: #000000; font-size: 0.7rem; min-width: 80px; display: inline-flex; align-items: center; justify-content: center; gap: 4px; white-space: nowrap;">
+                                        <i class="bi bi-x-circle"></i> Reject
+                                    </button>
+                                {% endif %}
+                            {% endif %}
+                        {% elif t.status == 'approved' %}
+                        <button class="btn btn-sm btn-light text-success rounded-pill px-2" disabled
+                            style="background-color: #f8f9fa; font-size: 0.7rem; min-width: 80px; display: inline-flex; align-items: center; justify-content: center; gap: 4px; white-space: nowrap;">
+                            <i class="bi bi-check-circle-fill"></i> Approved
+                        </button>
+                        {% elif t.status == 'rejected' %}
+                        <button class="btn btn-sm btn-light text-danger rounded-pill px-2" disabled
+                            style="background-color: #f8f9fa; font-size: 0.7rem; min-width: 80px; display: inline-flex; align-items: center; justify-content: center; gap: 4px; white-space: nowrap;">
+                            <i class="bi bi-x-circle-fill"></i> Rejected
+                        </button>
+                        {% endif %}
+                        {% endif %}
+                    </div>
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="{% if session.role in ['hr', 'admin'] %}8{% else %}9{% endif %}" class="text-center">
+                    No timesheets found
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+</div>
+
+<!-- Reject Timesheet Modal -->
+{% if session.role in ['manager', 'hr'] %}
+<div class="modal fade" id="rejectTimesheetModal" tabindex="-1" aria-labelledby="rejectTimesheetModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="rejectTimesheetModalLabel">Reject Timesheet</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="rejectTimesheetForm">
+                    <div class="mb-3">
+                        <label for="rejectEmployeeName" class="form-label">Employee Name</label>
+                        <input type="text" class="form-control" id="rejectEmployeeName" readonly>
+                    </div>
+                    <div class="mb-3">
+                        <label for="rejectComments" class="form-label">Rejection Comments *</label>
+                        <textarea class="form-control" id="rejectComments" rows="3" required
+                            placeholder="Please provide reason for rejection..."></textarea>
+                    </div>
+                    <input type="hidden" id="rejectTimesheetId">
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-danger" id="rejectTimesheetBtn">
+                    <i class="bi bi-x-circle"></i> Reject Timesheet
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Approve Confirmation Modal -->
+<div class="modal fade" id="approveModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <!-- HEADER -->
+            <div class="modal-header">
+                <h5 class="modal-title text-success">
+                    <i class="bi bi-check-circle"></i> Confirm Approval
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+
+            <!-- BODY -->
+            <div class="modal-body">
+                <p>
+                    Are you sure you want to approve the timesheet for
+                    <strong id="approveEmpName"></strong>?
+                </p>
+                <p class="text-muted small">
+                    This action will mark the timesheet as approved and cannot be undone.
+                </p>
+            </div>
+
+            <!-- FOOTER -->
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal">
+                    Cancel
+                </button>
+                <button type="button" class="btn btn-success" id="confirmApproveBtn">
+                    <i class="bi bi-check-circle"></i> Approve
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Success Modal -->
+<div class="modal fade" id="successModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <!-- HEADER -->
+            <div class="modal-header">
+                <h5 class="modal-title text-success">
+                    <i class="bi bi-check-circle-fill"></i> Success
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+
+            <!-- BODY -->
+            <div class="modal-body text-center">
+                <div class="mb-3">
+                    <i class="bi bi-check-circle-fill text-success" style="font-size: 3rem;"></i>
+                </div>
+                <p id="successMessage">
+                    Operation completed successfully!
+                </p>
+            </div>
+
+            <!-- FOOTER -->
+            <div class="modal-footer">
+                <button type="button" class="btn btn-success" data-bs-dismiss="modal">
+                    OK
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Timesheet Calendar Modal -->
+<div class="modal fade" id="calendarModal" tabindex="-1" aria-labelledby="calendarModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered" style="max-width: 805px;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="calendarModalLabel">Timesheet & Holiday Calendar</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body py-2 px-3" style="background: #f8f9fa;">
+                <div id="calendar"
+                    style="background: white; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
+                </div>
+
+                <div class="mt-2 d-flex flex-wrap gap-2 justify-content-center pb-2">
+                    <div class="calendar-legend-item">
+                        <span class="legend-dot" style="background-color: #22c55e;"></span>
+                        Completed
+                    </div>
+                    <div class="calendar-legend-item">
+                        <span class="legend-dot" style="background-color: #ef4444;"></span>
+                        Missing
+                    </div>
+                    <div class="calendar-legend-item">
+                        <span class="legend-dot" style="background-color: #7c3aed;"></span>
+                        Approved Leave
+                    </div>
+                    <div class="calendar-legend-item">
+                        <span class="legend-dot" style="background-color: #f59e0b;"></span>
+                        Holiday
+                    </div>
+                    <div class="calendar-legend-item">
+                        <span class="legend-dot" style="background-color: #94a3b8;"></span>
+                        Weekend
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Day Details Modal -->
+<div class="modal fade" id="dayDetailsModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg">
+            <div class="modal-header bg-light">
+                <h5 class="modal-title">
+                    <i class="bi bi-calendar-event me-2"></i>
+                    Details for <span id="detailDateLabel">--</span>
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="dayDetailsContent">
+                <div class="text-center py-4">
+                    <div class="spinner-border text-primary" role="status"></div>
+                </div>
+            </div>
+            <div class="modal-footer bg-light border-0">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                {% if session.role == 'employee' %}
+                <button type="button" class="btn btn-primary d-none" id="addTimesheetDayBtn"
+                    onclick="redirectToAddTimesheet()">
+                    <i class="bi bi-plus-circle me-1"></i> Add Entry
+                </button>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+
+    // Define functions immediately and make them globally available
+    let pendingTimesheets = [];
+
+    // Show success modal
+    function showSuccessModal(message) {
+        document.getElementById('successMessage').textContent = message;
+        const modal = new bootstrap.Modal(document.getElementById('successModal'));
+        modal.show();
+    }
+
+    // Show toast notification
+    function showToast(title, message, type = 'info') {
+        const toastContainer = document.getElementById('toastContainer');
+        const toastId = 'toast-' + Date.now();
+
+        const toastHtml = `
+        <div id="${toastId}" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="toast-header">
+                <i class="bi ${getToastIcon(type)} me-2"></i>
+                <strong class="me-auto">${title}</strong>
+                <small>Just now</small>
+                <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+            <div class="toast-body">
+                ${message}
+            </div>
+        </div>
+    `;
+
+        toastContainer.insertAdjacentHTML('beforeend', toastHtml);
+
+        const toastElement = document.getElementById(toastId);
+        const toast = new bootstrap.Toast(toastElement, {
+            autohide: true,
+            delay: 5000
+        });
+
+        toast.show();
+
+        // Remove toast element after it's hidden
+        toastElement.addEventListener('hidden.bs.toast', () => {
+            toastElement.remove();
+        });
+    }
+
+    // Get appropriate icon for toast type
+    function getToastIcon(type) {
+        switch (type) {
+            case 'success':
+                return 'bi-check-circle-fill text-success';
+            case 'error':
+                return 'bi-x-circle-fill text-danger';
+            case 'warning':
+                return 'bi-exclamation-triangle-fill text-warning';
+            default:
+                return 'bi-info-circle-fill text-info';
+        }
+    }
+
+    // Send notification to employee
+    function sendNotificationToEmployee(employeeName, action, comments = '') {
+        // Store notification for when employee logs in
+        storeNotification(employeeName, action, comments);
+
+        // Show notification to current user if they are the employee
+        const currentUser = '{{ session.employee_name }}';
+
+        if (currentUser === employeeName) {
+            const title = action === 'approved' ? 'Timesheet Approved' : 'Timesheet Rejected';
+            const message = action === 'approved'
+                ? `Your timesheet has been approved.`
+                : `Your timesheet has been rejected. ${comments ? 'Comments: ' + comments : ''}`;
+            const type = action === 'approved' ? 'success' : 'warning';
+
+            // Show notification after a short delay to simulate real-time notification
+            setTimeout(() => {
+                showToast(title, message, type);
+            }, 1000);
+        } else {
+            // For testing: Show a notification to the manager that notification was sent
+            const title = 'Notification Sent';
+            const message = `Timesheet ${action} notification sent to ${employeeName}`;
+            showToast(title, message, 'info');
+        }
+
+        // Log the notification (for debugging)
+        console.log(`Notification sent to ${employeeName}: ${action}`);
+    }
+
+    // Store notification in localStorage for when employee logs in
+    function storeNotification(employeeName, action, comments) {
+        const notifications = JSON.parse(localStorage.getItem('timesheetNotifications') || '[]');
+        const notification = {
+            employeeName,
+            action,
+            comments,
+            timestamp: new Date().toISOString(),
+            read: false
+        };
+        notifications.push(notification);
+        localStorage.setItem('timesheetNotifications', JSON.stringify(notifications));
+    }
+
+    // Check and show pending notifications for current user
+    function checkPendingNotifications() {
+        const currentUser = '{{ session.employee_name }}';
+        if (!currentUser) return;
+
+        const notifications = JSON.parse(localStorage.getItem('timesheetNotifications') || '[]');
+        const userNotifications = notifications.filter(n => n.employeeName === currentUser && !n.read);
+
+        userNotifications.forEach(notification => {
+            const title = notification.action === 'approved' ? 'Timesheet Approved' : 'Timesheet Rejected';
+            const message = notification.action === 'approved'
+                ? `Your timesheet has been approved.`
+                : `Your timesheet has been rejected. ${notification.comments ? 'Comments: ' + notification.comments : ''}`;
+            const type = notification.action === 'approved' ? 'success' : 'warning';
+
+            showToast(title, message, type);
+
+            // Mark as read
+            notification.read = true;
+        });
+
+        // Update storage
+        localStorage.setItem('timesheetNotifications', JSON.stringify(notifications));
+    }
+
+    // Show error message
+    function showError(message) {
+        alert('Error: ' + message);
+    }
+
+    function syncTimesheetStatusInUI(timesheetId, status) {
+        const normalizedStatus = String(status || '').toLowerCase();
+        let badgeHtml = `<span class="badge bg-secondary">${status}</span>`;
+
+        if (normalizedStatus === 'approved') {
+            badgeHtml = '<span class="badge bg-success">Approved</span>';
+        } else if (normalizedStatus === 'rejected') {
+            badgeHtml = '<span class="badge bg-danger">Rejected</span>';
+        }
+
+        const actionButtons = document.querySelectorAll(`[data-timesheet-id="${timesheetId}"]`);
+        actionButtons.forEach(button => {
+            const row = button.closest('tr');
+            if (!row) return;
+
+            const statusCell = row.children[7];
+            const actionCell = row.children[8];
+
+            if (statusCell) {
+                statusCell.innerHTML = badgeHtml;
+            }
+            if (actionCell) {
+                actionCell.innerHTML = `
+                    <button class="btn btn-sm btn-secondary" disabled>
+                        <i class="bi bi-check-circle-fill"></i> ${normalizedStatus === 'approved' ? 'Approved' : 'Rejected'}
+                    </button>
+                `;
+            }
+        });
+    }
+
+    // Export filter keys supported by backend endpoint
+    const exportFilterKeys = ['start_date', 'end_date', 'project', 'status', 'employee_name'];
+
+    function getActiveTimesheetFilters() {
+        const filters = {};
+        const urlParams = new URLSearchParams(window.location.search);
+
+        // Start with active URL query filters
+        exportFilterKeys.forEach((key) => {
+            const value = (urlParams.get(key) || '').trim();
+            if (value) {
+                filters[key] = value;
+            }
+        });
+
+        // Merge with optional filter fields if present on page
+        exportFilterKeys.forEach((key) => {
+            const field = document.getElementById(key) || document.querySelector(`[name="${key}"]`);
+            if (!field) {
+                return;
+            }
+
+            const value = (field.value || '').toString().trim();
+            if (value) {
+                filters[key] = value;
+            } else {
+                delete filters[key];
+            }
+        });
+
+        return filters;
+    }
+
+    function buildExportQuery(filters) {
+        const params = new URLSearchParams();
+        Object.entries(filters || {}).forEach(([key, value]) => {
+            const cleaned = (value || '').toString().trim();
+            if (cleaned) {
+                params.set(key, cleaned);
+            }
+        });
+        return params.toString();
+    }
+
+    function getFilenameFromDisposition(contentDisposition) {
+        if (!contentDisposition) {
+            return null;
+        }
+
+        // RFC 5987 format: filename*=UTF-8''encoded-name.xlsx
+        const utf8Match = contentDisposition.match(/filename\*=UTF-8''([^;]+)/i);
+        if (utf8Match && utf8Match[1]) {
+            try {
+                return decodeURIComponent(utf8Match[1].replace(/['"]/g, ''));
+            } catch (err) {
+                console.warn('Failed to decode UTF-8 filename:', err);
+            }
+        }
+
+        // Fallback format: filename="name.xlsx"
+        const basicMatch = contentDisposition.match(/filename="?([^"]+)"?/i);
+        if (basicMatch && basicMatch[1]) {
+            return basicMatch[1];
+        }
+
+        return null;
+    }
+
+    async function downloadTimesheetExcel() {
+        const exportBtn = document.getElementById('exportExcelBtn');
+        if (!exportBtn) {
+            return;
+        }
+
+        const token = getToken();
+        if (!token) {
+            showToast('Export Failed', 'Authentication token not found. Please log in again.', 'error');
+            return;
+        }
+
+        const originalHtml = exportBtn.innerHTML;
+        exportBtn.disabled = true;
+        exportBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span> Exporting...';
+
+        try {
+            const filters = getActiveTimesheetFilters();
+            const query = buildExportQuery(filters);
+            const url = query ? `/timesheets/export?${query}` : '/timesheets/export';
+
+            const response = await fetch(url, {
+                method: 'GET',
+                headers: {
+                    'Authorization': 'Bearer ' + token
+                }
+            });
+
+            if (!response.ok) {
+                const contentType = (response.headers.get('content-type') || '').toLowerCase();
+                let errorMessage = 'Unable to export timesheets. Please try again.';
+
+                if (contentType.includes('application/json')) {
+                    const data = await response.json();
+                    errorMessage = data.error || errorMessage;
+                } else {
+                    const text = await response.text();
+                    if (text && text.trim()) {
+                        errorMessage = text.trim();
+                    }
+                }
+
+                if (response.status === 404) {
+                    showToast('No Data', errorMessage, 'warning');
+                } else {
+                    showToast('Export Failed', errorMessage, 'error');
+                }
+                return;
+            }
+
+            const blob = await response.blob();
+            if (!blob || blob.size === 0) {
+                showToast('Export Failed', 'The generated Excel file is empty.', 'error');
+                return;
+            }
+
+            const contentDisposition = response.headers.get('content-disposition') || '';
+            const today = new Date().toISOString().slice(0, 10).replace(/-/g, '');
+            const filename = getFilenameFromDisposition(contentDisposition) || `Timesheet_Export_${today}.xlsx`;
+
+            const downloadUrl = window.URL.createObjectURL(blob);
+            const anchor = document.createElement('a');
+            anchor.href = downloadUrl;
+            anchor.download = filename;
+            document.body.appendChild(anchor);
+            anchor.click();
+            anchor.remove();
+            window.URL.revokeObjectURL(downloadUrl);
+
+            showToast('Export Complete', 'Timesheet Excel downloaded successfully.', 'success');
+        } catch (error) {
+            console.error('Error exporting timesheets:', error);
+            showToast('Export Failed', error.message || 'Unexpected error while exporting.', 'error');
+        } finally {
+            exportBtn.disabled = false;
+            exportBtn.innerHTML = originalHtml;
+        }
+    }
+
+    // Approve a single timesheet (available for all roles)
+    function approveTimesheet(timesheetId, employeeName) {
+        // Set employee name for modal
+        document.getElementById('approveEmpName').textContent = employeeName || 'this employee';
+
+        // Store timesheet ID and employee name for confirmation
+        window.currentTimesheetId = timesheetId;
+        window.currentEmployeeName = employeeName;
+
+        // Show approval modal
+        const modal = new bootstrap.Modal(document.getElementById('approveModal'));
+        modal.show();
+    }
+
+    // Confirm approval function
+    function confirmApprove() {
+        const timesheetId = window.currentTimesheetId;
+        const employeeName = window.currentEmployeeName;
+        const token = getToken();
+
+        if (!token) {
+            showError('Authentication token not found');
+            return;
+        }
+        fetch('/manager/timesheets/approve', {
+            method: 'POST',
+            headers: {
+                'Authorization': 'Bearer ' + token,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                timesheet_id: parseInt(timesheetId)
+            })
+        })
+            .then(response => {
+                if (response.status === 0) {
+                    throw new Error('Network error - backend server may not be running');
+                }
+
+                // Check if response is JSON
+                const contentType = response.headers.get('content-type');
+                if (contentType && contentType.includes('application/json')) {
+                    return response.json();
+                } else {
+                    // Handle non-JSON response (likely HTML error page)
+                    return response.text().then(text => {
+                        throw new Error('Backend returned HTML instead of JSON. Status: ' + response.status);
+                    });
+                }
+            })
+            .then(data => {
+                // Close approval modal
+                const approveModal = bootstrap.Modal.getInstance(document.getElementById('approveModal'));
+                if (approveModal) {
+                    approveModal.hide();
+                }
+
+                if (data.success) {
+                    // Send notification to employee
+                    sendNotificationToEmployee(employeeName, 'approved');
+
+                    syncTimesheetStatusInUI(timesheetId, 'approved');
+                    showSuccessModal('Timesheet approved successfully');
+                    setTimeout(() => location.reload(true), 1500); // Force refresh without cache
+                } else {
+                    if (data.error && data.error.includes('Cannot connect to backend server')) {
+                        showError('Backend server not running. Please start the server at 192.168.1.51:5001');
+                    } else {
+                        showError('Failed to approve timesheet: ' + data.error);
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Error approving timesheet:', error);
+                if (error.message.includes('backend server')) {
+                    showError('Backend server not running. Please start the server at 192.168.1.51:5001');
+                } else {
+                    showError('Error approving timesheet: ' + error.message);
+                }
+            });
+    }
+
+    // Show reject modal (available for all roles)
+    function showRejectModal(timesheetId, employeeName) {
+        document.getElementById('rejectTimesheetId').value = timesheetId;
+        document.getElementById('rejectEmployeeName').value = employeeName;
+        document.getElementById('rejectComments').value = '';
+
+        const modal = new bootstrap.Modal(document.getElementById('rejectTimesheetModal'));
+        modal.show();
+    }
+
+    // Reject a timesheet (available for all roles)
+    function rejectTimesheet() {
+        const timesheetId = document.getElementById('rejectTimesheetId').value;
+        const comments = document.getElementById('rejectComments').value.trim();
+
+        if (!comments) {
+            showError('Rejection comments are required');
+            return;
+        }
+
+        const token = getToken();
+
+        if (!token) {
+            showError('Authentication token not found');
+            return;
+        }
+        fetch('/manager/timesheets/reject', {
+            method: 'POST',
+            headers: {
+                'Authorization': 'Bearer ' + token,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                timesheet_id: parseInt(timesheetId),
+                rejection_reason: comments
+            })
+        })
+            .then(response => {
+                if (response.status === 0) {
+                    throw new Error('Network error - backend server may not be running');
+                }
+
+                // Check if response is JSON
+                const contentType = response.headers.get('content-type');
+                if (contentType && contentType.includes('application/json')) {
+                    return response.json();
+                } else {
+                    // Handle non-JSON response (likely HTML error page)
+                    return response.text().then(text => {
+                        throw new Error('Backend returned HTML instead of JSON. Status: ' + response.status);
+                    });
+                }
+            })
+            .then(data => {
+                // Close reject modal
+                const rejectModal = bootstrap.Modal.getInstance(document.getElementById('rejectTimesheetModal'));
+                if (rejectModal) {
+                    rejectModal.hide();
+                }
+
+                if (data.success) {
+                    // Send notification to employee
+                    const employeeName = document.getElementById('rejectEmployeeName').value;
+                    const comments = document.getElementById('rejectComments').value.trim();
+                    sendNotificationToEmployee(employeeName, 'rejected', comments);
+
+                    syncTimesheetStatusInUI(timesheetId, 'rejected');
+                    showSuccessModal('Timesheet rejected with comments');
+                    setTimeout(() => location.reload(true), 1500); // Force refresh without cache
+                } else {
+                    if (data.error && data.error.includes('Cannot connect to backend server')) {
+                        showError('Backend server not running. Please start the server at 192.168.1.51:5001');
+                    } else {
+                        showError('Failed to reject timesheet: ' + data.error);
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Error rejecting timesheet:', error);
+                if (error.message.includes('backend server')) {
+                    showError('Backend server not running. Please start the server at 192.168.1.51:5001');
+                } else if (error.message.includes('Network error')) {
+                    showError('Network error occurred. Please check your connection and try again.');
+                } else {
+                    showError('Error rejecting timesheet: ' + error.message);
+                }
+            });
+    }
+
+    // Make functions globally available immediately after definition
+    window.approveTimesheet = approveTimesheet;
+    window.showRejectModal = showRejectModal;
+    window.rejectTimesheet = rejectTimesheet;
+    if (typeof getToken === 'function') {
+        window.getToken = getToken;
+    }
+    if (typeof showSuccess === 'function') {
+        window.showSuccess = showSuccess;
+    }
+    window.showError = showError;
+
+    // Load pending timesheets on page load (manager/hr only)
+    document.addEventListener('DOMContentLoaded', function () {
+        const userRole = '{{ session.role }}';
+        const exportBtn = document.getElementById('exportExcelBtn');
+
+        if (exportBtn) {
+            exportBtn.addEventListener('click', downloadTimesheetExcel);
+        }
+
+        // Check for pending notifications for current user
+        checkPendingNotifications();
+
+        // Add event delegation for approve/reject buttons
+        document.addEventListener('click', function (e) {
+            const target = e.target;
+
+            // Handle approve button clicks
+            if (target.matches('.approve-btn') || target.closest('.approve-btn')) {
+                const button = target.matches('.approve-btn') ? target : target.closest('.approve-btn');
+                const timesheetId = button.getAttribute('data-timesheet-id');
+                const employeeName = button.getAttribute('data-employee-name');
+                if (timesheetId) {
+                    approveTimesheet(timesheetId, employeeName);
+                }
+            }
+
+            // Handle reject button clicks
+            if (target.matches('.reject-btn') || target.closest('.reject-btn')) {
+                const button = target.matches('.reject-btn') ? target : target.closest('.reject-btn');
+                const timesheetId = button.getAttribute('data-timesheet-id');
+                const employeeName = button.getAttribute('data-employee-name');
+                if (timesheetId && employeeName) {
+                    showRejectModal(timesheetId, employeeName);
+                }
+            }
+
+            // Handle reject modal button
+            if (target.matches('#rejectTimesheetBtn')) {
+                rejectTimesheet();
+            }
+
+            // Handle approve confirmation button
+            if (target.matches('#confirmApproveBtn')) {
+                confirmApprove();
+            }
+        });
+
+        // Only load pending timesheets if user is a manager, HR, or admin
+        if (userRole === 'manager' || userRole === 'hr' || userRole === 'admin') {
+            testAPIConnectivity();
+
+            setTimeout(() => {
+                loadPendingTimesheets();
+            }, 1000);
+        }
+    });
+
+    // Test API connectivity
+    function testAPIConnectivity() {
+        console.log('Testing API connectivity...');
+        const token = getToken();
+        console.log('Token available for test:', !!token);
+
+        if (!token) {
+            console.error('No token available for API test');
+            document.getElementById('pendingTimesheetsContainer').innerHTML = `
+            <div class="text-center text-danger">
+                <i class="bi bi-exclamation-triangle" style="font-size: 2rem;"></i>
+                <p class="mt-2">No authentication token found. Please log in again.</p>
+            </div>
+        `;
+            return;
+        }
+
+        // Test basic connectivity first
+        fetch('/manager/timesheets/pending', {
+            headers: {
+                'Authorization': 'Bearer ' + token,
+                'Content-Type': 'application/json'
+            }
+        })
+            .then(response => {
+                console.log('API test response status:', response.status);
+                if (response.status === 0) {
+                    throw new Error('Network error - backend server may not be running');
+                }
+                return response.text();
+            })
+            .then(text => {
+                console.log('API test response text:', text);
+                try {
+                    const data = JSON.parse(text);
+                    console.log('API test parsed data:', data);
+                    if (data.error && data.error.includes('Cannot connect to backend server')) {
+                        throw new Error('Backend server not running at 192.168.1.51:5001');
+                    }
+                } catch (e) {
+                    if (e.message.includes('backend server')) {
+                        throw e;
+                    }
+                    console.log('API test response is not JSON:', text);
+                }
+            })
+            .catch(error => {
+                console.error('API test failed:', error);
+                let errorMessage = 'API connectivity test failed. Check console for details.';
+
+                if (error.message.includes('backend server')) {
+                    errorMessage = `
+                <div class="text-center text-danger">
+                    <i class="bi bi-server" style="font-size: 2rem;"></i>
+                    <p class="mt-2"><strong>Backend Server Not Running</strong></p>
+                    <p class="mt-2">Please start the backend server at 192.168.1.51:5001</p>
+                    <p class="mt-2">The timesheet approval functionality requires the backend server to be running.</p>
+                </div>
+            `;
+                }
+
+                document.getElementById('pendingTimesheetsContainer').innerHTML = errorMessage;
+            });
+    }
+
+    // Load pending timesheets from API
+    function loadPendingTimesheets() {
+        console.log('Loading pending timesheets...');
+        const token = getToken();
+        console.log('Token found:', !!token);
+
+        if (!token) {
+            console.error('No authentication token found');
+            document.getElementById('pendingTimesheetsContainer').innerHTML = `
+            <div class="text-center text-danger">
+                <i class="bi bi-exclamation-triangle" style="font-size: 2rem;"></i>
+                <p class="mt-2">Authentication token not found. Please refresh the page.</p>
+            </div>
+        `;
+            return;
+        }
+
+        console.log('Making API call to /manager/timesheets/pending...');
+        fetch('/manager/timesheets/pending', {
+            headers: {
+                'Authorization': 'Bearer ' + token,
+                'Content-Type': 'application/json'
+            },
+            cache: 'no-store'
+        })
+            .then(response => {
+                console.log('API response status:', response.status);
+                return response.json();
+            })
+            .then(data => {
+                console.log('API response data:', data);
+                if (data.success === false) {
+                    console.error('Failed to load pending timesheets:', data.error);
+                    document.getElementById('pendingTimesheetsContainer').innerHTML = `
+                <div class="text-center text-danger">
+                    <i class="bi bi-exclamation-triangle" style="font-size: 2rem;"></i>
+                    <p class="mt-2">Failed to load: ${data.error}</p>
+                </div>
+            `;
+                    return;
+                }
+
+                pendingTimesheets = Array.isArray(data.pending_timesheets)
+                    ? data.pending_timesheets
+                    : (Array.isArray(data.timesheets) ? data.timesheets : []);
+                if (Array.isArray(data.timesheets) && !Array.isArray(data.pending_timesheets)) {
+                    pendingTimesheets = data.timesheets.filter(ts => String(ts.status || '').toLowerCase() === 'submitted');
+                }
+                console.log('Pending timesheets loaded:', pendingTimesheets.length);
+                displayPendingTimesheets();
+            })
+            .catch(error => {
+                console.error('Error loading pending timesheets:', error);
+                document.getElementById('pendingTimesheetsContainer').innerHTML = `
+            <div class="text-center text-danger">
+                <i class="bi bi-exclamation-triangle" style="font-size: 2rem;"></i>
+                <p class="mt-2">Error loading pending timesheets. Check console for details.</p>
+            </div>
+        `;
+            });
+    }
+
+    // Display pending timesheets in the container
+    function displayPendingTimesheets() {
+        const container = document.getElementById('pendingTimesheetsContainer');
+
+        if (pendingTimesheets.length === 0) {
+            container.innerHTML = `
+            <div class="text-center text-muted">
+                <i class="bi bi-check-circle-fill text-success" style="font-size: 2rem;"></i>
+                <p class="mt-2">No pending timesheets to review</p>
+            </div>
+        `;
+            return;
+        }
+
+        const tableHtml = `
+        <div class="table-responsive">
+            <table class="table table-sm">
+                <thead>
+                    <tr>
+                        <th>Employee</th>
+                        <th>Project</th>
+                        <th>Project Manager</th>
+                        <th>Task</th>
+                        <th>Hours</th>
+                        <th>Date</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${pendingTimesheets.map(ts => {
+            const data = JSON.parse(document.getElementById('calendarData').textContent);
+            const projectMap = data.project_map || {};
+            const managerName = projectMap[ts.project] || '-';
+            return `
+                        <tr>
+                            <td>${ts.employee_name}</td>
+                            <td>${ts.project}</td>
+                            <td>${projectMap[(ts.project || '').trim().toLowerCase()] || '-'}</td>
+                            <td>${ts.task}</td>
+                            <td>${ts.hours}</td>
+                            <td>${ts.start_date ? ts.start_date.substring(0, 11) : ''}</td>
+                            <td>
+                                <div class="btn-group btn-group-sm">
+                                    <button class="btn btn-success btn-sm approve-btn" data-timesheet-id="${ts.id}" data-employee-name="${ts.employee_name}">
+                                        <i class="bi bi-check-circle"></i>
+                                    </button>
+                                    <button class="btn btn-danger btn-sm reject-btn" data-timesheet-id="${ts.id}" data-employee-name="${ts.employee_name}">
+                                        <i class="bi bi-x-circle"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        `;
+        }).join('')}
+                </tbody>
+            </table>
+        </div>
+    `;
+
+        container.innerHTML = tableHtml;
+    }
+</script>
+
+<link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>
+
+<style>
+    /* Ultra-Premium Calendar Overhaul */
+    .fc {
+        background: transparent !important;
+        font-family: 'Inter', sans-serif !important;
+        border: none !important;
+    }
+
+    .fc-theme-standard td,
+    .fc-theme-standard th {
+        border: 1px solid #f1f5f9 !important;
+    }
+
+    /* Soft borders */
+
+    /* Navigation Group Styling */
+    .fc-toolbar {
+        margin-bottom: 1rem !important;
+        padding: 0 10px !important;
+    }
+
+    .fc-button-group {
+        background: #f1f5f9;
+        padding: 4px;
+        border-radius: 12px;
+    }
+
+    .fc-button-primary {
+        background: transparent !important;
+        border: none !important;
+        color: #475569 !important;
+        font-weight: 600 !important;
+        border-radius: 8px !important;
+        padding: 8px 16px !important;
+        box-shadow: none !important;
+    }
+
+    .fc-button-primary.fc-button-active,
+    .fc-button-primary:hover {
+        background: white !important;
+        color: #4f46e5 !important;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1) !important;
+    }
+
+    .fc-today-button {
+        background: white !important;
+        border: 1px solid #e2e8f0 !important;
+        color: #4f46e5 !important;
+        border-radius: 10px !important;
+        margin-left: 12px !important;
+        font-weight: 700 !important;
+    }
+
+    /* Header Row */
+    .fc-col-header {
+        background: #f8fafc;
+        border-radius: 12px 12px 0 0;
+        overflow: hidden;
+    }
+
+    .fc-col-header-cell {
+        padding: 8px 0 !important;
+        border: none !important;
+    }
+
+    .fc-col-header-cell-cushion {
+        font-size: 0.75rem !important;
+        font-weight: 700 !important;
+        color: #94a3b8 !important;
+        letter-spacing: 0.1em;
+    }
+
+    /* Day Cells */
+    .fc-daygrid-day {
+        transition: all 0.2s ease;
+        border: 1px solid #f1f5f9 !important;
+    }
+
+    .fc-daygrid-day-top {
+        flex-direction: row !important;
+        padding: 4px 8px !important;
+    }
+
+    .fc-daygrid-day-number {
+        font-size: 0.85rem !important;
+        font-weight: 700 !important;
+        color: #1e293b !important;
+        text-decoration: none !important;
+        padding: 2px !important;
+    }
+
+    /* Cell Status & Visibility */
+    .day-weekend {
+        background-color: #fbfcfe !important;
+    }
+
+    .day-today {
+        background-color: #f0f7ff !important;
+        border: 2px solid #3b82f6 !important;
+        z-index: 1;
+    }
+
+    /* Gray out overflow days from other months */
+    .fc-day-other {
+        background-color: #f8fafc !important;
+        opacity: 0.3 !important;
+        pointer-events: none !important;
+    }
+
+    .fc-day-other .fc-daygrid-day-number {
+        color: #94a3b8 !important;
+    }
+
+    /* Keep future dates in current month unclickable but visually 100% visible */
+    .fc-day-future:not(.fc-day-other) {
+        pointer-events: none !important;
+        cursor: default;
+    }
+
+    .fc-day-future:not(.fc-day-other) .fc-daygrid-day-number {
+        color: #1e293b !important;
+        opacity: 1 !important;
+    }
+
+    /* Modern Event Bars */
+    .fc-event {
+        border-radius: 6px !important;
+        padding: 2px 8px !important;
+        font-size: 0.68rem !important;
+        font-weight: 700 !important;
+        border: none !important;
+        margin: 2px 4px !important;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    .status-completed {
+        background: #bbf7d0 !important;
+        color: #166534 !important;
+        border-left: 3px solid #22c55e !important;
+    }
+
+    .status-missing {
+        background: #fecaca !important;
+        color: #991b1b !important;
+        border-left: 3px solid #ef4444 !important;
+    }
+
+    .status-holiday {
+        background: #fef3c7 !important;
+        color: #92400e !important;
+        border-left: 3px solid #f59e0b !important;
+    }
+
+    .status-leave {
+        background: #e9d5ff !important;
+        color: #6b21a8 !important;
+        border-left: 3px solid #a855f7 !important;
+    }
+
+    /* Modal Styling */
+    #calendarModal .modal-content {
+        background: #ffffff;
+        border: none;
+        border-radius: 24px;
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    }
+
+    .calendar-legend-item {
+        padding: 4px 10px;
+        background: #f8fafc;
+        border-radius: 10px;
+        font-size: 0.7rem;
+        color: #475569;
+        border: 1px solid #f1f5f9;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .legend-dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        display: inline-block;
+    }
+</style>
+
+<script>
+    // Helper to get auth token from template context if needed
+    function getToken() {
+        return '{{ session.get("token", "") }}';
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        var calendarEl = document.getElementById('calendar');
+        var calendarModalEl = document.getElementById('calendarModal');
+        var calendar = null;
+
+        if (calendarModalEl) {
+            calendarModalEl.addEventListener('shown.bs.modal', function () {
+                if (!calendar) {
+                    calendar = new FullCalendar.Calendar(calendarEl, {
+                        initialView: 'dayGridMonth',
+                        headerToolbar: {
+                            left: 'prev,next today',
+                            center: 'title',
+                            right: ''
+                        },
+                        height: 'auto',
+                        contentHeight: 'auto',
+                        handleWindowResize: true,
+                        expandRows: true,
+                        selectable: true,
+                        dayCellDidMount: function (info) {
+                            // Apply classes to cells based on date properties from backend if available
+                            const dateStr = info.date.toISOString().split('T')[0];
+                            const todayStr = new Date().toISOString().split('T')[0];
+
+                            if (info.date.getDay() === 0 || info.date.getDay() === 6) {
+                                info.el.classList.add('day-weekend');
+                            }
+
+                            if (dateStr > todayStr) {
+                                info.el.classList.add('fc-day-future');
+                            }
+
+                            if (dateStr === todayStr) {
+                                info.el.classList.add('day-today');
+                            }
+                        },
+                        events: function (fetchInfo, successCallback, failureCallback) {
+                            const year = fetchInfo.start.getFullYear();
+                            const month = fetchInfo.start.getMonth() + 1; // getMonth() is 0-indexed
+
+                            // If the view starts late in the previous month, use the middle of the view to determine the target month
+                            const middleDate = new Date((fetchInfo.start.getTime() + fetchInfo.end.getTime()) / 2);
+                            const targetYear = middleDate.getFullYear();
+                            const targetMonth = middleDate.getMonth() + 1;
+
+                            fetchCalendarData(targetYear, targetMonth, successCallback, failureCallback);
+                        },
+                        eventClick: function (info) {
+                            showDayDetails(info.event.startStr);
+                        },
+                        dateClick: function (info) {
+                            showDayDetails(info.dateStr);
+                        }
+                    });
+                    calendar.render();
+                } else {
+                    calendar.updateSize();
+                }
+            });
+        }
+
+        function fetchCalendarData(year, month, successCallback, failureCallback) {
+            const token = getToken();
+            fetch(`/api/timesheets/calendar?year=${year}&month=${month}`, {
+                headers: { 'Authorization': 'Bearer ' + token }
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (!data.success) {
+                        console.error('Calendar Fetch Error:', data.error);
+                        failureCallback(data.error);
+                        return;
+                    }
+
+                    const events = [];
+                    const days = data.days || {};
+
+                    Object.keys(days).forEach(dateStr => {
+                        const day = days[dateStr];
+                        let className = '';
+                        let title = day.label;
+
+                        switch (day.status) {
+                            case 'completed':
+                                className = 'status-completed';
+                                title = `✓ Completed`;
+                                break;
+                            case 'missing':
+                                className = 'status-missing';
+                                title = '⚠ Missing Entry';
+                                break;
+                            case 'holiday':
+                                className = 'status-holiday';
+                                title = '★ ' + (day.holiday ? day.holiday.name : 'Holiday');
+                                break;
+                            case 'leave':
+                                className = 'status-leave';
+                                title = '⛱ Leave';
+                                break;
+                            case 'weekend':
+                            case 'future':
+                                // Completely ignore
+                                return;
+                        }
+
+                        events.push({
+                            id: dateStr,
+                            title: title,
+                            start: dateStr,
+                            allDay: true,
+                            className: className,
+                            extendedProps: day
+                        });
+                    });
+
+                    successCallback(events);
+                })
+                .catch(error => {
+                    console.error('Calendar Fetch Exception:', error);
+                    failureCallback(error);
+                });
+        }
+
+        function showDayDetails(dateStr) {
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const clickedDate = new Date(dateStr);
+            if (clickedDate > today) return; // Ignore future clicks completely
+
+            const token = getToken();
+            document.getElementById('detailDateLabel').textContent = new Date(dateStr).toLocaleDateString('en-US', {
+                weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+            });
+
+            const contentDiv = document.getElementById('dayDetailsContent');
+            contentDiv.innerHTML = '<div class="text-center py-4"><div class="spinner-border text-primary"></div></div>';
+
+            const addBtn = document.getElementById('addTimesheetDayBtn');
+            if (addBtn) addBtn.classList.add('d-none');
+
+            const modal = new bootstrap.Modal(document.getElementById('dayDetailsModal'));
+            modal.show();
+
+            fetch(`/api/timesheets/day?date=${dateStr}`, {
+                headers: { 'Authorization': 'Bearer ' + token }
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (!data.success) {
+                        contentDiv.innerHTML = `<div class="alert alert-danger">${data.error}</div>`;
+                        return;
+                    }
+
+                    let html = '';
+
+                    // Render Day Status Info
+                    const statusColors = {
+                        'completed': 'success',
+                        'missing': 'danger',
+                        'holiday': 'warning',
+                        'leave': 'info',
+                        'weekend': 'secondary',
+                        'future': 'light'
+                    };
+
+                    html += `
+                <div class="mb-4">
+                    <span class="badge bg-${statusColors[data.status] || 'secondary'} fs-6 mb-2">
+                        ${data.label}
+                    </span>
+                    ${data.holiday ? `<div class="p-3 bg-light rounded mt-2">
+                        <h6 class="mb-1"><i class="bi bi-gift me-2"></i>${data.holiday.name}</h6>
+                        <small class="text-muted d-block">${data.holiday.description || 'Public holiday'}</small>
+                    </div>` : ''}
+                </div>
+            `;
+
+                    // Render Timesheet Entries
+                    if (data.entries && data.entries.length > 0) {
+                        html += '<h6 class="fw-bold mb-3">Timesheet Entries</h6>';
+                        data.entries.forEach(entry => {
+                            html += `
+                        <div class="card mb-2 border-start border-4 border-primary">
+                            <div class="card-body p-3">
+                                <div class="d-flex justify-content-between">
+                                    <h6 class="mb-1">${entry.project}</h6>
+                                    <span class="badge bg-primary">${entry.hours}h</span>
+                                </div>
+                                <div class="small fw-medium text-dark mb-1">${entry.task}</div>
+                                ${entry.description ? `<p class="small text-muted mb-0">${entry.description}</p>` : ''}
+                            </div>
+                        </div>
+                    `;
+                        });
+                    } else if (data.status === 'missing') {
+                        html += `
+                    <div class="text-center py-3 text-muted">
+                        <i class="bi bi-clock-history fs-1"></i>
+                        <p class="mt-2 mb-0">No entries submitted for this day.</p>
+                    </div>
+                `;
+                    }
+
+                    contentDiv.innerHTML = html;
+
+                    // Handle "Add Entry" button visibility
+                    if (addBtn && data.can_add_or_update) {
+                        addBtn.classList.remove('d-none');
+                        window.selectedCalendarDate = dateStr;
+                    }
+                })
+                .catch(error => {
+                    contentDiv.innerHTML = `<div class="alert alert-danger">Error: ${error.message}</div>`;
+                });
+        }
+
+        window.redirectToAddTimesheet = function () {
+            if (window.selectedCalendarDate) {
+                window.location.href = `/add-timesheet?date=${window.selectedCalendarDate}`;
+            }
+        };
+
+        // Table Filtering Logic
+        const filters = {
+            employee: document.getElementById('filterEmployee'),
+            project: document.getElementById('filterProject'),
+            manager: document.getElementById('filterManager'),
+            date: document.getElementById('filterDate'),
+            status: document.getElementById('filterStatus')
+        };
+
+        const clearBtn = document.getElementById('clearFilters');
+
+        function applyFilters() {
+            const rows = document.querySelectorAll('.timesheet-row');
+            const vals = {
+                employee: filters.employee ? filters.employee.value.toLowerCase().trim() : '',
+                project: filters.project.value.toLowerCase().trim(),
+                manager: filters.manager.value.toLowerCase().trim(),
+                date: filters.date.value,
+                status: filters.status.value.toLowerCase()
+            };
+
+            rows.forEach(row => {
+                const matches = 
+                    (!vals.employee || row.dataset.employee.includes(vals.employee)) &&
+                    (!vals.project || row.dataset.project.includes(vals.project)) &&
+                    (!vals.manager || row.dataset.manager.includes(vals.manager)) &&
+                    (!vals.date || row.dataset.date === vals.date) &&
+                    (!vals.status || row.dataset.status === vals.status);
+
+                row.style.display = matches ? '' : 'none';
+            });
+        }
+
+        Object.values(filters).forEach(f => {
+            if (f) {
+                f.addEventListener('input', applyFilters);
+                if (f.tagName === 'SELECT') f.addEventListener('change', applyFilters);
+            }
+        });
+
+        if (clearBtn) {
+            clearBtn.addEventListener('click', function() {
+                Object.values(filters).forEach(f => {
+                    if (f) f.value = '';
+                });
+                applyFilters();
+            });
+        }
+    });
+</script>
+{% endblock %}

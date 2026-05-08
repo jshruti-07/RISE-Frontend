@@ -1,0 +1,598 @@
+{% extends "base.html" %}
+{% block title %}Project Details{% endblock %}
+
+{% block content %}
+<style>
+    .assignment-row {
+        transition: all 0.2s ease;
+        border-radius: 8px;
+        margin-bottom: 4px;
+    }
+    .assignment-row:hover {
+        background-color: #f8f9fa;
+    }
+    .assignment-inputs {
+        border-left: 3px solid #0d6efd;
+        padding-left: 15px;
+    }
+    .allocation-input:focus, .billing-type-input:focus {
+        box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.1);
+    }
+    .status-dot {
+        height: 10px;
+        width: 10px;
+        border-radius: 50%;
+        display: inline-block;
+    }
+    .workload-tooltip {
+        position: fixed;
+        background: #333;
+        color: white;
+        padding: 10px;
+        border-radius: 8px;
+        font-size: 0.75rem;
+        z-index: 9999;
+        pointer-events: none;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        max-width: 250px;
+    }
+    .workload-tooltip table {
+        width: 100%;
+        margin-top: 5px;
+    }
+    .workload-tooltip table td {
+        padding: 2px 5px;
+    }
+</style>
+
+<div class="container-fluid mt-4">
+    <div class="card">
+        <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h5>
+                    <i class="bi bi-folder-fill text-primary me-2"></i>
+                    {{ project.name }}
+                </h5>
+                <div class="d-flex align-items-center">
+                    <span class="badge bg-{{ 'success' if project.status == 'active' else 'secondary' }} me-2">
+                        {{ 'Active' if project.status == 'active' else 'Inactive' }}
+                    </span>
+                    <span class="badge bg-info ms-2">{{ project.team_members|length }} Team Members</span>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <h6 class="mb-3">Project Information</h6>
+                    <div class="card">
+                        <div class="card-body">
+                            {% if user_role == 'manager' %}
+                            <div class="mb-3">
+                                <strong>Customer:</strong> {{ project.customer_name }}
+                            </div>
+                            <div class="mb-3">
+                                <strong>Contact Person:</strong> {{ project.customer_contact or project.contact_person or project.contact or 'Not Set' }}
+                            </div>
+                            <div class="mb-3">
+                                <strong>Contact Phone:</strong> {{ project.customer_phone }}
+                            </div>
+                            <div class="mb-3">
+                                <strong>Contact Email:</strong> {{ project.customer_email }}
+                            </div>
+                            {% endif %}
+                            <div class="mb-3">
+                                <strong>Start Date:</strong> {{ project.start_date }}
+                            </div>
+                            <div class="mb-3">
+                                <strong>End Date:</strong> {{ project.end_date }}
+                            </div>
+                            <div class="mb-3">
+                                <strong>Assigned Manager:</strong> {{ project.assigned_manager or project.manager_name or project.manager or 'Not Set' }}
+                            </div>
+                            <div class="mb-3">
+                                <strong>Billing Model:</strong> 
+                                <span class="badge bg-info text-dark">
+                                    {% if project.project_type == 'tm' %}
+                                        Time & Material
+                                    {% else %}
+                                        Fixed Cost
+                                    {% endif %}
+                                </span>
+                            </div>
+                            <div class="mb-3">
+                                <strong>Created By:</strong> {{ project.created_by }}
+                            </div>
+                            <div class="mb-3">
+                                <strong>Status:</strong>
+                                <span class="badge bg-{{ 'success' if project.status == 'active' else 'secondary' }}">
+                                    {{ 'Active' if project.status == 'active' else 'Inactive' }}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <h6 class="mb-3">Current Team Members</h6>
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="mb-3">
+                                {% if user_role == 'manager' %}
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <strong>Team Members:</strong>
+                                    <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal"
+                                        data-bs-target="#employeeSelectionModal">
+                                        <i class="bi bi-person-plus me-1"></i>
+                                        Add Members
+                                    </button>
+                                </div>
+                                {% else %}
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <strong>Team Members:</strong>
+                                </div>
+                                {% endif %}
+                            </div>
+                             <div id="teamMembersList">
+                                 {% set teamMap = {} %}
+                                 {% set rawLists = [project.team_members, project.team, project.assignments, project.project_team, project.members, project.employees, project.member_list] %}
+                                 
+                                 {% for list in rawLists %}
+                                     {% if list is iterable and list is not string %}
+                                         {% for member in list %}
+                                             {% set mName = member.name or member.employee_name or member.employee or member.member_name or member.m_name or member if member is mapping else member %}
+                                             {% if mName and not teamMap[mName] or (teamMap[mName] is string and member is mapping) %}
+                                                 {% set _ = teamMap.update({mName: member}) %}
+                                             {% endif %}
+                                         {% endfor %}
+                                     {% elif list %}
+                                         {% set mName = list.name or list.employee_name or list.employee or list.member_name or list.m_name or list if list is mapping else list %}
+                                         {% if mName and not teamMap[mName] or (teamMap[mName] is string and list is mapping) %}
+                                             {% set _ = teamMap.update({mName: list}) %}
+                                         {% endif %}
+                                     {% endif %}
+                                 {% endfor %}
+
+                                 {% set team_list = teamMap.values() %}
+                                 
+                                 {% if team_list %}
+                                 {% for member in team_list %}
+                                 <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
+                                     <div class="d-flex flex-column">
+                                         <span class="fw-bold">
+                                             {{ (member.name or member.employee_name or member.employee or member.member_name or member.m_name or member) if member is mapping else member }}
+                                         </span>
+                                         <small class="text-muted">
+                                             Allocation: <strong>{{ (member.allocation or member.allocation_percentage or member.billable_percentage or member.percentage or '100') if member is mapping else '100' }}%</strong> |
+                                             Type: <span class="badge {{ 'bg-success' if (member.billing_type or (member.is_billable|string|lower == 'true' if member.is_billable is defined else 'billable')) == 'billable' else 'bg-secondary' }}">
+                                                 {{ (member.billing_type or ('Billable' if member.is_billable else 'Non-Billable')) if member is mapping else 'Billable' }}
+                                             </span>
+                                         </small>
+                                     </div>
+                                     {% if user_role == 'manager' or user_role == 'hr' %}
+                                     <button type="button" class="btn btn-sm btn-outline-danger"
+                                         onclick="removeTeamMember('{{ (member.name or member.employee_name or member.employee or member.member_name or member.m_name or member) if member is mapping else member }}')">
+                                         <i class="bi bi-person-dash"></i>
+                                         Remove
+                                     </button>
+                                     {% endif %}
+                                 </div>
+                                 {% endfor %}
+                                 {% else %}
+                                 <p class="text-muted">No team members assigned yet</p>
+                                 {% endif %}
+                             </div></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Employee Selection Modal -->
+<div class="modal fade" id="employeeSelectionModal" tabindex="-1" aria-labelledby="employeeSelectionModalLabel"
+    aria-hidden="true" style="display: none;">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="employeeSelectionModalLabel">
+                    <i class="bi bi-people-fill me-2"></i>
+                    Select Team Members for {{ project.name }}
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h6 class="mb-0">Available Employees</h6>
+                        <div class="text-end">
+                            <div class="badge bg-secondary mb-1" id="allocationTracker">
+                                Selected Allocation: <span id="totalAllocValue">0</span>%
+                            </div>
+                            <div>
+                                <button type="button" class="btn btn-sm btn-outline-primary" onclick="selectAllEmployees()">
+                                    <i class="bi bi-check-all me-1"></i>Select All
+                                </button>
+                                <button type="button" class="btn btn-sm btn-outline-secondary"
+                                    onclick="clearAllEmployees()">
+                                    <i class="bi bi-x-square me-1"></i>Clear All
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="border rounded p-3" style="max-height: 400px; overflow-y: auto;">
+                        {% if available_members %}
+                        {% for member in available_members %}
+                        <div class="row align-items-center py-3 border-bottom assignment-row" 
+                             data-current-alloc="{{ member.workload.total_allocation }}"
+                             data-capacity="{{ member.available_capacity }}"
+                             data-allow-overallocation="{{ 1 if member.allow_over_allocation else 0 }}"
+                             data-projects="{{ member.workload.projects | tojson | forceescape }}">
+                            <div class="col-md-5">
+                                <div class="d-flex align-items-center">
+                                    <input class="form-check-input me-3 member-checkbox" type="checkbox" value="{{ member.employee_name or member.name }}"
+                                        id="emp_{{ loop.index0 }}" onchange="toggleAssignmentInputs(this)"
+                                        {% if member.available_capacity <= 0 and not member.allow_over_allocation %}disabled{% endif %}>
+                                    <label class="form-check-label mb-0 w-100" for="emp_{{ loop.index0 }}">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <div>
+                                                <span class="status-dot 
+                                                    {% if member.availability_status == 'fully_allocated' %}bg-danger
+                                                    {% elif member.availability_status == 'partially_available' %}bg-warning
+                                                    {% else %}bg-success{% endif %} me-1" 
+                                                    title="{{ member.availability_status | replace('_', ' ') | title }}"></span>
+                                                <strong>{{ member.employee_name or member.name }}</strong>
+                                                <small class="text-muted d-block">{{ member.designation or member.role or 'Employee' }}</small>
+                                                {% if member.allow_over_allocation %}
+                                                <span class="badge bg-info" style="font-size: 0.65rem;">Over-allocation allowed</span>
+                                                {% endif %}
+                                            </div>
+                                            <div class="text-end">
+                                                <span class="badge {% if member.available_capacity <= 0 and not member.allow_over_allocation %}bg-danger{% else %}bg-light text-dark{% endif %} border" 
+                                                      style="cursor: help;" 
+                                                      onmouseover="showWorkloadTooltip(this, '{{ member.employee_name or member.name }}')"
+                                                      onmouseout="hideWorkloadTooltip()">
+                                                    {{ member.workload.total_allocation }}% allocated
+                                                </span>
+                                                <div class="small {% if member.available_capacity <= 0 and not member.allow_over_allocation %}text-danger{% else %}text-success{% endif %}" style="font-size: 0.7rem;">
+                                                    {% if member.allow_over_allocation %}
+                                                    Over-allocation allowed
+                                                    {% else %}
+                                                    {{ member.available_capacity }}% available
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-md-7 assignment-inputs d-none">
+                                <div class="row g-2">
+                                    <div class="col-6">
+                                        <label class="small text-muted mb-1">Allocation (%)</label>
+                                        <input type="number" class="form-control form-control-sm allocation-input" 
+                                            value="{{ [100, (member.available_capacity if member.available_capacity > 0 else 1)]|min }}"
+                                            min="1"
+                                            max="{{ 100 if member.allow_over_allocation else (member.available_capacity if member.available_capacity > 0 else 1) }}"
+                                            placeholder="Alloc %">
+                                    </div>
+                                    <div class="col-6">
+                                        <label class="small text-muted mb-1">Billing Type</label>
+                                        <select class="form-select form-select-sm billing-type-input">
+                                            <option value="billable" selected>Billable</option>
+                                            <option value="non-billable">Non-Billable</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                        {% else %}
+                        <p class="text-muted">No employees available for assignment</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="assignSelectedEmployees()">
+                    <i class="bi bi-person-plus me-2"></i>
+                    Assign Selected Employees
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Workload Tooltip Functions
+    let activeTooltip = null;
+
+    function showWorkloadTooltip(element, name) {
+        const row = element.closest('.assignment-row');
+        const projects = JSON.parse(row.dataset.projects || '[]');
+        
+        let html = `<strong>${name}'s Assignments</strong>`;
+        if (projects.length === 0) {
+            html += `<div class="text-muted">On Bench (0% allocated)</div>`;
+        } else {
+            html += `<table>`;
+            projects.forEach(p => {
+                html += `<tr><td>${p.project_name}</td><td class="text-end fw-bold">${p.allocation}%</td></tr>`;
+            });
+            html += `<tr class="border-top"><td><strong>Total</strong></td><td class="text-end fw-bold">${row.dataset.currentAlloc}%</td></tr>`;
+            html += `</table>`;
+        }
+
+        const tooltip = document.createElement('div');
+        tooltip.className = 'workload-tooltip';
+        tooltip.innerHTML = html;
+        document.body.appendChild(tooltip);
+        
+        const rect = element.getBoundingClientRect();
+        tooltip.style.left = (rect.left - 200) + 'px';
+        tooltip.style.top = rect.top + 'px';
+        
+        activeTooltip = tooltip;
+    }
+
+    function hideWorkloadTooltip() {
+        if (activeTooltip) {
+            activeTooltip.remove();
+            activeTooltip = null;
+        }
+    }
+
+    function getMemberName(member) {
+        if (typeof member === 'string') return member;
+        if (!member || typeof member !== 'object') return '';
+        return member.name || member.employee_name || member.employee || member.member_name || member.m_name || '';
+    }
+
+    function getMemberAllocation(member) {
+        if (typeof member === 'string') return 100;
+        if (!member || typeof member !== 'object') return 100;
+        const raw = member.allocation ?? member.allocation_percentage ?? member.billable_percentage ?? member.billable_pct ?? member.percentage ?? 100;
+        const parsed = parseInt(raw, 10);
+        return Number.isFinite(parsed) ? parsed : 100;
+    }
+
+    // Update allocation tracker
+    function updateAllocationTracker() {
+        let total = 0;
+        const currentMembers = {{ project.team_members | tojson if project.team_members else '[]' }};
+        const rows = document.querySelectorAll('.assignment-row');
+        
+        // Base: existing members NOT being re-assigned
+        const selectedMemberNames = Array.from(document.querySelectorAll('.member-checkbox:checked')).map(cb => cb.value);
+        
+        currentMembers.forEach(m => {
+            const mName = getMemberName(m);
+            const mAlloc = getMemberAllocation(m);
+            if (!selectedMemberNames.includes(mName)) {
+                total += mAlloc;
+            }
+        });
+
+        // Add new selections
+        document.querySelectorAll('.assignment-row').forEach(row => {
+            const checkbox = row.querySelector('.member-checkbox');
+            if (checkbox.checked) {
+                total += parseInt(row.querySelector('.allocation-input').value) || 0;
+            }
+        });
+
+        const tracker = document.getElementById('totalAllocValue');
+        const badge = document.getElementById('allocationTracker');
+        if (tracker) tracker.textContent = total;
+
+        if (total > 100) {
+            if (badge) {
+                badge.classList.remove('bg-secondary', 'bg-success');
+                badge.classList.add('bg-danger');
+            }
+        } else if (total === 100) {
+            if (badge) {
+                badge.classList.remove('bg-secondary', 'bg-danger');
+                badge.classList.add('bg-success');
+            }
+        } else {
+            if (badge) {
+                badge.classList.remove('bg-success', 'bg-danger');
+                badge.classList.add('bg-secondary');
+            }
+        }
+    }
+
+    // Toggle visibility of allocation/billing inputs
+    function toggleAssignmentInputs(checkbox) {
+        const row = checkbox.closest('.assignment-row');
+        const inputs = row.querySelector('.assignment-inputs');
+        if (checkbox.checked) {
+            inputs.classList.remove('d-none');
+        } else {
+            inputs.classList.add('d-none');
+        }
+        updateAllocationTracker();
+    }
+
+    // Add event listeners to allocation inputs
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('.allocation-input').forEach(input => {
+            input.addEventListener('input', updateAllocationTracker);
+            const row = input.closest('.assignment-row');
+            const allowOverAllocation = row ? (row.dataset.allowOverallocation === '1') : false;
+            const max = allowOverAllocation ? 100 : (row ? (parseInt(row.dataset.capacity, 10) || 100) : 100);
+            if (!input.value || parseInt(input.value, 10) > max) {
+                input.value = Math.min(100, max);
+            }
+            input.max = max;
+        });
+        updateAllocationTracker(); // Initial call
+    });
+
+    // Select all employees in modal
+    function selectAllEmployees() {
+        const checkboxes = document.querySelectorAll('.member-checkbox:not(:disabled)');
+        checkboxes.forEach(checkbox => {
+            checkbox.checked = true;
+            toggleAssignmentInputs(checkbox);
+        });
+    }
+
+    // Clear all employees in modal
+    function clearAllEmployees() {
+        const checkboxes = document.querySelectorAll('.member-checkbox');
+        checkboxes.forEach(checkbox => {
+            checkbox.checked = false;
+            toggleAssignmentInputs(checkbox);
+        });
+    }
+
+    // Assign selected employees to project
+    function assignSelectedEmployees() {
+        const rows = document.querySelectorAll('.assignment-row');
+        const selectedMembers = [];
+
+        const currentMembers = {{ project.team_members | tojson if project.team_members else '[]' }};
+        
+        for (let i = 0; i < rows.length; i++) {
+            const row = rows[i];
+            const checkbox = row.querySelector('.member-checkbox');
+            if (checkbox.checked) {
+                const name = checkbox.value;
+                const allocation = parseInt(row.querySelector('.allocation-input').value) || 0;
+                const billingType = row.querySelector('.billing-type-input').value;
+                const allowOverAllocation = row.dataset.allowOverallocation === '1';
+                
+                // BANDWIDTH CHECK
+                const availableCapacity = parseInt(row.dataset.capacity) || 0;
+                // Important: If employee is ALREADY in this project, their capacity already includes their current logic.
+                // But since we are likely updating them, we need to be careful.
+                // For now, simpler: current total alloc (minus this project if exists) + new allocation <= 100.
+                
+                const existingInProject = currentMembers.find(m => getMemberName(m) === name);
+                const currentInThisProject = existingInProject ? getMemberAllocation(existingInProject) : 0;
+                
+                const totalAllocAfterAssignment = (100 - availableCapacity) - currentInThisProject + allocation;
+
+                if (allocation <= 0 || allocation > 100) {
+                    alert('Allocation for ' + name + ' must be between 1 and 100');
+                    return;
+                }
+                
+                if (!allowOverAllocation && totalAllocAfterAssignment > 100) {
+                    alert('Error: ' + name + ' would be over-allocated! Total after assignment: ' + totalAllocAfterAssignment + '%. Available capacity: ' + (availableCapacity + currentInThisProject) + '%');
+                    return;
+                }
+
+                selectedMembers.push({
+                    name: name,
+                    employee_name: name,
+                    allocation: allocation,
+                    allocation_percentage: allocation,
+                    billable_percentage: allocation,
+                    billing_type: billingType
+                });
+            }
+        }
+
+        if (selectedMembers.length === 0) {
+            alert('Please select at least one employee to assign');
+            return;
+        }
+
+        const formData = {
+            project_id: {{ project.id| tojson }},
+            team_members: selectedMembers
+        };
+
+        fetch('/add_team_members', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(formData)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const modal = bootstrap.Modal.getInstance(document.getElementById('employeeSelectionModal'));
+                if (modal) {
+                    modal.hide();
+                }
+                refreshProjectDetails();
+            } else {
+                const details = Array.isArray(data.details) && data.details.length ? ('\n' + data.details.join('\n')) : '';
+                alert('Error: ' + (data.error || 'Assignment failed') + details);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error assigning employees. Please try again.');
+        });
+    }
+
+    // Remove team member
+    function removeTeamMember(memberName) {
+        if (confirm('Are you sure you want to remove ' + memberName + ' from the project?')) {
+            fetch('/remove_team_member', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    project_id: {{ project.id | tojson }},
+                employee_name: memberName
+            })
+    })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                refreshProjectDetails();
+            } else {
+                alert('Error: ' + data.error);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error removing employee. Please try again.');
+        });
+    }
+}
+
+    // Refresh project details
+    function refreshProjectDetails() {
+        window.location.reload();
+    }
+
+    // Select all team members
+    function selectAllMembers() {
+        const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+        checkboxes.forEach(checkbox => {
+            checkbox.checked = true;
+        });
+    }
+
+    // Clear all team members
+    function clearAllMembers() {
+        const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+        checkboxes.forEach(checkbox => {
+            checkbox.checked = false;
+        });
+    }
+
+    // Form submit handler
+    document.addEventListener('DOMContentLoaded', function () {
+        const form = document.getElementById('addTeamMemberForm');
+        if (form) {
+            form.addEventListener('submit', function (e) {
+                e.preventDefault();
+                addTeamMembers();
+            });
+        }
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,845 @@
+{% extends "base.html" %}
+{% block title %}Help Desk{% endblock %}
+
+{% block content %}
+<style>
+    /* 
+       INLINE STYLES because base.html doesn't have extra_css block.
+       This ensures the premium UI renders correctly.
+    */
+    .form-card {
+        background: #ffffff;
+        border-radius: 16px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+        padding: 24px;
+        border: 1px solid #f1f5f9;
+    }
+
+    .icon-box {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        color: white;
+    }
+
+    /* Split Layout Modal */
+    .modal-xl {
+        max-width: 1400px;
+    }
+
+    .modal-content {
+        border-radius: 24px;
+        overflow: hidden;
+        border: none;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    }
+
+    /* Left Detail Pane */
+    .detail-pane {
+        background: #fdfdfd;
+        border-right: 1px solid #e2e8f0;
+        height: 800px;
+        overflow-y: auto;
+        padding: 40px !important;
+    }
+
+    .detail-item {
+        margin-bottom: 24px;
+    }
+
+    .detail-label {
+        font-size: 0.7rem;
+        font-weight: 700;
+        color: #94a3b8;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        margin-bottom: 6px;
+    }
+
+    .detail-value {
+        font-size: 0.95rem;
+        color: #1e293b;
+        font-weight: 600;
+    }
+
+    /* Chat Pane */
+    .chat-pane {
+        background: #f8fafc;
+        height: 750px;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .chat-header {
+        padding: 24px 32px;
+        border-bottom: 1px solid #e2e8f0;
+        background: white;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .chat-messages {
+        flex: 1;
+        overflow-y: auto;
+        padding: 32px;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    /* Chat Bubbles */
+    .message-wrapper {
+        display: flex;
+        flex-direction: column;
+        max-width: 85%;
+    }
+
+    .message-wrapper.sent {
+        align-self: flex-end;
+        align-items: flex-end;
+    }
+
+    .message-wrapper.received {
+        align-self: flex-start;
+        align-items: flex-start;
+    }
+
+    .message-bubble {
+        padding: 14px 18px;
+        border-radius: 20px;
+        font-size: 0.9rem;
+        line-height: 1.5;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    }
+
+    .sent .message-bubble {
+        background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+        color: white;
+        border-bottom-right-radius: 4px;
+    }
+
+    .received .message-bubble {
+        background: white;
+        color: #1e293b;
+        border-bottom-left-radius: 4px;
+        border: 1px solid #e2e8f0;
+    }
+
+    .message-meta {
+        font-size: 0.7rem;
+        color: #94a3b8;
+        margin-top: 6px;
+        font-weight: 500;
+    }
+
+    .system-msg {
+        align-self: center;
+        background: #f1f5f9;
+        color: #64748b;
+        padding: 8px 20px;
+        border-radius: 30px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        margin: 12px 0;
+        border: 1px solid #e2e8f0;
+    }
+
+    /* Chat Input */
+    .chat-footer {
+        padding: 24px 32px;
+        background: white;
+        border-top: 1px solid #e2e8f0;
+    }
+
+    .input-wrapper {
+        display: flex;
+        background: #f1f5f9;
+        border-radius: 30px;
+        padding: 6px 6px 6px 20px;
+        border: 2px solid transparent;
+        transition: all 0.2s;
+    }
+
+    .input-wrapper:focus-within {
+        background: white;
+        border-color: #6366f1;
+        box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+    }
+
+    .chat-input {
+        border: none;
+        background: transparent;
+        flex: 1;
+        font-size: 0.95rem;
+        padding: 10px 0;
+        color: #1e293b;
+    }
+
+    .chat-input:focus {
+        outline: none;
+    }
+
+    .btn-send {
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        background: #6366f1;
+        color: white;
+        border: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+        transition: all 0.2s;
+    }
+
+    .btn-send:hover:not(:disabled) {
+        background: #4f46e5;
+        transform: scale(1.05);
+    }
+
+    .btn-send:disabled {
+        background: #cbd5e1;
+        cursor: not-allowed;
+    }
+
+    /* Badges */
+    .badge-soft {
+        padding: 6px 12px;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 0.75rem;
+        display: inline-block;
+    }
+
+    .status-open { background: #e0f2fe; color: #0369a1; }
+    .status-in_progress { background: #fef3c7; color: #92400e; }
+    .status-resolved { background: #dcfce7; color: #166534; }
+    .status-closed { background: #f1f5f9; color: #475569; }
+
+    .priority-urgent { background: #fee2e2; color: #b91c1c; }
+    .priority-high { background: #ffedd5; color: #c2410c; }
+    .priority-medium { background: #e0f2fe; color: #0369a1; }
+    .priority-low { background: #f1f5f9; color: #475569; }
+
+    /* Audit Trail Styling */
+    .history-item {
+        position: relative;
+        padding-left: 24px;
+        padding-bottom: 20px;
+        border-left: 2px solid #e2e8f0;
+    }
+
+    .history-item::before {
+        content: '';
+        position: absolute;
+        left: -7px;
+        top: 0;
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: white;
+        border: 2px solid #6366f1;
+    }
+
+    .history-item:last-child {
+        border-left-color: transparent;
+    }
+
+    /* Scrollbar */
+    .chat-messages::-webkit-scrollbar, .detail-pane::-webkit-scrollbar {
+        width: 6px;
+    }
+    .chat-messages::-webkit-scrollbar-thumb, .detail-pane::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 10px;
+    }
+</style>
+
+<!-- Hidden session values -->
+<input type="hidden" id="sessionToken" value="{{ session.get('token', '') }}">
+<input type="hidden" id="userRole" value="{{ session.get('role', '') }}">
+<input type="hidden" id="userName" value="{{ session.get('employee_name', '') }}">
+
+<div class="form-card">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div class="d-flex align-items-center gap-3">
+            <div class="icon-box bg-primary shadow-sm">
+                <i class="bi bi-life-preserver"></i>
+            </div>
+            <div>
+                <h4 class="mb-0 fw-bold">Help Desk</h4>
+                <p class="text-muted small mb-0">Track and resolve issues</p>
+            </div>
+        </div>
+        <div class="d-flex gap-2">
+            {% if session.role in ['hr', 'admin'] %}
+            <button class="btn btn-outline-primary px-4 py-2 rounded-pill shadow-sm fw-bold" onclick="location.href='{{ url_for('admin.assets') }}'">
+                <i class="bi bi-laptop me-2"></i> View All Assets
+            </button>
+            <button class="btn btn-success px-4 py-2 rounded-pill shadow-sm fw-bold" onclick="location.href='{{ url_for('admin.assets') }}?action=assign'">
+                <i class="bi bi-plus-circle me-2"></i> Assign Asset
+            </button>
+            {% endif %}
+            <button class="btn btn-primary px-4 py-2 rounded-pill shadow-sm fw-bold" data-bs-toggle="modal" data-bs-target="#createTicketModal">
+                <i class="bi bi-plus-lg me-2"></i> New Ticket
+            </button>
+        </div>
+    </div>
+
+    <!-- Filters Strip -->
+    <div class="row g-3 mb-4 p-3 bg-light rounded-4">
+        <div class="col-md-3">
+            <select class="form-select border-0 shadow-sm" id="filterStatus" onchange="loadTickets()">
+                <option value="">All Status</option>
+                <option value="open">Open</option>
+                <option value="in_progress">In Progress</option>
+                <option value="closed">Closed</option>
+            </select>
+        </div>
+        <div class="col-md-3">
+            <select class="form-select border-0 shadow-sm" id="filterPriority" onchange="loadTickets()">
+                <option value="">All Priority</option>
+                <option value="urgent">Urgent</option>
+                <option value="high">High</option>
+                <option value="medium">Medium</option>
+                <option value="low">Low</option>
+            </select>
+        </div>
+        <div class="col-md-6">
+            <div class="input-group">
+                <span class="input-group-text bg-white border-0 shadow-sm"><i class="bi bi-search"></i></span>
+                <input type="text" class="form-control border-0 shadow-sm" id="searchInput" placeholder="Search tickets..." onkeyup="debounceLoad()">
+            </div>
+        </div>
+    </div>
+
+    <!-- Tickets Table -->
+    <div class="table-responsive">
+        <table class="table table-hover align-middle">
+            <thead class="bg-light">
+                <tr>
+                    <th class="border-0 rounded-start-3">Reference</th>
+                    <th class="border-0">Title</th>
+                    <th class="border-0">Category</th>
+                    <th class="border-0">Priority</th>
+                    <th class="border-0">Status</th>
+                    <th class="border-0">Created</th>
+                    <th class="border-0 text-end rounded-end-3">Actions</th>
+                </tr>
+            </thead>
+            <tbody id="ticketsTableBody">
+                <!-- Data loaded via JS -->
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- View Ticket Modal (SPLIT LAYOUT) -->
+<div class="modal fade" id="ticketDetailsModal" tabindex="-1">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-body p-0">
+                <div class="row g-0">
+                    <!-- Left Section: Details -->
+                    <div class="col-md-5 detail-pane">
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <h4 class="fw-bold mb-0" id="ticketModalTitle">Ticket</h4>
+                            <button type="button" class="btn-close d-md-none" data-bs-dismiss="modal"></button>
+                        </div>
+
+                        <div class="detail-item">
+                            <div class="detail-label">Status</div>
+                            <div id="ticketStatus"></div>
+                        </div>
+
+                        <div class="detail-item">
+                            <div class="detail-label">Subject</div>
+                            <div class="detail-value h5" id="ticketTitle"></div>
+                        </div>
+
+                        <div class="detail-item">
+                            <div class="detail-label">Description</div>
+                            <div class="detail-value small text-muted bg-light p-3 rounded-3" id="ticketDescription"></div>
+                        </div>
+
+                        <div class="row detail-item">
+                            <div class="col-6">
+                                <div class="detail-label">Category</div>
+                                <div class="detail-value" id="ticketCategory"></div>
+                            </div>
+                            <div class="col-6">
+                                <div class="detail-label">Priority</div>
+                                <div id="ticketPriority"></div>
+                            </div>
+                        </div>
+
+                        <div class="detail-item">
+                            <div class="detail-label">Assignee</div>
+                            <div class="detail-value d-flex align-items-center gap-2">
+                                <i class="bi bi-person-circle text-primary"></i>
+                                <span id="ticketAssigned"></span>
+                            </div>
+                        </div>
+
+                        <div class="detail-item">
+                            <div class="detail-label">Timeline</div>
+                            <div class="small text-muted mb-1"><i class="bi bi-calendar-event me-2"></i>Created: <span id="ticketCreated"></span></div>
+                            <div class="small text-muted mb-3"><i class="bi bi-check2-circle me-2"></i>Resolved: <span id="ticketResolved"></span></div>
+                        </div>
+
+                        <!-- Device Information (Integration) -->
+                        <div id="deviceInfoBox" class="detail-item p-3 bg-white border rounded-4 mb-4" style="display: none;">
+                            <div class="detail-label text-primary"><i class="bi bi-cpu me-2"></i>Linked Device</div>
+                            <div class="row g-2 mt-1">
+                                <div class="col-6">
+                                    <div class="small text-muted">Brand/Name</div>
+                                    <div class="fw-bold" id="deviceBrand"></div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="small text-muted">Model</div>
+                                    <div class="fw-bold" id="deviceModel"></div>
+                                </div>
+                                <div class="col-12 mt-2">
+                                    <div class="small text-muted">Asset Tag / SN</div>
+                                    <div class="fw-bold" id="deviceSerial"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Audit History -->
+                        <div class="mt-5">
+                            <h6 class="detail-label mb-3">Audit Trail</h6>
+                            <div id="ticketHistory">
+                                <!-- History items -->
+                            </div>
+                        </div>
+
+                        <!-- Resolver Actions -->
+                        <div id="resolverActions" class="mt-5 p-4 bg-light rounded-4 border" style="display: none;">
+                            <h6 class="fw-bold mb-3">Resolver Controls</h6>
+                            <div class="mb-3">
+                                <label class="detail-label">Update Status</label>
+                                <select class="form-select form-select-sm" id="updateStatusSelect">
+                                    <option value="open">Open</option>
+                                    <option value="in_progress">In Progress</option>
+                                    <option value="resolved">Resolved</option>
+                                    <option value="closed">Closed</option>
+                                </select>
+                            </div>
+                            <div class="mb-4">
+                                <label class="detail-label">Reassign To</label>
+                                <input type="text" class="form-control form-control-sm" id="assignToInput" placeholder="Enter name...">
+                            </div>
+                            <div class="d-grid gap-2">
+                                <button class="btn btn-primary fw-bold" onclick="updateTicketMeta()">Apply Updates</button>
+                                <button class="btn btn-success fw-bold" onclick="markAsResolved()">Mark as Resolved</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right Section: Chat -->
+                    <div class="col-md-7 chat-pane">
+                        <div class="chat-header">
+                            <div>
+                                <h6 class="fw-bold mb-0">Conversation</h6>
+                                <span class="text-muted small"><i class="bi bi-circle-fill text-success small me-1"></i> Live Updates</span>
+                            </div>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+
+                        <div class="chat-messages" id="chatMessages">
+                            <!-- Messages will appear here -->
+                        </div>
+
+                        <div class="chat-footer">
+                            <div class="input-wrapper">
+                                <input type="text" class="chat-input" id="messageInput" placeholder="Type a message here..." onkeypress="handleKey(event)">
+                                <button class="btn-send" id="sendBtn" onclick="sendMessage()">
+                                    <i class="bi bi-send-fill"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Create Ticket Modal -->
+<div class="modal fade" id="createTicketModal" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content shadow-lg border-0">
+            <div class="modal-header border-0 px-4 pt-4">
+                <h5 class="fw-bold">Raise New Ticket</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-4">
+                <form id="createTicketForm">
+                    <div class="mb-4">
+                        <label class="detail-label">Subject</label>
+                        <input type="text" class="form-control" name="title" required placeholder="What is the issue?">
+                    </div>
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <label class="detail-label">Category</label>
+                            <select class="form-select" name="category" required>
+                                <option value="it_issue">IT Issue</option>
+                                <option value="hr_issue">HR Issue</option>
+                                <option value="payroll">Payroll</option>
+                                <option value="leave">Leave</option>
+                                <option value="others">Others</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="detail-label">Priority</label>
+                            <select class="form-select" name="priority" required>
+                                <option value="low">Low</option>
+                                <option value="medium" selected>Medium</option>
+                                <option value="high">High</option>
+                                <option value="urgent">Urgent</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <label class="detail-label">Detailed Information</label>
+                        <textarea class="form-control" name="description" rows="4" required placeholder="Provide as much detail as possible..."></textarea>
+                    </div>
+                </form>
+                <div class="d-flex justify-content-end gap-2 mt-2">
+                    <button type="button" class="btn btn-light px-4" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary px-4 fw-bold" onclick="createTicket()">Submit Request</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let currentTicketId = null;
+    let chatInterval = null;
+    let debounceTimer;
+
+    function getHeaders() {
+        const token = document.getElementById('sessionToken').value;
+        return {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+        };
+    }
+
+    // --- LISTING ---
+
+    document.addEventListener('DOMContentLoaded', () => {
+        // Handle URL parameters for filtering
+        const urlParams = new URLSearchParams(window.location.search);
+        const statusParam = urlParams.get('status');
+        if (statusParam) {
+            const filterSelect = document.getElementById('filterStatus');
+            if (filterSelect) {
+                filterSelect.value = statusParam;
+            }
+        }
+
+        loadTickets();
+        
+        // Modal cleanup to prevent memory leaks and zombie polling
+        const modal = document.getElementById('ticketDetailsModal');
+        modal.addEventListener('hidden.bs.modal', () => {
+            if (chatInterval) clearInterval(chatInterval);
+            chatInterval = null;
+            currentTicketId = null;
+        });
+    });
+
+    function debounceLoad() {
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(loadTickets, 300);
+    }
+
+    function loadTickets() {
+        const role = document.getElementById('userRole').value;
+
+        const status = document.getElementById('filterStatus').value;
+        const priority = document.getElementById('filterPriority').value;
+        const search = document.getElementById('searchInput').value;
+
+        let url = `/api/helpdesk/?`;
+        if (status) url += `status=${status}&`;
+        if (priority) url += `priority=${priority}&`;
+        if (search) url += `search=${search}&`;
+
+        fetch(url, { headers: getHeaders() })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) renderTickets(data.tickets);
+            })
+            .catch(err => console.error('Load Error:', err));
+    }
+
+    function renderTickets(tickets) {
+        const tbody = document.getElementById('ticketsTableBody');
+        const role = document.getElementById('userRole').value;
+
+        if (!tickets || tickets.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="7" class="text-center py-5 text-muted">No tickets found in this category.</td></tr>`;
+            return;
+        }
+
+        tbody.innerHTML = tickets.map(t => `
+            <tr>
+                <td><span class="fw-bold text-primary">#${t.ticket_ref}</span></td>
+                <td class="fw-medium">${t.title}</td>
+                <td><span class="badge bg-light text-dark fw-normal">${t.category.replace('_', ' ')}</span></td>
+                <td><span class="badge-soft priority-${t.priority}">${t.priority}</span></td>
+                <td><span class="badge-soft status-${t.status}">${t.status.replace('_', ' ')}</span></td>
+                <td class="text-muted small">${new Date(t.created_at).toLocaleDateString()}</td>
+                <td class="text-end">
+                    <div class="d-flex justify-content-end gap-1">
+                        <button class="btn btn-sm btn-outline-primary px-3 rounded-pill" onclick="viewTicket(${t.id})">View</button>
+                        ${['hr', 'admin'].includes(role) && t.status !== 'closed' ? `<button class="btn btn-sm btn-outline-success px-3 rounded-pill" onclick="quickResolve(${t.id})">Done</button>` : ''}
+                    </div>
+                </td>
+            </tr>
+        `).join('');
+    }
+
+    // --- DETAIL & CHAT ---
+
+    function viewTicket(id) {
+        console.log('Opening Ticket:', id);
+        currentTicketId = id;
+        
+        fetch(`/api/helpdesk/${id}`, { headers: getHeaders() })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    displayTicket(data.ticket);
+                    renderHistory(data.history);
+                    bootstrap.Modal.getOrCreateInstance(document.getElementById('ticketDetailsModal')).show();
+                    loadMessages(id, true);
+                } else {
+                    alert('Error: ' + data.error);
+                }
+            })
+            .catch(err => alert('Failed to load ticket details.'));
+    }
+
+    function displayTicket(t) {
+        document.getElementById('ticketModalTitle').textContent = `Ticket #${t.ticket_ref}`;
+        document.getElementById('ticketTitle').textContent = t.title;
+        document.getElementById('ticketDescription').textContent = t.description;
+        document.getElementById('ticketStatus').innerHTML = `<span class="badge-soft status-${t.status}">${t.status.replace('_', ' ')}</span>`;
+        document.getElementById('ticketPriority').innerHTML = `<span class="badge-soft priority-${t.priority}">${t.priority}</span>`;
+        document.getElementById('ticketCategory').textContent = t.category.replace('_', ' ');
+        document.getElementById('ticketAssigned').textContent = t.assigned_to || 'Unassigned';
+        document.getElementById('ticketCreated').textContent = new Date(t.created_at).toLocaleString();
+        document.getElementById('ticketResolved').textContent = t.resolved_at ? new Date(t.resolved_at).toLocaleString() : 'Pending';
+
+        const role = document.getElementById('userRole').value;
+        if (['hr', 'admin'].includes(role)) {
+            document.getElementById('resolverActions').style.display = 'block';
+            document.getElementById('updateStatusSelect').value = t.status;
+            document.getElementById('assignToInput').value = t.assigned_to || '';
+        } else {
+            document.getElementById('resolverActions').style.display = 'none';
+        }
+
+        // Show device info if linked
+        const deviceBox = document.getElementById('deviceInfoBox');
+        if (t.device_id) {
+            document.getElementById('deviceBrand').textContent = t.device_brand || 'Laptop';
+            document.getElementById('deviceModel').textContent = t.device_model || 'Standard';
+            document.getElementById('deviceSerial').textContent = `${t.asset_tag || 'N/A'} / ${t.serial_number || 'N/A'}`;
+            deviceBox.style.display = 'block';
+        } else {
+            deviceBox.style.display = 'none';
+        }
+    }
+
+    function renderHistory(history) {
+        const container = document.getElementById('ticketHistory');
+        if (!history || history.length === 0) {
+            container.innerHTML = '<p class="text-muted small">No audit history found.</p>';
+            return;
+        }
+
+        container.innerHTML = history.map(h => `
+            <div class="history-item">
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                    <span class="fw-bold small">${h.changed_by}</span>
+                    <span class="text-muted" style="font-size: 0.65rem;">${new Date(h.changed_at).toLocaleDateString()}</span>
+                </div>
+                <div class="small text-muted">
+                    Updated <span class="text-primary">${h.field}</span>: 
+                    ${h.old_value ? `<span class="text-decoration-line-through">${h.old_value}</span> → ` : ''} 
+                    <span class="fw-bold text-dark">${h.new_value}</span>
+                </div>
+                ${h.note ? `<div class="small bg-white p-2 rounded border mt-1 italic">"${h.note}"</div>` : ''}
+            </div>
+        `).join('');
+    }
+
+    function loadMessages(id, shouldScroll = false) {
+        // Double check we are still viewing this ticket
+        if (currentTicketId != id) return;
+        
+        if (!chatInterval) {
+            chatInterval = setInterval(() => loadMessages(id), 4000);
+        }
+
+        fetch(`/api/helpdesk/${id}/messages`, { headers: getHeaders() })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) renderMessages(data.messages, shouldScroll);
+            });
+    }
+
+    function renderMessages(messages, shouldScroll) {
+        const container = document.getElementById('chatMessages');
+        const user = document.getElementById('userName').value;
+        const prevHeight = container.scrollHeight;
+
+        if (!messages || messages.length === 0) {
+            container.innerHTML = `<div class="text-center py-5 text-muted small">No messages in this ticket yet.</div>`;
+            return;
+        }
+
+        container.innerHTML = messages.map(m => {
+            const isSystem = m.sender_name === 'System' || m.message.includes('marked as resolved');
+            if (isSystem) return `<div class="system-msg">${m.message}</div>`;
+            
+            const isSent = m.sender_name === user;
+            return `
+                <div class="message-wrapper ${isSent ? 'sent' : 'received'}">
+                    <div class="message-bubble">${m.message}</div>
+                    <div class="message-meta">${isSent ? 'You' : m.sender_name} • ${new Date(m.created_at).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</div>
+                </div>
+            `;
+        }).join('');
+
+        if (shouldScroll || container.scrollTop + container.clientHeight >= prevHeight - 100) {
+            container.scrollTop = container.scrollHeight;
+        }
+    }
+
+    function sendMessage() {
+        console.log('SendMessage triggered for ticket:', currentTicketId);
+        const input = document.getElementById('messageInput');
+        const message = input.value.trim();
+        if (!message || !currentTicketId) return;
+
+        const btn = document.getElementById('sendBtn');
+        input.disabled = true;
+        btn.disabled = true;
+
+        fetch(`/api/helpdesk/${currentTicketId}/messages`, {
+            method: 'POST',
+            headers: getHeaders(),
+            body: JSON.stringify({ message: message })
+        })
+        .then(res => res.json())
+        .then(data => {
+            input.disabled = false;
+            btn.disabled = false;
+            if (data.success) {
+                input.value = '';
+                loadMessages(currentTicketId, true);
+            } else {
+                alert('Send failed: ' + data.error);
+            }
+        })
+        .catch(err => {
+            input.disabled = false;
+            btn.disabled = false;
+            console.error('Send Error:', err);
+        });
+    }
+
+    function handleKey(e) { if (e.key === 'Enter') sendMessage(); }
+
+    // --- ACTIONS ---
+
+    function createTicket() {
+        const form = document.getElementById('createTicketForm');
+        const data = Object.fromEntries(new FormData(form).entries());
+
+        fetch('/api/helpdesk/', {
+            method: 'POST',
+            headers: getHeaders(),
+            body: JSON.stringify(data)
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                bootstrap.Modal.getInstance(document.getElementById('createTicketModal')).hide();
+                form.reset();
+                loadTickets();
+                alert('Ticket raised successfully!');
+            } else {
+                alert('Error: ' + data.error);
+            }
+        });
+    }
+
+    function updateTicketMeta() {
+        const status = document.getElementById('updateStatusSelect').value;
+        const assigned = document.getElementById('assignToInput').value;
+
+        fetch(`/api/helpdesk/${currentTicketId}/status`, {
+            method: 'PATCH',
+            headers: getHeaders(),
+            body: JSON.stringify({ status: status })
+        })
+        .then(() => {
+            if (assigned) {
+                return fetch(`/api/helpdesk/${currentTicketId}/assign`, {
+                    method: 'PATCH',
+                    headers: getHeaders(),
+                    body: JSON.stringify({ assigned_to: assigned })
+                });
+            }
+        })
+        .then(() => {
+            viewTicket(currentTicketId);
+            loadTickets();
+        });
+    }
+
+    function markAsResolved() {
+        if (!confirm('Close this ticket as resolved?')) return;
+        const name = document.getElementById('userName').value;
+
+        fetch(`/api/helpdesk/${currentTicketId}/status`, {
+            method: 'PATCH',
+            headers: getHeaders(),
+            body: JSON.stringify({ status: 'resolved' })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                sendMessage(`Ticket marked as resolved by ${name}`);
+                viewTicket(currentTicketId);
+                loadTickets();
+            }
+        });
+    }
+
+    function quickResolve(id) {
+        if (!confirm('Quick resolve this ticket?')) return;
+        fetch(`/api/helpdesk/${id}/status`, {
+            method: 'PATCH',
+            headers: getHeaders(),
+            body: JSON.stringify({ status: 'closed' })
+        }).then(() => loadTickets());
+    }
+
+    // Initialize modal listeners
+</script>
+{% endblock %}

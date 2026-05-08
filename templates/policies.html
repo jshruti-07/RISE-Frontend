@@ -1,0 +1,695 @@
+{% extends "base.html" %}
+{% block title %}Policies{% endblock %}
+
+{% block content %}
+<div class="form-card">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h5>Company Policies</h5>
+        <div class="d-flex gap-2">
+            <select class="form-select form-select-sm" id="categoryFilter" onchange="filterPolicies()">
+                <option value="">All Categories</option>
+                <option value="IT">IT</option>
+                <option value="Core HR">Core HR</option>
+            </select>
+        </div>
+    </div>
+
+    {% if error %}
+    <div class="row">
+        <div class="col-12">
+            <div class="alert alert-danger">
+                <i class="bi bi-exclamation-triangle me-2"></i>
+                {{ error }}
+            </div>
+        </div>
+    </div>
+    {% elif policies %}
+    <div class="row" id="policiesContainer">
+        {% set allowed_categories = ['IT', 'Core HR'] %}
+        {% set grouped_policies = {} %}
+
+        {# Group policies by category #}
+        {% for policy in policies %}
+        {% if policy.category in allowed_categories %}
+        {% if policy.category not in grouped_policies %}
+        {% set _ = grouped_policies.update({policy.category: []}) %}
+        {% endif %}
+        {% set _ = grouped_policies[policy.category].append(policy) %}
+        {% endif %}
+        {% endfor %}
+
+        {# Display one card per category #}
+        {% for category, policy_list in grouped_policies.items() %}
+        <div class="col-lg-6 col-md-12 mb-4 policy-card" data-category="{{ category }}">
+            <div class="card h-100 policy-card-simple" data-category="{{ category }}" style="cursor: pointer;">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <span class="badge bg-primary">{{ category|title }}</span>
+                            <h6 class="mb-2 mt-2">{{ category }} {{ 'Policies' if policy_list|length > 1 else 'Policy'
+                                }}</h6>
+                            <div class="mt-2">
+                                {% for policy in policy_list %}
+                                <div class="small text-muted mb-1">- {{ policy.title }}</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <div class="d-flex flex-column align-items-end gap-2">
+                            <i class="bi bi-arrow-right-circle text-primary"></i>
+                            {% if session.role == 'hr' %}
+                            <button class="btn btn-sm btn-outline-secondary edit-policy-btn"
+                                data-policy-index="{{ loop.index0 }}"
+                                onclick="event.stopPropagation(); openEditModal({{ loop.index0 }});"
+                                title="Edit Policy">
+                                <i class="bi bi-pencil"></i> Edit
+                            </button>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <small class="text-muted">
+                        Last updated: {{ policy_list[-1].updated_at[:10] if policy_list[-1].updated_at else '' }}
+                    </small>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    {% if not policies %}
+    <div class="text-center py-5">
+        <i class="bi bi-file-text display-4 text-muted"></i>
+        <p class="text-muted mt-3">No policies found in the database</p>
+    </div>
+    {% endif %}
+    {% else %}
+    <div class="text-center py-5">
+        <i class="bi bi-file-text display-4 text-muted"></i>
+        <p class="text-muted mt-3">No policies available</p>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Hidden input to store policy data -->
+<input type="hidden" id="policiesData" value='{{ policies|tojson|safe }}'>
+
+<!-- Hidden input to store session token for API calls -->
+<input type="hidden" id="sessionToken" value="{{ session.get('token', '') }}">
+
+<!-- Policy Modal -->
+<div class="modal fade" id="policyModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="d-flex align-items-center">
+                    <span class="badge bg-primary me-2" id="modalCategory"></span>
+                    <h5 class="modal-title mb-0" id="modalTitle"></h5>
+                </div>
+                <button type="button" class="btn-close" onclick="closePolicyModal()" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="policy-modal-content" id="modalContent"></div>
+                <div class="mt-3 pt-3 border-top">
+                    <small class="text-muted">
+                        <strong>Last updated:</strong> <span id="modalUpdated"></span><br>
+                        <strong>Updated by:</strong> <span id="modalUpdatedBy"></span>
+                    </small>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closePolicyModal()">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if session.role == 'hr' %}
+<!-- Edit Policy Modal (HR only) -->
+<div class="modal fade" id="editPolicyModal" tabindex="-1" aria-hidden="true" style="z-index: 1060;">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Edit Policy</h5>
+                <button type="button" class="btn-close" onclick="closeEditModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="editPolicyForm">
+                    <div class="mb-3">
+                        <label for="editCategory" class="form-label">Category</label>
+                        <input type="text" class="form-control" id="editCategory" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editTitle" class="form-label">Title</label>
+                        <input type="text" class="form-control" id="editTitle" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editContent" class="form-label">Content</label>
+                        <textarea class="form-control" id="editContent" rows="10" required></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="editIsActive">
+                            <label class="form-check-label" for="editIsActive">
+                                Active
+                            </label>
+                        </div>
+                    </div>
+                    <input type="hidden" id="editPolicyId">
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeEditModal()">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="savePolicy()">Save Changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<script>
+    var canEditPolicies = {{ 'true' if session.role == 'hr' else 'false' }};
+    // Global variable to store policies data
+    var policiesDataGlobal = null;
+
+    document.addEventListener('DOMContentLoaded', function () {
+        // Get policy data from hidden input (rendered by Flask)
+        var policiesDataInput = document.getElementById('policiesData');
+        console.log('Policies data input found:', !!policiesDataInput);
+
+        if (policiesDataInput) {
+            var policiesData;
+            try {
+                var jsonValue = policiesDataInput.value;
+                console.log('Raw JSON value:', jsonValue);
+
+                if (!jsonValue || jsonValue.trim() === '') {
+                    console.error('Empty policies data from backend');
+                    showError('No policies data available');
+                    return;
+                }
+
+                policiesData = JSON.parse(jsonValue);
+                console.log('Policies data loaded successfully:', policiesData);
+
+                if (!Array.isArray(policiesData) || policiesData.length === 0) {
+                    console.log('No policies found in backend data');
+                    showError('No policies found');
+                    return;
+                }
+
+                // Store policiesData globally for edit modal access
+                policiesDataGlobal = policiesData;
+                console.log('Policies data stored globally:', policiesDataGlobal);
+                setupPolicyCards(policiesData);
+
+            } catch (error) {
+                console.error('JSON parse error:', error);
+                showError('Error loading policies data');
+            }
+        } else {
+            console.error('Policies data input not found - backend not rendering data');
+            showError('Policies data not available');
+        }
+
+        // Add click handler for backdrop and policy cards and edit buttons
+        document.addEventListener('click', function (event) {
+            // Handle policy card clicks (view modal)
+            var policyCard = event.target.closest('.policy-card-simple');
+            if (policyCard) {
+                event.preventDefault();
+                var category = policyCard.dataset.category;
+                if (category !== undefined) {
+                    console.log('Policy card clicked:', category);
+                    openPolicyModal(category, policiesDataGlobal);
+                }
+            }
+
+            // Handle edit button clicks (HR only)
+            var editButton = event.target.closest('.edit-policy-btn');
+            if (editButton && canEditPolicies) {
+                event.preventDefault();
+                event.stopPropagation();
+                var policyIndex = editButton.dataset.policyIndex;
+                if (policyIndex !== undefined) {
+                    openEditModal(policyIndex);
+                }
+            }
+
+            // Handle backdrop click
+            var modal = document.getElementById('policyModal');
+            if (event.target === modal) {
+                closePolicyModal();
+            }
+        });
+
+        // Test if CSS selector is working
+        setTimeout(function () {
+            var testButtons = document.querySelectorAll('.edit-policy-btn');
+            console.log('Found edit buttons with CSS class:', testButtons.length);
+            if (testButtons.length > 0) {
+                console.log('CSS selector is working correctly!');
+            } else {
+                console.log('CSS selector not working - found 0 buttons');
+            }
+        }, 1000);
+    });
+
+    function setupPolicyCards(policiesData) {
+        // Add click listeners to policy cards
+        var policyCards = document.querySelectorAll('.policy-card-simple');
+        console.log('Policy cards found:', policyCards.length);
+
+        policyCards.forEach(function (card, index) {
+            console.log('Adding click listener to card:', index, 'Category:', card.dataset.category);
+            if (card && card.dataset && card.dataset.category !== undefined) {
+                card.addEventListener('click', function () {
+                    console.log('Card clicked:', this.dataset.category);
+                    var category = this.dataset.category;
+                    openPolicyModal(category, policiesDataGlobal);
+                });
+            } else {
+                console.warn('Card or dataset not found for index:', index);
+            }
+        });
+    }
+
+    function showError(message) {
+        var container = document.getElementById('policiesContainer');
+        if (container) {
+            container.innerHTML = `
+            <div class="col-12">
+                <div class="alert alert-warning text-center">
+                    <i class="bi bi-exclamation-triangle me-2"></i>
+                    ${message}
+                </div>
+            </div>
+        `;
+        }
+    }
+
+    function filterPolicies() {
+        var category = document.getElementById('categoryFilter').value;
+        var cards = document.querySelectorAll('.policy-card');
+
+        cards.forEach(function (card) {
+            if (category === '' || card.dataset.category === category) {
+                card.style.display = 'block';
+            } else {
+                card.style.display = 'none';
+            }
+        });
+    }
+
+    function openPolicyModal(category, policiesData) {
+        console.log('Opening modal for category:', category);
+        console.log('Policies data:', policiesData);
+
+        // Filter policies by category
+        var categoryPolicies = policiesData.filter(function (policy) {
+            return policy.category === category;
+        });
+
+        if (categoryPolicies.length === 0) {
+            console.log('No policies found for category:', category);
+            return;
+        }
+
+        console.log('Category policies:', categoryPolicies);
+
+        // Populate modal with category policies
+        var modalCategory = document.getElementById('modalCategory');
+        var modalTitle = document.getElementById('modalTitle');
+        var modalContent = document.getElementById('modalContent');
+        var modalUpdated = document.getElementById('modalUpdated');
+        var modalUpdatedBy = document.getElementById('modalUpdatedBy');
+
+        console.log('Modal elements found:', {
+            modalCategory: !!modalCategory,
+            modalTitle: !!modalTitle,
+            modalContent: !!modalContent,
+            modalUpdated: !!modalUpdated,
+            modalUpdatedBy: !!modalUpdatedBy
+        });
+
+        modalCategory.textContent = category;
+        modalTitle.textContent = category + ' Policies';
+
+        // Create policy list content
+        var policyListHtml = '<div class="policy-list">';
+        categoryPolicies.forEach(function (policy, index) {
+            policyListHtml += `
+            <div class="policy-item mb-4 p-3 border rounded">
+                <h6 class="mb-2">${policy.title}</h6>
+                <div class="policy-content">${policy.content}</div>
+                <small class="text-muted">
+                    Updated: ${policy.updated_at ? policy.updated_at.slice(0, 10) : 'N/A'} | 
+                    By: ${policy.updated_by || 'System'}
+                </small>
+            </div>
+        `;
+        });
+        policyListHtml += '</div>';
+
+        modalContent.innerHTML = policyListHtml;
+
+        // Show latest update info
+        var latestPolicy = categoryPolicies[categoryPolicies.length - 1];
+        modalUpdated.textContent = latestPolicy.updated_at ? latestPolicy.updated_at.slice(0, 10) : 'N/A';
+        modalUpdatedBy.textContent = latestPolicy.updated_by || 'System';
+
+        console.log('Modal populated, showing modal');
+
+        // Show modal using Bootstrap
+        try {
+            var modal = new bootstrap.Modal(document.getElementById('policyModal'));
+            modal.show();
+            console.log('Modal shown successfully');
+        } catch (error) {
+            console.error('Error showing modal:', error);
+            // Fallback: show modal manually
+            document.getElementById('policyModal').style.display = 'block';
+            document.getElementById('policyModal').classList.add('show');
+            document.body.classList.add('modal-open');
+
+            // Add backdrop
+            var backdrop = document.createElement('div');
+            backdrop.className = 'modal-backdrop show';
+            backdrop.id = 'modal-backdrop';
+            document.body.appendChild(backdrop);
+        }
+    }
+
+    function closePolicyModal() {
+        console.log('Closing view modal');
+
+        // Try Bootstrap method first
+        try {
+            var modal = bootstrap.Modal.getInstance(document.getElementById('policyModal'));
+            if (modal) {
+                modal.hide();
+            }
+        } catch (error) {
+            console.log('Bootstrap modal method failed, using fallback');
+        }
+
+        // Fallback: hide modal manually
+        var modalElement = document.getElementById('policyModal');
+        if (modalElement) {
+            modalElement.style.display = 'none';
+            modalElement.classList.remove('show');
+            document.body.classList.remove('modal-open');
+        }
+
+        // Remove backdrop
+        var backdrop = document.getElementById('modal-backdrop');
+        if (backdrop) {
+            backdrop.remove();
+        }
+
+        // Remove all backdrops (cleanup)
+        var allBackdrops = document.querySelectorAll('.modal-backdrop');
+        allBackdrops.forEach(function (backdrop) {
+            backdrop.remove();
+        });
+    }
+
+    // Edit Modal Functions
+    function openEditModal(policyIndex) {
+        console.log('Opening edit modal for policy index:', policyIndex);
+
+        // Get policiesData from the global scope
+        var policiesDataInput = document.getElementById('policiesData');
+        if (!policiesDataInput) {
+            console.error('Policies data input not found');
+            return;
+        }
+
+        var policiesData;
+        try {
+            policiesData = JSON.parse(policiesDataInput.value);
+        } catch (error) {
+            console.error('Error parsing policies data:', error);
+            return;
+        }
+
+        var policy = policiesData[policyIndex];
+        if (!policy) {
+            console.error('Policy not found at index:', policyIndex);
+            return;
+        }
+
+        // Populate edit form with current policy data
+        console.log('Populating form with policy:', policy);
+        var editPolicyId = document.getElementById('editPolicyId');
+        var editCategory = document.getElementById('editCategory');
+        var editTitle = document.getElementById('editTitle');
+        var editContent = document.getElementById('editContent');
+        var editIsActive = document.getElementById('editIsActive');
+
+        if (editPolicyId) editPolicyId.value = policy.id || '';
+        if (editCategory) editCategory.value = policy.category || '';
+        if (editTitle) editTitle.value = policy.title || '';
+        if (editContent) editContent.value = policy.content || '';
+        if (editIsActive) editIsActive.checked = policy.is_active || false;
+
+        console.log('Form populated:', {
+            id: editPolicyId.value,
+            category: editCategory.value,
+            title: editTitle.value,
+            content: editContent.value,
+            isActive: editIsActive.checked
+        });
+
+        // Show edit modal and focus on first field
+        var editModal = new bootstrap.Modal(document.getElementById('editPolicyModal'));
+        editModal.show();
+
+        // Focus on first field for better UX
+        setTimeout(function () {
+            if (editCategory) {
+                editCategory.focus();
+                editCategory.select();
+            }
+        }, 300);
+    }
+
+    function closeEditModal() {
+        console.log('Closing edit modal');
+
+        // Hide edit modal
+        try {
+            var editModal = bootstrap.Modal.getInstance(document.getElementById('editPolicyModal'));
+            if (editModal) {
+                editModal.hide();
+            }
+        } catch (error) {
+            console.log('Bootstrap modal method failed, using fallback');
+        }
+
+        // Fallback: hide modal manually
+        var editModalElement = document.getElementById('editPolicyModal');
+        if (editModalElement) {
+            editModalElement.style.display = 'none';
+            editModalElement.classList.remove('show');
+        }
+
+        // Remove backdrop if exists
+        var backdrop = document.getElementById('modal-backdrop');
+        if (backdrop) {
+            backdrop.remove();
+        }
+    }
+
+    function savePolicy() {
+        console.log('Saving policy...');
+
+        var policyId = document.getElementById('editPolicyId').value;
+        var category = document.getElementById('editCategory').value;
+        var title = document.getElementById('editTitle').value;
+        var content = document.getElementById('editContent').value;
+        var isActive = document.getElementById('editIsActive').checked;
+        var token = getToken();
+
+        console.log('Form data:', {
+            policyId: policyId,
+            category: category,
+            title: title,
+            content: content,
+            isActive: isActive,
+            token: token ? 'Bearer ' + token.substring(0, 20) + '...' : 'No token'
+        });
+
+        if (!policyId || !category || !title || !content) {
+            alert('Please fill in all required fields');
+            return;
+        }
+
+        if (!token) {
+            alert('Authentication token not found. Please refresh the page and try again.');
+            return;
+        }
+
+        // Prepare data for API call
+        var policyData = {
+            category: category,
+            title: title,
+            content: content,
+            is_active: isActive
+        };
+
+        console.log('Updating policy:', policyId, policyData);
+
+        // Call backend API to update policy
+        fetch(`/api/policies/${policyId}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + token
+            },
+            body: JSON.stringify(policyData)
+        })
+            .then(response => {
+                console.log('API response status:', response.status);
+                if (response.ok) {
+                    return response.json();
+                } else {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+            })
+            .then(data => {
+                console.log('Update response data:', data);
+                if (data.success) {
+                    alert('Policy updated successfully!');
+                    closeEditModal();
+                    // Reload page to show updated data
+                    location.reload();
+                } else {
+                    alert('Error updating policy: ' + data.error);
+                }
+            })
+            .catch(error => {
+                console.error('Error updating policy:', error);
+                alert('Error updating policy. Please try again.');
+            });
+    }
+
+    function getToken() {
+        // Get token from hidden input field
+        var tokenInput = document.getElementById('sessionToken');
+        return tokenInput ? tokenInput.value : '';
+    }
+
+    // Add backdrop click handler
+    document.addEventListener('DOMContentLoaded', function () {
+        // Add click handler for backdrop
+        document.addEventListener('click', function (event) {
+            var modal = document.getElementById('policyModal');
+            if (event.target === modal) {
+                closePolicyModal();
+            }
+        });
+
+        // Add ESC key handler
+        document.addEventListener('keydown', function (event) {
+            if (event.key === 'Escape') {
+                closePolicyModal();
+            }
+        });
+    });
+</script>
+
+<style>
+    .policy-card {
+        transition: all 0.3s ease;
+    }
+
+    .policy-card:hover {
+        transform: translateY(-2px);
+    }
+
+    .policy-card-simple {
+        transition: all 0.3s ease;
+        border: 2px solid transparent;
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    }
+
+    .policy-card-simple:hover {
+        transform: translateY(-2px);
+        border-color: #667eea;
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
+    }
+
+    .policy-modal-content {
+        max-height: 400px;
+        overflow-y: auto;
+        line-height: 1.6;
+    }
+
+    .policy-modal-content::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    .policy-modal-content::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 3px;
+    }
+
+    .policy-modal-content::-webkit-scrollbar-thumb {
+        background: #888;
+        border-radius: 3px;
+    }
+
+    .policy-modal-content::-webkit-scrollbar-thumb:hover {
+        background: #555;
+    }
+
+    .modal-backdrop {
+        background-color: rgba(0, 0, 0, 0.7) !important;
+    }
+
+    .badge {
+        font-size: 0.75rem;
+        padding: 0.35rem 0.65rem;
+    }
+
+    .form-select-sm {
+        width: auto;
+        min-width: 150px;
+    }
+
+    .bi-arrow-right-circle {
+        transition: transform 0.3s ease;
+    }
+
+    .policy-card-simple:hover .bi-arrow-right-circle {
+        transform: translateX(3px);
+    }
+
+    .policy-item {
+        background-color: #f8f9fa;
+        transition: all 0.3s ease;
+    }
+
+    .policy-item:hover {
+        background-color: #e9ecef;
+        transform: translateY(-1px);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .policy-item h6 {
+        color: #495057;
+        font-weight: 600;
+    }
+
+    .policy-item .policy-content {
+        line-height: 1.6;
+        margin-bottom: 10px;
+    }
+
+    .policy-list {
+        max-height: 500px;
+        overflow-y: auto;
+    }
+</style>
+
+{% endblock %}

@@ -1,0 +1,657 @@
+{% extends "base.html" %}
+{% block title %}Reimbursement{% endblock %}
+
+{% block content %}
+<!-- Hidden session token for API authentication -->
+<input type="hidden" id="sessionToken" value="{{ session.get('token', '') }}">
+<input type="hidden" id="userRole" value="{{ session.get('role', '') }}">
+<input type="hidden" id="employeeName" value="{{ session.get('employee_name', '') }}">
+
+<div class="container-fluid py-4">
+    <!-- Header Section -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h4 class="mb-0 fw-bold">Reimbursement</h4>
+        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#submitClaimModal">
+            <i class="bi bi-plus-lg me-2"></i>Submit Claim
+        </button>
+    </div>
+
+    <!-- Filters Section -->
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body p-3">
+            <div class="row g-3">
+                <div class="col-md-3">
+                    <label class="form-label small text-muted">Status</label>
+                    <select class="form-select form-select-sm" id="filterStatus">
+                        <option value="">All Status</option>
+                        <option value="pending">Pending</option>
+                        <option value="approved">Approved</option>
+                        <option value="rejected">Rejected</option>
+                        <option value="paid">Paid</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label small text-muted">Category</label>
+                    <select class="form-select form-select-sm" id="filterCategory">
+                        <option value="">All Categories</option>
+                        <option value="travel">Travel</option>
+                        <option value="food">Food</option>
+                        <option value="accommodation">Accommodation</option>
+                        <option value="office_supplies">Office Supplies</option>
+                        <option value="others">Others</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label small text-muted">From Date</label>
+                    <input type="date" class="form-control form-control-sm" id="filterFromDate">
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label small text-muted">To Date</label>
+                    <input type="date" class="form-control form-control-sm" id="filterToDate">
+                </div>
+                <div class="col-md-2 d-flex align-items-end">
+                    <button class="btn btn-outline-secondary btn-sm w-100" onclick="applyFilters()">
+                        <i class="bi bi-filter me-1"></i>Apply Filters
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Reimbursement List -->
+    <div class="card border-0 shadow-sm">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="bg-light">
+                        <tr>
+                            <th>Reference</th>
+                            <th>Title</th>
+                            <th>Amount</th>
+                            <th>Category</th>
+                            <th>Status</th>
+                            <th>Expense Date</th>
+                            <th>Receipt</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="reimbursementList">
+                        <tr>
+                            <td colspan="8" class="text-center py-4">
+                                <div class="spinner-border text-primary" role="status"></div>
+                                <span class="ms-2 text-muted">Loading reimbursements...</span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Submit Claim Modal -->
+<div class="modal fade" id="submitClaimModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Submit Expense Claim</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="submitClaimForm" enctype="multipart/form-data">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Title *</label>
+                            <input type="text" class="form-control" name="title" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Amount *</label>
+                            <input type="number" step="0.01" class="form-control" name="amount" required>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Currency</label>
+                            <select class="form-select" name="currency">
+                                <option value="INR" selected>INR</option>
+                                <option value="USD">USD</option>
+                                <option value="EUR">EUR</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Expense Date *</label>
+                            <input type="date" class="form-control" name="expense_date" required>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Category *</label>
+                            <select class="form-select" name="category" required>
+                                <option value="">Select Category</option>
+                                <option value="travel">Travel</option>
+                                <option value="food">Food</option>
+                                <option value="accommodation">Accommodation</option>
+                                <option value="office_supplies">Office Supplies</option>
+                                <option value="others">Others</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Project ID</label>
+                            <input type="text" class="form-control" name="project_id">
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Description</label>
+                        <textarea class="form-control" name="description" rows="2"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Receipt (jpg/png/pdf, max 5MB)</label>
+                        <input type="file" class="form-control" name="receipt" accept=".jpg,.jpeg,.png,.pdf">
+                    </div>
+                    <div class="form-check mb-3">
+                        <input class="form-check-input" type="checkbox" name="billable" id="billableCheck">
+                        <label class="form-check-label" for="billableCheck">Billable to Client</label>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="submitClaim()">Submit Claim</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- View Details Modal -->
+<div class="modal fade" id="viewDetailsModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Reimbursement Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="detailsContent">
+                <div class="text-center py-4">
+                    <div class="spinner-border text-primary" role="status"></div>
+                </div>
+            </div>
+            <div class="modal-footer" id="detailsFooter">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Reject Modal -->
+<div class="modal fade" id="rejectModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Reject Claim</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="form-label">Rejection Reason *</label>
+                    <textarea class="form-control" id="rejectReason" rows="3" required></textarea>
+                </div>
+                <input type="hidden" id="rejectClaimId">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-danger" onclick="confirmReject()">Reject</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Pay Modal -->
+<div class="modal fade" id="payModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Mark as Paid</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="form-label">Payment Date</label>
+                    <input type="date" class="form-control" id="paymentDate">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Note (Optional)</label>
+                    <textarea class="form-control" id="paymentNote" rows="2"></textarea>
+                </div>
+                <input type="hidden" id="payClaimId">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-success" onclick="confirmPay()">Mark as Paid</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .status-pending { background: #fef9c3 !important; color: #a16207 !important; }
+    .status-approved { background: #dcfce7 !important; color: #15803d !important; }
+    .status-rejected { background: #fee2e2 !important; color: #b91c1c !important; }
+    .status-paid { background: #dbeafe !important; color: #1d4ed8 !important; }
+    
+    .history-timeline {
+        border-left: 2px solid #e5e7eb;
+        padding-left: 20px;
+        margin-left: 10px;
+    }
+    .history-item {
+        position: relative;
+        padding-bottom: 20px;
+    }
+    .history-item::before {
+        content: '';
+        position: absolute;
+        left: -26px;
+        top: 5px;
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: #3b82f6;
+    }
+    .history-date {
+        font-size: 0.85rem;
+        color: #6b7280;
+    }
+    .history-field {
+        font-weight: 600;
+        color: #1f2937;
+    }
+</style>
+
+<script>
+let rejectFromDetails = false;
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Check for status filter in URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const statusFilter = urlParams.get('status');
+    if (statusFilter) {
+        const statusSelect = document.getElementById('filterStatus');
+        if (statusSelect) {
+            statusSelect.value = statusFilter;
+        }
+    }
+
+    loadReimbursements();
+    
+    // Set default date for expense date
+    const today = new Date().toISOString().split('T')[0];
+    const expenseDateInput = document.querySelector('input[name="expense_date"]');
+    if (expenseDateInput) expenseDateInput.value = today;
+    const paymentDateInput = document.getElementById('paymentDate');
+    if (paymentDateInput) paymentDateInput.value = today;
+});
+
+function canReviewReimbursement(userRole, status) {
+    const role = String(userRole || '').toLowerCase();
+    const normalizedStatus = String(status || '').toLowerCase();
+    return ['hr', 'manager', 'admin'].includes(role) && normalizedStatus === 'pending';
+}
+
+function loadReimbursements() {
+    const tbody = document.getElementById('reimbursementList');
+    tbody.innerHTML = '<tr><td colspan="8" class="text-center py-4"><div class="spinner-border text-primary" role="status"></div><span class="ms-2 text-muted">Loading reimbursements...</span></td></tr>';
+    
+    const params = {};
+    const status = document.getElementById('filterStatus').value;
+    const category = document.getElementById('filterCategory').value;
+    const fromDate = document.getElementById('filterFromDate').value;
+    const toDate = document.getElementById('filterToDate').value;
+    
+    if (status) params.status = status;
+    if (category) params.category = category;
+    if (fromDate) params.from_date = fromDate;
+    if (toDate) params.to_date = toDate;
+    
+    const queryString = new URLSearchParams(params).toString();
+    
+    fetch(`/api/reimbursements?${queryString}`)
+        .then(res => res.json())
+        .then(data => {
+            if (!data.success) throw new Error(data.error);
+            renderReimbursements(data.reimbursements);
+        })
+        .catch(err => {
+            console.error('Error loading reimbursements:', err);
+            tbody.innerHTML = '<tr><td colspan="8" class="text-center py-4 text-danger">Failed to load reimbursements</td></tr>';
+        });
+}
+
+function renderReimbursements(reimbursements) {
+    const tbody = document.getElementById('reimbursementList');
+    const userRole = document.getElementById('userRole').value;
+    const employeeName = document.getElementById('employeeName').value;
+    
+    if (!reimbursements || reimbursements.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="8" class="text-center py-4 text-muted">No reimbursements found</td></tr>';
+        return;
+    }
+    
+    tbody.innerHTML = reimbursements.map(r => {
+        const statusClass = `status-${r.status}`;
+        const categoryLabels = {
+            'travel': 'Travel',
+            'food': 'Food',
+            'accommodation': 'Accommodation',
+            'office_supplies': 'Office Supplies',
+            'others': 'Others'
+        };
+        
+        let actions = '';
+        // Employee actions
+        if (userRole === 'employee' && r.employee_name === employeeName && r.status === 'pending') {
+            actions += `<button class="btn btn-sm btn-outline-danger" onclick="withdrawClaim(${r.id})">Withdraw</button>`;
+        }
+        // Manager/HR actions
+        if (userRole === 'hr' || userRole === 'manager') {
+            if (r.status === 'pending') {
+                actions += `<button class="btn btn-sm btn-outline-success me-1" onclick="approveClaim(${r.id})">Approve</button>`;
+                actions += `<button class="btn btn-sm btn-outline-danger" onclick="showRejectModal(${r.id})">Reject</button>`;
+            }
+        }
+        // Admin actions
+        if (userRole === 'admin') {
+            if (r.status === 'pending') {
+                actions += `<button class="btn btn-sm btn-outline-success me-1" onclick="approveClaim(${r.id})">Approve</button>`;
+                actions += `<button class="btn btn-sm btn-outline-danger me-1" onclick="showRejectModal(${r.id})">Reject</button>`;
+            }
+            if (r.status === 'approved') {
+                actions += `<button class="btn btn-sm btn-outline-primary me-1" onclick="showPayModal(${r.id})">Pay</button>`;
+            }
+            actions += `<button class="btn btn-sm btn-outline-danger" onclick="deleteClaim(${r.id})">Delete</button>`;
+        }
+        
+        return `
+            <tr>
+                <td><span class="fw-semibold">${r.ref}</span></td>
+                <td>${r.title}</td>
+                <td>${r.currency} ${parseFloat(r.amount).toFixed(2)}</td>
+                <td>${categoryLabels[r.category] || r.category}</td>
+                <td><span class="badge ${statusClass}">${r.status.charAt(0).toUpperCase() + r.status.slice(1)}</span></td>
+                <td>${r.expense_date}</td>
+                <td>${r.has_receipt ? '<i class="bi bi-check-circle text-success"></i> Yes' : '<i class="bi bi-x-circle text-muted"></i> No'}</td>
+                <td>
+                    <button class="btn btn-sm btn-outline-primary me-1" onclick="viewDetails(${r.id})">View</button>
+                    ${actions}
+                </td>
+            </tr>
+        `;
+    }).join('');
+}
+
+function applyFilters() {
+    loadReimbursements();
+}
+
+function submitClaim() {
+    const form = document.getElementById('submitClaimForm');
+    const formData = new FormData(form);
+    
+    fetch('/api/reimbursements', {
+        method: 'POST',
+        body: formData
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            alert('Claim submitted successfully!');
+            bootstrap.Modal.getInstance(document.getElementById('submitClaimModal')).hide();
+            form.reset();
+            loadReimbursements();
+        } else {
+            alert('Error: ' + data.error);
+        }
+    })
+    .catch(err => {
+        console.error('Error submitting claim:', err);
+        alert('Failed to submit claim');
+    });
+}
+
+function viewDetails(id) {
+    const modal = new bootstrap.Modal(document.getElementById('viewDetailsModal'));
+    const content = document.getElementById('detailsContent');
+    const footer = document.getElementById('detailsFooter');
+    const userRole = document.getElementById('userRole').value;
+    
+    content.innerHTML = '<div class="text-center py-4"><div class="spinner-border text-primary" role="status"></div></div>';
+    footer.innerHTML = '<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>';
+    modal.show();
+    
+    fetch(`/api/reimbursements/${id}`)
+        .then(res => res.json())
+        .then(data => {
+            if (!data.success) throw new Error(data.error);
+            
+            const r = data.reimbursement;
+            const categoryLabels = {
+                'travel': 'Travel',
+                'food': 'Food',
+                'accommodation': 'Accommodation',
+                'office_supplies': 'Office Supplies',
+                'others': 'Others'
+            };
+            
+            let historyHtml = '';
+            if (data.history && data.history.length > 0) {
+                historyHtml = '<div class="mt-4"><h6 class="fw-semibold mb-3">History</h6><div class="history-timeline">';
+                data.history.forEach(h => {
+                    historyHtml += `
+                        <div class="history-item">
+                            <div class="history-date">${h.changed_at}</div>
+                            <div class="history-field">${h.field}: ${h.old_value || 'None'} → ${h.new_value}</div>
+                            <div class="small text-muted">By: ${h.changed_by}</div>
+                            ${h.note ? `<div class="small text-muted mt-1">Note: ${h.note}</div>` : ''}
+                        </div>
+                    `;
+                });
+                historyHtml += '</div></div>';
+            }
+            
+            let receiptBtn = '';
+            if (r.has_receipt) {
+                receiptBtn = `<button class="btn btn-sm btn-outline-primary" onclick="downloadReceipt(${r.id})"><i class="bi bi-download me-1"></i>Download Receipt</button>`;
+            }
+            
+            content.innerHTML = `
+                <div class="row">
+                    <div class="col-md-6">
+                        <p><strong>Reference:</strong> ${r.ref}</p>
+                        <p><strong>Title:</strong> ${r.title}</p>
+                        <p><strong>Amount:</strong> ${r.currency} ${parseFloat(r.amount).toFixed(2)}</p>
+                        <p><strong>Category:</strong> ${categoryLabels[r.category] || r.category}</p>
+                        <p><strong>Status:</strong> <span class="badge status-${r.status}">${r.status.charAt(0).toUpperCase() + r.status.slice(1)}</span></p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>Expense Date:</strong> ${r.expense_date}</p>
+                        <p><strong>Employee:</strong> ${r.employee_name}</p>
+                        <p><strong>Project ID:</strong> ${r.project_id || 'N/A'}</p>
+                        <p><strong>Billable:</strong> ${r.billable ? 'Yes' : 'No'}</p>
+                        <p><strong>Receipt:</strong> ${r.has_receipt ? 'Yes' : 'No'}</p>
+                    </div>
+                </div>
+                ${r.description ? `<div class="mt-3"><p><strong>Description:</strong></p><p class="text-muted">${r.description}</p></div>` : ''}
+                ${r.rejection_reason ? `<div class="mt-3 alert alert-danger"><strong>Rejection Reason:</strong> ${r.rejection_reason}</div>` : ''}
+                ${receiptBtn ? `<div class="mt-3">${receiptBtn}</div>` : ''}
+                ${historyHtml}
+            `;
+
+            const reviewActions = canReviewReimbursement(userRole, r.status)
+                ? `
+                    <button type="button" class="btn btn-success" onclick="approveClaim(${r.id}, true)">
+                        <i class="bi bi-check-circle me-1"></i>Approve
+                    </button>
+                    <button type="button" class="btn btn-danger" onclick="showRejectModal(${r.id}, true)">
+                        <i class="bi bi-x-circle me-1"></i>Reject
+                    </button>
+                `
+                : '';
+            footer.innerHTML = `
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                ${reviewActions}
+            `;
+        })
+        .catch(err => {
+            console.error('Error loading details:', err);
+            content.innerHTML = '<div class="alert alert-danger">Failed to load details</div>';
+            footer.innerHTML = '<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>';
+        });
+}
+
+function downloadReceipt(id) {
+    window.open(`/api/reimbursements/${id}/receipt`, '_blank');
+}
+
+function approveClaim(id, fromDetails = false) {
+    if (!confirm('Are you sure you want to approve this claim?')) return;
+    
+    fetch(`/api/reimbursements/${id}/approve`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({})
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            alert('Claim approved successfully!');
+            loadReimbursements();
+            if (fromDetails) {
+                viewDetails(id);
+            }
+        } else {
+            alert('Error: ' + data.error);
+        }
+    })
+    .catch(err => {
+        console.error('Error approving claim:', err);
+        alert('Failed to approve claim');
+    });
+}
+
+function showRejectModal(id, fromDetails = false) {
+    document.getElementById('rejectClaimId').value = id;
+    document.getElementById('rejectReason').value = '';
+    rejectFromDetails = !!fromDetails;
+    new bootstrap.Modal(document.getElementById('rejectModal')).show();
+}
+
+function confirmReject() {
+    const id = document.getElementById('rejectClaimId').value;
+    const reason = document.getElementById('rejectReason').value;
+    
+    if (!reason.trim()) {
+        alert('Please provide a rejection reason');
+        return;
+    }
+    
+    fetch(`/api/reimbursements/${id}/reject`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ reason: reason })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            alert('Claim rejected successfully!');
+            bootstrap.Modal.getInstance(document.getElementById('rejectModal')).hide();
+            loadReimbursements();
+            if (rejectFromDetails) {
+                viewDetails(parseInt(id, 10));
+            }
+            rejectFromDetails = false;
+        } else {
+            alert('Error: ' + data.error);
+        }
+    })
+    .catch(err => {
+        console.error('Error rejecting claim:', err);
+        alert('Failed to reject claim');
+        rejectFromDetails = false;
+    });
+}
+
+function showPayModal(id) {
+    document.getElementById('payClaimId').value = id;
+    document.getElementById('paymentDate').value = new Date().toISOString().split('T')[0];
+    document.getElementById('paymentNote').value = '';
+    new bootstrap.Modal(document.getElementById('payModal')).show();
+}
+
+function confirmPay() {
+    const id = document.getElementById('payClaimId').value;
+    const paymentDate = document.getElementById('paymentDate').value;
+    const note = document.getElementById('paymentNote').value;
+    
+    fetch(`/api/reimbursements/${id}/pay`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ payment_date: paymentDate, note: note })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            alert('Claim marked as paid successfully!');
+            bootstrap.Modal.getInstance(document.getElementById('payModal')).hide();
+            loadReimbursements();
+        } else {
+            alert('Error: ' + data.error);
+        }
+    })
+    .catch(err => {
+        console.error('Error marking as paid:', err);
+        alert('Failed to mark as paid');
+    });
+}
+
+function withdrawClaim(id) {
+    if (!confirm('Are you sure you want to withdraw this claim?')) return;
+    
+    fetch(`/api/reimbursements/${id}`, {
+        method: 'DELETE'
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            alert('Claim withdrawn successfully!');
+            loadReimbursements();
+        } else {
+            alert('Error: ' + data.error);
+        }
+    })
+    .catch(err => {
+        console.error('Error withdrawing claim:', err);
+        alert('Failed to withdraw claim');
+    });
+}
+
+function deleteClaim(id) {
+    if (!confirm('Are you sure you want to delete this claim? This action cannot be undone.')) return;
+    
+    fetch(`/api/reimbursements/${id}`, {
+        method: 'DELETE'
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            alert('Claim deleted successfully!');
+            loadReimbursements();
+        } else {
+            alert('Error: ' + data.error);
+        }
+    })
+    .catch(err => {
+        console.error('Error deleting claim:', err);
+        alert('Failed to delete claim');
+    });
+}
+</script>
+{% endblock %}

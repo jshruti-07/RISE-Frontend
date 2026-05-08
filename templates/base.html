@@ -1,0 +1,829 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+    <title>{% block title %}EMS{% endblock %}</title>
+
+
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+
+
+    <!-- Google Font -->
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+
+    <!-- Lottie Player -->
+    <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
+
+
+
+    <style>
+        .status-dot {
+            height: 10px;
+            width: 10px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        .workload-tooltip {
+            position: fixed;
+            background: #333;
+            color: white;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 0.75rem;
+            z-index: 9999;
+            pointer-events: none;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            max-width: 250px;
+        }
+
+        .workload-tooltip table {
+            width: 100%;
+            margin-top: 5px;
+        }
+
+        .workload-tooltip table td {
+            padding: 2px 5px;
+        }
+    </style>
+</head>
+
+
+
+<body>
+
+
+
+    <!-- SIDEBAR -->
+
+    <div class="sidebar" id="sidebar">
+
+        <div class="sidebar-header">
+
+            <img src="{{ url_for('static', filename='images/logo_dashboard.png') }}" alt="Company Logo">
+
+        </div>
+
+        <div class="sidebar-user text-center">
+
+            <!-- Sidebar avatar: starts with SVG placeholder, replaced by real photo via JS -->
+            <img id="sidebarAvatar"
+                src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'%3E%3Ccircle cx='40' cy='40' r='40' fill='%23475569'/%3E%3Ccircle cx='40' cy='30' r='14' fill='%23cbd5e1'/%3E%3Cellipse cx='40' cy='68' rx='22' ry='16' fill='%23cbd5e1'/%3E%3C/svg%3E"
+                class="user-img" alt="Profile Photo">
+
+            <h6>{{ session.employee_name[2:] or 'User' }}</h6>
+
+            <span class="badge bg-info">{{ session.role.upper() }}</span>
+
+            <div class="sidebar-quick-links mt-2">
+                {% if session.role == 'employee' %}
+                <div id="sb-leave-balance" class="sidebar-leave-balance" style="display: none;">
+                    <span class="sidebar-leave-label">Leave Balance:</span>
+                    <span id="sb-leave-amount" class="sidebar-leave-amount text-white fw-bold">...</span>
+                </div>
+                {% endif %}
+
+                <div style="display: flex; justify-content: space-between; gap: 10px; ">
+                    <a href="{{ url_for('work.add_leave') }}" title="Apply Leave">
+
+                        <i class="bi bi-calendar-plus"></i> Apply Leave
+
+                    </a>
+
+                    <a href="{{ url_for('work.add_timesheet') }}" title="Add Timesheet">
+
+                        <i class="bi bi-clock-history"></i>Add Timesheet
+
+                    </a>
+                </div>
+
+            </div>
+
+        </div>
+
+
+
+        <hr>
+
+
+
+        <div class="menu">
+
+
+
+            <!-- DASHBOARD -->
+
+            <a href="{{ url_for('dashboard.dashboard') }}">
+
+                <i class="bi bi-house"></i> <span>Dashboard</span>
+
+            </a>
+
+
+
+            <!-- EMPLOYEES (HR + MANAGER + ADMIN) -->
+
+            {% if session.role in ['hr','manager','admin'] %}
+
+            <div class="menu-item">
+
+                <div class="menu-title">
+
+                    <span><i class="bi bi-people"></i> Employees</span>
+
+                    <span class="arrow">+</span>
+
+                </div>
+
+
+
+                <div class="submenu" id="empMenu">
+
+                    <a href="{{ url_for('employees.employee_list') }}">All Employees</a>
+
+
+
+                    {% if session.role in ['hr','admin'] %}
+
+                    <a href="{{ url_for('employees.add_employee') }}">Add Employee</a>
+                    <a href="{{ url_for('user.bank_verification') }}">Bank Verification</a>
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+            {% endif %}
+
+
+
+            <!-- PROJECTS -->
+
+            {% if session.role == 'employee' %}
+
+            <div class="menu-item">
+
+                <a href="{{ url_for('projects.projects_list') }}">
+
+                    <span><i class="bi bi-folder"></i> Projects</span>
+
+                </a>
+
+            </div>
+
+            {% endif %}
+
+
+
+            <!-- TIMESHEETS -->
+
+            {% if session.role in ['employee','manager','hr','admin'] %}
+
+            <div class="menu-item">
+
+                <div class="menu-title">
+
+                    <span><i class="bi bi-clock"></i> Timesheets</span>
+
+                    <span class="arrow">+</span>
+
+                </div>
+
+
+
+                <div class="submenu" id="timeMenu">
+
+                    <a href="{{ url_for('work.timesheets_list') }}">All Timesheets</a>
+
+
+
+                    {% if session.role in ['employee','hr','admin'] %}
+
+                    <a href="{{ url_for('work.add_timesheet') }}">Add Timesheet</a>
+
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+            {% endif %}
+
+
+
+            <!-- LEAVES -->
+
+            {% if session.role in ['employee','hr','manager'] %}
+
+            <div class="menu-item">
+
+                <div class="menu-title">
+
+                    <span><i class="bi bi-calendar"></i> Leaves</span>
+
+                    <span class="arrow">+</span>
+
+                </div>
+
+
+
+                <div class="submenu" id="leaveMenu">
+
+                    <a href="{{ url_for('work.leaves_list') }}">All Leaves</a>
+
+
+
+                    {% if session.role == 'employee' %}
+
+                    <a href="{{ url_for('work.add_leave') }}">Apply Leave</a>
+
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+            {% endif %}
+
+            <!-- PROJECTS (HR + MANAGER) -->
+
+            {% if session.role in ['hr','manager'] %}
+
+            <a href="{{ url_for('projects.projects_list') }}">
+
+                <i class="bi bi-folder"></i> <span>Projects</span>
+
+            </a>
+
+            {% endif %}
+
+
+            <!-- ATTENDANCE -->
+
+            <a href="{{ url_for('work.attendance_view') }}">
+
+                <i class="bi bi-clock-history"></i> <span>Attendance</span>
+
+            </a>
+
+
+
+            <!-- HELP DESK (ALL USERS) -->
+
+            <a href="{{ url_for('admin.helpdesk') }}">
+                <i class="bi bi-life-preserver"></i> <span>Help Desk</span>
+            </a>
+
+            {% if session.role in ['hr', 'admin'] %}
+            <a href="{{ url_for('admin.assets') }}">
+                <i class="bi bi-laptop"></i> <span>Assets</span>
+            </a>
+            {% endif %}
+
+
+
+            <!-- REIMBURSEMENT (ALL USERS) -->
+
+            <a href="{{ url_for('admin.reimbursement') }}">
+
+                <i class="bi bi-cash-coin"></i> <span>Reimbursement</span>
+
+            </a>
+
+
+            <!-- POLICIES (ALL USERS) -->
+
+            <a href="{{ url_for('admin.policies') }}">
+
+                <i class="bi bi-file-text"></i> <span>Policies</span>
+
+            </a>
+
+
+
+            <!-- PAYSLIPS (MANAGER + EMPLOYEE) -->
+
+            {% if session.role in ['manager','employee'] %}
+
+            <a href="{{ url_for('payslips') }}">
+
+                <i class="bi bi-file-earmark-text"></i> <span>Payslips</span>
+
+            </a>
+
+            {% endif %}
+
+
+
+        </div>
+
+
+
+    </div>
+
+
+
+    <!-- MAIN -->
+
+    <div class="main">
+
+
+
+        <!-- TOPBAR -->
+
+        <div class="topbar">
+
+            <!-- LEFT -->
+
+            <div class="topbar-left d-flex align-items-center gap-3">
+                <button onclick="toggleSidebar()" class="menu-btn" title="Toggle Sidebar" style="display: flex; align-items: center; justify-content: center; padding: 0; width: 32px; height: 32px; border-radius: 8px;">
+                    <i class="bi bi-list" style="font-size: 1.25rem;"></i>
+                </button>
+
+                <button onclick="history.back()" class="btn btn-sm btn-light border-0 shadow-sm px-3" style="border-radius: 8px; font-weight: 500; height: 32px; display: flex; align-items: center; background-color: #f8f9fa;">
+                    <i class="bi bi-chevron-left me-1"></i> Back
+                </button>
+            </div>
+
+
+
+            <!-- RIGHT -->
+
+            <div class="topbar-right">
+
+
+
+                <!-- NOTIFICATIONS BUTTON -->
+                {% if session.role in ['employee','hr','manager'] %}
+                <div class="me-3">
+                    <a href="#" onclick="loadNotificationsPage(); return false;"
+                        class="topbar-action position-relative text-decoration-none">
+                        <i class="bi bi-bell" style="font-size: 1rem;"></i>
+                        <span id="notificationBadge"
+                            class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
+                            style="display: none; font-size: 0.65rem;">
+                            0
+                        </span>
+                    </a>
+                </div>
+                {% endif %}
+
+
+
+                <div class="dropdown">
+
+
+
+                    <button class="topbar-action d-flex align-items-center " type="button" data-bs-toggle="dropdown">
+
+                        <div class="avatar">
+
+                            {{ (session.employee_name or 'User')[2]|upper }}
+
+                        </div>
+
+
+
+                    </button>
+
+
+
+                    <ul class="dropdown-menu dropdown-menu-end">
+
+
+
+                        <li><a class="dropdown-item" href="{{ url_for('user.profile') }}">👤 Profile</a></li>
+
+                        <li><a class="dropdown-item" href="#">⚙︁ Settings</a></li>
+
+                        <li><a class="dropdown-item" href="#">❁ Help</a></li>
+
+
+
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
+
+
+
+                        <li><a class="dropdown-item text-danger" href="/logout">Logout</a></li>
+
+
+
+                    </ul>
+
+
+
+                </div>
+
+
+
+            </div>
+
+
+
+        </div> <!-- ✁Etopbar CLOSED -->
+
+
+
+      
+        <!-- PAGE CONTENT INSIDE MAIN -->
+
+        <div class="page-content">
+            <!-- FLASH MESSAGES -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+            {% for category, message in messages %}
+            <div class="alert alert-{{ category if category != 'error' else 'danger' }} alert-dismissible fade show"
+                role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"
+                    onclick="this.parentElement.remove();"></button>
+            </div>
+            {% endfor %}
+            {% endif %}
+            {% endwith %}
+
+            {% block content %}{% endblock %}
+        </div>
+
+
+
+    </div> <!--  main CLOSED -->
+
+
+
+
+
+    <script>
+
+        // Async sidebar photo loader
+        (function () {
+            var cachedPhoto = '{{ sidebar_photo_url or "" }}';
+            var img = document.getElementById('sidebarAvatar');
+
+            if (img && cachedPhoto && cachedPhoto !== 'None' && cachedPhoto !== '') {
+                // Already cached in session — apply immediately
+                img.onerror = function () { this.onerror = null; };
+                img.src = cachedPhoto;
+            } else {
+                // Not cached — fetch asynchronously so login/dashboard never blocks
+                fetch('/api/my-photo')
+                    .then(function (r) { return r.json(); })
+                    .then(function (data) {
+                        if (data.photo_url && img) {
+                            img.onerror = function () { this.onerror = null; };
+                            img.src = data.photo_url;
+                        }
+                    })
+                    .catch(function () { });
+            }
+        })();
+
+
+
+        function toggleSidebar() {
+
+
+
+            var sidebar = document.getElementById("sidebar");
+
+            sidebar.classList.toggle("collapsed");
+
+
+
+            if (sidebar.classList.contains("collapsed")) {
+
+
+
+                document.querySelectorAll(".submenu").forEach(function (menu) {
+
+                    menu.classList.remove("show");
+
+                    menu.style.display = "none"; // FORCE HIDE
+
+                });
+
+
+
+                document.querySelectorAll(".menu-title").forEach(function (title) {
+
+                    title.classList.remove("active");
+
+
+
+                    var arrow = title.querySelector(".arrow");
+
+                    if (arrow) arrow.innerText = "+";
+
+                });
+
+
+
+            } else
+
+            // restore when expanding
+            {
+                document.querySelectorAll(".submenu").forEach(function (menu) {
+                    menu.style.display = ""; // reset
+                });
+            }
+        }
+
+
+        function toggleMenu(id, element) {
+
+
+
+            var sidebar = document.getElementById("sidebar");
+
+            if (sidebar.classList.contains("collapsed")) return;
+
+
+
+            var clickedMenu = document.getElementById(id);
+
+
+
+            // CLOSE ALL OTHER MENUS
+
+            document.querySelectorAll(".submenu").forEach(function (menu) {
+
+                if (menu.id !== id) {
+
+                    menu.classList.remove("show");
+
+                }
+
+            });
+
+
+
+            // REMOVE ACTIVE FROM ALL TITLES
+
+            document.querySelectorAll(".menu-title").forEach(function (title) {
+
+                if (title !== element) {
+
+                    title.classList.remove("active");
+
+
+
+                    var arrow = title.querySelector(".arrow");
+
+                    if (arrow) arrow.innerText = "+";
+
+                }
+
+            });
+
+
+
+            // TOGGLE CURRENT MENU
+
+            clickedMenu.classList.toggle("show");
+
+            element.classList.toggle("active");
+
+
+
+            var arrow = element.querySelector(".arrow");
+
+
+
+            if (clickedMenu.classList.contains("show")) {
+
+                arrow.innerText = "-";
+
+            } else {
+
+                arrow.innerText = "+";
+
+            }
+
+        }
+
+
+
+
+        var profileBox = document.getElementById("profileBox");
+
+        if (profileBox) {
+
+            profileBox.onclick = function (e) {
+
+                e.stopPropagation();
+
+                document.getElementById("dropdownMenu").classList.toggle("show");
+
+            };
+
+        }
+
+
+
+        document.addEventListener("DOMContentLoaded", function () {
+
+            var sidebar = document.getElementById("sidebar");
+
+
+
+            // RESET SUBMENUS IF SIDEBAR IS COLLAPSED
+
+            if (sidebar.classList.contains("collapsed")) {
+
+                document.querySelectorAll(".submenu").forEach(function (menu) {
+
+                    menu.classList.remove("show");
+
+                    menu.style.display = "none";
+
+                });
+
+            }
+
+
+
+            // SET ARROWS
+
+            document.querySelectorAll(".menu-title").forEach(function (title) {
+
+                var arrow = title.querySelector(".arrow");
+
+                var submenu = title.nextElementSibling;
+
+
+
+                if (submenu && submenu.classList.contains("show")) {
+
+                    arrow.innerText = "minus";
+
+                } else {
+
+                    arrow.innerText = "+";
+
+                }
+
+            });
+
+        });
+
+
+
+
+
+        function setDeleteData(id, name) {
+
+            document.getElementById("deleteEmpName").innerText = name;
+
+
+
+            // Set form action dynamically
+
+            document.getElementById("deleteForm").action = "/delete/" + id;
+
+        }
+
+
+
+
+
+        // Notification dropdown functions
+        function loadTopbarNotifications() {
+            var currentUser = '{{ session.employee_name }}';
+            if (!currentUser) return;
+
+            fetch('/api/notifications')
+                .then(response => response.json())
+                .then(data => {
+                    if (!data.success) return;
+
+                    var notifications = data.notifications || [];
+
+                    // Update notification badge
+                    var unreadCount = notifications.filter(function (n) { return !n.is_read; }).length;
+                    var badge = document.getElementById('notificationBadge');
+                    if (badge) {
+                        if (unreadCount > 0) {
+                            badge.textContent = unreadCount;
+                            badge.style.display = 'block';
+                        } else {
+                            badge.style.display = 'none';
+                        }
+                    }
+                })
+                .catch(error => console.error('Error loading notifications:', error));
+        }
+
+        function markAsRead(notificationId) {
+            fetch('/api/notifications/' + notificationId + '/read', { method: 'PUT' })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) loadTopbarNotifications();
+                })
+                .catch(error => console.error('Error marking as read:', error));
+        }
+
+        function loadNotificationsPage() {
+            window.location.href = '/notifications';
+        }
+
+        function clearAllNotifications() {
+            if (!confirm('Are you sure you want to clear all notifications?')) return;
+            alert('Clear all is currently marking all as read.');
+        }
+
+        // Load notifications when page loads
+        document.addEventListener('DOMContentLoaded', function () {
+            loadTopbarNotifications();
+            // Refresh notifications every 60 seconds
+            setInterval(loadTopbarNotifications, 60000);
+        });
+
+        // Global Workload Tooltip Functions
+        let activeWorkloadTooltip = null;
+        function showWorkloadTooltip(element, name) {
+            const row = element.closest('.assignment-row');
+            const dataProjects = row.dataset.projects || '[]';
+            const projects = JSON.parse(dataProjects);
+            let html = `<strong>${name}'s Assignments</strong>`;
+            if (projects.length === 0) { html += `<div class="text-muted">On Bench (0% allocated)</div>`; }
+            else {
+                html += `<table>`;
+                projects.forEach(p => { html += `<tr><td>${p.project_name}</td><td class="text-end fw-bold">${p.allocation}%</td></tr>`; });
+                html += `<tr class="border-top"><td><strong>Total</strong></td><td class="text-end fw-bold">${row.dataset.currentAlloc}%</td></tr>`;
+                html += `</table>`;
+            }
+            const tooltip = document.createElement('div');
+            tooltip.className = 'workload-tooltip';
+            tooltip.innerHTML = html;
+            document.body.appendChild(tooltip);
+            const rect = element.getBoundingClientRect();
+            tooltip.style.left = (rect.left - 210) + 'px';
+            tooltip.style.top = rect.top + 'px';
+            activeWorkloadTooltip = tooltip;
+        }
+        function hideWorkloadTooltip() { if (activeWorkloadTooltip) { activeWorkloadTooltip.remove(); activeWorkloadTooltip = null; } }
+
+        function toggleAssignmentInputs(checkbox) {
+            const row = checkbox.closest('.assignment-row');
+            const inputs = row.querySelector('.assignment-inputs');
+            if (!inputs) return;
+            if (checkbox.checked) { inputs.classList.remove('d-none'); }
+            else { inputs.classList.add('d-none'); }
+            if (typeof updateAllocationTracker === 'function') { updateAllocationTracker(); }
+        }
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    {% if session.role == 'employee' %}
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            fetch('/api/leaves/balance')
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        let remaining = 0;
+                        if (data.summary && data.summary.remaining_leaves !== undefined) {
+                            remaining = data.summary.remaining_leaves;
+                        } else if (data.balances && Array.isArray(data.balances)) {
+                            remaining = data.balances.reduce((acc, b) => acc + (b.remaining_leaves || 0), 0);
+                        } else if (data.summary) {
+                            // Fallback calculation
+                            const total = data.summary.total_leaves || 0;
+                            const used = data.summary.used_leaves || 0;
+                            remaining = total - used;
+                        }
+
+                        const amountEl = document.getElementById('sb-leave-amount');
+                        if (amountEl) {
+                            amountEl.textContent = remaining + (remaining === 1 ? ' day' : ' days');
+                            document.getElementById('sb-leave-balance').style.display = 'block';
+                        }
+                    }
+                });
+        });
+    </script>
+    {% endif %}
+
+    <!-- Toast Notification Container -->
+    <div id="toastContainer" class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 11">
+    </div>
+
+    {% block scripts %}{% endblock %}
+
+</body>
+
+</html>

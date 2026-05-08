@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+{% block title %}Add Employee{% endblock %}
+
+{% block content %}
+
+<div class="form-card">
+
+    <!-- HEADER -->
+    <div class="d-flex align-items-center mb-4">
+        <div class="me-3">
+            <i class="bi bi-person-plus-fill fs-3"></i>
+        </div>
+        <div>
+            <h5 class="mb-0">New Employee Record</h5>
+            <small class="text-muted">Fill in details</small>
+        </div>
+    </div>
+
+    <!-- FORM -->
+    <form action="{{ url_for('employees.add_employee') }}" method="POST" enctype="multipart/form-data">
+
+        <!-- Personal Info -->
+        <h6 class="mb-3">Personal Information</h6>
+
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <label>Full Name</label>
+                <input type="text" name="name" class="form-control" required>
+            </div>
+            <div class="col-md-6">
+                <label>Role</label>
+                <select name="role" class="form-select" required>
+                    <option value="" disabled selected>Select Role</option>
+                    <option value="admin">Admin</option>
+                    <option value="hr">HR</option>
+                    <option value="manager">Manager</option>
+                    <option value="employee">Team Member</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <label>Date of Birth</label>
+                <input type="date" name="date_of_birth" class="form-control" required>
+            </div>
+            <div class="col-md-6">
+                <label>Date of Joining</label>
+                <input type="date" name="date_of_joining" class="form-control" required>
+            </div>
+        </div>
+
+        <!-- Contact -->
+        <h6 class="mb-3">Contact Details</h6>
+
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <label>Email</label>
+                <input type="email" name="email" class="form-control" required>
+            </div>
+            <div class="col-md-6">
+                <label>Phone</label>
+                <input type="text" name="phone" class="form-control" required>
+            </div>
+        </div>
+
+        <!-- Documents -->
+        <h6 class="mb-3">Documents <small class="text-muted fw-normal">(optional)</small></h6>
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <label>Resume / CV (PDF)</label>
+                <input type="file" name="pdf_file" class="form-control" accept=".pdf">
+            </div>
+            <div class="col-md-6">
+                <label>Offer Letter / Contract (DOCX)</label>
+                <input type="file" name="docx_file" class="form-control" accept=".doc,.docx">
+            </div>
+        </div>
+
+        <!-- ACTIONS -->
+        <div class="d-flex gap-2">
+            <button type="submit" class="btn btn-primary">Submit</button>
+            <button type="reset" class="btn btn-light" style="background-color: rgb(184, 183, 183); color: rgb(0, 0, 0); border-radius: 10px;">Reset</button>
+            <a href="{{ url_for('employees.employee_list') }}" class="btn btn-light" style="background-color: rgb(255, 173, 173); color: rgb(0, 0, 0); border-radius: 10px;">Cancel</a>
+        </div>
+
+    </form>
+
+
+</div>
+
+{% endblock %}
