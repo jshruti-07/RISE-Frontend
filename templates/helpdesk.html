@@ -278,14 +278,6 @@
             </div>
         </div>
         <div class="d-flex gap-2">
-            {% if session.role in ['hr', 'admin'] %}
-            <button class="btn btn-outline-primary px-4 py-2 rounded-pill shadow-sm fw-bold" onclick="location.href='{{ url_for('admin.assets') }}'">
-                <i class="bi bi-laptop me-2"></i> View All Assets
-            </button>
-            <button class="btn btn-success px-4 py-2 rounded-pill shadow-sm fw-bold" onclick="location.href='{{ url_for('admin.assets') }}?action=assign'">
-                <i class="bi bi-plus-circle me-2"></i> Assign Asset
-            </button>
-            {% endif %}
             <button class="btn btn-primary px-4 py-2 rounded-pill shadow-sm fw-bold" data-bs-toggle="modal" data-bs-target="#createTicketModal">
                 <i class="bi bi-plus-lg me-2"></i> New Ticket
             </button>

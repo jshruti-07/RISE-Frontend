@@ -126,9 +126,8 @@
     </div>
 </div>
 
-{% if session.role == 'employee' %}
-<!-- Employee Table View -->
-<div class="form-card">
+<!-- My Leave Applications (Visible to Everyone) -->
+<div class="form-card mb-4">
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h5 class="mb-0">My Leave Applications</h5>
     </div>
@@ -136,7 +135,6 @@
     <table class="table table-hover">
         <thead>
             <tr>
-                <th>Employee</th>
                 <th>Type</th>
                 <th>Start</th>
                 <th>End</th>
@@ -145,32 +143,38 @@
             </tr>
         </thead>
         <tbody>
+        {% set my_name = session.employee_name %}
+        {% set found_my = false %}
         {% for l in leaves %}
-        <tr>
-            <td>{{ l.employee_name }}</td>
-            <td>{{ l.leave_type }}</td>
-            <td>{{ l.start_date[:10] if l.start_date else '' }}</td>
-            <td>{{ l.end_date[:10] if l.end_date else '' }}</td>
-            <td>{{ l.reason }}</td>
-            <td>
-                <span class="badge 
-                    {% if l.status == 'approved' %}bg-success
-                    {% elif l.status == 'pending' %}bg-warning
-                    {% else %}bg-danger{% endif %}">
-                    {{ l.status|capitalize }}
-                </span>
-            </td>
-        </tr>
-        {% else %}
-        <tr>
-            <td colspan="6" class="text-center">No leaves found</td>
-        </tr>
+            {% if l.employee_name == my_name %}
+                {% set found_my = true %}
+                <tr>
+                    <td>{{ l.leave_type | capitalize }}</td>
+                    <td>{{ l.start_date[:10] if l.start_date else '' }}</td>
+                    <td>{{ l.end_date[:10] if l.end_date else '' }}</td>
+                    <td>{{ l.reason }}</td>
+                    <td>
+                        <span class="badge 
+                            {% if l.status == 'approved' %}bg-success
+                            {% elif l.status == 'pending' %}bg-warning
+                            {% else %}bg-danger{% endif %}">
+                            {{ l.status | capitalize }}
+                        </span>
+                    </td>
+                </tr>
+            {% endif %}
         {% endfor %}
+        {% if not found_my %}
+            <tr>
+                <td colspan="5" class="text-center">No personal leave records found</td>
+            </tr>
+        {% endif %}
         </tbody>
     </table>
 </div>
-{% else %}
-<!-- Admin/Manager/HR View - Original Table -->
+
+{% if session.role != 'employee' %}
+<!-- All Leave Applications (HR/Admin/Manager View) -->
 <div class="form-card">
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h5 class="mb-0">All Leave Applications</h5>
@@ -192,7 +196,7 @@
         {% for l in leaves %}
         <tr>
             <td>{{ l.employee_name }}</td>
-            <td>{{ l.leave_type }}</td>
+            <td>{{ l.leave_type | capitalize }}</td>
             <td>{{ l.start_date[:10] if l.start_date else '' }}</td>
             <td>{{ l.end_date[:10] if l.end_date else '' }}</td>
             <td>{{ l.reason }}</td>
@@ -205,9 +209,20 @@
                 </span>
             </td>
             <td>
-                {% if session.role in ['manager','hr'] and l.status == 'pending' %}
-                    <button class="btn btn-sm btn-success" onclick="updateLeave('{{ l.id }}', 'approved', this)">Approve</button>
-                    <button class="btn btn-sm btn-danger" onclick="updateLeave('{{ l.id }}', 'rejected', this)">Reject</button>
+                {% if l.status == 'pending' %}
+                    {% if l.employee_role == 'hr' %}
+                        {% if session.role == 'admin' %}
+                            <button class="btn btn-sm btn-success" onclick="updateLeave('{{ l.id }}', 'approved', this)">Approve</button>
+                            <button class="btn btn-sm btn-danger" onclick="updateLeave('{{ l.id }}', 'rejected', this)">Reject</button>
+                        {% else %}
+                            <span class="text-muted small">Admin Approval Required</span>
+                        {% endif %}
+                    {% elif session.role in ['admin', 'hr', 'manager'] %}
+                        <button class="btn btn-sm btn-success" onclick="updateLeave('{{ l.id }}', 'approved', this)">Approve</button>
+                        <button class="btn btn-sm btn-danger" onclick="updateLeave('{{ l.id }}', 'rejected', this)">Reject</button>
+                    {% else %}
+                        -
+                    {% endif %}
                 {% else %}
                     -
                 {% endif %}
@@ -296,10 +311,8 @@ document.addEventListener('DOMContentLoaded', function() {
     // Load Leave Balance for all roles
     loadLeaveBalance();
     
-    if (isEmployee) {
-        // Initialize Inline Calendar for employees
-        initializeInlineCalendar();
-    }
+    // Initialize Inline Calendar for all users
+    initializeInlineCalendar();
     
     // Load leave balance from API
     function loadLeaveBalance() {
@@ -411,54 +424,59 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             },
             events: function(fetchInfo, successCallback, failureCallback) {
+                // 1. Static leaves from the template
+                const allLeaves = {{ leaves | tojson | safe }} || [];
+                const staticEvents = allLeaves.map(l => {
+                    const startStr = (l.start_date || '').split('T')[0];
+                    const endStr = (l.end_date || '').split('T')[0];
+                    if (!startStr || !endStr) return null;
+
+                    const status = (l.status || 'pending').toLowerCase();
+                    const category = (l.leave_type_category || 'full_day').toLowerCase();
+                    const isHalfDay = (category === 'half_day');
+                    
+                    const title = `${l.employee_name || 'Employee'}: ${l.leave_type || 'Leave'}${isHalfDay ? ' (Half Day)' : ''}`;
+
+                    // FullCalendar end date is exclusive for allDay events
+                    let end = new Date(endStr);
+                    end.setDate(end.getDate() + 1);
+                    const endFormatted = end.toISOString().split('T')[0];
+
+                    return {
+                        title: title,
+                        start: startStr,
+                        end: endFormatted,
+                        allDay: true,
+                        className: isHalfDay ? 'status-half-day' : `status-${status}`
+                    };
+                }).filter(e => e !== null);
+
+                // 2. Fetch holidays from the calendar API
                 const middleDate = new Date((fetchInfo.start.getTime() + fetchInfo.end.getTime()) / 2);
                 const year = middleDate.getFullYear();
                 const month = middleDate.getMonth() + 1;
+                
                 fetch(`/api/leaves/calendar?year=${year}&month=${month}`)
                     .then(res => res.json())
                     .then(data => {
-                        if (!data.success) throw new Error(data.error);
-                        const events = [];
-                        Object.entries(data.days).forEach(([dateStr, dayData]) => {
-                            if (dayData.status === 'leave') {
-                                // Check leave status from extended props
-                                const leaveStatus = dayData.leave_status || 'approved';
-                                events.push({
-                                    title: leaveStatus === 'approved' ? 'Approved' : (leaveStatus === 'pending' ? 'Pending' : 'Rejected'),
-                                    start: dateStr,
-                                    allDay: true,
-                                    display: 'block',
-                                    extendedProps: dayData,
-                                    className: `status-${leaveStatus}`
-                                });
-                            } else if (dayData.status === 'half_day') {
-                                const periodLabel = dayData.half_day_period ? 
-                                    (dayData.half_day_period === 'first_half' ? ' (1st Half)' : ' (2nd Half)') : '';
-                                const leaveStatus = dayData.leave_status || 'approved';
-                                events.push({
-                                    title: 'Half Day' + periodLabel,
-                                    start: dateStr,
-                                    allDay: true,
-                                    display: 'block',
-                                    extendedProps: dayData,
-                                    className: 'status-half-day'
-                                });
-                            } else if (dayData.status === 'holiday') {
-                                events.push({
-                                    title: dayData.holiday.holiday_name || 'Holiday',
-                                    start: dateStr,
-                                    allDay: true,
-                                    display: 'block',
-                                    extendedProps: dayData,
-                                    className: 'status-holiday'
-                                });
-                            }
-                        });
-                        successCallback(events);
+                        const apiEvents = [];
+                        if (data.success && data.days) {
+                            Object.entries(data.days).forEach(([dateStr, dayData]) => {
+                                if (dayData.status === 'holiday') {
+                                    apiEvents.push({
+                                        title: dayData.holiday.holiday_name || 'Holiday',
+                                        start: dateStr,
+                                        allDay: true,
+                                        className: 'status-holiday'
+                                    });
+                                }
+                            });
+                        }
+                        successCallback([...staticEvents, ...apiEvents]);
                     })
                     .catch(err => {
-                        console.error('Calendar error:', err);
-                        failureCallback(err);
+                        console.error('Calendar API error (holidays):', err);
+                        successCallback(staticEvents);
                     });
             },
             dateClick: function(info) {

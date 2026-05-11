@@ -197,15 +197,14 @@
 
 <input type="hidden" id="sessionToken" value="{{ session.get('token', '') }}">
 
+<input type="hidden" id="backendBaseUrl" value="{{ BASE_URL }}">
+
 <div class="asset-container">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
             <h3 class="fw-bold text-dark mb-1">Asset Management</h3>
             <p class="text-muted">Track and allocate company hardware</p>
         </div>
-        <button class="btn btn-outline-secondary rounded-pill px-4" onclick="location.href='{{ url_for('admin.helpdesk') }}'">
-            <i class="bi bi-arrow-left me-2"></i> Back to Help Desk
-        </button>
     </div>
 
     <div class="glass-card">
@@ -273,6 +272,30 @@
                     <div class="col-md-6">
                         <label class="detail-label">Serial Number</label>
                         <input type="text" class="form-control" name="serial_number" required placeholder="Unique SN">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="detail-label">Processor</label>
+                        <input type="text" class="form-control" name="processor" placeholder="e.g. i7, M1, Ryzen 5">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="detail-label">RAM</label>
+                        <input type="text" class="form-control" name="ram" placeholder="e.g. 16GB, 32GB">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="detail-label">Storage</label>
+                        <input type="text" class="form-control" name="storage" placeholder="e.g. 512GB SSD">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="detail-label">Purchase Date</label>
+                        <input type="date" class="form-control" name="purchase_date">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="detail-label">Warranty Expiry</label>
+                        <input type="date" class="form-control" name="warranty_expiry">
+                    </div>
+                    <div class="col-md-12">
+                        <label class="detail-label">Notes</label>
+                        <textarea class="form-control" name="notes" rows="2" placeholder="Additional details..."></textarea>
                     </div>
                     <div class="col-md-12">
                         <label class="detail-label">Asset Images</label>
@@ -350,9 +373,46 @@
                             </div>
                         </div>
 
+                        <div class="row g-3 mb-4">
+                            <div class="col-6">
+                                <label class="detail-label">Serial Number</label>
+                                <div class="fw-bold" id="detailSerial"></div>
+                            </div>
+                            <div class="col-6">
+                                <label class="detail-label">Device ID</label>
+                                <div class="fw-bold text-primary" id="detailDeviceId"></div>
+                            </div>
+                        </div>
+
+                        <div class="row g-3 mb-4">
+                            <div class="col-4">
+                                <label class="detail-label">Processor</label>
+                                <div class="fw-bold" id="detailProcessor">N/A</div>
+                            </div>
+                            <div class="col-4">
+                                <label class="detail-label">RAM</label>
+                                <div class="fw-bold" id="detailRam">N/A</div>
+                            </div>
+                            <div class="col-4">
+                                <label class="detail-label">Storage</label>
+                                <div class="fw-bold" id="detailStorage">N/A</div>
+                            </div>
+                        </div>
+
+                        <div class="row g-3 mb-4">
+                            <div class="col-6">
+                                <label class="detail-label">Purchase Date</label>
+                                <div class="fw-bold" id="detailPurchaseDate">N/A</div>
+                            </div>
+                            <div class="col-6">
+                                <label class="detail-label">Warranty Expiry</label>
+                                <div class="fw-bold" id="detailWarranty">N/A</div>
+                            </div>
+                        </div>
+
                         <div class="mb-4">
-                            <label class="detail-label">Serial Number</label>
-                            <div class="fw-bold" id="detailSerial"></div>
+                            <label class="detail-label">Notes</label>
+                            <div class="text-muted small" id="detailNotes">No notes available.</div>
                         </div>
 
                         <div class="p-3 bg-light rounded-4 border mb-4">
@@ -363,20 +423,11 @@
                             </div>
                         </div>
 
-                        <div class="p-3 bg-light rounded-4 border mb-4" id="detailAgreementSection" style="display: none;">
+                        <div class="p-3 bg-light rounded-4 border mb-4" id="detailAgreementSection"
+                            style="display: none;">
                             <label class="detail-label text-warning">Device Usage Agreement</label>
                             <div id="detailAgreementStatus" class="mt-1"></div>
                             <div id="detailAgreementAction" class="mt-2"></div>
-                        </div>
-
-                        <div class="mb-4">
-                            <label class="detail-label">Device ID</label>
-                            <div class="fw-bold text-primary" id="detailDeviceId"></div>
-                        </div>
-
-                        <div class="mb-4">
-                            <label class="detail-label">Device Type</label>
-                            <div class="fw-bold" id="detailDeviceType"></div>
                         </div>
 
                         <div class="mt-4">
@@ -392,8 +443,9 @@
                             <h5 class="fw-bold m-0">Activity History</h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                         </div>
-                        <div id="assetHistory" class="no-scrollbar mb-5" style="max-height: 300px; overflow-y: auto;"></div>
-                        
+                        <div id="assetHistory" class="no-scrollbar mb-5" style="max-height: 300px; overflow-y: auto;">
+                        </div>
+
                         <div class="pt-4 border-top">
                             <h5 class="fw-bold mb-4">Related Helpdesk Tickets</h5>
                             <div id="assetTickets" class="no-scrollbar" style="max-height: 300px; overflow-y: auto;">
@@ -434,7 +486,7 @@
 
     document.addEventListener('DOMContentLoaded', () => {
         const urlParams = new URLSearchParams(window.location.search);
-        
+
         // Load employees first, THEN load assets to ensure name lookup works
         loadEmployees().then(() => {
             if (urlParams.get('action') === 'assign') {
@@ -447,7 +499,7 @@
 
     // --- INVENTORY LOGIC ---
     function loadAssets() {
-        fetch('/api/assets/', { headers: getHeaders() })
+        fetch('/api/assets', { headers: getHeaders() })
             .then(res => res.json())
             .then(data => {
                 if (data.success) renderAssets(data.assets);
@@ -466,20 +518,20 @@
             const deviceId = a.id || 'N/A';
             const deviceType = a.device_type || 'N/A';
             const serialNumber = a.serial_number || 'N/A';
-            
+
             // Identify ID from common variations
             const empId = a.employee_id || a.assigned_to || a.user_id || a.emp_id || a.allotted_to || a.allotted_id;
             const isAssigned = (a.status && (a.status.toLowerCase() === 'assigned' || a.status.toLowerCase() === 'allotted')) || !!empId;
-            
+
             let allottedDisplay = '<span class="text-muted small">Available</span>';
-            
+
             if (isAssigned) {
                 const emp = (empId && typeof employees !== 'undefined') ? employees.find(e => String(e.id) === String(empId)) : null;
                 let empName = emp ? emp.name : 'Assigned';
-                
+
                 // Display name starting from the 3rd character (index 2) to remove prefixes like "T_" or "H_"
                 const formattedName = empName.length > 2 ? empName.substring(2) : empName;
-                
+
                 const displayId = empId || (emp ? emp.id : 'N/A');
                 allottedDisplay = `<div><strong>${formattedName}</strong></div><div class="small text-muted">ID: ${displayId}</div>`;
             }
@@ -511,14 +563,14 @@
             const deviceId = a.id || a.device_id;
             const empId = a.employee_id || a.assigned_to || a.user_id || a.emp_id || a.allotted_to || a.allotted_id;
             const isAssigned = (a.status && (a.status.toLowerCase() === 'assigned' || a.status.toLowerCase() === 'allotted')) || !!empId;
-            
+
             if (isAssigned && deviceId) {
                 fetch(`/api/assets/${deviceId}/acceptance-status`, { headers: getHeaders() })
                     .then(r => r.json())
                     .then(data => {
                         const cell = document.getElementById(`ag-status-${deviceId}`);
                         if (!cell) return;
-                        
+
                         if (data.success && data.status) {
                             if (data.status.acceptance_status === 'accepted') {
                                 cell.innerHTML = '<span class="badge bg-success-subtle text-success rounded-pill border border-success-subtle"><i class="bi bi-check-circle-fill me-1"></i>Signed</span>';
@@ -545,40 +597,103 @@
     const nameHidden = document.getElementById('selectedEmployeeName');
     const idField = document.getElementById('displayEmployeeId');
 
+    let isLoadingEmployees = false;
+    let employeeLoadAttempted = false;
+
     function loadEmployees() {
+        if (isLoadingEmployees) return Promise.resolve();
+        isLoadingEmployees = true;
+        
+        console.log('Fetching employees...');
         return fetch('/api/employees', { headers: getHeaders() })
             .then(res => res.json())
             .then(data => {
+                isLoadingEmployees = false;
+                employeeLoadAttempted = true;
                 if (data.success) {
-                    employees = data.employees;
-                    document.getElementById('reassignSelect').innerHTML = '<option value="">-- Unassign --</option>' +
-                        employees.map(e => `<option value="${e.id}">${e.name}</option>`).join('');
+                    employees = data.employees || [];
+                    console.log(`Loaded ${employees.length} employees`);
+                    const select = document.getElementById('reassignSelect');
+                    if (select) {
+                        select.innerHTML = '<option value="">-- Unassign --</option>' +
+                            employees.map(e => `<option value="${e.id}">${e.name}</option>`).join('');
+                    }
+                } else {
+                    console.error('Failed to load employees:', data.error);
                 }
+            })
+            .catch(err => {
+                isLoadingEmployees = false;
+                employeeLoadAttempted = true;
+                console.error('Employee Fetch Error:', err);
             });
     }
 
-    searchInput.addEventListener('input', (e) => {
-        const val = e.target.value.toLowerCase();
-        resultsDiv.innerHTML = '';
-        if (!val) { resultsDiv.style.display = 'none'; return; }
-
-        const filtered = employees.filter(emp => emp.name.toLowerCase().includes(val));
-        if (filtered.length > 0) {
-            resultsDiv.innerHTML = filtered.map(emp => `
-                <div class="autocomplete-item" onclick="selectEmployee('${emp.name}', '${emp.id}')">
-                    <div class="fw-bold">${emp.name}</div>
-                    <div class="small text-muted">ID: ${emp.id}</div>
-                </div>
-            `).join('');
-            resultsDiv.style.display = 'block';
-        } else {
-            resultsDiv.style.display = 'none';
+    searchInput.addEventListener('focus', () => {
+        if (!employeeLoadAttempted) {
+            loadEmployees();
         }
     });
 
-    function selectEmployee(name, id) {
-        searchInput.value = name;
-        nameHidden.value = name;
+    searchInput.addEventListener('input', (e) => {
+        const val = e.target.value.toLowerCase().trim();
+        resultsDiv.innerHTML = '';
+        
+        if (!val) { 
+            resultsDiv.style.display = 'none'; 
+            return; 
+        }
+
+        // If loading is in progress, show that
+        if (isLoadingEmployees) {
+            resultsDiv.innerHTML = '<div class="autocomplete-item text-muted"><span class="spinner-border spinner-border-sm me-2"></span>Loading employees...</div>';
+            resultsDiv.style.display = 'block';
+            return;
+        }
+
+        // If not loaded yet, or load failed/empty, try once
+        if (!employeeLoadAttempted || (employees.length === 0 && !employeeLoadAttempted)) {
+            resultsDiv.innerHTML = '<div class="autocomplete-item text-muted">Starting search...</div>';
+            resultsDiv.style.display = 'block';
+            loadEmployees().then(() => {
+                searchInput.dispatchEvent(new Event('input'));
+            });
+            return;
+        }
+
+        if (employees.length === 0) {
+            resultsDiv.innerHTML = '<div class="autocomplete-item text-danger">No employees found in database.</div>';
+            resultsDiv.style.display = 'block';
+            return;
+        }
+
+        const filtered = employees.filter(emp => {
+            if (!emp.name) return false;
+            const fullName = emp.name.toLowerCase();
+            const cleanName = (emp.name.length > 2 && emp.name[1] === '_') ? emp.name.substring(2).toLowerCase() : fullName;
+            return fullName.includes(val) || cleanName.includes(val);
+        });
+
+        if (filtered.length > 0) {
+            resultsDiv.innerHTML = filtered.map(emp => {
+                const displayName = (emp.name.length > 2 && emp.name[1] === '_') ? emp.name.substring(2) : emp.name;
+                return `
+                    <div class="autocomplete-item" onclick="selectEmployee('${emp.name}', '${emp.id}', '${displayName}')">
+                        <div class="fw-bold text-dark">${displayName}</div>
+                        <div class="small text-muted">ID: ${emp.id} <span class="ms-1 opacity-50">(${emp.name})</span></div>
+                    </div>
+                `;
+            }).join('');
+            resultsDiv.style.display = 'block';
+        } else {
+            resultsDiv.innerHTML = '<div class="autocomplete-item text-muted">No matching employees found</div>';
+            resultsDiv.style.display = 'block';
+        }
+    });
+
+    function selectEmployee(rawName, id, displayName) {
+        searchInput.value = displayName || (rawName.length > 2 && rawName[1] === '_' ? rawName.substring(2) : rawName);
+        nameHidden.value = rawName;
         idField.value = id;
         resultsDiv.style.display = 'none';
     }
@@ -592,6 +707,14 @@
         formData.append('device_type', form.device_type.value);
         formData.append('serial_number', form.serial_number.value);
         formData.append('asset_tag', form.asset_tag.value);
+        
+        // New specification fields
+        if (form.processor.value) formData.append('processor', form.processor.value);
+        if (form.ram.value) formData.append('ram', form.ram.value);
+        if (form.storage.value) formData.append('storage', form.storage.value);
+        if (form.purchase_date.value) formData.append('purchase_date', form.purchase_date.value);
+        if (form.warranty_expiry.value) formData.append('warranty_expiry', form.warranty_expiry.value);
+        if (form.notes.value) formData.append('notes', form.notes.value);
 
         const imageFiles = document.getElementById('assetImage').files;
         for (let i = 0; i < imageFiles.length; i++) {
@@ -619,7 +742,7 @@
             const assignRes = await fetch(`/api/assets/${createData.asset.id}/assign`, {
                 method: 'POST',
                 headers: getHeaders(),
-                body: JSON.stringify({ 
+                body: JSON.stringify({
                     employee_id: employeeId,
                     employee_name: employeeName // Still sending for good measure
                 })
@@ -641,24 +764,46 @@
     // --- DETAIL LOGIC ---
     function viewAsset(id) {
         currentAssetId = id;
+        
+        // Show modal immediately with loading state
+        const modalEl = document.getElementById('assetDetailModal');
+        const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+        
+        // Reset modal to loading state
+        document.getElementById('detailDeviceName').innerHTML = '<span class="spinner-border spinner-border-sm text-primary"></span>';
+        document.getElementById('assetHistory').innerHTML = '<div class="text-center py-4"><div class="spinner-border text-primary"></div></div>';
+        document.getElementById('assetTickets').innerHTML = '<p class="text-muted small">Fetching tickets...</p>';
+        
+        modal.show();
+
         fetch(`/api/assets/${id}`, { headers: getHeaders() })
             .then(res => res.json())
             .then(data => {
                 if (data.success) {
-                    displayAsset(data.asset);
+                    // Normalize the asset data (some backends nest it)
+                    const assetData = data.asset.device || data.asset.asset || data.asset;
+                    displayAsset(assetData);
 
                     // Fetch History
                     fetch(`/api/assets/${id}/history`, { headers: getHeaders() })
                         .then(r => r.json())
                         .then(hData => {
                             const cont = document.getElementById('assetHistory');
-                            cont.innerHTML = (hData.history || []).map(h => `
-                                <div class="history-item">
-                                    <div class="fw-bold small">${(h.action || 'update').replace('_', ' ')}</div>
-                                    <div class="small text-muted">${new Date(h.timestamp).toLocaleString()}</div>
-                                    <div class="small">${h.details || ''}</div>
-                                </div>
-                            `).join('') || '<p class="text-muted small">No history available for this asset.</p>';
+                            const history = hData.history || [];
+                            if (history.length > 0) {
+                                cont.innerHTML = history.map(h => `
+                                    <div class="history-item pb-3 mb-3 border-bottom border-light">
+                                        <div class="d-flex justify-content-between">
+                                            <span class="fw-bold small text-primary">${(h.action || 'update').toUpperCase().replace('_', ' ')}</span>
+                                            <span class="small text-muted">${new Date(h.timestamp).toLocaleString()}</span>
+                                        </div>
+                                        <div class="small mt-1 text-dark">${h.details || 'No additional details provided.'}</div>
+                                        ${h.performed_by ? `<div class="small text-muted italic">By: ${h.performed_by}</div>` : ''}
+                                    </div>
+                                `).join('');
+                            } else {
+                                cont.innerHTML = '<div class="text-center py-4 text-muted small"><i class="bi bi-clock-history d-block mb-2 fs-4"></i>No history available for this asset.</div>';
+                            }
                         });
 
                     // Fetch Related Tickets
@@ -668,38 +813,37 @@
                             const cont = document.getElementById('assetTickets');
                             if (tData.success && tData.tickets && tData.tickets.length > 0) {
                                 cont.innerHTML = tData.tickets.map(t => `
-                                    <div class="p-3 bg-white border rounded-4 mb-2 shadow-sm">
+                                    <div class="p-3 bg-white border rounded-4 mb-2 shadow-sm border-start border-4 border-primary">
                                         <div class="d-flex justify-content-between">
                                             <span class="fw-bold text-primary small">#${t.ticket_ref}</span>
-                                            <span class="badge-soft status-${t.status} small" style="font-size: 0.65rem;">${t.status}</span>
+                                            <span class="badge rounded-pill bg-light text-dark border small" style="font-size: 0.65rem;">${t.status}</span>
                                         </div>
                                         <div class="fw-bold small mt-1">${t.title}</div>
-                                        <div class="text-muted" style="font-size: 0.7rem;">${new Date(t.created_at).toLocaleDateString()}</div>
+                                        <div class="text-muted mt-1" style="font-size: 0.7rem;"><i class="bi bi-calendar3 me-1"></i>${new Date(t.created_at).toLocaleDateString()}</div>
                                     </div>
                                 `).join('');
                             } else {
-                                cont.innerHTML = '<p class="text-muted small">No related helpdesk tickets found.</p>';
+                                cont.innerHTML = '<div class="text-center py-3 text-muted small">No related helpdesk tickets found.</div>';
                             }
                         });
-
-                    bootstrap.Modal.getOrCreateInstance(document.getElementById('assetDetailModal')).show();
                 } else {
                     alert('Error loading asset: ' + data.error);
+                    modal.hide();
                 }
             })
             .catch(err => {
                 console.error('Fetch Error:', err);
-                alert('Failed to connect to asset service.');
+                modal.hide();
             });
     }
 
     function displayAsset(a) {
         // 1. Identify the Employee ID (Comprehensive scan)
-        let assignedId = a.employee_id || a.employeeId || a.emp_id || a.empId || 
-                         a.assigned_employee_id || a.assignedEmployeeId || 
-                         a.user_id || a.userId || a.owner_id ||
-                         a.allotted_to || a.allotted_id || a.allottedTo ||
-                         a.assigned_to || a.assignedTo;
+        let assignedId = a.employee_id || a.employeeId || a.emp_id || a.empId ||
+            a.assigned_employee_id || a.assignedEmployeeId ||
+            a.user_id || a.userId || a.owner_id ||
+            a.allotted_to || a.allotted_id || a.allottedTo ||
+            a.assigned_to || a.assignedTo;
 
         // Deep scan fallback
         if (!assignedId) {
@@ -719,16 +863,50 @@
 
         // 2. Resolve the Name
         let assignedName = a.employee_name || a.assigned_employee || a.assigned_to_name || a.holder_name || a.allotted_employee ||
-                            (a.employee && a.employee.name ? a.employee.name : '') ||
-                            (typeof a.assigned_to === 'string' && isNaN(a.assigned_to) ? a.assigned_to : (a.assigned_to && a.assigned_to.name ? a.assigned_to.name : ''));
-        
+            (a.employee && a.employee.name ? a.employee.name : '') ||
+            (typeof a.assigned_to === 'string' && isNaN(a.assigned_to) ? a.assigned_to : (a.assigned_to && a.assigned_to.name ? a.assigned_to.name : ''));
+
         // Lookup fallback
         if (!assignedName && assignedId && typeof employees !== 'undefined') {
             const emp = employees.find(e => String(e.id) === String(assignedId));
             if (emp) assignedName = emp.name;
         }
+
+        // --- POPULATE FIELDS ---
+        const deviceName = a.device_name || a.brand || a.name || 'Unknown Device';
+        document.getElementById('detailAssetTag').innerText = deviceName;
+        document.getElementById('detailDeviceName').innerText = deviceName;
+        document.getElementById('detailModel').innerText = a.model || a.device_type || a.type || 'N/A';
+        document.getElementById('detailSerial').innerText = a.serial_number || a.serialNumber || a.sn || 'N/A';
+        document.getElementById('detailDeviceId').innerText = a.id || a.device_id || a.asset_tag || 'N/A';
         
-        document.getElementById('reassignSelect').value = a.employee_id || '';
+        // Specs
+        document.getElementById('detailProcessor').innerText = a.processor || a.cpu || a.chip || 'N/A';
+        document.getElementById('detailRam').innerText = a.ram || a.memory || 'N/A';
+        document.getElementById('detailStorage').innerText = a.storage || a.disk || a.hdd || a.ssd || 'N/A';
+        
+        // Dates
+        document.getElementById('detailPurchaseDate').innerText = a.purchase_date ? new Date(a.purchase_date).toLocaleDateString() : 'N/A';
+        document.getElementById('detailWarranty').innerText = a.warranty_expiry || a.warranty_end ? new Date(a.warranty_expiry || a.warranty_end).toLocaleDateString() : 'N/A';
+
+        // Notes
+        const notesCont = document.getElementById('detailNotes');
+        if (notesCont) {
+            notesCont.innerText = a.notes || a.description || a.remarks || 'No notes available.';
+            notesCont.classList.toggle('text-muted', !a.notes && !a.description && !a.remarks);
+        }
+
+        // Employee
+        const empEl = document.getElementById('detailEmployee');
+        if (assignedName) {
+            const formattedName = assignedName.length > 2 && assignedName[1] === '_' ? assignedName.substring(2) : assignedName;
+            empEl.innerText = `${formattedName} (ID: ${assignedId})`;
+        } else {
+            empEl.innerText = 'Unassigned';
+        }
+
+        const isAssigned = !!assignedId;
+        document.getElementById('reassignSelect').value = assignedId || '';
 
         // --- AGREEMENT STATUS ---
         const agSection = document.getElementById('detailAgreementSection');
@@ -763,15 +941,27 @@
 
         const imgCont = document.getElementById('detailImageContainer');
         const inner = document.getElementById('carouselInner');
+        const backendBase = document.getElementById('backendBaseUrl').value;
 
-        const images = a.image_urls || (a.image_url ? [a.image_url] : []);
+        // Collect all possible image fields
+        const imagesRaw = a.image_urls || a.images || a.photos || a.image_url || a.image || a.picture;
+        const images = (Array.isArray(imagesRaw) ? imagesRaw : (imagesRaw ? [imagesRaw] : [])).filter(i => i && typeof i === 'string');
 
         if (images.length > 0) {
-            inner.innerHTML = images.map((url, i) => `
-                <div class="carousel-item ${i === 0 ? 'active' : ''}">
-                    <img src="${url.startsWith('http') ? url : window.location.origin + url}" class="d-block w-100 rounded-4" style="max-height: 250px; object-fit: cover;">
-                </div>
-            `).join('');
+            inner.innerHTML = images.map((url, i) => {
+                let fullUrl = url;
+                if (!url.startsWith('http')) {
+                    // Ensure backendBase ends with slash or url starts with slash
+                    const base = backendBase.endsWith('/') ? backendBase.slice(0, -1) : backendBase;
+                    const path = url.startsWith('/') ? url : '/' + url;
+                    fullUrl = base + path;
+                }
+                return `
+                    <div class="carousel-item ${i === 0 ? 'active' : ''}">
+                        <img src="${fullUrl}" class="d-block w-100 rounded-4" style="max-height: 250px; object-fit: cover;" onerror="this.src='/static/images/device-placeholder.png'; this.onerror=null;">
+                    </div>
+                `;
+            }).join('');
             imgCont.style.display = 'block';
 
             // Hide controls if only one image
@@ -791,37 +981,37 @@
         fetch(`/api/assets/${currentAssetId}/assign`, {
             method: 'POST',
             headers: getHeaders(),
-            body: JSON.stringify({ 
+            body: JSON.stringify({
                 employee_id: empId,
-                employee_name: empName 
+                employee_name: empName
             })
-        }).then(() => { 
-            alert('Updated!'); 
-            viewAsset(currentAssetId); 
-            loadAssets(); 
+        }).then(() => {
+            alert('Updated!');
+            viewAsset(currentAssetId);
+            loadAssets();
         });
     }
 
     function deleteAsset(id) {
         if (!confirm('Are you sure you want to delete this device permanently?')) return;
-        
+
         fetch(`/api/assets/${id}`, {
             method: 'DELETE',
             headers: getHeaders()
         })
-        .then(res => res.json())
-        .then(data => {
-            if (data.success) {
-                alert('Device deleted successfully');
-                loadAssets();
-            } else {
-                alert('Error deleting device: ' + data.error);
-            }
-        })
-        .catch(err => {
-            console.error('Delete Error:', err);
-            alert('Failed to delete device.');
-        });
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Device deleted successfully');
+                    loadAssets();
+                } else {
+                    alert('Error deleting device: ' + data.error);
+                }
+            })
+            .catch(err => {
+                console.error('Delete Error:', err);
+                alert('Failed to delete device.');
+            });
     }
 </script>
 {% endblock %}

@@ -77,4 +77,88 @@ def create_project():
         except Exception as e:
             return jsonify({"success": False, "error": str(e)}), 500
 
-# (Other project routes: update, delete, add_team_members can be added here)
+@projects_bp.route('/project_details/<int:project_id>')
+@role_required(['admin', 'manager', 'employee'])
+def project_detail_view(project_id):
+    project = next((p for p in load_projects() if p.get('id') == project_id), None)
+    if not project:
+        flash("Project not found", "danger")
+        return redirect(url_for('projects.projects_list'))
+    return render_template('project_details.html', project=project, user_role=session.get('role'))
+
+@projects_bp.route('/get_project_details/<int:project_id>')
+@role_required(['hr', 'manager', 'employee'])
+def get_project_details(project_id):
+    project = next((p for p in load_projects() if p.get('id') == project_id), None)
+    if project: return jsonify({"success": True, "project": project})
+    return jsonify({"success": False, "error": "Project not found"}), 404
+
+@projects_bp.route('/api/employees_with_allocation')
+@role_required(['admin', 'hr', 'manager'])
+def api_employees_with_allocation():
+    try:
+        res = requests.get(f"{BASE_URL}/employees", headers=get_headers())
+        employees = res.json().get("employees", []) if res.status_code == 200 else []
+        projects_db = load_projects()
+        allocations = {}
+        for proj in projects_db:
+            if proj.get('status') == 'active':
+                for member in proj.get('team_members', []):
+                    name = member if isinstance(member, str) else (member.get('name') or member.get('employee_name'))
+                    if not name: continue
+                    alloc = int(member.get('allocation', 100) if isinstance(member, dict) else 100)
+                    allocations[name] = allocations.get(name, 0) + alloc
+        
+        result = []
+        for emp in employees:
+            if emp.get('role') == 'employee':
+                name = emp.get("name")
+                total_alloc = allocations.get(name, 0)
+                result.append({
+                    "name": name, "employee_name": name, "role": emp.get("role"),
+                    "workload": {"total_allocation": total_alloc},
+                    "available_capacity": max(0, 150 - total_alloc),
+                    "availability_status": "fully_allocated" if total_alloc >= 150 else "available"
+                })
+        return jsonify({"success": True, "employees": result})
+    except Exception as e: return jsonify({"success": False, "error": str(e)}), 500
+
+@projects_bp.route('/add_team_members', methods=['POST'])
+@role_required(['admin', 'manager', 'hr'])
+def add_team_members():
+    try:
+        data = request.get_json()
+        project_id = data.get('project_id')
+        team_members = data.get('team_members', [])
+        projects_db = load_projects()
+        project = next((p for p in projects_db if p.get('id') == project_id), None)
+        if project:
+            project.setdefault('team_members', [])
+            for m in team_members:
+                m_name = m.get('name') if isinstance(m, dict) else m
+                if not any((x if isinstance(x, str) else x.get('name')) == m_name for x in project['team_members']):
+                    project['team_members'].append(m)
+            save_projects(projects_db)
+            return jsonify({"success": True, "message": "Team members added"})
+        return jsonify({"success": False, "error": "Project not found"}), 404
+    except Exception as e: return jsonify({"success": False, "error": str(e)}), 500
+
+@projects_bp.route('/update_project', methods=['POST'])
+@role_required(['admin', 'hr'])
+def update_project():
+    data = request.get_json()
+    projects_db = load_projects()
+    project = next((p for p in projects_db if p.get('id') == data.get('id')), None)
+    if project:
+        project.update({k: data.get(k) for k in ['name', 'start_date', 'end_date', 'customer_name', 'assigned_manager']})
+        save_projects(projects_db)
+        return jsonify({"success": True})
+    return jsonify({"success": False, "error": "Project not found"}), 404
+
+@projects_bp.route('/delete_project/<int:project_id>', methods=['POST'])
+@role_required(['admin', 'hr'])
+def delete_project(project_id):
+    projects_db = load_projects()
+    projects_db = [p for p in projects_db if p.get('id') != project_id]
+    save_projects(projects_db)
+    return jsonify({"success": True})

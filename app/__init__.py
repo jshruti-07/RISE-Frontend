@@ -22,6 +22,7 @@ def create_app():
     from app.routes.work_management import work_bp
     from app.routes.admin import admin_bp
     from app.routes.user import user_bp
+    from app.routes.main import main_bp
 
     # Register blueprints
     app.register_blueprint(auth_bp)
@@ -31,6 +32,7 @@ def create_app():
     app.register_blueprint(work_bp)
     app.register_blueprint(admin_bp)
     app.register_blueprint(user_bp)
+    app.register_blueprint(main_bp)
 
     # Context Processor for common variables
     @app.context_processor

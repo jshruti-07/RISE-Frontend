@@ -1,5 +1,5 @@
 import requests
-from flask import Blueprint, render_template, redirect, url_for, request, flash
+from flask import Blueprint, render_template, redirect, url_for, request, flash, jsonify
 from app.utils import BASE_URL, get_headers, role_required, fetch_leave_balance_helper
 
 employees_bp = Blueprint('employees', __name__)
@@ -168,3 +168,57 @@ def edit_employee(id):
             return redirect(url_for('auth.login'))
         data = res.json()
         return render_template('edit_employee.html', employee=data.get("employee"))
+
+@employees_bp.route('/profile/<employee_name>')
+@role_required(['hr', 'admin'])
+def view_profile(employee_name):
+    if 'token' not in session:
+        return redirect(url_for('auth.login'))
+    
+    headers = get_headers()
+    # Fetch profile data from backend
+    res = requests.get(f"{BASE_URL}/profile/{employee_name}", headers=headers)
+    if res.status_code != 200:
+        flash("Employee profile not found", "danger")
+        return redirect(url_for('employees.employee_list'))
+        
+    data = res.json()
+    employee = data.get("employee", {})
+    documents = data.get("documents") or {}
+    
+    # Calculate progress
+    doc_keys = ["pan_card", "aadhar_card", "tenth_cert", "twelfth_cert", "graduation_cert", "postgrad_cert"]
+    uploaded = sum(1 for key in doc_keys if documents.get(key) and str(documents.get(key)).strip())
+    percent = int((uploaded / len(doc_keys)) * 100) if doc_keys else 0
+    
+    # Get leave balance
+    summary = {}
+    balance_data = fetch_leave_balance_helper(employee_name)
+    if balance_data:
+        summary = balance_data.get("summary", {})
+        
+    # Get bank details
+    bank_details = {}
+    try:
+        bank_res = requests.get(f"{BASE_URL}/bank-details/", headers=headers, timeout=5)
+        if bank_res.status_code == 200:
+            bd_list = bank_res.json().get("bank_details", [])
+            if isinstance(bd_list, list):
+                bank_details = next((b for b in bd_list if b.get("employee_name") == employee_name), {})
+    except: pass
+    
+    return render_template("profile.html", employee=employee, documents=documents, percent=percent, 
+                           summary=summary, bank_details=bank_details, is_hr_view=True, BASE_URL=BASE_URL)
+
+@employees_bp.route('/api/employees')
+@role_required(['admin', 'hr', 'manager'])
+def api_get_employees():
+    try:
+        res = requests.get(f"{BASE_URL}/employees", headers=get_headers(), timeout=10)
+        if res.status_code == 200:
+            data = res.json()
+            employees = data.get("employees", []) if isinstance(data, dict) else (data if isinstance(data, list) else [])
+            return jsonify({"success": True, "employees": employees})
+        return jsonify({"success": False, "error": res.text}), res.status_code
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500

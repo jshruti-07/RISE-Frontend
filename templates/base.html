@@ -225,42 +225,22 @@
 
 
             <!-- LEAVES -->
-
-            {% if session.role in ['employee','hr','manager'] %}
-
+            {% if session.role in ['employee','hr','manager','admin'] %}
             <div class="menu-item">
-
                 <div class="menu-title">
-
                     <span><i class="bi bi-calendar"></i> Leaves</span>
-
                     <span class="arrow">+</span>
-
                 </div>
-
-
-
                 <div class="submenu" id="leaveMenu">
-
                     <a href="{{ url_for('work.leaves_list') }}">All Leaves</a>
-
-
-
                     {% if session.role == 'employee' %}
-
                     <a href="{{ url_for('work.add_leave') }}">Apply Leave</a>
-
                     {% endif %}
-
                 </div>
-
             </div>
-
             {% endif %}
-
-            <!-- PROJECTS (HR + MANAGER) -->
-
-            {% if session.role in ['hr','manager'] %}
+            <!-- PROJECTS (HR + MANAGER + ADMIN) -->
+            {% if session.role in ['hr','manager','admin'] %}
 
             <a href="{{ url_for('projects.projects_list') }}">
 
@@ -318,7 +298,7 @@
 
             {% if session.role in ['manager','employee'] %}
 
-            <a href="{{ url_for('payslips') }}">
+            <a href="{{ url_for('user.payslips') }}">
 
                 <i class="bi bi-file-earmark-text"></i> <span>Payslips</span>
 
@@ -435,11 +415,9 @@
 
 
 
-        </div> <!-- ✁Etopbar CLOSED -->
+        </div> <!-- ✁Topbar CLOSED -->
 
 
-
-      
         <!-- PAGE CONTENT INSIDE MAIN -->
 
         <div class="page-content">
@@ -489,7 +467,7 @@
                             img.src = data.photo_url;
                         }
                     })
-                    .catch(function () { });
+            }
         })();
 
         function toggleSidebar() {
@@ -518,7 +496,6 @@
                     menu.style.display = ""; 
                 });
             }
-        }
         }
 
 

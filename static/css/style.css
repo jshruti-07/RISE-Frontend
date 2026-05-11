@@ -457,15 +457,13 @@ body {
     border: 1px solid rgba(255, 255, 255, 0.4);
 }
 
-.menu-btn svg {
+.menu-btn i {
     transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    transform: rotate(180deg);
-    /* Points left (<) by default when sidebar is open */
 }
 
 /* Rotate back to point right (>) when sidebar is collapsed */
-.sidebar.collapsed+.main .menu-btn svg {
-    transform: rotate(0deg);
+.sidebar.collapsed + .main .menu-btn i {
+    transform: rotate(180deg);
 }
 
 
@@ -1884,3 +1882,36 @@ select.form-control {
 .back-link i {
     font-size: 16px;
 }
+
+/* ===== RESPONSIVE DESIGN ===== */
+
+@media (max-width: 992px) {
+    .sidebar {
+        left: -260px;
+        z-index: 1050;
+        box-shadow: 10px 0 30px rgba(0,0,0,0.2);
+    }
+
+    .sidebar.show-mobile {
+        left: 0;
+    }
+
+    .main {
+        margin-left: 0 !important;
+        width: 100% !important;
+        padding: 15px;
+    }
+
+    .sidebar.collapsed + .main {
+        margin-left: 0 !important;
+        width: 100% !important;
+    }
+
+    .topbar {
+        padding: 10px;
+    }
+
+    .topbar-left {
+        gap: 10px !important;
+    }
+}

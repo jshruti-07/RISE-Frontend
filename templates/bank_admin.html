@@ -147,7 +147,7 @@ document.getElementById('confirmRejectBtn').addEventListener('click', () => {
 });
 
 function performAction(id, action, data = {}) {
-    const url = `/admin/bank-details/${id}/${action}`;
+    const url = `/bank-details/${id}/${action}`;
     
     fetch(url, {
         method: 'PATCH',

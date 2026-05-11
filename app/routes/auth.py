@@ -1,9 +1,15 @@
 from flask import Blueprint, request, jsonify, render_template, redirect, url_for, session, flash
 import requests
 import re
-from app.utils import BASE_URL, get_headers
+from app.utils import BASE_URL, get_headers, role_required
 
 auth_bp = Blueprint('auth', __name__)
+
+@auth_bp.route('/')
+def index():
+    if 'token' in session:
+        return redirect(url_for('dashboard.dashboard'))
+    return redirect(url_for('auth.login'))
 
 @auth_bp.route('/login', methods=['GET', 'POST'])
 def login():
@@ -30,7 +36,7 @@ def login():
                 session['user'] = data['user']['username']
                 session['role'] = data['user']['role']
                 session['employee_name'] = data['user']['employee_name']
-                session['employee_id'] = data['user'].get('id', 'N/A')
+                session['employee_id'] = data['user'].get('employee_id') or data['user'].get('id', 'N/A')
 
                 if request.headers.get("X-Requested-With") == "XMLHttpRequest":
                     return jsonify({

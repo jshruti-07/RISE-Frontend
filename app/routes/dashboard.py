@@ -3,7 +3,7 @@ import json
 import requests
 from datetime import datetime
 from flask import Blueprint, render_template, redirect, url_for, session, flash
-from app.utils import BASE_URL, get_headers
+from app.utils import BASE_URL, get_headers, role_required
 
 dashboard_bp = Blueprint('dashboard', __name__)
 
@@ -85,6 +85,14 @@ def dashboard():
                 rb_res = requests.get(f"{BASE_URL}/reimbursement/stats", headers=get_headers(), timeout=5)
                 if rb_res.status_code == 200: reimbursement_stats = rb_res.json()
             except: pass
+            
+            # HR and Admin should see all pending/approved leaves as "Team Leaves" on dashboard
+            team_leaves = [l for l in leaves if l.get('status', '').lower() in ['pending', 'approved']]
+            team_leaves.sort(key=lambda x: x.get('start_date', ''), reverse=True)
+            
+            # HR and Admin should also see all pending timesheets
+            team_pending_timesheets = [t for t in timesheets if str(t.get('status', '')).lower() in ['pending', 'missing', 'missing entry']]
+            team_pending_timesheets.sort(key=lambda x: x.get('start_date', ''), reverse=True)
 
         if session.get('role') == 'employee':
             try:

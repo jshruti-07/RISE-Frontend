@@ -40,7 +40,7 @@
 
     <td>
         <div class="d-flex align-items-center gap-2">
-            <a href="{{ url_for('view_profile', employee_name=emp.name) }}" class="text-decoration-none fw-semibold text-dark hover-primary">
+            <a href="{{ url_for('employees.view_profile', employee_name=emp.name) }}" class="text-decoration-none fw-semibold text-dark hover-primary">
                 {{ emp.name[2:] }}
             </a>
         </div>
@@ -56,7 +56,7 @@
     </td>
     <td>
         {% if session.role in ['hr','admin'] %}
-        <a href="{{ url_for('edit_employee', id=emp.id) }}" class="btn btn-sm" style="background-color: rgb(245, 245, 245); color: rgb(130, 130, 130); min-width: 70px;" >Edit</a>
+        <a href="{{ url_for('employees.edit_employee', id=emp.id) }}" class="btn btn-sm" style="background-color: rgb(245, 245, 245); color: rgb(130, 130, 130); min-width: 70px;" >Edit</a>
 
         <button class="btn btn-sm" style="background-color: rgb(245, 245, 245); color: rgb(255, 80, 80); min-width: 70px;" 
             data-bs-toggle="modal"

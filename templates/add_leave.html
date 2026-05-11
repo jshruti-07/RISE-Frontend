@@ -16,7 +16,7 @@
         <!-- RIGHT: LEAVE BALANCE -->
         <div class="card-ui p-1 leave-balance-box">
 
-            {% if balance %}
+            {% if summary.remaining_leaves or balance %}
             <div class="mb-1">
                 <select class="form-control">
                     <option value="">Leave Balance: {{ summary.remaining_leaves }} days</option>
