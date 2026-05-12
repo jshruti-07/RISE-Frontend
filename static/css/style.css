@@ -1478,19 +1478,12 @@ select.form-control {
 
 }
 
-/* Show submenu on hover */
-.menu-item:hover .submenu {
+
+.submenu.show {
     max-height: 500px;
     opacity: 1;
     padding-top: 8px;
     padding-bottom: 8px;
-}
-
-/* SHOW - Keep for backward compatibility with JavaScript toggle */
-.submenu.show {
-
-    display: block;
-
 }
 
 

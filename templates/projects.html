@@ -305,41 +305,43 @@
 
         // If we can't find it in DOM, fall back to the static data
         if (!project) {
-            var projectsData = {{ projects| tojson }};
-        
-            project = projectsData.find(function (p) { return p.id == projectId; });
+            var projectsData = {{ projects| tojson
         }
-        if (project) {
-            // Fetch fresh project data from the server
-            var fetchUrl = '/get_project_details/' + projectId;
-            fetch(fetchUrl)
-                .then(function (response) {
-                    if (response.ok) {
-                        return response.json();
-                    } else {
-                        throw new Error('Failed to fetch project details');
-                    }
-                })
-                .then(function (data) {
-                    if (data.success) {
-                        displayProjectDetails(data.project);
-                    } else {
-                        // Fallback to static data if API fails
-                        displayProjectDetails(project);
-                    }
-                })
-                .catch(function (error) {
-                    console.error('Error fetching project details:', error);
-                    // Fallback to static data
+    };
+
+    project = projectsData.find(function (p) { return p.id == projectId; });
+        }
+    if (project) {
+        // Fetch fresh project data from the server
+        var fetchUrl = '/get_project_details/' + projectId;
+        fetch(fetchUrl)
+            .then(function (response) {
+                if (response.ok) {
+                    return response.json();
+                } else {
+                    throw new Error('Failed to fetch project details');
+                }
+            })
+            .then(function (data) {
+                if (data.success) {
+                    displayProjectDetails(data.project);
+                } else {
+                    // Fallback to static data if API fails
                     displayProjectDetails(project);
-                });
-        }
+                }
+            })
+            .catch(function (error) {
+                console.error('Error fetching project details:', error);
+                // Fallback to static data
+                displayProjectDetails(project);
+            });
+    }
     }
 
     function displayProjectDetails(project) {
         var userRole = ('{{ user_role }}' || '').toLowerCase();
         var employeeName = '{{ session.employee_name }}';
-        
+
         var detailsHtml = '<div class="row">' +
             '<div class="col-md-6">' +
             '<h6 class="text-muted">Project Information</h6>' +
@@ -378,7 +380,7 @@
 
         // Standardize manager name
         var projectManager = project.assigned_manager || project.manager_name || project.manager || project.assigned_manager_name;
-        
+
         // Debug: Log raw project data
         console.log("DEBUG: Full Data for " + project.name, project);
 
@@ -393,14 +395,14 @@
             project.employees,
             project.member_list
         ];
-        
+
         var teamMap = {}; // Use map to prefer objects over strings for same name
 
-        rawTeamLists.forEach(function(list) {
+        rawTeamLists.forEach(function (list) {
             if (!list) return;
             var arr = Array.isArray(list) ? list : [list];
-            
-            arr.forEach(function(member) {
+
+            arr.forEach(function (member) {
                 var mName = typeof member === 'string' ? member : (member.name || member.employee_name || member.employee || member.employeeName || member.member_name || member.m_name);
                 if (mName) {
                     // Update if it's the first time, OR if current is string and new is object (more data)
@@ -410,7 +412,7 @@
                 }
             });
         });
-        
+
         var teamList = Object.values(teamMap);
 
         if (teamList.length > 0) {
@@ -425,7 +427,7 @@
             for (var i = 0; i < teamList.length; i++) {
                 var member = teamList[i];
                 var mName = typeof member === 'string' ? member : (member.name || member.employee_name || member.employee || member.employeeName || member.member_name || member.m_name);
-                
+
                 // For employees, only show their own entry
                 if (userRole === 'employee' && mName !== employeeName) continue;
 
@@ -433,14 +435,14 @@
                 var allocation = '100';
                 if (typeof member !== 'string') {
                     // Check for multiple possible keys for percentage
-                    var val = (member.allocation !== undefined) ? member.allocation : 
-                             (member.allocation_percentage !== undefined ? member.allocation_percentage :
-                             (member.billable_percentage !== undefined ? member.billable_percentage :
-                             (member.billable_pct !== undefined ? member.billable_pct : 
-                             (member.percentage !== undefined ? member.percentage : '100'))));
+                    var val = (member.allocation !== undefined) ? member.allocation :
+                        (member.allocation_percentage !== undefined ? member.allocation_percentage :
+                            (member.billable_percentage !== undefined ? member.billable_percentage :
+                                (member.billable_pct !== undefined ? member.billable_pct :
+                                    (member.percentage !== undefined ? member.percentage : '100'))));
                     allocation = val;
                 }
-                
+
                 var billingType = typeof member === 'string' ? 'Billable' : (member.billing_type || (member.is_billable ? 'Billable' : 'Non-Billable'));
                 var statusClass = billingType.toLowerCase() === 'billable' ? 'bg-success' : 'bg-warning';
 
@@ -570,86 +572,87 @@
         currentProjectId = projectId;
         document.getElementById('modalProjectName').textContent = projectName || 'Project';
 
-        const projectsData = {{ projects | tojson }};
-        const project = projectsData.find((p) => p.id == projectId);
-        currentProjectMembers = project ? getProjectMembers(project) : [];
+        const projectsData = {{ projects | tojson
+    }};
+    const project = projectsData.find((p) => p.id == projectId);
+    currentProjectMembers = project ? getProjectMembers(project) : [];
 
-        const openModal = (availableEmployees) => {
-            populateEmployeeList(currentProjectMembers, availableEmployees);
-            const modal = new bootstrap.Modal(document.getElementById('employeeSelectionModal'));
-            modal.show();
-        };
+    const openModal = (availableEmployees) => {
+        populateEmployeeList(currentProjectMembers, availableEmployees);
+        const modal = new bootstrap.Modal(document.getElementById('employeeSelectionModal'));
+        modal.show();
+    };
 
-        const fetchEmployeesAndOpenModal = () => {
-            fetch('/api/employees_with_allocation')
-                .then(res => res.json())
-                .then(data => {
-                    if (data.success) {
-                        openModal(data.employees);
-                    } else {
-                        alert("Error fetching employees: " + data.error);
-                    }
-                })
-                .catch(err => {
-                    console.error("Error fetching employees:", err);
-                    alert("Failed to fetch employees.");
-                });
-        };
-
-        if (project) {
-            fetchEmployeesAndOpenModal();
-            return;
-        }
-
-        fetch('/get_project_details/' + projectId)
-            .then((response) => response.json())
-            .then((data) => {
-                if (data.success && data.project) {
-                    currentProjectMembers = getProjectMembers(data.project);
+    const fetchEmployeesAndOpenModal = () => {
+        fetch('/api/employees_with_allocation')
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    openModal(data.employees);
+                } else {
+                    alert("Error fetching employees: " + data.error);
                 }
-                fetchEmployeesAndOpenModal();
             })
-            .catch(() => {
-                fetchEmployeesAndOpenModal();
+            .catch(err => {
+                console.error("Error fetching employees:", err);
+                alert("Failed to fetch employees.");
             });
-    }
+    };
 
-function populateEmployeeList(currentTeamMembers, availableEmployees) {
-    const currentMemberNames = new Set((currentTeamMembers || []).map(getMemberName).filter(Boolean));
-    const filteredEmployees = availableEmployees.filter((emp) => !currentMemberNames.has(emp.employee_name || emp.name));
-    const container = document.getElementById('availableEmployeesList');
-
-    if (filteredEmployees.length === 0) {
-        container.innerHTML = '<div class="text-center py-4"><i class="bi bi-person-check text-success" style="font-size: 2rem;"></i><p class="mt-2 text-muted">All eligible employees are already assigned.</p></div>';
-        updateAllocationTracker();
+    if (project) {
+        fetchEmployeesAndOpenModal();
         return;
     }
 
-    let html = '';
-    filteredEmployees.forEach((emp, i) => {
-        let statusClass = 'bg-success';
-        if (emp.availability_status === 'fully_allocated') statusClass = 'bg-danger';
-        else if (emp.availability_status === 'over_allocated') statusClass = 'bg-warning text-dark';
-        else if (emp.availability_status === 'partially_available') statusClass = 'bg-info text-dark';
-        
-        const empName = emp.employee_name || emp.name;
-        const empDesignation = emp.designation || emp.role || 'Employee';
-        const currentAlloc = parseInt((emp.workload && emp.workload.total_allocation) || 0, 10) || 0;
-        
-        // Capacity is out of 150%
-        const maxCapacity = 150;
-        const remainingTo150 = Math.max(0, maxCapacity - currentAlloc);
-        const remainingTo100 = Math.max(0, 100 - currentAlloc);
-        
-        const allowOverAllocation = Boolean(emp.allow_over_allocation);
-        const isDisabled = remainingTo150 <= 0 ? 'disabled' : '';
-        const inputMax = remainingTo150;
-        // Default to what gets them to 100%, minimum 1, max inputMax
-        const defaultAlloc = Math.max(1, Math.min(100, remainingTo100 > 0 ? remainingTo100 : inputMax));
+    fetch('/get_project_details/' + projectId)
+        .then((response) => response.json())
+        .then((data) => {
+            if (data.success && data.project) {
+                currentProjectMembers = getProjectMembers(data.project);
+            }
+            fetchEmployeesAndOpenModal();
+        })
+        .catch(() => {
+            fetchEmployeesAndOpenModal();
+        });
+    }
 
-        const overAllocBadge = currentAlloc > 100 ? `<span class="badge bg-warning text-dark ms-1" style="font-size: 0.65rem;">Over-allocated</span>` : '';
+    function populateEmployeeList(currentTeamMembers, availableEmployees) {
+        const currentMemberNames = new Set((currentTeamMembers || []).map(getMemberName).filter(Boolean));
+        const filteredEmployees = availableEmployees.filter((emp) => !currentMemberNames.has(emp.employee_name || emp.name));
+        const container = document.getElementById('availableEmployeesList');
 
-        html += `
+        if (filteredEmployees.length === 0) {
+            container.innerHTML = '<div class="text-center py-4"><i class="bi bi-person-check text-success" style="font-size: 2rem;"></i><p class="mt-2 text-muted">All eligible employees are already assigned.</p></div>';
+            updateAllocationTracker();
+            return;
+        }
+
+        let html = '';
+        filteredEmployees.forEach((emp, i) => {
+            let statusClass = 'bg-success';
+            if (emp.availability_status === 'fully_allocated') statusClass = 'bg-danger';
+            else if (emp.availability_status === 'over_allocated') statusClass = 'bg-warning text-dark';
+            else if (emp.availability_status === 'partially_available') statusClass = 'bg-info text-dark';
+
+            const empName = emp.employee_name || emp.name;
+            const empDesignation = emp.designation || emp.role || 'Employee';
+            const currentAlloc = parseInt((emp.workload && emp.workload.total_allocation) || 0, 10) || 0;
+
+            // Capacity is out of 150%
+            const maxCapacity = 150;
+            const remainingTo150 = Math.max(0, maxCapacity - currentAlloc);
+            const remainingTo100 = Math.max(0, 100 - currentAlloc);
+
+            const allowOverAllocation = Boolean(emp.allow_over_allocation);
+            const isDisabled = remainingTo150 <= 0 ? 'disabled' : '';
+            const inputMax = remainingTo150;
+            // Default to what gets them to 100%, minimum 1, max inputMax
+            const defaultAlloc = Math.max(1, Math.min(100, remainingTo100 > 0 ? remainingTo100 : inputMax));
+
+            const overAllocBadge = currentAlloc > 100 ? `<span class="badge bg-warning text-dark ms-1" style="font-size: 0.65rem;">Over-allocated</span>` : '';
+
+            html += `
             <div class="assignment-row py-3 border-bottom"
                  data-name="${empName}"
                  data-capacity="${inputMax}"
@@ -704,11 +707,11 @@ function populateEmployeeList(currentTeamMembers, availableEmployees) {
                     </div>
                 </div>
             </div>`;
-    });
+        });
 
-    container.innerHTML = html;
-    updateAllocationTracker();
-}
+        container.innerHTML = html;
+        updateAllocationTracker();
+    }
 
     function toggleAssignmentInputs(checkbox) {
         const row = checkbox.closest('.assignment-row');
@@ -740,7 +743,7 @@ function populateEmployeeList(currentTeamMembers, availableEmployees) {
         } else {
             input.classList.remove('is-invalid');
             if (errorDiv) errorDiv.style.display = 'none';
-            
+
             let badgeContainer = row.querySelector('.dynamic-badges');
             if (badgeContainer) {
                 if (totalAlloc > 100) {
@@ -755,41 +758,43 @@ function populateEmployeeList(currentTeamMembers, availableEmployees) {
 
     function editProject(projectId) {
         // Find project data
-        var projectsData = {{ projects | tojson }};
-        var project = projectsData.find(function (p) { return p.id == projectId; });
+        var projectsData = {{ projects | tojson
+    }};
+    var project = projectsData.find(function (p) { return p.id == projectId; });
 
-        if (project) {
-            // Standardize data from different possible backend keys
-            var pName = project.name || project.project_name || '';
-            var pManager = project.assigned_manager || project.manager_name || project.assigned_manager_name || '';
-            var pCustomer = project.customer_name || project.customer || '';
-            var pContact = project.customer_contact || project.contact_person || project.contact || '';
-            var pPhone = project.customer_phone || project.phone || '';
-            var pEmail = project.customer_email || project.email || '';
+    if (project) {
+        // Standardize data from different possible backend keys
+        var pName = project.name || project.project_name || '';
+        var pManager = project.assigned_manager || project.manager_name || project.assigned_manager_name || '';
+        var pCustomer = project.customer_name || project.customer || '';
+        var pContact = project.customer_contact || project.contact_person || project.contact || '';
+        var pPhone = project.customer_phone || project.phone || '';
+        var pEmail = project.customer_email || project.email || '';
 
-            // Populate form with project data
-            document.getElementById('editProjectId').value = project.id;
-            document.getElementById('editProjectName').value = pName;
-            document.getElementById('editStartDate').value = project.start_date || '';
-            document.getElementById('editEndDate').value = project.end_date || '';
-            document.getElementById('editCustomerName').value = pCustomer;
-            document.getElementById('editCustomerContact').value = pContact;
-            document.getElementById('editCustomerPhone').value = pPhone;
-            document.getElementById('editCustomerEmail').value = pEmail;
+        // Populate form with project data
+        document.getElementById('editProjectId').value = project.id;
+        document.getElementById('editProjectName').value = pName;
+        document.getElementById('editStartDate').value = project.start_date || '';
+        document.getElementById('editEndDate').value = project.end_date || '';
+        document.getElementById('editCustomerName').value = pCustomer;
+        document.getElementById('editCustomerContact').value = pContact;
+        document.getElementById('editCustomerPhone').value = pPhone;
+        document.getElementById('editCustomerEmail').value = pEmail;
 
-            // Populate manager dropdown
-            populateManagerDropdown('editAssignedManager', pManager);
+        // Populate manager dropdown
+        populateManagerDropdown('editAssignedManager', pManager);
 
-            // Show modal
-            var modal = new bootstrap.Modal(document.getElementById('editProjectModal'));
-            modal.show();
-        }
+        // Show modal
+        var modal = new bootstrap.Modal(document.getElementById('editProjectModal'));
+        modal.show();
+    }
     }
 
     function populateManagerDropdown(selectId, selectedManager) {
         var select = document.getElementById(selectId);
 
-        var managers = {{ managers | tojson if managers else '[]' }};
+        var managers = {{ managers | tojson if managers else '[]'
+    }};
 
     // Clear existing options
     select.innerHTML = '<option value="">Select Manager...</option>';
@@ -939,7 +944,7 @@ function populateEmployeeList(currentTeamMembers, availableEmployees) {
             const row = rows[i];
             const checkbox = row.querySelector('.member-checkbox');
             const allocationInput = row.querySelector('.allocation-input');
-            
+
             if (checkbox.checked) {
                 const name = checkbox.value;
                 const allocation = parseInt(allocationInput.value) || 0;

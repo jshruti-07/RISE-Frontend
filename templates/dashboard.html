@@ -15,13 +15,16 @@
     .hover-card {
         transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
+
     .hover-card:hover {
         transform: translateY(-8px);
-        box-shadow: 0 15px 35px rgba(0,0,0,0.12) !important;
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.12) !important;
     }
+
     .no-scrollbar::-webkit-scrollbar {
         display: none;
     }
+
     .no-scrollbar {
         -ms-overflow-style: none;
         scrollbar-width: none;
@@ -43,14 +46,16 @@
     <div class="row mb-4 animate__animated animate__pulse animate__infinite animate__slow">
         <div class="col-12">
             {% for ag in pending_agreements %}
-            <div class="alert alert-warning border-0 shadow-sm rounded-4 p-4 d-flex align-items-center justify-content-between mb-2" style="background: linear-gradient(135deg, #fff3cd 0%, #fff 100%);">
+            <div class="alert alert-warning border-0 shadow-sm rounded-4 p-4 d-flex align-items-center justify-content-between mb-2"
+                style="background: linear-gradient(135deg, #fff3cd 0%, #fff 100%);">
                 <div class="d-flex align-items-center">
                     <div class="icon-box bg-warning bg-opacity-25 text-warning me-3">
                         <i class="bi bi-file-earmark-lock-fill"></i>
                     </div>
                     <div>
                         <h5 class="alert-heading fw-bold mb-1">Action Required: Device Usage Agreement</h5>
-                        <p class="mb-0 text-muted">A <strong>{{ ag.brand }} {{ ag.model }}</strong> has been assigned to you. Please review and sign the usage agreement.</p>
+                        <p class="mb-0 text-muted">A <strong>{{ ag.brand }} {{ ag.model }}</strong> has been assigned to
+                            you. Please review and sign the usage agreement.</p>
                     </div>
                 </div>
                 <a href="/assets/agreement/{{ ag.id }}" class="btn btn-warning rounded-pill px-4 fw-bold shadow-sm">
@@ -126,7 +131,8 @@
                             {% if pending_timesheets_list %}
                             <div class="mt-2">
                                 <small class="text-muted" style="font-size: 0.65rem;">
-                                    Recent: {{ pending_timesheets_list[0].project }} ({{ pending_timesheets_list[0].start_date[:10] }})
+                                    Recent: {{ pending_timesheets_list[0].project }} ({{
+                                    pending_timesheets_list[0].start_date[:10] }})
                                 </small>
                             </div>
                             {% endif %}
@@ -151,36 +157,41 @@
                     <div class="card-ui p-3 mb-3 h-100">
                         <div class="d-flex justify-content-between align-items-center mb-3">
                             <h6 class="mb-0 fw-bold text-dark">Active Projects</h6>
-                            <span class="badge bg-primary bg-opacity-25 text-primary rounded-pill px-3">{{ projects|length if projects else 0 }} Projects</span>
+                            <span class="badge bg-primary bg-opacity-25 text-primary rounded-pill px-3">{{
+                                projects|length if projects else 0 }} Projects</span>
                         </div>
-                        <div class="no-scrollbar" style="max-height:120px; overflow-y:auto; overflow-x:hidden; font-size: 0.75rem;">
+                        <div class="no-scrollbar"
+                            style="max-height:120px; overflow-y:auto; overflow-x:hidden; font-size: 0.75rem;">
                             {% if projects %}
-                                <div class="table-responsive">
-                                    <table class="table table-sm table-hover align-middle mb-0">
-                                        <thead class="bg-light">
-                                            <tr>
-                                                <th class="border-0 px-2">Project Name</th>
-                                                <th class="border-0 px-2 text-end">Action</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            {% for project in projects %}
-                                            <tr class="hover-row">
-                                                <td class="px-2 border-0 fw-semibold text-dark">{{ project.name }}</td>
-                                                <td class="px-2 border-0 text-end">
-                                                    <button class="btn btn-sm btn-outline-primary py-0" onclick="viewProjectDetails({{ project.id }})" title="View Project Details" style="font-size: 0.7rem; border-radius: 6px;">
-                                                        <i class="bi bi-eye"></i>
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                            {% endfor %}
-                                        </tbody>
-                                    </table>
-                                </div>
+                            <div class="table-responsive">
+                                <table class="table table-sm table-hover align-middle mb-0">
+                                    <thead class="bg-light">
+                                        <tr>
+                                            <th class="border-0 px-2">Project Name</th>
+                                            <th class="border-0 px-2 text-end">Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for project in projects %}
+                                        <tr class="hover-row">
+                                            <td class="px-2 border-0 fw-semibold text-dark">{{ project.name }}</td>
+                                            <td class="px-2 border-0 text-end">
+                                                <button class="btn btn-sm btn-outline-primary py-0"
+                                                    onclick="viewProjectDetails({{ project.id }})"
+                                                    title="View Project Details"
+                                                    style="font-size: 0.7rem; border-radius: 6px;">
+                                                    <i class="bi bi-eye"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
                             {% else %}
-                                <div class="text-muted text-center py-4">
-                                    <i class="bi bi-folder-x fs-3 d-block mb-2"></i> No active projects
-                                </div>
+                            <div class="text-muted text-center py-4">
+                                <i class="bi bi-folder-x fs-3 d-block mb-2"></i> No active projects
+                            </div>
                             {% endif %}
                         </div>
                     </div>
@@ -191,33 +202,34 @@
                     <div class="card-ui p-3 mb-3 h-100">
                         <div class="d-flex justify-content-between align-items-center mb-3">
                             <h6 class="mb-0 fw-bold text-dark">Team Pending Timesheets</h6>
-                            <span class="badge bg-warning bg-opacity-25 text-warning rounded-pill px-3">{{ team_pending_timesheets|length }} Pending</span>
+                            <span class="badge bg-warning bg-opacity-25 text-warning rounded-pill px-3">{{
+                                team_pending_timesheets|length }} Pending</span>
                         </div>
                         <div class="no-scrollbar" style="max-height: 120px; overflow-y: auto; font-size: 0.75rem;">
                             {% if team_pending_timesheets %}
-                                <div class="table-responsive">
-                                    <table class="table table-sm table-hover align-middle mb-0">
-                                        <thead class="bg-light">
-                                            <tr>
-                                                <th class="border-0 px-2">Employee</th>
-                                                <th class="border-0 px-2 text-end">Date</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            {% for t in team_pending_timesheets %}
-                                            <tr class="hover-row">
-                                                <td class="px-2 border-0 fw-semibold text-dark">{{ t.employee_name }}</td>
-                                                <td class="px-2 border-0 text-end text-muted">{{ t.start_date[:10] }}</td>
-                                            </tr>
-                                            {% endfor %}
-                                        </tbody>
-                                    </table>
-                                </div>
+                            <div class="table-responsive">
+                                <table class="table table-sm table-hover align-middle mb-0">
+                                    <thead class="bg-light">
+                                        <tr>
+                                            <th class="border-0 px-2">Employee</th>
+                                            <th class="border-0 px-2 text-end">Date</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for t in team_pending_timesheets %}
+                                        <tr class="hover-row">
+                                            <td class="px-2 border-0 fw-semibold text-dark">{{ t.employee_name }}</td>
+                                            <td class="px-2 border-0 text-end text-muted">{{ t.start_date[:10] }}</td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
                             {% else %}
-                                <div class="text-center py-4 text-muted">
-                                    <i class="bi bi-check-all fs-3 d-block mb-2 text-success"></i>
-                                    All team timesheets submitted
-                                </div>
+                            <div class="text-center py-4 text-muted">
+                                <i class="bi bi-check-all fs-3 d-block mb-2 text-success"></i>
+                                All team timesheets submitted
+                            </div>
                             {% endif %}
                         </div>
                     </div>
@@ -229,37 +241,43 @@
                         <div class="card-ui p-3 mb-3 h-100 hover-card">
                             <div class="d-flex justify-content-between align-items-center mb-3">
                                 <h6 class="mb-0 fw-bold text-dark">Team Leaves</h6>
-                                <span class="badge bg-info bg-opacity-25 text-info rounded-pill px-3">{{ team_leaves|length }} Recent</span>
+                                <span class="badge bg-info bg-opacity-25 text-info rounded-pill px-3">{{
+                                    team_leaves|length }} Recent</span>
                             </div>
                             <div class="no-scrollbar" style="max-height: 120px; overflow-y: auto; font-size: 0.75rem;">
                                 {% if team_leaves %}
-                                    <div class="list-group list-group-flush">
-                                        {% for l in team_leaves %}
-                                        <div class="list-group-item px-0 py-2 bg-transparent border-bottom hover-row-bg">
-                                            <div class="d-flex justify-content-between align-items-center">
-                                                <div>
-                                                    <div class="fw-semibold text-dark">{{ l.employee_name }}</div>
-                                                    <div class="text-muted small" style="font-size: 0.65rem;">
-                                                        {{ l.start_date[:10] }} <i class="bi bi-arrow-right mx-1"></i> {{ l.end_date[:10] }}
-                                                    </div>
-                                                </div>
-                                                <div>
-                                                    {% if l.status|lower == 'pending' %}
-                                                        <span class="badge bg-warning bg-opacity-25 text-warning rounded-pill" style="font-size: 0.6rem;">Pending</span>
-                                                    {% elif l.status|lower == 'approved' %}
-                                                        <span class="badge bg-success bg-opacity-25 text-success rounded-pill" style="font-size: 0.6rem;">Approved</span>
-                                                    {% else %}
-                                                        <span class="badge bg-secondary bg-opacity-25 text-secondary rounded-pill" style="font-size: 0.6rem;">{{ l.status }}</span>
-                                                    {% endif %}
+                                <div class="list-group list-group-flush">
+                                    {% for l in team_leaves %}
+                                    <div class="list-group-item px-0 py-2 bg-transparent border-bottom hover-row-bg">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <div>
+                                                <div class="fw-semibold text-dark">{{ l.employee_name }}</div>
+                                                <div class="text-muted small" style="font-size: 0.65rem;">
+                                                    {{ l.start_date[:10] }} <i class="bi bi-arrow-right mx-1"></i> {{
+                                                    l.end_date[:10] }}
                                                 </div>
                                             </div>
+                                            <div>
+                                                {% if l.status|lower == 'pending' %}
+                                                <span class="badge bg-warning bg-opacity-25 text-warning rounded-pill"
+                                                    style="font-size: 0.6rem;">Pending</span>
+                                                {% elif l.status|lower == 'approved' %}
+                                                <span class="badge bg-success bg-opacity-25 text-success rounded-pill"
+                                                    style="font-size: 0.6rem;">Approved</span>
+                                                {% else %}
+                                                <span
+                                                    class="badge bg-secondary bg-opacity-25 text-secondary rounded-pill"
+                                                    style="font-size: 0.6rem;">{{ l.status }}</span>
+                                                {% endif %}
+                                            </div>
                                         </div>
-                                        {% endfor %}
                                     </div>
+                                    {% endfor %}
+                                </div>
                                 {% else %}
-                                    <div class="text-center py-4 text-muted">
-                                        <i class="bi bi-calendar-x fs-3 d-block mb-2"></i> No recent team leaves
-                                    </div>
+                                <div class="text-center py-4 text-muted">
+                                    <i class="bi bi-calendar-x fs-3 d-block mb-2"></i> No recent team leaves
+                                </div>
                                 {% endif %}
                             </div>
                         </div>
@@ -276,30 +294,41 @@
                     <div class="card-ui p-3 mb-3 h-100">
                         <div class="d-flex justify-content-between align-items-center mb-3">
                             <h6 class="mb-0 fw-bold">Help Desk Summary</h6>
-                            <a href="{{ url_for('admin.helpdesk') }}" class="btn btn-sm btn-outline-primary rounded-pill px-2 py-0" style="font-size: 0.75rem;">
+                            <a href="{{ url_for('admin.helpdesk') }}"
+                                class="btn btn-sm btn-outline-primary rounded-pill px-2 py-0"
+                                style="font-size: 0.75rem;">
                                 View All <i class="bi bi-arrow-right small ms-1"></i>
                             </a>
                         </div>
                         <div class="row g-2">
                             <div class="col-sm-4">
                                 <a href="{{ url_for('admin.helpdesk') }}?status=open" class="text-decoration-none">
-                                    <div class="p-2 rounded-3 bg-light border-start border-4 border-warning shadow-sm h-100 hover-card">
+                                    <div
+                                        class="p-2 rounded-3 bg-light border-start border-4 border-warning shadow-sm h-100 hover-card">
                                         <div class="d-flex justify-content-between align-items-center">
                                             <div>
-                                                <h6 class="text-muted small fw-bold text-uppercase mb-0" style="font-size: 0.6rem;">Open</h6>
-                                                <h6 class="fw-bold mb-0 text-dark" style="font-size: 1.1rem;">{{ hd_stats.by_status.get('open', 0) if hd_stats.by_status else 0 }}</h6>
+                                                <h6 class="text-muted small fw-bold text-uppercase mb-0"
+                                                    style="font-size: 0.6rem;">Open</h6>
+                                                <h6 class="fw-bold mb-0 text-dark" style="font-size: 1.1rem;">{{
+                                                    hd_stats.by_status.get('open', 0) if hd_stats.by_status else 0 }}
+                                                </h6>
                                             </div>
                                         </div>
                                     </div>
                                 </a>
                             </div>
                             <div class="col-sm-4">
-                                <a href="{{ url_for('admin.helpdesk') }}?status=in_progress" class="text-decoration-none">
-                                    <div class="p-2 rounded-3 bg-light border-start border-4 border-info shadow-sm h-100 hover-card">
+                                <a href="{{ url_for('admin.helpdesk') }}?status=in_progress"
+                                    class="text-decoration-none">
+                                    <div
+                                        class="p-2 rounded-3 bg-light border-start border-4 border-info shadow-sm h-100 hover-card">
                                         <div class="d-flex justify-content-between align-items-center">
                                             <div>
-                                                <h6 class="text-muted small fw-bold text-uppercase mb-0" style="font-size: 0.6rem;">In Progress</h6>
-                                                <h6 class="fw-bold mb-0 text-dark" style="font-size: 1.1rem;">{{ hd_stats.by_status.get('in_progress', 0) if hd_stats.by_status else 0 }}</h6>
+                                                <h6 class="text-muted small fw-bold text-uppercase mb-0"
+                                                    style="font-size: 0.6rem;">In Progress</h6>
+                                                <h6 class="fw-bold mb-0 text-dark" style="font-size: 1.1rem;">{{
+                                                    hd_stats.by_status.get('in_progress', 0) if hd_stats.by_status else
+                                                    0 }}</h6>
                                             </div>
                                         </div>
                                     </div>
@@ -307,13 +336,15 @@
                             </div>
                             <div class="col-sm-4">
                                 <a href="{{ url_for('admin.helpdesk') }}?status=closed" class="text-decoration-none">
-                                    <div class="p-2 rounded-3 bg-light border-start border-4 border-success shadow-sm h-100 hover-card">
+                                    <div
+                                        class="p-2 rounded-3 bg-light border-start border-4 border-success shadow-sm h-100 hover-card">
                                         <div class="d-flex justify-content-between align-items-center">
                                             <div>
-                                                <h6 class="text-muted small fw-bold text-uppercase mb-0" style="font-size: 0.6rem;">Closed</h6>
+                                                <h6 class="text-muted small fw-bold text-uppercase mb-0"
+                                                    style="font-size: 0.6rem;">Closed</h6>
                                                 <h6 class="fw-bold mb-0 text-dark" style="font-size: 1.1rem;">
                                                     {% if hd_stats.by_status %}
-                                                        {{ hd_stats.by_status.get('closed', 0) }}
+                                                    {{ hd_stats.by_status.get('closed', 0) }}
                                                     {% endif %}
                                                 </h6>
                                             </div>
@@ -330,19 +361,25 @@
                     <div class="card-ui p-3 mb-3 h-100">
                         <div class="d-flex justify-content-between align-items-center mb-3">
                             <h6 class="mb-0 fw-bold">Reimbursement Summary</h6>
-                            <a href="{{ url_for('admin.reimbursement') }}" class="btn btn-sm btn-outline-primary rounded-pill px-2 py-0" style="font-size: 0.75rem;">
+                            <a href="{{ url_for('admin.reimbursement') }}"
+                                class="btn btn-sm btn-outline-primary rounded-pill px-2 py-0"
+                                style="font-size: 0.75rem;">
                                 View All <i class="bi bi-arrow-right small ms-1"></i>
                             </a>
                         </div>
                         <div class="row g-2">
                             <div class="col-sm-4">
-                                <a href="{{ url_for('admin.reimbursement') }}?status=pending" class="text-decoration-none">
-                                    <div class="p-2 rounded-3 bg-light border-start border-4 border-warning shadow-sm h-100 hover-card">
+                                <a href="{{ url_for('admin.reimbursement') }}?status=pending"
+                                    class="text-decoration-none">
+                                    <div
+                                        class="p-2 rounded-3 bg-light border-start border-4 border-warning shadow-sm h-100 hover-card">
                                         <div class="d-flex justify-content-between align-items-center">
                                             <div>
-                                                <h6 class="text-muted small fw-bold text-uppercase mb-0" style="font-size: 0.6rem;">Pending</h6>
+                                                <h6 class="text-muted small fw-bold text-uppercase mb-0"
+                                                    style="font-size: 0.6rem;">Pending</h6>
                                                 <h6 class="fw-bold mb-0 text-dark" style="font-size: 1.1rem;">
-                                                    {{ reimbursement_stats.pending_approval.count if reimbursement_stats.pending_approval else 0 }}
+                                                    {{ reimbursement_stats.pending_approval.count if
+                                                    reimbursement_stats.pending_approval else 0 }}
                                                 </h6>
                                             </div>
                                         </div>
@@ -350,13 +387,18 @@
                                 </a>
                             </div>
                             <div class="col-sm-4">
-                                <a href="{{ url_for('admin.reimbursement') }}?status=approved" class="text-decoration-none">
-                                    <div class="p-2 rounded-3 bg-light border-start border-4 border-success shadow-sm h-100 hover-card">
+                                <a href="{{ url_for('admin.reimbursement') }}?status=approved"
+                                    class="text-decoration-none">
+                                    <div
+                                        class="p-2 rounded-3 bg-light border-start border-4 border-success shadow-sm h-100 hover-card">
                                         <div class="d-flex justify-content-between align-items-center">
                                             <div>
-                                                <h6 class="text-muted small fw-bold text-uppercase mb-0" style="font-size: 0.6rem;">Approved</h6>
+                                                <h6 class="text-muted small fw-bold text-uppercase mb-0"
+                                                    style="font-size: 0.6rem;">Approved</h6>
                                                 <h6 class="fw-bold mb-0 text-dark" style="font-size: 1.1rem;">
-                                                    {{ reimbursement_stats.by_status.approved.count if reimbursement_stats.by_status and reimbursement_stats.by_status.approved else 0 }}
+                                                    {{ reimbursement_stats.by_status.approved.count if
+                                                    reimbursement_stats.by_status and
+                                                    reimbursement_stats.by_status.approved else 0 }}
                                                 </h6>
                                             </div>
                                         </div>
@@ -364,13 +406,18 @@
                                 </a>
                             </div>
                             <div class="col-sm-4">
-                                <a href="{{ url_for('admin.reimbursement') }}?status=rejected" class="text-decoration-none">
-                                    <div class="p-2 rounded-3 bg-light border-start border-4 border-danger shadow-sm h-100 hover-card">
+                                <a href="{{ url_for('admin.reimbursement') }}?status=rejected"
+                                    class="text-decoration-none">
+                                    <div
+                                        class="p-2 rounded-3 bg-light border-start border-4 border-danger shadow-sm h-100 hover-card">
                                         <div class="d-flex justify-content-between align-items-center">
                                             <div>
-                                                <h6 class="text-muted small fw-bold text-uppercase mb-0" style="font-size: 0.6rem;">Rejected</h6>
+                                                <h6 class="text-muted small fw-bold text-uppercase mb-0"
+                                                    style="font-size: 0.6rem;">Rejected</h6>
                                                 <h6 class="fw-bold mb-0 text-dark" style="font-size: 1.1rem;">
-                                                    {{ reimbursement_stats.by_status.rejected.count if reimbursement_stats.by_status and reimbursement_stats.by_status.rejected else 0 }}
+                                                    {{ reimbursement_stats.by_status.rejected.count if
+                                                    reimbursement_stats.by_status and
+                                                    reimbursement_stats.by_status.rejected else 0 }}
                                                 </h6>
                                             </div>
                                         </div>
@@ -393,20 +440,20 @@
                         </div>
                         <div class="no-scrollbar" style="max-height:230px; overflow-y:auto; font-size: 0.80rem;">
                             {% if birthdays %}
-                                {% for b in birthdays %}
-                                <div class="d-flex justify-content-between align-items-center py-1 border-bottom">
-                                    <div class="rounded-circle bg-primary text-white px-2">
-                                        {{ b.name[0] }}
-                                    </div>
-                                    <small class="text-muted">
-                                        {{ b.date.split(' ')[0] if ' ' in b.date else b.date }}
-                                    </small>
+                            {% for b in birthdays %}
+                            <div class="d-flex justify-content-between align-items-center py-1 border-bottom">
+                                <div class="rounded-circle bg-primary text-white px-2">
+                                    {{ b.name[0] }}
                                 </div>
-                                {% endfor %}
+                                <small class="text-muted">
+                                    {{ b.date.split(' ')[0] if ' ' in b.date else b.date }}
+                                </small>
+                            </div>
+                            {% endfor %}
                             {% else %}
-                                <div class="text-muted text-center py-3">
-                                    No upcoming birthdays 
-                                </div>
+                            <div class="text-muted text-center py-3">
+                                No upcoming birthdays
+                            </div>
                             {% endif %}
                         </div>
                     </div>
@@ -593,253 +640,254 @@
 
 <script>
 
-// Load notifications page function (needed for "View All Notifications" link)
+    // Load notifications page function (needed for "View All Notifications" link)
 
-function loadNotificationsPage() {
+    function loadNotificationsPage() {
 
-    window.location.href = '/notifications';
+        window.location.href = '/notifications';
 
-}
-
-
-
-// View project details function
-
-function viewProjectDetails(projectId) {
-
-    console.log('Viewing project details for ID:', projectId);
-
-    
-
-    // Fetch project details from API
-
-    fetch('/get_project_details/' + projectId)
-
-        .then(function(response) {
-
-            if (response.ok) {
-
-                return response.json();
-
-            } else {
-
-                throw new Error('Failed to fetch project details');
-
-            }
-
-        })
-
-        .then(function(data) {
-
-            if (data.success) {
-
-                displayProjectDetails(data.project);
-
-            } else {
-
-                alert('Error: ' + data.error);
-
-            }
-
-        })
-
-        .catch(function(error) {
-
-            alert('Error loading project details. Please try again.');
-
-        });
-
-}
+    }
 
 
 
-// Display project details in modal
-function displayProjectDetails(project) {
-    var userRole = '{{ session.role }}';
-    var employeeName = '{{ session.employee_name }}';
-    
-    var detailsHtml = '<div class="row">' +
-        '<div class="col-md-6">' +
+    // View project details function
+
+    function viewProjectDetails(projectId) {
+
+        console.log('Viewing project details for ID:', projectId);
+
+
+
+        // Fetch project details from API
+
+        fetch('/get_project_details/' + projectId)
+
+            .then(function (response) {
+
+                if (response.ok) {
+
+                    return response.json();
+
+                } else {
+
+                    throw new Error('Failed to fetch project details');
+
+                }
+
+            })
+
+            .then(function (data) {
+
+                if (data.success) {
+
+                    displayProjectDetails(data.project);
+
+                } else {
+
+                    alert('Error: ' + data.error);
+
+                }
+
+            })
+
+            .catch(function (error) {
+
+                alert('Error loading project details. Please try again.');
+
+            });
+
+    }
+
+
+
+    // Display project details in modal
+    function displayProjectDetails(project) {
+        var userRole = '{{ session.role }}';
+        var employeeName = '{{ session.employee_name }}';
+
+        var detailsHtml = '<div class="row">' +
+            '<div class="col-md-6">' +
             '<h6 class="text-muted">Project Information</h6>' +
             '<table class="table table-sm">' +
-                '<tr><td><strong>Project Name:</strong></td><td>' + (project.name || project.project_name || 'N/A') + '</td></tr>' +
-                '<tr><td><strong>Status:</strong></td><td><span class="badge bg-success">' + (project.status || 'Active') + '</span></td></tr>' +
-                '<tr><td><strong>Assigned Manager:</strong></td><td>' + (project.assigned_manager || project.manager_name || project.manager || 'N/A') + '</td></tr>' +
-                '<tr><td><strong>Created By:</strong></td><td>' + (project.created_by || 'N/A') + '</td></tr>' +
-                '<tr><td><strong>Created At:</strong></td><td>' + (project.created_at || 'N/A') + '</td></tr>' +
+            '<tr><td><strong>Project Name:</strong></td><td>' + (project.name || project.project_name || 'N/A') + '</td></tr>' +
+            '<tr><td><strong>Status:</strong></td><td><span class="badge bg-success">' + (project.status || 'Active') + '</span></td></tr>' +
+            '<tr><td><strong>Assigned Manager:</strong></td><td>' + (project.assigned_manager || project.manager_name || project.manager || 'N/A') + '</td></tr>' +
+            '<tr><td><strong>Created By:</strong></td><td>' + (project.created_by || 'N/A') + '</td></tr>' +
+            '<tr><td><strong>Created At:</strong></td><td>' + (project.created_at || 'N/A') + '</td></tr>' +
             '</table>' +
-        '</div>';
-    
-    // Add customer information only for managers and HR (not for employees)
-    if (userRole !== 'employee') {
-        detailsHtml += '<div class="col-md-6">' +
-            '<h6 class="text-muted">Customer Information</h6>' +
-            '<table class="table table-sm">' +
+            '</div>';
+
+        // Add customer information only for managers and HR (not for employees)
+        if (userRole !== 'employee') {
+            detailsHtml += '<div class="col-md-6">' +
+                '<h6 class="text-muted">Customer Information</h6>' +
+                '<table class="table table-sm">' +
                 '<tr><td><strong>Customer Name:</strong></td><td>' + (project.customer_name || 'N/A') + '</td></tr>' +
                 '<tr><td><strong>Contact Person:</strong></td><td>' + (project.customer_contact || project.contact_person || project.contact || 'N/A') + '</td></tr>' +
                 '<tr><td><strong>Phone:</strong></td><td>' + (project.customer_phone || 'N/A') + '</td></tr>' +
                 '<tr><td><strong>Email:</strong></td><td>' + (project.customer_email || 'N/A') + '</td></tr>' +
-            '</table>' +
-        '</div>';
-    }
-    
-    detailsHtml += '</div>' +
-    '<div class="row mt-3">' +
-        '<div class="col-12">' +
+                '</table>' +
+                '</div>';
+        }
+
+        detailsHtml += '</div>' +
+            '<div class="row mt-3">' +
+            '<div class="col-12">' +
             '<h6 class="text-muted">Project Timeline</h6>' +
             '<table class="table table-sm">' +
-                '<tr><td><strong>Start Date:</strong></td><td>' + (project.start_date || 'N/A') + '</td></tr>' +
-                '<tr><td><strong>End Date:</strong></td><td>' + (project.end_date || 'N/A') + '</td></tr>' +
+            '<tr><td><strong>Start Date:</strong></td><td>' + (project.start_date || 'N/A') + '</td></tr>' +
+            '<tr><td><strong>End Date:</strong></td><td>' + (project.end_date || 'N/A') + '</td></tr>' +
             '</table>' +
-        '</div>' +
-    '</div>';
-    
-    // Standardize manager name
-    var projectManager = project.assigned_manager || project.manager_name || project.manager || project.assigned_manager_name;
-    
-    // Merge all possible keys and prioritize objects over strings
-    var rawTeamLists = [
-        project.team_members,
-        project.team,
-        project.assignments,
-        project.project_team,
-        project.team_list,
-        project.members,
-        project.employees,
-        project.member_list
-    ];
-    
-    var teamMap = {};
-
-    rawTeamLists.forEach(function(list) {
-        if (!list) return;
-        var arr = Array.isArray(list) ? list : [list];
-        
-        arr.forEach(function(member) {
-            var mName = typeof member === 'string' ? member : (member.name || member.employee_name || member.employee || member.employeeName || member.member_name || member.m_name);
-            if (mName) {
-                if (!teamMap[mName] || (typeof teamMap[mName] === 'string' && typeof member === 'object')) {
-                    teamMap[mName] = member;
-                }
-            }
-        });
-    });
-    
-    var teamList = Object.values(teamMap);
-
-    if (teamList.length > 0) {
-        detailsHtml += '<div class="row mt-3">' +
-            '<div class="col-12">' +
-            '<div class="d-flex justify-content-between align-items-center mb-1">' +
-            '<h6 class="text-muted mb-0">' + (userRole === 'employee' ? 'Your Allocation' : 'Team Members & Workload') + '</h6>' +
-            '<small class="text-muted">' + teamList.length + ' Members</small>' +
             '</div>' +
-            '<div class="list-group list-group-flush border rounded" style="max-height: 250px; overflow-y: auto;">';
+            '</div>';
 
-        for (var i = 0; i < teamList.length; i++) {
-            var member = teamList[i];
-            var mName = typeof member === 'string' ? member : (member.name || member.employee_name || member.employee || member.employeeName || member.member_name || member.m_name);
-            
-            if (userRole === 'employee' && mName !== employeeName) continue;
+        // Standardize manager name
+        var projectManager = project.assigned_manager || project.manager_name || project.manager || project.assigned_manager_name;
 
-            var allocation = '100';
-            if (typeof member !== 'string') {
-                var val = (member.allocation !== undefined) ? member.allocation : 
-                         (member.allocation_percentage !== undefined ? member.allocation_percentage :
-                         (member.billable_percentage !== undefined ? member.billable_percentage :
-                         (member.billable_pct !== undefined ? member.billable_pct : 
-                         (member.percentage !== undefined ? member.percentage : '100'))));
-                allocation = val;
-            }
-            
-            var billingType = typeof member === 'string' ? 'Billable' : (member.billing_type || (member.is_billable ? 'Billable' : 'Non-Billable'));
-            var statusClass = billingType.toLowerCase() === 'billable' ? 'bg-success' : 'bg-warning';
+        // Merge all possible keys and prioritize objects over strings
+        var rawTeamLists = [
+            project.team_members,
+            project.team,
+            project.assignments,
+            project.project_team,
+            project.team_list,
+            project.members,
+            project.employees,
+            project.member_list
+        ];
 
-            detailsHtml += '<div class="list-group-item d-flex justify-content-between align-items-center py-2">' +
-                '<div>' +
-                '<div class="fw-bold">' + mName + '</div>' +
+        var teamMap = {};
+
+        rawTeamLists.forEach(function (list) {
+            if (!list) return;
+            var arr = Array.isArray(list) ? list : [list];
+
+            arr.forEach(function (member) {
+                var mName = typeof member === 'string' ? member : (member.name || member.employee_name || member.employee || member.employeeName || member.member_name || member.m_name);
+                if (mName) {
+                    if (!teamMap[mName] || (typeof teamMap[mName] === 'string' && typeof member === 'object')) {
+                        teamMap[mName] = member;
+                    }
+                }
+            });
+        });
+
+        var teamList = Object.values(teamMap);
+
+        if (teamList.length > 0) {
+            detailsHtml += '<div class="row mt-3">' +
+                '<div class="col-12">' +
+                '<div class="d-flex justify-content-between align-items-center mb-1">' +
+                '<h6 class="text-muted mb-0">' + (userRole === 'employee' ? 'Your Allocation' : 'Team Members & Workload') + '</h6>' +
+                '<small class="text-muted">' + teamList.length + ' Members</small>' +
                 '</div>' +
-                '<div class="text-end">' +
-                '<span class="badge bg-primary rounded-pill me-1">' + allocation + '% Alloc.</span>' +
-                '<span class="badge ' + statusClass + ' rounded-pill">' + billingType + '</span>' +
+                '<div class="list-group list-group-flush border rounded" style="max-height: 250px; overflow-y: auto;">';
+
+            for (var i = 0; i < teamList.length; i++) {
+                var member = teamList[i];
+                var mName = typeof member === 'string' ? member : (member.name || member.employee_name || member.employee || member.employeeName || member.member_name || member.m_name);
+
+                if (userRole === 'employee' && mName !== employeeName) continue;
+
+                var allocation = '100';
+                if (typeof member !== 'string') {
+                    var val = (member.allocation !== undefined) ? member.allocation :
+                        (member.allocation_percentage !== undefined ? member.allocation_percentage :
+                            (member.billable_percentage !== undefined ? member.billable_percentage :
+                                (member.billable_pct !== undefined ? member.billable_pct :
+                                    (member.percentage !== undefined ? member.percentage : '100'))));
+                    allocation = val;
+                }
+
+                var billingType = typeof member === 'string' ? 'Billable' : (member.billing_type || (member.is_billable ? 'Billable' : 'Non-Billable'));
+                var statusClass = billingType.toLowerCase() === 'billable' ? 'bg-success' : 'bg-warning';
+
+                detailsHtml += '<div class="list-group-item d-flex justify-content-between align-items-center py-2">' +
+                    '<div>' +
+                    '<div class="fw-bold">' + mName + '</div>' +
+                    '</div>' +
+                    '<div class="text-end">' +
+                    '<span class="badge bg-primary rounded-pill me-1">' + allocation + '% Alloc.</span>' +
+                    '<span class="badge ' + statusClass + ' rounded-pill">' + billingType + '</span>' +
+                    '</div>' +
+                    '</div>';
+            }
+
+            detailsHtml += '</div></div></div>';
+        } else {
+            detailsHtml += '<div class="row mt-3"><div class="col-12"><div class="alert alert-info py-2">No team members found for this project.</div></div></div>';
+        }
+
+        var isAssignedManager = (userRole === 'manager' && projectManager === employeeName);
+        var isHr = (userRole === 'hr' || userRole === 'admin');
+
+        if (isHr || isAssignedManager || userRole === 'manager') {
+            detailsHtml += '<div class="row mt-3">' +
+                '<div class="col-12">' +
+                '<button class="btn btn-primary w-100" onclick="openEmployeeSelectionModal(' + project.id + ', \'' + (project.name || project.project_name || '') + '\')">' +
+                '<i class="bi bi-person-plus me-2"></i>' +
+                'Add Team Members' +
+                '</button>' +
                 '</div>' +
                 '</div>';
         }
 
-        detailsHtml += '</div></div></div>';
-    } else {
-        detailsHtml += '<div class="row mt-3"><div class="col-12"><div class="alert alert-info py-2">No team members found for this project.</div></div></div>';
+        document.getElementById('modalProjectName').textContent = project.project_name || project.name || 'Project Details';
+        document.getElementById('projectDetailsContent').innerHTML = detailsHtml;
+
+        var modal = new bootstrap.Modal(document.getElementById('projectDetailsModal'));
+        modal.show();
     }
 
-    var isAssignedManager = (userRole === 'manager' && projectManager === employeeName);
-    var isHr = (userRole === 'hr' || userRole === 'admin');
+    let currentProjectId = null;
+    let currentProjectMembers = [];
 
-    if (isHr || isAssignedManager || userRole === 'manager') {
-        detailsHtml += '<div class="row mt-3">' +
-            '<div class="col-12">' +
-                '<button class="btn btn-primary w-100" onclick="openEmployeeSelectionModal(' + project.id + ', \'' + (project.name || project.project_name || '') + '\')">' +
-                    '<i class="bi bi-person-plus me-2"></i>' +
-                    'Add Team Members' +
-                '</button>' +
-            '</div>' +
-        '</div>';
+    function getMemberName(member) {
+        if (typeof member === 'string') return member;
+        if (!member || typeof member !== 'object') return '';
+        return member.name || member.employee_name || member.employee || member.member_name || member.m_name || '';
     }
-    
-    document.getElementById('modalProjectName').textContent = project.project_name || project.name || 'Project Details';
-    document.getElementById('projectDetailsContent').innerHTML = detailsHtml;
-    
-    var modal = new bootstrap.Modal(document.getElementById('projectDetailsModal'));
-    modal.show();
-}
 
-let currentProjectId = null;
-let currentProjectMembers = [];
+    function getMemberAllocation(member) {
+        if (typeof member === 'string') return 100;
+        if (!member || typeof member !== 'object') return 100;
+        const raw = member.allocation ?? member.allocation_percentage ?? member.billable_percentage ?? member.billable_pct ?? member.percentage ?? 100;
+        const parsed = parseInt(raw, 10);
+        return Number.isFinite(parsed) ? parsed : 100;
+    }
 
-function getMemberName(member) {
-    if (typeof member === 'string') return member;
-    if (!member || typeof member !== 'object') return '';
-    return member.name || member.employee_name || member.employee || member.member_name || member.m_name || '';
-}
+    function getProjectMembers(project) {
+        const candidateLists = [
+            project && project.team_members,
+            project && project.team,
+            project && project.assignments,
+            project && project.project_team,
+            project && project.members,
+            project && project.employees,
+            project && project.member_list
+        ];
 
-function getMemberAllocation(member) {
-    if (typeof member === 'string') return 100;
-    if (!member || typeof member !== 'object') return 100;
-    const raw = member.allocation ?? member.allocation_percentage ?? member.billable_percentage ?? member.billable_pct ?? member.percentage ?? 100;
-    const parsed = parseInt(raw, 10);
-    return Number.isFinite(parsed) ? parsed : 100;
-}
-
-function getProjectMembers(project) {
-    const candidateLists = [
-        project && project.team_members,
-        project && project.team,
-        project && project.assignments,
-        project && project.project_team,
-        project && project.members,
-        project && project.employees,
-        project && project.member_list
-    ];
-
-    const unique = {};
-    candidateLists.forEach((list) => {
-        if (!Array.isArray(list)) return;
-        list.forEach((member) => {
-            const name = getMemberName(member);
-            if (!name) return;
-            if (!unique[name] || typeof unique[name] === 'string') {
-                unique[name] = member;
-            }
+        const unique = {};
+        candidateLists.forEach((list) => {
+            if (!Array.isArray(list)) return;
+            list.forEach((member) => {
+                const name = getMemberName(member);
+                if (!name) return;
+                if (!unique[name] || typeof unique[name] === 'string') {
+                    unique[name] = member;
+                }
+            });
         });
-    });
 
-    return Object.values(unique);
-}
+        return Object.values(unique);
+    }
 
-function openEmployeeSelectionModal(projectId, projectName) {
-    currentProjectId = projectId;
-    document.getElementById('modalProjectName').textContent = projectName || 'Project';
+    function openEmployeeSelectionModal(projectId, projectName) {
+        currentProjectId = projectId;
+        document.getElementById('modalProjectName').textContent = projectName || 'Project';
 
-    const projectsData = {{ projects | tojson }};
+        const projectsData = {{ projects | tojson
+    }};
     const project = projectsData.find((p) => p.id == projectId);
     currentProjectMembers = project ? getProjectMembers(project) : [];
 
@@ -883,42 +931,42 @@ function openEmployeeSelectionModal(projectId, projectName) {
         });
 }
 
-function populateEmployeeList(currentTeamMembers, availableEmployees) {
-    const currentMemberNames = new Set((currentTeamMembers || []).map(getMemberName).filter(Boolean));
-    const filteredEmployees = availableEmployees.filter((emp) => !currentMemberNames.has(emp.employee_name || emp.name));
-    const container = document.getElementById('availableEmployeesList');
+    function populateEmployeeList(currentTeamMembers, availableEmployees) {
+        const currentMemberNames = new Set((currentTeamMembers || []).map(getMemberName).filter(Boolean));
+        const filteredEmployees = availableEmployees.filter((emp) => !currentMemberNames.has(emp.employee_name || emp.name));
+        const container = document.getElementById('availableEmployeesList');
 
-    if (filteredEmployees.length === 0) {
-        container.innerHTML = '<div class="text-center py-4"><i class="bi bi-person-check text-success" style="font-size: 2rem;"></i><p class="mt-2 text-muted">All eligible employees are already assigned.</p></div>';
-        updateAllocationTracker();
-        return;
-    }
+        if (filteredEmployees.length === 0) {
+            container.innerHTML = '<div class="text-center py-4"><i class="bi bi-person-check text-success" style="font-size: 2rem;"></i><p class="mt-2 text-muted">All eligible employees are already assigned.</p></div>';
+            updateAllocationTracker();
+            return;
+        }
 
-    let html = '';
-    filteredEmployees.forEach((emp, i) => {
-        let statusClass = 'bg-success';
-        if (emp.availability_status === 'fully_allocated') statusClass = 'bg-danger';
-        else if (emp.availability_status === 'over_allocated') statusClass = 'bg-warning text-dark';
-        else if (emp.availability_status === 'partially_available') statusClass = 'bg-info text-dark';
-        
-        const empName = emp.employee_name || emp.name;
-        const empDesignation = emp.designation || emp.role || 'Employee';
-        const currentAlloc = parseInt((emp.workload && emp.workload.total_allocation) || 0, 10) || 0;
-        
-        // Capacity is out of 150%
-        const maxCapacity = 150;
-        const remainingTo150 = Math.max(0, maxCapacity - currentAlloc);
-        const remainingTo100 = Math.max(0, 100 - currentAlloc);
-        
-        const allowOverAllocation = Boolean(emp.allow_over_allocation);
-        const isDisabled = remainingTo150 <= 0 ? 'disabled' : '';
-        const inputMax = remainingTo150;
-        // Default to what gets them to 100%, minimum 1, max inputMax
-        const defaultAlloc = Math.max(1, Math.min(100, remainingTo100 > 0 ? remainingTo100 : inputMax));
+        let html = '';
+        filteredEmployees.forEach((emp, i) => {
+            let statusClass = 'bg-success';
+            if (emp.availability_status === 'fully_allocated') statusClass = 'bg-danger';
+            else if (emp.availability_status === 'over_allocated') statusClass = 'bg-warning text-dark';
+            else if (emp.availability_status === 'partially_available') statusClass = 'bg-info text-dark';
 
-        const overAllocBadge = currentAlloc > 100 ? `<span class="badge bg-warning text-dark ms-1" style="font-size: 0.65rem;">Over-allocated</span>` : '';
+            const empName = emp.employee_name || emp.name;
+            const empDesignation = emp.designation || emp.role || 'Employee';
+            const currentAlloc = parseInt((emp.workload && emp.workload.total_allocation) || 0, 10) || 0;
 
-        html += `
+            // Capacity is out of 150%
+            const maxCapacity = 150;
+            const remainingTo150 = Math.max(0, maxCapacity - currentAlloc);
+            const remainingTo100 = Math.max(0, 100 - currentAlloc);
+
+            const allowOverAllocation = Boolean(emp.allow_over_allocation);
+            const isDisabled = remainingTo150 <= 0 ? 'disabled' : '';
+            const inputMax = remainingTo150;
+            // Default to what gets them to 100%, minimum 1, max inputMax
+            const defaultAlloc = Math.max(1, Math.min(100, remainingTo100 > 0 ? remainingTo100 : inputMax));
+
+            const overAllocBadge = currentAlloc > 100 ? `<span class="badge bg-warning text-dark ms-1" style="font-size: 0.65rem;">Over-allocated</span>` : '';
+
+            html += `
             <div class="assignment-row py-3 border-bottom"
                  data-name="${empName}"
                  data-capacity="${inputMax}"
@@ -973,193 +1021,193 @@ function populateEmployeeList(currentTeamMembers, availableEmployees) {
                     </div>
                 </div>
             </div>`;
-    });
+        });
 
-    container.innerHTML = html;
-    updateAllocationTracker();
-}
-
-function toggleAssignmentInputs(checkbox) {
-    const row = checkbox.closest('.assignment-row');
-    if (!row) return;
-    const inputs = row.querySelector('.assignment-inputs');
-    if (!inputs) return;
-
-    if (checkbox.checked) {
-        inputs.classList.remove('d-none');
-    } else {
-        inputs.classList.add('d-none');
+        container.innerHTML = html;
+        updateAllocationTracker();
     }
-    updateAllocationTracker();
-}
 
-function validateAndTrack(input, max, allowOverAllocation = false) {
-    const val = parseInt(input.value, 10) || 0;
-    const row = input.closest('.assignment-row');
-    const errorDiv = row ? row.querySelector('.invalid-feedback') : null;
-    const currentAlloc = parseInt(row.dataset.currentAlloc, 10) || 0;
-    const totalAlloc = currentAlloc + val;
+    function toggleAssignmentInputs(checkbox) {
+        const row = checkbox.closest('.assignment-row');
+        if (!row) return;
+        const inputs = row.querySelector('.assignment-inputs');
+        if (!inputs) return;
 
-    if (val > max || val <= 0) {
-        input.classList.add('is-invalid');
-        if (errorDiv) {
-            errorDiv.textContent = 'Exceeds max 150% capacity!';
-            errorDiv.style.display = 'block';
+        if (checkbox.checked) {
+            inputs.classList.remove('d-none');
+        } else {
+            inputs.classList.add('d-none');
         }
-    } else {
-        input.classList.remove('is-invalid');
-        if (errorDiv) errorDiv.style.display = 'none';
-        
-        let badgeContainer = row.querySelector('.dynamic-badges');
-        if (badgeContainer) {
-            if (totalAlloc > 100) {
-                badgeContainer.innerHTML = `<span class="badge bg-warning text-dark ms-1" style="font-size: 0.65rem;">Over-allocated (${totalAlloc}%)</span>`;
+        updateAllocationTracker();
+    }
+
+    function validateAndTrack(input, max, allowOverAllocation = false) {
+        const val = parseInt(input.value, 10) || 0;
+        const row = input.closest('.assignment-row');
+        const errorDiv = row ? row.querySelector('.invalid-feedback') : null;
+        const currentAlloc = parseInt(row.dataset.currentAlloc, 10) || 0;
+        const totalAlloc = currentAlloc + val;
+
+        if (val > max || val <= 0) {
+            input.classList.add('is-invalid');
+            if (errorDiv) {
+                errorDiv.textContent = 'Exceeds max 150% capacity!';
+                errorDiv.style.display = 'block';
+            }
+        } else {
+            input.classList.remove('is-invalid');
+            if (errorDiv) errorDiv.style.display = 'none';
+
+            let badgeContainer = row.querySelector('.dynamic-badges');
+            if (badgeContainer) {
+                if (totalAlloc > 100) {
+                    badgeContainer.innerHTML = `<span class="badge bg-warning text-dark ms-1" style="font-size: 0.65rem;">Over-allocated (${totalAlloc}%)</span>`;
+                } else {
+                    badgeContainer.innerHTML = '';
+                }
+            }
+        }
+        updateAllocationTracker();
+    }
+
+    function updateAllocationTracker() {
+        let total = 0;
+        const currentMembers = Array.isArray(currentProjectMembers) ? currentProjectMembers : [];
+
+        const selectedMemberNames = Array.from(document.querySelectorAll('#availableEmployeesList .member-checkbox:checked')).map(cb => cb.value);
+
+        currentMembers.forEach(m => {
+            const mName = getMemberName(m);
+            const mAlloc = getMemberAllocation(m);
+            if (!selectedMemberNames.includes(mName)) {
+                total += parseInt(mAlloc) || 0;
+            }
+        });
+
+        document.querySelectorAll('#availableEmployeesList .assignment-row').forEach(row => {
+            const checkbox = row.querySelector('.member-checkbox');
+            if (checkbox && checkbox.checked) {
+                total += parseInt(row.querySelector('.allocation-input').value) || 0;
+            }
+        });
+
+        const tracker = document.getElementById('totalAllocValue');
+        const badge = document.getElementById('allocationTracker');
+        if (tracker) tracker.textContent = total;
+
+        if (badge) {
+            if (total > 100) {
+                badge.classList.remove('bg-secondary', 'bg-success');
+                badge.classList.add('bg-danger');
+            } else if (total === 100) {
+                badge.classList.remove('bg-secondary', 'bg-danger');
+                badge.classList.add('bg-success');
             } else {
-                badgeContainer.innerHTML = '';
+                badge.classList.remove('bg-success', 'bg-danger');
+                badge.classList.add('bg-secondary');
             }
         }
     }
-    updateAllocationTracker();
-}
 
-function updateAllocationTracker() {
-    let total = 0;
-    const currentMembers = Array.isArray(currentProjectMembers) ? currentProjectMembers : [];
-
-    const selectedMemberNames = Array.from(document.querySelectorAll('#availableEmployeesList .member-checkbox:checked')).map(cb => cb.value);
-
-    currentMembers.forEach(m => {
-        const mName = getMemberName(m);
-        const mAlloc = getMemberAllocation(m);
-        if (!selectedMemberNames.includes(mName)) {
-            total += parseInt(mAlloc) || 0;
-        }
-    });
-
-    document.querySelectorAll('#availableEmployeesList .assignment-row').forEach(row => {
-        const checkbox = row.querySelector('.member-checkbox');
-        if (checkbox && checkbox.checked) {
-            total += parseInt(row.querySelector('.allocation-input').value) || 0;
-        }
-    });
-
-    const tracker = document.getElementById('totalAllocValue');
-    const badge = document.getElementById('allocationTracker');
-    if (tracker) tracker.textContent = total;
-
-    if (badge) {
-        if (total > 100) {
-            badge.classList.remove('bg-secondary', 'bg-success');
-            badge.classList.add('bg-danger');
-        } else if (total === 100) {
-            badge.classList.remove('bg-secondary', 'bg-danger');
-            badge.classList.add('bg-success');
-        } else {
-            badge.classList.remove('bg-success', 'bg-danger');
-            badge.classList.add('bg-secondary');
-        }
+    function selectAllEmployees() {
+        const checkboxes = document.querySelectorAll('#availableEmployeesList .member-checkbox:not(:disabled)');
+        checkboxes.forEach(checkbox => {
+            checkbox.checked = true;
+            toggleAssignmentInputs(checkbox);
+        });
     }
-}
 
-function selectAllEmployees() {
-    const checkboxes = document.querySelectorAll('#availableEmployeesList .member-checkbox:not(:disabled)');
-    checkboxes.forEach(checkbox => {
-        checkbox.checked = true;
-        toggleAssignmentInputs(checkbox);
-    });
-}
+    function clearAllEmployees() {
+        const checkboxes = document.querySelectorAll('#availableEmployeesList .member-checkbox');
+        checkboxes.forEach(checkbox => {
+            checkbox.checked = false;
+            toggleAssignmentInputs(checkbox);
+        });
+    }
 
-function clearAllEmployees() {
-    const checkboxes = document.querySelectorAll('#availableEmployeesList .member-checkbox');
-    checkboxes.forEach(checkbox => {
-        checkbox.checked = false;
-        toggleAssignmentInputs(checkbox);
-    });
-}
+    function assignSelectedEmployees() {
+        const rows = document.querySelectorAll('#availableEmployeesList .assignment-row');
+        const selectedMembers = [];
 
-function assignSelectedEmployees() {
-    const rows = document.querySelectorAll('#availableEmployeesList .assignment-row');
-    const selectedMembers = [];
+        for (let i = 0; i < rows.length; i++) {
+            const row = rows[i];
+            const checkbox = row.querySelector('.member-checkbox');
+            const allocationInput = row.querySelector('.allocation-input');
 
-    for (let i = 0; i < rows.length; i++) {
-        const row = rows[i];
-        const checkbox = row.querySelector('.member-checkbox');
-        const allocationInput = row.querySelector('.allocation-input');
-        
-        if (checkbox && checkbox.checked) {
-            const name = checkbox.value;
-            const allocation = parseInt(allocationInput.value) || 0;
-            const billingType = row.querySelector('.billing-type-input').value;
-            const max = parseInt(row.dataset.capacity) || 0;
-            const allowOverAllocation = row.dataset.allowOverallocation === '1';
+            if (checkbox && checkbox.checked) {
+                const name = checkbox.value;
+                const allocation = parseInt(allocationInput.value) || 0;
+                const billingType = row.querySelector('.billing-type-input').value;
+                const max = parseInt(row.dataset.capacity) || 0;
+                const allowOverAllocation = row.dataset.allowOverallocation === '1';
 
-            if (allocation > max) {
-                alert('Error: ' + name + ' cannot exceed max 150% capacity.');
-                allocationInput.classList.add('is-invalid');
-                return;
+                if (allocation > max) {
+                    alert('Error: ' + name + ' cannot exceed max 150% capacity.');
+                    allocationInput.classList.add('is-invalid');
+                    return;
+                }
+
+                if (allocation <= 0) {
+                    alert('Allocation for ' + name + ' must be greater than 0');
+                    allocationInput.classList.add('is-invalid');
+                    return;
+                }
+
+                selectedMembers.push({
+                    name: name,
+                    employee_name: name,
+                    allocation: allocation,
+                    allocation_percentage: allocation,
+                    billable_percentage: allocation,
+                    billing_type: billingType,
+                    is_billable: billingType === 'billable'
+                });
             }
+        }
 
-            if (allocation <= 0) {
-                alert('Allocation for ' + name + ' must be greater than 0');
-                allocationInput.classList.add('is-invalid');
-                return;
-            }
+        if (selectedMembers.length === 0) {
+            alert('Please select at least one employee to assign');
+            return;
+        }
 
-            selectedMembers.push({
-                name: name,
-                employee_name: name,
-                allocation: allocation,
-                allocation_percentage: allocation,
-                billable_percentage: allocation,
-                billing_type: billingType,
-                is_billable: billingType === 'billable'
+        const formData = {
+            project_id: currentProjectId,
+            team_members: selectedMembers
+        };
+
+        fetch('/add_team_members', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(formData)
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('employeeSelectionModal'));
+                    if (modal) modal.hide();
+                    viewProjectDetails(currentProjectId);
+                } else {
+                    alert('Error: ' + (data.error || 'Assignment failed'));
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error assigning employees. Please try again.');
             });
-        }
     }
 
-    if (selectedMembers.length === 0) {
-        alert('Please select at least one employee to assign');
-        return;
-    }
-
-    const formData = {
-        project_id: currentProjectId,
-        team_members: selectedMembers
-    };
-
-    fetch('/add_team_members', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(formData)
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            const modal = bootstrap.Modal.getInstance(document.getElementById('employeeSelectionModal'));
-            if (modal) modal.hide();
-            viewProjectDetails(currentProjectId);
-        } else {
-            alert('Error: ' + (data.error || 'Assignment failed'));
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        alert('Error assigning employees. Please try again.');
-    });
-}
 
 
-
-// Make functions globally available
-window.loadNotificationsPage = loadNotificationsPage;
-window.viewProjectDetails = viewProjectDetails;
-window.openEmployeeSelectionModal = openEmployeeSelectionModal;
-window.populateEmployeeList = populateEmployeeList;
-window.selectAllEmployees = selectAllEmployees;
-window.clearAllEmployees = clearAllEmployees;
-window.assignSelectedEmployees = assignSelectedEmployees;
+    // Make functions globally available
+    window.loadNotificationsPage = loadNotificationsPage;
+    window.viewProjectDetails = viewProjectDetails;
+    window.openEmployeeSelectionModal = openEmployeeSelectionModal;
+    window.populateEmployeeList = populateEmployeeList;
+    window.selectAllEmployees = selectAllEmployees;
+    window.clearAllEmployees = clearAllEmployees;
+    window.assignSelectedEmployees = assignSelectedEmployees;
 
 </script>
 

@@ -140,7 +140,7 @@
 
             <div class="menu-item">
 
-                <div class="menu-title">
+                <div class="menu-title" onclick="toggleMenu('empMenu', this)">
 
                     <span><i class="bi bi-people"></i> Employees</span>
 
@@ -194,7 +194,7 @@
 
             <div class="menu-item">
 
-                <div class="menu-title">
+                <div class="menu-title" onclick="toggleMenu('timeMenu', this)">
 
                     <span><i class="bi bi-clock"></i> Timesheets</span>
 
@@ -227,7 +227,7 @@
             <!-- LEAVES -->
             {% if session.role in ['employee','hr','manager','admin'] %}
             <div class="menu-item">
-                <div class="menu-title">
+                <div class="menu-title" onclick="toggleMenu('leaveMenu', this)">
                     <span><i class="bi bi-calendar"></i> Leaves</span>
                     <span class="arrow">+</span>
                 </div>
@@ -483,7 +483,6 @@
             if (sidebar.classList.contains("collapsed") || (isMobile && !sidebar.classList.contains("show-mobile"))) {
                 document.querySelectorAll(".submenu").forEach(function (menu) {
                     menu.classList.remove("show");
-                    menu.style.display = "none";
                 });
 
                 document.querySelectorAll(".menu-title").forEach(function (title) {
@@ -492,9 +491,7 @@
                     if (arrow) arrow.innerText = "+";
                 });
             } else {
-                document.querySelectorAll(".submenu").forEach(function (menu) {
-                    menu.style.display = ""; 
-                });
+                // Submenus will be handled by CSS/click
             }
         }
 
@@ -601,11 +598,7 @@
             if (sidebar.classList.contains("collapsed")) {
 
                 document.querySelectorAll(".submenu").forEach(function (menu) {
-
                     menu.classList.remove("show");
-
-                    menu.style.display = "none";
-
                 });
 
             }
