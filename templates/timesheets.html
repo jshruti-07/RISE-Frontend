@@ -743,7 +743,7 @@
                     setTimeout(() => location.reload(true), 1500); // Force refresh without cache
                 } else {
                     if (data.error && data.error.includes('Cannot connect to backend server')) {
-                        showError('Backend server not running. Please start the server at 192.168.1.51:5001');
+                        showError('The timesheet service is currently unavailable. Please contact the administrator.');
                     } else {
                         showError('Failed to approve timesheet: ' + data.error);
                     }
@@ -752,7 +752,7 @@
             .catch(error => {
                 console.error('Error approving timesheet:', error);
                 if (error.message.includes('backend server')) {
-                    showError('Backend server not running. Please start the server at 192.168.1.51:5001');
+                    showError('The timesheet service is currently unavailable.');
                 } else {
                     showError('Error approving timesheet: ' + error.message);
                 }
@@ -830,7 +830,7 @@
                     setTimeout(() => location.reload(true), 1500); // Force refresh without cache
                 } else {
                     if (data.error && data.error.includes('Cannot connect to backend server')) {
-                        showError('Backend server not running. Please start the server at 192.168.1.51:5001');
+                        showError('The timesheet service is currently unavailable.');
                     } else {
                         showError('Failed to reject timesheet: ' + data.error);
                     }
@@ -839,7 +839,7 @@
             .catch(error => {
                 console.error('Error rejecting timesheet:', error);
                 if (error.message.includes('backend server')) {
-                    showError('Backend server not running. Please start the server at 192.168.1.51:5001');
+                    showError('The timesheet service is currently unavailable.');
                 } else if (error.message.includes('Network error')) {
                     showError('Network error occurred. Please check your connection and try again.');
                 } else {
@@ -954,7 +954,7 @@
                     const data = JSON.parse(text);
                     console.log('API test parsed data:', data);
                     if (data.error && data.error.includes('Cannot connect to backend server')) {
-                        throw new Error('Backend server not running at 192.168.1.51:5001');
+                        throw new Error('Timesheet service unavailable');
                     }
                 } catch (e) {
                     if (e.message.includes('backend server')) {
@@ -971,9 +971,8 @@
                     errorMessage = `
                 <div class="text-center text-danger">
                     <i class="bi bi-server" style="font-size: 2rem;"></i>
-                    <p class="mt-2"><strong>Backend Server Not Running</strong></p>
-                    <p class="mt-2">Please start the backend server at 192.168.1.51:5001</p>
-                    <p class="mt-2">The timesheet approval functionality requires the backend server to be running.</p>
+                    <p class="mt-2"><strong>Timesheet Service Unavailable</strong></p>
+                    <p class="mt-2">The timesheet approval functionality requires the backend service to be active.</p>
                 </div>
             `;
                 }

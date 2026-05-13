@@ -27,30 +27,38 @@ def timesheets_list():
         if len(n2) > 2 and n2[1] == '_' and n2[2:] == n1: return True
         return False
 
-    projects_file = os.path.join(os.getcwd(), 'projects.json')
+    # 1. Fetch ALL projects from backend instead of projects.json
     projects_db = []
-    if os.path.exists(projects_file):
-        try:
-            with open(projects_file, 'r') as f:
-                projects_db = json.load(f)
-        except: projects_db = []
+    try:
+        proj_res = requests.get(f"{BASE_URL}/projects/", headers=get_headers(), timeout=10)
+        if proj_res.status_code == 200:
+            data = proj_res.json()
+            projects_db = data.get("projects", []) if isinstance(data, dict) else data
+    except Exception as e:
+        print(f"Error fetching projects for timesheets: {e}")
 
-    res = requests.get(f"{BASE_URL}/timesheets", headers=get_headers())
+    # 2. Fetch ALL timesheets with trailing slash
+    res = requests.get(f"{BASE_URL}/timesheets/", headers=get_headers(), timeout=15)
     if res.status_code == 401:
         return redirect(url_for('auth.login'))
     
     all_timesheets = res.json().get("timesheets", [])
+    
+    # 3. Fetch employees for role mapping
     emp_res = requests.get(f"{BASE_URL}/employees/", headers=get_headers())
     employees = []
     if emp_res.status_code == 200:
         emp_data = emp_res.json()
-        if isinstance(emp_data, dict):
-            employees = emp_data.get("employees", [])
-        elif isinstance(emp_data, list):
-            employees = emp_data
+        employees = emp_data.get("employees", []) if isinstance(emp_data, dict) else emp_data
     
     role_map = {emp.get('name'): emp.get('role', 'employee') for emp in employees}
-    project_manager_map = {proj['name'].strip().lower(): proj.get('assigned_manager', '-') for proj in projects_db}
+    
+    # Map projects to managers (backend names might vary: 'assigned_manager' or 'manager_name')
+    project_manager_map = {}
+    for proj in projects_db:
+        p_name = str(proj.get('name', '')).strip().lower()
+        mgr = proj.get('assigned_manager') or proj.get('manager_name') or '-'
+        project_manager_map[p_name] = mgr
     
     user_role = str(session.get('role', '')).lower()
     current_user = session.get('employee_name')
@@ -99,7 +107,7 @@ def add_timesheet():
             "description": request.form.get("description")
         }
         try:
-            res = requests.post(f"{BASE_URL}/timesheets", json=payload, headers=get_headers(), timeout=10)
+            res = requests.post(f"{BASE_URL}/timesheets/", json=payload, headers=get_headers(), timeout=10)
             if res.status_code in [200, 201]:
                 flash('Timesheet submitted successfully!', 'success')
             else:
@@ -108,11 +116,13 @@ def add_timesheet():
             flash(f'Error submitting timesheet: {e}', 'danger')
             
         return redirect(url_for('work.timesheets_list'))
-    projects_file = os.path.join(os.getcwd(), 'projects.json')
     projects = []
-    if os.path.exists(projects_file):
-        with open(projects_file, 'r') as f:
-            projects = json.load(f)
+    try:
+        proj_res = requests.get(f"{BASE_URL}/projects/", headers=get_headers(), timeout=10)
+        if proj_res.status_code == 200:
+            data = proj_res.json()
+            projects = data.get("projects", []) if isinstance(data, dict) else data
+    except: pass
     emp_res = requests.get(f"{BASE_URL}/employees/", headers=get_headers())
     employees = emp_res.json().get("employees", []) if emp_res.status_code == 200 else []
     return render_template("add_timesheet.html", employees=employees, projects=projects, today_date=datetime.now().strftime('%Y-%m-%d'))
@@ -122,7 +132,7 @@ def add_timesheet():
 def export_timesheets():
     try:
         # 1. Fetch data from backend
-        res = requests.get(f"{BASE_URL}/timesheets", headers=get_headers())
+        res = requests.get(f"{BASE_URL}/timesheets/", headers=get_headers())
         if res.status_code != 200:
             return jsonify({"success": False, "error": "Failed to fetch timesheets from API"}), res.status_code
             
@@ -150,10 +160,7 @@ def export_timesheets():
         if not filtered:
             return jsonify({"success": False, "error": "No data found for selected filters"}), 404
             
-        # 3. Create DataFrame
-        df = pd.DataFrame(filtered)
-        
-        # Select and rename columns for better presentation
+        # Select and rename columns mapping
         columns_map = {
             'employee_name': 'Employee Name',
             'project': 'Project',
@@ -163,41 +170,65 @@ def export_timesheets():
             'description': 'Description',
             'status': 'Status'
         }
-        
-        # Keep only existing columns from the map
-        df = df[[col for col in columns_map.keys() if col in df.columns]]
-        df.rename(columns=columns_map, inplace=True)
-        
-        # Clean dates for Excel
-        if 'Date' in df.columns:
-            df['Date'] = df['Date'].apply(lambda x: x[:10] if x else '')
 
-        # 4. Generate Excel in memory
-        output = io.BytesIO()
-        with pd.ExcelWriter(output, engine='openpyxl') as writer:
-            df.to_excel(writer, index=False, sheet_name='Timesheets')
-            
-            # Auto-adjust column widths
-            worksheet = writer.sheets['Timesheets']
-            for idx, col in enumerate(df.columns):
-                max_len = max(df[col].astype(str).map(len).max(), len(col)) + 2
-                worksheet.column_dimensions[chr(65 + idx)].width = min(max_len, 50)
-
-        output.seek(0)
-        
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        filename = f"Timesheet_Export_{timestamp}.xlsx"
+
+        # 3. Handle Export (Excel with CSV fallback)
+        if PANDAS_AVAILABLE:
+            try:
+                df = pd.DataFrame(filtered)
+                df = df[[col for col in columns_map.keys() if col in df.columns]]
+                df.rename(columns=columns_map, inplace=True)
+                if 'Date' in df.columns:
+                    df['Date'] = df['Date'].apply(lambda x: x[:10] if x else '')
+
+                output = io.BytesIO()
+                # Use xlsxwriter if available, else standard engine
+                engine = 'openpyxl'
+                try:
+                    import openpyxl
+                except ImportError:
+                    engine = None # Fallback to default pandas excel engine
+
+                with pd.ExcelWriter(output, engine=engine) as writer:
+                    df.to_excel(writer, index=False, sheet_name='Timesheets')
+                    if engine == 'openpyxl':
+                        worksheet = writer.sheets['Timesheets']
+                        for idx, col in enumerate(df.columns):
+                            max_len = max(df[col].astype(str).map(len).max(), len(col)) + 2
+                            worksheet.column_dimensions[chr(65 + idx)].width = min(max_len, 50)
+                
+                output.seek(0)
+                return send_file(
+                    output,
+                    mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                    as_attachment=True,
+                    download_name=f"Timesheet_Export_{timestamp}.xlsx"
+                )
+            except Exception as excel_err:
+                print(f"Excel generation failed, falling back to CSV: {excel_err}")
+                # Fall through to CSV fallback
+
+        # 4. CSV Fallback (always works, no complex dependencies)
+        import csv
+        output = io.StringIO()
+        writer = csv.DictWriter(output, fieldnames=columns_map.values())
+        writer.writeheader()
+        for row in filtered:
+            processed_row = {columns_map[k]: row.get(k, '') for k in columns_map.keys()}
+            writer.writerow(processed_row)
+        
+        mem = io.BytesIO()
+        mem.write(output.getvalue().encode('utf-8'))
+        mem.seek(0)
+        output.close()
         
         return send_file(
-            output,
-            mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            mem,
+            mimetype='text/csv',
             as_attachment=True,
-            download_name=filename
+            download_name=f"Timesheet_Export_{timestamp}.csv"
         )
-        
-    except Exception as e:
-        print(f"Export Error: {e}")
-        return jsonify({"success": False, "error": str(e)}), 500
 
 @work_bp.route('/leaves')
 @role_required(['admin', 'employee', 'hr', 'manager'])
@@ -592,6 +623,88 @@ def leaves_balance():
         print(f"Error in balance fallback: {e}")
     
     return jsonify({"success": False, "error": "Leave balance API unavailable"}), 500
+
+@work_bp.route('/manager/timesheets/pending')
+@role_required(['admin', 'hr', 'manager'])
+def get_pending_timesheets():
+    try:
+        # Backend endpoint discovered: /timesheets/pending-approvals/
+        res = requests.get(f"{BASE_URL}/timesheets/pending-approvals/", headers=get_headers(), timeout=10)
+        if res.status_code == 200:
+            return jsonify(res.json()), 200
+        return jsonify({"success": False, "error": "Failed to fetch pending timesheets"}), res.status_code
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@work_bp.route('/manager/timesheets/approve', methods=['POST'])
+@role_required(['admin', 'hr', 'manager'])
+def approve_timesheet():
+    try:
+        data = request.json
+        ts_id = data.get('timesheet_id')
+        if not ts_id:
+            return jsonify({"success": False, "error": "Timesheet ID required"}), 400
+            
+        # Backend endpoint discovered: /timesheets/<id>/approve/
+        res = requests.post(f"{BASE_URL}/timesheets/{ts_id}/approve/", headers=get_headers(), timeout=10)
+        if res.status_code in [200, 201]:
+            return jsonify({"success": True}), 200
+        return jsonify({"success": False, "error": res.text}), res.status_code
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@work_bp.route('/manager/timesheets/reject', methods=['POST'])
+@role_required(['admin', 'hr', 'manager'])
+def reject_timesheet():
+    try:
+        data = request.json
+        ts_id = data.get('timesheet_id')
+        reason = data.get('rejection_reason') or data.get('reason')
+        if not ts_id:
+            return jsonify({"success": False, "error": "Timesheet ID required"}), 400
+            
+        # Backend endpoint discovered: /timesheets/<id>/reject/
+        payload = {"reason": reason}
+        res = requests.post(f"{BASE_URL}/timesheets/{ts_id}/reject/", json=payload, headers=get_headers(), timeout=10)
+        if res.status_code in [200, 201]:
+            return jsonify({"success": True}), 200
+        return jsonify({"success": False, "error": res.text}), res.status_code
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@work_bp.route('/api/timesheets/day')
+@role_required(['admin', 'hr', 'manager', 'employee'])
+def get_timesheet_day_details():
+    try:
+        date = request.args.get('date')
+        employee_name = request.args.get('employee_name') or session.get('employee_name')
+        
+        # Backend endpoint discovered: /timesheets/day/
+        params = {"date": date, "employee_name": employee_name}
+        res = requests.get(f"{BASE_URL}/timesheets/day/", params=params, headers=get_headers(), timeout=10)
+        
+        if res.status_code == 200:
+            return jsonify(res.json()), 200
+        return jsonify({"success": False, "error": "Failed to fetch day details"}), res.status_code
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@work_bp.route('/api/timesheets/calendar')
+@role_required(['admin', 'hr', 'manager', 'employee'])
+def get_timesheet_calendar():
+    try:
+        year = request.args.get('year', type=int)
+        month = request.args.get('month', type=int)
+        
+        # Backend endpoint discovered: /timesheets/calendar/
+        params = {"year": year, "month": month}
+        res = requests.get(f"{BASE_URL}/timesheets/calendar/", params=params, headers=get_headers(), timeout=10)
+        
+        if res.status_code == 200:
+            return jsonify(res.json()), 200
+        return jsonify({"success": False, "error": "Failed to fetch calendar data"}), res.status_code
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
 
 @work_bp.route('/update-leave/<int:leave_id>/<status>', methods=['PUT'])
 @role_required(['admin', 'manager', 'hr'])
