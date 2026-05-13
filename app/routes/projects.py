@@ -145,7 +145,10 @@ def api_employees_with_allocation():
                     "name": name,
                     "employee_name": name,
                     "role": emp.get("role"),
-                    "workload": {"total_allocation": total_alloc},
+                    "workload": {
+                        "total_allocation": total_alloc,
+                        "projects": []
+                    },
                     "available_capacity": max(0, 100 - total_alloc),
                     "availability_status": "fully_allocated" if total_alloc >= 100 else "available"
                 })
