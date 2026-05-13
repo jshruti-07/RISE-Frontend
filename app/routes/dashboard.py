@@ -73,8 +73,28 @@ def dashboard():
                     h["formatted_date"] = dt.strftime("%d %b")
                 except: h["formatted_date"] = raw_date
 
-        bd_res = requests.get(f"{BASE_URL}/birthdays/dashboard", headers=get_headers())
-        birthday_data = bd_res.json().get("today", {}).get("birthdays", []) if bd_res.status_code == 200 else []
+        # 1. Today's Birthdays
+        try:
+            today_res = requests.get(f"{BASE_URL}/birthdays/today/", headers=get_headers(), timeout=5)
+            if today_res.status_code == 200:
+                today_data = today_res.json()
+                # Handle different possible response structures
+                today_list = today_data.get("birthdays", []) if isinstance(today_data, dict) else []
+                for b in today_list:
+                    b['is_today'] = True
+                    birthday_data.append(b)
+        except: pass
+
+        # 2. Upcoming Birthdays (Next 7 Days)
+        try:
+            upcoming_res = requests.get(f"{BASE_URL}/birthdays/upcoming/", headers=get_headers(), timeout=5)
+            if upcoming_res.status_code == 200:
+                upcoming_data = upcoming_res.json()
+                upcoming_list = upcoming_data.get("upcoming_birthdays", []) if isinstance(upcoming_data, dict) else []
+                for b in upcoming_list:
+                    b['is_today'] = False
+                    birthday_data.append(b)
+        except: pass
 
         if session.get('role') in ['hr', 'admin']:
             try:

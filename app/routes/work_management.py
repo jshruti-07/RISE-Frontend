@@ -467,10 +467,10 @@ def attendance_view():
         
         working_days = total_days - weekends
         
-        attendance_res = requests.get(f"{BASE_URL}/attendance", headers=get_headers())
+        attendance_res = requests.get(f"{BASE_URL}/attendance/", headers=get_headers())
         attendance_data = attendance_res.json().get("attendance", []) if attendance_res.status_code == 200 else []
         
-        leaves_res = requests.get(f"{BASE_URL}/leaves", headers=get_headers())
+        leaves_res = requests.get(f"{BASE_URL}/leaves/", headers=get_headers())
         leave_data = leaves_res.json().get("leaves", []) if leaves_res.status_code == 200 else []
         
         leave_balance = 0
@@ -509,9 +509,19 @@ def attendance_view():
         attendance_data = [a for a in attendance_data if is_match(a.get('employee_name'), target_employee)]
         leave_data = [l for l in leave_data if is_match(l.get('employee_name'), target_employee)]
         
-        # Further filter by date range
-        attendance_data = [a for a in attendance_data if a.get('date') and from_date <= a.get('date')[:10] <= to_date]
-        leave_data = [l for l in leave_data if l.get('start_date') and from_date <= l.get('start_date')[:10] <= to_date]
+        # Further filter by date range and calculate days
+        final_leaves = []
+        for l in leave_data:
+            if l.get('start_date') and from_date <= l.get('start_date')[:10] <= to_date:
+                # Calculate days if missing
+                if not l.get('days'):
+                    try:
+                        s = datetime.strptime(l['start_date'][:10], '%Y-%m-%d')
+                        e = datetime.strptime(l['end_date'][:10], '%Y-%m-%d')
+                        l['days'] = (e - s).days + 1
+                    except: l['days'] = 1
+                final_leaves.append(l)
+        leave_data = final_leaves
         
         # Calculate balance for target employee
         leave_balance = 0
