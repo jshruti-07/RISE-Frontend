@@ -7,22 +7,6 @@ from app.utils import BASE_URL, get_headers, role_required
 
 projects_bp = Blueprint('projects', __name__)
 
-def load_projects():
-    try:
-        projects_file = os.path.join(os.getcwd(), 'projects.json')
-        if os.path.exists(projects_file):
-            with open(projects_file, 'r') as f:
-                data = json.load(f)
-                return data if isinstance(data, list) else []
-    except Exception as e:
-        print(f"Error loading projects.json: {e}")
-    return []
-
-def save_projects(db):
-    projects_file = os.path.join(os.getcwd(), 'projects.json')
-    with open(projects_file, 'w') as f:
-        json.dump(db, f, indent=4)
-
 @projects_bp.route('/projects')
 @role_required(['admin', 'hr', 'manager', 'employee'])
 def projects_list():
@@ -30,42 +14,46 @@ def projects_list():
         return redirect(url_for('auth.login'))
     
     try:
-        projects_db = load_projects()
-        user_role = session.get('role')
+        user_role = str(session.get('role', '')).lower().strip()
         user_name = session.get('employee_name')
         
-        # Determine which projects to show based on role
+        # 1. Fetch ALL projects from backend
+        res = requests.get(f"{BASE_URL}/projects", headers=get_headers(), timeout=10)
+        all_projects = []
+        if res.status_code == 200:
+            data = res.json()
+            if isinstance(data, dict):
+                all_projects = data.get("projects", [])
+            elif isinstance(data, list):
+                all_projects = data
+        
+        # 2. Filter projects based on role (Frontend side filtering to match current behavior)
         projects_to_show = []
         if user_role in ['hr', 'admin']:
-            projects_to_show = projects_db
+            projects_to_show = all_projects
         elif user_role == 'manager':
-            projects_to_show = [proj for proj in projects_db if proj.get('assigned_manager') == user_name]
+            # Manager sees projects where they are assigned as manager
+            projects_to_show = [p for p in all_projects if str(p.get('assigned_manager') or p.get('manager_name') or '').strip() == str(user_name).strip()]
         elif user_role == 'employee':
-            for proj in projects_db:
+            # Employee sees projects where they are in team_members
+            for proj in all_projects:
                 members = proj.get('team_members', [])
                 if not isinstance(members, list): continue
-                # Handle both string names and object-based team members safely
                 for m in members:
                     m_name = m if isinstance(m, str) else (m.get('name') or m.get('employee_name'))
-                    if m_name == user_name:
+                    if str(m_name).strip() == str(user_name).strip():
                         projects_to_show.append(proj)
                         break
         
-        # Fetch managers list for the Edit Project modal (critical for template rendering)
+        # 3. Fetch managers list for modals
         managers = []
         try:
             emp_res = requests.get(f"{BASE_URL}/employees", headers=get_headers(), timeout=5)
             if emp_res.status_code == 200:
                 emp_data = emp_res.json()
-                all_emps = []
-                if isinstance(emp_data, dict):
-                    all_emps = emp_data.get("employees", [])
-                elif isinstance(emp_data, list):
-                    all_emps = emp_data
-                
-                managers = [emp for emp in all_emps if isinstance(emp, dict) and emp.get('role') == 'manager']
-        except Exception as e:
-            print(f"Non-critical error fetching managers: {e}")
+                all_emps = emp_data.get("employees", []) if isinstance(emp_data, dict) else emp_data
+                managers = [emp for emp in all_emps if isinstance(emp, dict) and str(emp.get('role', '')).lower() == 'manager']
+        except: pass
 
         return render_template('projects.html', 
                                projects=projects_to_show, 
@@ -73,8 +61,8 @@ def projects_list():
                                managers=managers)
                                
     except Exception as e:
-        print(f"Projects List Crash: {e}")
-        flash("Unable to load projects at this time.", "danger")
+        print(f"Projects List API Error: {e}")
+        flash("Connection to backend projects failed.", "danger")
         return render_template('projects.html', projects=[], user_role=session.get('role'), managers=[])
 
 @projects_bp.route('/create_project', methods=['GET', 'POST'])
@@ -82,64 +70,73 @@ def projects_list():
 def create_project():
     if request.method == 'GET':
         try:
-            emp_res = requests.get(f"{BASE_URL}/employees", headers=get_headers())
-            employees = emp_res.json().get("employees", []) if emp_res.status_code == 200 else []
-            managers = [emp for emp in employees if emp.get('role') == 'manager']     
+            emp_res = requests.get(f"{BASE_URL}/employees", headers=get_headers(), timeout=5)
+            employees = []
+            if emp_res.status_code == 200:
+                data = emp_res.json()
+                employees = data.get("employees", []) if isinstance(data, dict) else data
+            managers = [emp for emp in employees if isinstance(emp, dict) and str(emp.get('role', '')).lower() == 'manager']     
             return render_template('create_project.html', managers=managers)
-        except Exception as e:
+        except:
             return render_template('create_project.html', managers=[])
+            
     elif request.method == 'POST':
         try:
             data = request.get_json()
-            projects_db = load_projects()
-            max_id = max([p['id'] for p in projects_db], default=0)
-            new_project = {
-                'id': max_id + 1,
+            # Prepare payload for backend
+            payload = {
                 'name': data.get('name'),
                 'start_date': data.get('start_date'),
                 'end_date': data.get('end_date'),
                 'customer_name': data.get('customer_name'),
-                'customer_contact': data.get('customer_contact'),
+                'customer_contact': data.get('customer_contact') or data.get('contact_person'),
                 'customer_phone': data.get('customer_phone'),
                 'customer_email': data.get('customer_email'),
                 'assigned_manager': data.get('assigned_manager'),
-                'created_by': session.get('employee_name'),
-                'created_at': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
-                'status': 'active',
-                'team_members': []
+                'status': 'active'
             }
-            projects_db.append(new_project)
-            save_projects(projects_db)
-            return jsonify({"success": True, "message": "Project created successfully", "redirect": url_for('projects.projects_list')})
+            res = requests.post(f"{BASE_URL}/projects", json=payload, headers=get_headers(), timeout=10)
+            if res.status_code in [200, 201]:
+                return jsonify({"success": True, "message": "Project created on backend", "redirect": url_for('projects.projects_list')})
+            else:
+                return jsonify({"success": False, "error": f"Backend error: {res.text}"}), res.status_code
         except Exception as e:
             return jsonify({"success": False, "error": str(e)}), 500
 
-@projects_bp.route('/project_details/<int:project_id>')
-@role_required(['admin', 'manager', 'employee'])
-def project_detail_view(project_id):
-    project = next((p for p in load_projects() if p.get('id') == project_id), None)
-    if not project:
-        flash("Project not found", "danger")
-        return redirect(url_for('projects.projects_list'))
-    return render_template('project_details.html', project=project, user_role=session.get('role'))
-
 @projects_bp.route('/get_project_details/<int:project_id>')
-@role_required(['hr', 'manager', 'employee'])
+@role_required(['hr', 'manager', 'employee', 'admin'])
 def get_project_details(project_id):
-    project = next((p for p in load_projects() if p.get('id') == project_id), None)
-    if project: return jsonify({"success": True, "project": project})
-    return jsonify({"success": False, "error": "Project not found"}), 404
+    try:
+        res = requests.get(f"{BASE_URL}/projects/{project_id}", headers=get_headers(), timeout=5)
+        if res.status_code == 200:
+            data = res.json()
+            project = data.get("project") if isinstance(data, dict) else data
+            return jsonify({"success": True, "project": project})
+        return jsonify({"success": False, "error": "Project not found on backend"}), 404
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
 
 @projects_bp.route('/api/employees_with_allocation')
 @role_required(['admin', 'hr', 'manager'])
 def api_employees_with_allocation():
     try:
-        res = requests.get(f"{BASE_URL}/employees", headers=get_headers())
-        employees = res.json().get("employees", []) if res.status_code == 200 else []
-        projects_db = load_projects()
+        # 1. Fetch employees
+        emp_res = requests.get(f"{BASE_URL}/employees", headers=get_headers(), timeout=5)
+        employees = []
+        if emp_res.status_code == 200:
+            data = emp_res.json()
+            employees = data.get("employees", []) if isinstance(data, dict) else data
+            
+        # 2. Fetch all projects to calculate allocations
+        proj_res = requests.get(f"{BASE_URL}/projects", headers=get_headers(), timeout=10)
+        all_projects = []
+        if proj_res.status_code == 200:
+            data = proj_res.json()
+            all_projects = data.get("projects", []) if isinstance(data, dict) else data
+            
         allocations = {}
-        for proj in projects_db:
-            if proj.get('status') == 'active':
+        for proj in all_projects:
+            if str(proj.get('status', '')).lower() == 'active':
                 for member in proj.get('team_members', []):
                     name = member if isinstance(member, str) else (member.get('name') or member.get('employee_name'))
                     if not name: continue
@@ -148,17 +145,18 @@ def api_employees_with_allocation():
         
         result = []
         for emp in employees:
-            if emp.get('role') == 'employee':
+            if str(emp.get('role', '')).lower() == 'employee':
                 name = emp.get("name")
                 total_alloc = allocations.get(name, 0)
                 result.append({
                     "name": name, "employee_name": name, "role": emp.get("role"),
                     "workload": {"total_allocation": total_alloc},
-                    "available_capacity": max(0, 150 - total_alloc),
-                    "availability_status": "fully_allocated" if total_alloc >= 150 else "available"
+                    "available_capacity": max(0, 100 - total_alloc),
+                    "availability_status": "fully_allocated" if total_alloc >= 100 else "available"
                 })
         return jsonify({"success": True, "employees": result})
-    except Exception as e: return jsonify({"success": False, "error": str(e)}), 500
+    except Exception as e: 
+        return jsonify({"success": False, "error": str(e)}), 500
 
 @projects_bp.route('/add_team_members', methods=['POST'])
 @role_required(['admin', 'manager', 'hr'])
@@ -167,35 +165,41 @@ def add_team_members():
         data = request.get_json()
         project_id = data.get('project_id')
         team_members = data.get('team_members', [])
-        projects_db = load_projects()
-        project = next((p for p in projects_db if p.get('id') == project_id), None)
-        if project:
-            project.setdefault('team_members', [])
-            for m in team_members:
-                m_name = m.get('name') if isinstance(m, dict) else m
-                if not any((x if isinstance(x, str) else x.get('name')) == m_name for x in project['team_members']):
-                    project['team_members'].append(m)
-            save_projects(projects_db)
-            return jsonify({"success": True, "message": "Team members added"})
-        return jsonify({"success": False, "error": "Project not found"}), 404
-    except Exception as e: return jsonify({"success": False, "error": str(e)}), 500
+        
+        # Backend might have a specific endpoint for assignment
+        # For now, let's assume we can PUT to /projects/<id> to update members
+        # Or if there is an /assignments endpoint
+        payload = {"team_members": team_members}
+        res = requests.put(f"{BASE_URL}/projects/{project_id}", json=payload, headers=get_headers(), timeout=10)
+        
+        if res.status_code == 200:
+            return jsonify({"success": True, "message": "Team members updated on backend"})
+        return jsonify({"success": False, "error": f"Backend failed: {res.text}"}), res.status_code
+    except Exception as e: 
+        return jsonify({"success": False, "error": str(e)}), 500
 
 @projects_bp.route('/update_project', methods=['POST'])
 @role_required(['admin', 'hr'])
 def update_project():
-    data = request.get_json()
-    projects_db = load_projects()
-    project = next((p for p in projects_db if p.get('id') == data.get('id')), None)
-    if project:
-        project.update({k: data.get(k) for k in ['name', 'start_date', 'end_date', 'customer_name', 'assigned_manager']})
-        save_projects(projects_db)
-        return jsonify({"success": True})
-    return jsonify({"success": False, "error": "Project not found"}), 404
+    try:
+        data = request.get_json()
+        project_id = data.get('id')
+        payload = {k: data.get(k) for k in ['name', 'start_date', 'end_date', 'customer_name', 'assigned_manager', 'status']}
+        
+        res = requests.put(f"{BASE_URL}/projects/{project_id}", json=payload, headers=get_headers(), timeout=10)
+        if res.status_code == 200:
+            return jsonify({"success": True, "message": "Project updated on backend"})
+        return jsonify({"success": False, "error": f"Backend failed: {res.text}"}), res.status_code
+    except Exception as e: 
+        return jsonify({"success": False, "error": str(e)}), 500
 
 @projects_bp.route('/delete_project/<int:project_id>', methods=['POST'])
 @role_required(['admin', 'hr'])
 def delete_project(project_id):
-    projects_db = load_projects()
-    projects_db = [p for p in projects_db if p.get('id') != project_id]
-    save_projects(projects_db)
-    return jsonify({"success": True})
+    try:
+        res = requests.delete(f"{BASE_URL}/projects/{project_id}", headers=get_headers(), timeout=10)
+        if res.status_code in [200, 204]:
+            return jsonify({"success": True, "message": "Project deleted on backend"})
+        return jsonify({"success": False, "error": f"Backend failed: {res.text}"}), res.status_code
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
