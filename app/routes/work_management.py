@@ -37,7 +37,13 @@ def timesheets_list():
     
     all_timesheets = res.json().get("timesheets", [])
     emp_res = requests.get(f"{BASE_URL}/employees", headers=get_headers())
-    employees = emp_res.json().get("employees", []) if emp_res.status_code == 200 else []
+    employees = []
+    if emp_res.status_code == 200:
+        emp_data = emp_res.json()
+        if isinstance(emp_data, dict):
+            employees = emp_data.get("employees", [])
+        elif isinstance(emp_data, list):
+            employees = emp_data
     
     role_map = {emp.get('name'): emp.get('role', 'employee') for emp in employees}
     project_manager_map = {proj['name'].strip().lower(): proj.get('assigned_manager', '-') for proj in projects_db}
@@ -45,7 +51,6 @@ def timesheets_list():
     user_role = str(session.get('role', '')).lower()
     current_user = session.get('employee_name')
     
-    filtered_timesheets = []
     filtered_timesheets = []
     for t in all_timesheets:
         if not isinstance(t, dict): continue
@@ -213,7 +218,13 @@ def leaves_list():
         
         # Fetch employees and projects for context
         emp_res = requests.get(f"{BASE_URL}/employees", headers=get_headers())
-        employees = emp_res.json().get("employees", []) if emp_res.status_code == 200 else []
+        employees = []
+        if emp_res.status_code == 200:
+            emp_data = emp_res.json()
+            if isinstance(emp_data, dict):
+                employees = emp_data.get("employees", [])
+            elif isinstance(emp_data, list):
+                employees = emp_data
         role_map = {emp.get('name'): emp.get('role', 'employee') for emp in employees}
         
         projects_file = os.path.join(os.getcwd(), 'projects.json')

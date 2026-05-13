@@ -56,7 +56,14 @@ def projects_list():
         try:
             emp_res = requests.get(f"{BASE_URL}/employees", headers=get_headers(), timeout=5)
             if emp_res.status_code == 200:
-                managers = [emp for emp in emp_res.json().get("employees", []) if emp.get('role') == 'manager']
+                emp_data = emp_res.json()
+                all_emps = []
+                if isinstance(emp_data, dict):
+                    all_emps = emp_data.get("employees", [])
+                elif isinstance(emp_data, list):
+                    all_emps = emp_data
+                
+                managers = [emp for emp in all_emps if isinstance(emp, dict) and emp.get('role') == 'manager']
         except Exception as e:
             print(f"Non-critical error fetching managers: {e}")
 
