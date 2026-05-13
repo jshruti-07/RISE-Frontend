@@ -1,5 +1,5 @@
 import requests
-from flask import Blueprint, render_template, redirect, url_for, session, request, jsonify, flash
+from flask import flash, Blueprint, render_template, redirect, url_for, session, request, jsonify
 from app.utils import BASE_URL, get_headers, fetch_leave_balance_helper, role_required
 
 user_bp = Blueprint('user', __name__)

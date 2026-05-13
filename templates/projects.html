@@ -66,15 +66,16 @@
                             Created: {{ project.created_at }}
                         </small>
                         <div class="btn-group btn-group-sm">
-                            <button class="btn btn-outline-primary" onclick="viewProjectDetails({{ project.id }})">
+                            <button class="btn btn-outline-primary btn-view-project" data-id="{{ project.id }}">
                                 <i class="bi bi-eye"></i>
                             </button>
                             {% if user_role == 'hr' %}
-                            <button class="btn btn-outline-warning" onclick="editProject({{ project.id }})">
+                            <button class="btn btn-outline-warning btn-edit-project" data-id="{{ project.id }}">
                                 <i class="bi bi-pencil"></i>
                             </button>
-                            <button class="btn btn-outline-danger"
-                                onclick="deleteProject({{ project.id }}, '{{ project.name }}')">
+                            <button class="btn btn-outline-danger btn-delete-project" 
+                                    data-id="{{ project.id }}" 
+                                    data-name="{{ project.name }}">
                                 <i class="bi bi-trash"></i>
                             </button>
                             {% endif %}
@@ -275,8 +276,35 @@
 {% endblock %}
 
 {% block scripts %}
+<script id="projects-data" type="application/json">
+    {{ projects | tojson | safe }}
+</script>
+<script id="managers-data" type="application/json">
+    {{ managers | tojson if managers is defined else '[]' }}
+</script>
 <script>
     let projectToDelete = null;
+
+    // Helper to safely load data from JSON blocks
+    const getProjectsData = () => JSON.parse(document.getElementById('projects-data').textContent || '[]');
+    const getManagersData = () => JSON.parse(document.getElementById('managers-data').textContent || '[]');
+
+    document.addEventListener('DOMContentLoaded', function() {
+        // Event delegation for project actions
+        const container = document.getElementById('projectsContainer');
+        if (container) {
+            container.addEventListener('click', function(e) {
+                const viewBtn = e.target.closest('.btn-view-project');
+                const editBtn = e.target.closest('.btn-edit-project');
+                const deleteBtn = e.target.closest('.btn-delete-project');
+
+                if (viewBtn) viewProjectDetails(viewBtn.dataset.id);
+                if (editBtn) editProject(editBtn.dataset.id);
+                if (deleteBtn) deleteProject(deleteBtn.dataset.id, deleteBtn.dataset.name);
+            });
+        }
+    });
+
 
     function viewProjectDetails(projectId) {
         // Find project data from the current page state
@@ -305,11 +333,8 @@
 
         // If we can't find it in DOM, fall back to the static data
         if (!project) {
-            var projectsData = {{ projects| tojson
-        }
-    };
-
-    project = projectsData.find(function (p) { return p.id == projectId; });
+            const projectsData = getProjectsData();
+            project = projectsData.find(function (p) { return p.id == projectId; });
         }
     if (project) {
         // Fetch fresh project data from the server
@@ -572,9 +597,8 @@
         currentProjectId = projectId;
         document.getElementById('modalProjectName').textContent = projectName || 'Project';
 
-        const projectsData = {{ projects | tojson
-    }};
-    const project = projectsData.find((p) => p.id == projectId);
+        const projectsData = getProjectsData();
+        const project = projectsData.find((p) => p.id == projectId);
     currentProjectMembers = project ? getProjectMembers(project) : [];
 
     const openModal = (availableEmployees) => {
@@ -758,9 +782,8 @@
 
     function editProject(projectId) {
         // Find project data
-        var projectsData = {{ projects | tojson
-    }};
-    var project = projectsData.find(function (p) { return p.id == projectId; });
+        const projectsData = getProjectsData();
+        var project = projectsData.find(function (p) { return p.id == projectId; });
 
     if (project) {
         // Standardize data from different possible backend keys
@@ -792,9 +815,7 @@
 
     function populateManagerDropdown(selectId, selectedManager) {
         var select = document.getElementById(selectId);
-
-        var managers = {{ managers | tojson if managers else '[]'
-    }};
+        var managers = getManagersData();
 
     // Clear existing options
     select.innerHTML = '<option value="">Select Manager...</option>';
