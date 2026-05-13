@@ -229,6 +229,9 @@ def export_timesheets():
             as_attachment=True,
             download_name=f"Timesheet_Export_{timestamp}.csv"
         )
+    except Exception as e:
+        print(f"Export Error: {e}")
+        return jsonify({"success": False, "error": str(e)}), 500
 
 @work_bp.route('/leaves')
 @role_required(['admin', 'employee', 'hr', 'manager'])
