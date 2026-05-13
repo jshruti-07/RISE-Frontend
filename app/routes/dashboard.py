@@ -98,11 +98,11 @@ def dashboard():
 
         if session.get('role') in ['hr', 'admin']:
             try:
-                hd_res = requests.get(f"{BASE_URL}/helpdesk/stats", headers=get_headers(), timeout=5)
+                hd_res = requests.get(f"{BASE_URL}/helpdesk/stats/", headers=get_headers(), timeout=5)
                 if hd_res.status_code == 200: hd_stats = hd_res.json()
             except: pass
             try:
-                rb_res = requests.get(f"{BASE_URL}/reimbursement/stats", headers=get_headers(), timeout=5)
+                rb_res = requests.get(f"{BASE_URL}/reimbursement/stats/", headers=get_headers(), timeout=5)
                 if rb_res.status_code == 200: reimbursement_stats = rb_res.json()
             except: pass
             
