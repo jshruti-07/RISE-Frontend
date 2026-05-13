@@ -438,6 +438,11 @@
             });
         });
 
+        // Define permissions BEFORE the member loop so buttons render correctly
+        var projectManager = project.assigned_manager || project.manager_name || project.manager || project.assigned_manager_name;
+        var isAssignedManager = (userRole === 'manager' && projectManager === employeeName);
+        var isHr = (userRole === 'hr' || userRole === 'admin');
+
         var teamList = Object.values(teamMap);
 
         if (teamList.length > 0) {
@@ -500,10 +505,6 @@
         }
 
         // Add "Add Members" button for HR, admin, or for the manager assigned to this project
-        var projectManager = project.assigned_manager || project.manager_name || project.manager;
-        var isAssignedManager = (userRole === 'manager' && projectManager === employeeName);
-        var isHr = (userRole === 'hr' || userRole === 'admin');
-
         if (isHr || isAssignedManager) {
             detailsHtml += '<div class="row mt-3">' +
                 '<div class="col-12">' +
@@ -710,11 +711,7 @@
             });
     };
 
-    if (project) {
-        fetchEmployeesAndOpenModal();
-        return;
-    }
-
+    // Always fetch fresh employee list from API; get current members from local data or API
     fetch('/get_project_details/' + projectId)
         .then((response) => response.json())
         .then((data) => {
