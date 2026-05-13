@@ -103,7 +103,16 @@ def dashboard():
             except: pass
             try:
                 rb_res = requests.get(f"{BASE_URL}/reimbursement/stats/", headers=get_headers(), timeout=5)
-                if rb_res.status_code == 200: reimbursement_stats = rb_res.json()
+                if rb_res.status_code == 200:
+                    raw_rb = rb_res.json()
+                    # Clean the keys to be lowercase to match template expectations
+                    reimbursement_stats = {
+                        "pending_approval": raw_rb.get("pending_approval", {"count": 0}),
+                        "by_status": {}
+                    }
+                    if "by_status" in raw_rb:
+                        for status, data in raw_rb["by_status"].items():
+                            reimbursement_stats["by_status"][status.lower()] = data
             except: pass
             
             # HR and Admin should see all pending/approved leaves as "Team Leaves" on dashboard
