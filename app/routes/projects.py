@@ -113,7 +113,13 @@ def get_project_details(project_id):
         res = requests.get(f"{BASE_URL}/projects/{project_id}", headers=get_headers(), timeout=5)
         if res.status_code == 200:
             data = res.json()
-            project = data.get("project") if isinstance(data, dict) else data
+            # Backend may return project directly or nested under 'project' key
+            if isinstance(data, dict) and 'project' in data:
+                project = data['project']
+            elif isinstance(data, dict) and 'id' in data:
+                project = data
+            else:
+                project = data
             return jsonify({"success": True, "project": project})
         return jsonify({"success": False, "error": "Project not found on backend"}), 404
     except Exception as e:
@@ -164,21 +170,67 @@ def api_employees_with_allocation():
 @projects_bp.route('/add_team_members', methods=['POST'])
 @role_required(['admin', 'manager', 'hr'])
 def add_team_members():
+    """Add or update a team member on a project via POST /projects/assign."""
     try:
         data = request.get_json()
         project_id = data.get('project_id')
         team_members = data.get('team_members', [])
-        
-        # Backend might have a specific endpoint for assignment
-        # For now, let's assume we can PUT to /projects/<id> to update members
-        # Or if there is an /assignments endpoint
-        payload = {"team_members": team_members}
-        res = requests.put(f"{BASE_URL}/projects/{project_id}", json=payload, headers=get_headers(), timeout=10)
-        
+
+        errors = []
+        for member in team_members:
+            employee_name = member.get('name') or member.get('employee_name')
+            payload = {
+                "project_id": project_id,
+                "employee_name": employee_name,
+                "is_billable": member.get('is_billable', True),
+                "billable_percentage": member.get('billable_percentage', member.get('allocation', 100))
+            }
+            res = requests.post(f"{BASE_URL}/projects/assign", json=payload, headers=get_headers(), timeout=10)
+            if res.status_code not in [200, 201]:
+                errors.append(f"{employee_name}: {res.text}")
+
+        if errors:
+            return jsonify({"success": False, "error": "; ".join(errors)}), 400
+        return jsonify({"success": True, "message": "Team members assigned successfully"})
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+
+@projects_bp.route('/remove_team_member', methods=['POST'])
+@role_required(['admin', 'manager', 'hr'])
+def remove_team_member():
+    """Remove a team member from a project via DELETE /projects/assign."""
+    try:
+        data = request.get_json()
+        payload = {
+            "project_id": data.get('project_id'),
+            "employee_name": data.get('employee_name')
+        }
+        res = requests.delete(f"{BASE_URL}/projects/assign", json=payload, headers=get_headers(), timeout=10)
+        if res.status_code in [200, 204]:
+            return jsonify({"success": True, "message": "Member removed successfully"})
+        return jsonify({"success": False, "error": res.text}), res.status_code
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+
+@projects_bp.route('/update_member_billing', methods=['POST'])
+@role_required(['admin', 'manager', 'hr'])
+def update_member_billing():
+    """Update billing status/percentage for a team member via PUT /projects/assign."""
+    try:
+        data = request.get_json()
+        payload = {
+            "project_id": data.get('project_id'),
+            "employee_name": data.get('employee_name'),
+            "is_billable": data.get('is_billable'),
+            "billable_percentage": data.get('billable_percentage')
+        }
+        res = requests.put(f"{BASE_URL}/projects/assign", json=payload, headers=get_headers(), timeout=10)
         if res.status_code == 200:
-            return jsonify({"success": True, "message": "Team members updated on backend"})
-        return jsonify({"success": False, "error": f"Backend failed: {res.text}"}), res.status_code
-    except Exception as e: 
+            return jsonify({"success": True, "message": "Billing updated successfully"})
+        return jsonify({"success": False, "error": res.text}), res.status_code
+    except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 500
 
 @projects_bp.route('/update_project', methods=['POST'])

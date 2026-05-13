@@ -470,16 +470,28 @@
 
                 var billingType = typeof member === 'string' ? 'Billable' : (member.billing_type || (member.is_billable ? 'Billable' : 'Non-Billable'));
                 var statusClass = billingType.toLowerCase() === 'billable' ? 'bg-success' : 'bg-warning';
+                var safeMName = mName.replace(/'/g, "\\'");
 
-                detailsHtml += '<div class="list-group-item d-flex justify-content-between align-items-center py-2">' +
-                    '<div>' +
+                detailsHtml += '<div class="list-group-item py-2" id="member-row-' + safeMName.replace(/\s/g,'_') + '">' +
+                    '<div class="d-flex justify-content-between align-items-center">' +
                     '<div class="fw-bold">' + mName + '</div>' +
-                    '</div>' +
-                    '<div class="text-end">' +
-                    '<span class="badge bg-primary rounded-pill me-1">' + allocation + '% Alloc.</span>' +
-                    '<span class="badge ' + statusClass + ' rounded-pill">' + billingType + '</span>' +
-                    '</div>' +
-                    '</div>';
+                    '<div class="d-flex align-items-center gap-2">' +
+                    '<span class="badge bg-primary rounded-pill">' + allocation + '% Alloc.</span>' +
+                    '<span class="badge ' + statusClass + ' rounded-pill">' + billingType + '</span>';
+
+                // Show management buttons for HR/admin or assigned manager
+                if (isHr || isAssignedManager) {
+                    detailsHtml +=
+                    '<button class="btn btn-sm btn-outline-secondary py-0" title="Edit Billing" ' +
+                        'onclick="openEditBilling(' + project.id + ', \'' + safeMName + '\', ' + (member.is_billable ? 'true' : 'false') + ', ' + allocation + ')">' +
+                        '<i class="bi bi-pencil-square"></i></button>' +
+                    '<button class="btn btn-sm btn-outline-danger py-0" title="Remove" ' +
+                        'onclick="removeMember(' + project.id + ', \'' + safeMName + '\')">' +
+                        '<i class="bi bi-person-dash"></i></button>';
+                }
+
+                detailsHtml += '</div></div></div>';
+
             }
 
             detailsHtml += '</div></div></div>';
@@ -506,6 +518,81 @@
         document.getElementById('projectDetailsContent').innerHTML = detailsHtml;
         var modal = new bootstrap.Modal(document.getElementById('projectDetailsModal'));
         modal.show();
+    }
+
+    // ─── Remove a team member ──────────────────────────────────────────────
+    function removeMember(projectId, employeeName) {
+        if (!confirm('Remove ' + employeeName + ' from this project?')) return;
+        fetch('/remove_team_member', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ project_id: projectId, employee_name: employeeName })
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (data.success) {
+                var rowId = 'member-row-' + employeeName.replace(/\s/g, '_');
+                var row = document.getElementById(rowId);
+                if (row) row.remove();
+                showProjectToast('Member removed successfully', 'success');
+            } else {
+                showProjectToast('Failed to remove: ' + (data.error || 'Unknown error'), 'danger');
+            }
+        })
+        .catch(err => showProjectToast('Error: ' + err, 'danger'));
+    }
+
+    // ─── Edit Billing Modal ────────────────────────────────────────────────
+    var _editBillingCtx = {};
+    function openEditBilling(projectId, employeeName, isBillable, percentage) {
+        _editBillingCtx = { projectId: projectId, employeeName: employeeName };
+        document.getElementById('editBillingName').textContent = employeeName;
+        document.getElementById('editBillingIsBillable').checked = isBillable;
+        document.getElementById('editBillingPercentage').value = percentage;
+        new bootstrap.Modal(document.getElementById('editBillingModal')).show();
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        var saveBillingBtn = document.getElementById('saveBillingBtn');
+        if (saveBillingBtn) {
+            saveBillingBtn.addEventListener('click', function() {
+                var isBillable = document.getElementById('editBillingIsBillable').checked;
+                var percentage = parseInt(document.getElementById('editBillingPercentage').value) || 0;
+                fetch('/update_member_billing', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        project_id: _editBillingCtx.projectId,
+                        employee_name: _editBillingCtx.employeeName,
+                        is_billable: isBillable,
+                        billable_percentage: percentage
+                    })
+                })
+                .then(r => r.json())
+                .then(data => {
+                    if (data.success) {
+                        bootstrap.Modal.getInstance(document.getElementById('editBillingModal')).hide();
+                        showProjectToast('Billing updated successfully', 'success');
+                        viewProjectDetails(_editBillingCtx.projectId);
+                    } else {
+                        showProjectToast('Failed: ' + (data.error || 'Unknown error'), 'danger');
+                    }
+                })
+                .catch(err => showProjectToast('Error: ' + err, 'danger'));
+            });
+        }
+    });
+
+    function showProjectToast(message, type) {
+        var container = document.getElementById('toastContainer');
+        if (!container) return;
+        var toast = document.createElement('div');
+        toast.className = 'toast align-items-center text-bg-' + (type || 'primary') + ' border-0 show';
+        toast.setAttribute('role', 'alert');
+        toast.innerHTML = '<div class="d-flex"><div class="toast-body">' + message + '</div>' +
+            '<button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button></div>';
+        container.appendChild(toast);
+        setTimeout(() => toast.remove(), 4000);
     }
 
     function deleteProject(projectId, projectName) {
@@ -1037,4 +1124,32 @@
             });
     }
 </script>
-{% endblock %}
+
+<!-- Edit Billing Modal -->
+<div class="modal fade" id="editBillingModal" tabindex="-1" aria-labelledby="editBillingModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editBillingModalLabel">Edit Billing</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p class="mb-3">Member: <strong id="editBillingName"></strong></p>
+                <div class="mb-3 form-check form-switch">
+                    <input class="form-check-input" type="checkbox" id="editBillingIsBillable">
+                    <label class="form-check-label" for="editBillingIsBillable">Billable</label>
+                </div>
+                <div class="mb-3">
+                    <label for="editBillingPercentage" class="form-label">Allocation % <small class="text-muted">(1–100)</small></label>
+                    <input type="number" class="form-control" id="editBillingPercentage" min="1" max="100" value="100">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="saveBillingBtn">Save Changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
