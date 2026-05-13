@@ -1,6 +1,10 @@
 import requests
 import io
-import pandas as pd
+try:
+    import pandas as pd
+    PANDAS_AVAILABLE = True
+except ImportError:
+    PANDAS_AVAILABLE = False
 from flask import Blueprint, render_template, redirect, url_for, request, flash, session, jsonify, send_file
 from datetime import datetime, timedelta
 from calendar import monthrange
