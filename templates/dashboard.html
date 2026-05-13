@@ -176,8 +176,8 @@
                                         <tr class="hover-row">
                                             <td class="px-2 border-0 fw-semibold text-dark">{{ project.name }}</td>
                                             <td class="px-2 border-0 text-end">
-                                                <button class="btn btn-sm btn-outline-primary py-0"
-                                                    onclick="viewProjectDetails({{ project.id }})"
+                                                <button class="btn btn-sm btn-outline-primary py-0 btn-view-project"
+                                                    data-id="{{ project.id }}"
                                                     title="View Project Details"
                                                     style="font-size: 0.7rem; border-radius: 6px;">
                                                     <i class="bi bi-eye"></i>
@@ -638,7 +638,31 @@
 
 {% block scripts %}
 
+<script id="projects-data" type="application/json">
+    {{ projects | tojson | safe }}
+</script>
+<script id="config-data" type="application/json">
+    {
+        "userRole": {{ session.role | tojson }},
+        "employeeName": {{ session.employee_name | tojson }}
+    }
+</script>
+
 <script>
+    // Helper to safely load data from JSON blocks
+    const getProjectsData = () => JSON.parse(document.getElementById('projects-data').textContent || '[]');
+    const getConfigData = () => JSON.parse(document.getElementById('config-data').textContent || '{}');
+
+    document.addEventListener('DOMContentLoaded', function() {
+        // Event delegation for project actions (Active Projects table)
+        const activeProjectsTable = document.querySelector('.table-hover');
+        if (activeProjectsTable) {
+            activeProjectsTable.addEventListener('click', function(e) {
+                const viewBtn = e.target.closest('.btn-view-project');
+                if (viewBtn) viewProjectDetails(viewBtn.dataset.id);
+            });
+        }
+    });
 
     // Load notifications page function (needed for "View All Notifications" link)
 
@@ -702,8 +726,9 @@
 
     // Display project details in modal
     function displayProjectDetails(project) {
-        var userRole = '{{ session.role }}';
-        var employeeName = '{{ session.employee_name }}';
+        const config = getConfigData();
+        var userRole = (config.userRole || '').toLowerCase();
+        var employeeName = config.employeeName;
 
         var detailsHtml = '<div class="row">' +
             '<div class="col-md-6">' +
@@ -886,9 +911,8 @@
         currentProjectId = projectId;
         document.getElementById('modalProjectName').textContent = projectName || 'Project';
 
-        const projectsData = {{ projects | tojson
-    }};
-    const project = projectsData.find((p) => p.id == projectId);
+        const projectsData = getProjectsData();
+        const project = projectsData.find((p) => p.id == projectId);
     currentProjectMembers = project ? getProjectMembers(project) : [];
 
     const openModal = (availableEmployees) => {

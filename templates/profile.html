@@ -11,13 +11,18 @@
             <div class="d-flex gap-4 align-items-center">
 
                 <!-- PROFILE PHOTO -->
-                <form method="POST" action="/upload-photo" enctype="multipart/form-data">
+                <form id="photoUploadForm" method="POST" action="/upload-photo" enctype="multipart/form-data">
                     <label style="cursor:pointer" title="Click to change photo">
-                        <img src="{% if employee.photo_url %}{{ employee.photo_url }}{% elif employee.photo %}{{ employee.photo }}{% else %}{{ url_for('static', filename='images/default.png') }}{% endif %}"
-                            width="100" height="100" class="rounded-circle"
-                            style="object-fit:cover; border:2px solid #ddd;"
-                            onerror="this.src='{{ url_for('static', filename='images/default.png') }}'">
-                        <input type="file" name="photo" hidden accept="image/png,image/jpeg,image/webp,image/gif" onchange="this.form.submit()">
+                        <div class="position-relative">
+                            <img id="profileImage" src="{% if employee.photo_url %}{{ employee.photo_url }}{% elif employee.photo %}{{ employee.photo }}{% else %}{{ url_for('static', filename='images/default.png') }}{% endif %}"
+                                width="100" height="100" class="rounded-circle"
+                                style="object-fit:cover; border:2px solid #ddd;"
+                                onerror="this.src='{{ url_for('static', filename='images/default.png') }}'">
+                            <div id="uploadSpinner" class="spinner-border spinner-border-sm text-primary position-absolute top-50 start-50 translate-middle d-none" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                        </div>
+                        <input type="file" name="photo" id="photoInput" hidden accept="image/png,image/jpeg,image/webp,image/gif" onchange="triggerPhotoUpload()">
                         <input type="hidden" name="employee_id" value="{{ employee.id }}">
                     </label>
                 </form>
@@ -268,6 +273,39 @@
             </div>
         </div>
         <script>
+            let isUploadingPhoto = false;
+
+            function triggerPhotoUpload() {
+                const form = document.getElementById('photoUploadForm');
+                const input = document.getElementById('photoInput');
+                const spinner = document.getElementById('uploadSpinner');
+                const img = document.getElementById('profileImage');
+
+                if (isUploadingPhoto || !input.files[0]) return;
+
+                isUploadingPhoto = true;
+                spinner.classList.remove('d-none');
+                img.style.opacity = '0.5';
+                form.submit();
+            }
+
+            // Prevent double-submission via Enter key
+            document.addEventListener('DOMContentLoaded', function() {
+                const photoForm = document.getElementById('photoUploadForm');
+                if (photoForm) {
+                    photoForm.addEventListener('submit', function(e) {
+                        if (isUploadingPhoto) {
+                            // Already submitting via triggerPhotoUpload
+                        } else {
+                            isUploadingPhoto = true;
+                            const spinner = document.getElementById('uploadSpinner');
+                            const img = document.getElementById('profileImage');
+                            if (spinner) spinner.classList.remove('d-none');
+                            if (img) img.style.opacity = '0.5';
+                        }
+                    });
+                }
+            });
 
             function previewDoc(url) {
 

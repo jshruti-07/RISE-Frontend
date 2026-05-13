@@ -74,11 +74,36 @@
                 <div class="card-body p-4">
                     <h5 class="card-title mb-3 fw-semibold">My Leave Balance Summary</h5>
                     <div class="row" id="leaveBalanceCards">
-                        <div class="col-md-4 mb-3">
-                            <div class="text-center py-3 bg-light rounded">
-                                <div class="spinner-border text-primary" role="status"></div>
+                        {% if summary and (summary.remaining_leaves is defined or balance) %}
+                            {% set categories = [
+                                {'label': 'Total Leaves', 'used': summary.used_leaves|default(0), 'total': summary.total_leaves|default(30), 'color': 'total'},
+                                {'label': 'Casual Leaves', 'used': summary.casual_used|default(0), 'total': summary.casual_total|default(12), 'color': 'casual'},
+                                {'label': 'Sick Leaves', 'used': summary.sick_used|default(0), 'total': summary.sick_total|default(10), 'color': 'sick'},
+                                {'label': 'Earned Leaves', 'used': summary.earned_used|default(0), 'total': summary.earned_total|default(8), 'color': 'earned'}
+                            ] %}
+                            
+                            {% for cat in categories %}
+                                {% set remaining = cat.total - cat.used %}
+                                <div class="col-md-3 col-sm-6 mb-2">
+                                    <div class="leave-card-mini {{ cat.color }}">
+                                        <div class="lc-header">
+                                            <span class="lc-label">{{ cat.label }}</span>
+                                            <div class="text-end">
+                                                <span class="lc-fraction fw-bold">{{ remaining }} / {{ cat.total }}</span>
+                                                <div style="font-size: 0.6rem; color: #94a3b8; font-weight: 700; margin-top: 1px; letter-spacing: 0.5px;">AVAILABLE</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        {% else %}
+                            <div class="col-md-4 mb-3">
+                                <div class="text-center py-3 bg-light rounded">
+                                    <div class="spinner-border text-primary" role="status"></div>
+                                    <div class="mt-2 text-muted small">Loading balance...</div>
+                                </div>
                             </div>
-                        </div>
+                        {% endif %}
                     </div>
                 </div>
             </div>
@@ -143,10 +168,9 @@
             </tr>
         </thead>
         <tbody>
-        {% set my_name = session.employee_name %}
         {% set found_my = false %}
         {% for l in leaves %}
-            {% if l.employee_name == my_name %}
+            {% if l.is_own %}
                 {% set found_my = true %}
                 <tr>
                     <td>{{ l.leave_type | capitalize }}</td>

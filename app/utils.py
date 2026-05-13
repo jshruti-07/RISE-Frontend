@@ -68,16 +68,55 @@ def fetch_leave_balance_helper(employee_name):
     if not employee_name:
         return None
     
-    try:
-        res = requests.get(f"{BASE_URL}/leave-balance/{employee_name}", headers=get_headers(), timeout=10)
-        if res.status_code == 200:
-            return res.json()
-        
-        if len(employee_name) > 2:
-            clean_name = employee_name[2:].strip()
-            res2 = requests.get(f"{BASE_URL}/leave-balance/{clean_name}", headers=get_headers(), timeout=10)
-            if res2.status_code == 200:
-                return res2.json()
-    except Exception as e:
-        print(f"Error fetching leave balance for {employee_name}: {e}")
+    headers = get_headers()
+    names_to_try = [employee_name]
+    if len(employee_name) > 2 and employee_name[1] == '_':
+        names_to_try.append(employee_name[2:].strip())
+
+    for name in names_to_try:
+        try:
+            res = requests.get(f"{BASE_URL}/leave-balance/{name}", headers=headers, timeout=5)
+            if res.status_code == 200:
+                data = res.json()
+                if not data or not (data.get("balances") or data.get("summary")):
+                    continue
+                
+                # Standardize summary keys for template consistency
+                bs = data.get("summary", {})
+                std_summary = {
+                    "total_leaves": bs.get("total_leaves") or bs.get("total_quota") or 30,
+                    "used_leaves": bs.get("used_leaves") or bs.get("total_used") or 0,
+                    "remaining_leaves": bs.get("remaining_leaves") or bs.get("total_remaining") or 0,
+                    "casual_used": bs.get("casual_used") or bs.get("casual_leaves_used") or 0,
+                    "casual_total": bs.get("casual_total") or bs.get("casual_quota") or 12,
+                    "sick_used": bs.get("sick_used") or bs.get("sick_leaves_used") or 0,
+                    "sick_total": bs.get("sick_total") or bs.get("sick_quota") or 10,
+                    "earned_used": bs.get("earned_used") or bs.get("earned_leaves_used") or 0,
+                    "earned_total": bs.get("earned_total") or bs.get("earned_quota") or 8
+                }
+                
+                # Try to fill missing from balances array
+                balances = data.get("balances", [])
+                for b in balances:
+                    ltype = (b.get("leave_type") or "").lower()
+                    used = b.get("used_leaves") or b.get("used") or 0
+                    total = b.get("total_leaves") or b.get("total") or (used + (b.get("remaining") or 0))
+                    
+                    if "casual" in ltype:
+                        std_summary["casual_used"] = used
+                        std_summary["casual_total"] = total
+                    elif "sick" in ltype:
+                        std_summary["sick_used"] = used
+                        std_summary["sick_total"] = total
+                    elif "earned" in ltype:
+                        std_summary["earned_used"] = used
+                        std_summary["earned_total"] = total
+                
+                # Final calculation for remaining if needed
+                std_summary["remaining_leaves"] = std_summary["total_leaves"] - std_summary["used_leaves"]
+                
+                return {"success": True, "summary": std_summary, "balances": balances}
+        except Exception as e:
+            print(f"Error fetching balance for {name}: {e}")
+            
     return None

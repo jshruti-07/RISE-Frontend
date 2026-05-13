@@ -92,26 +92,55 @@ def serve_upload(filename):
 
 @user_bp.route('/upload-photo', methods=['POST'])
 def upload_photo():
-    if 'token' not in session: return redirect(url_for('auth.login'))
+    if 'token' not in session:
+        return redirect(url_for('auth.login'))
+    
     file = request.files.get('photo')
     employee_id = request.form.get('employee_id')
-    if not employee_id:
+    
+    # 1. Validate file exists and has a filename
+    if not file or file.filename == '':
+        flash('Please select a valid photo first.', 'warning')
+        return redirect(request.referrer or url_for('user.profile'))
+
+    # 2. Ensure we have an employee ID
+    if not employee_id or employee_id == 'None' or employee_id == '':
         try:
+            name = session.get('employee_name')
             emp_res = requests.get(f"{BASE_URL}/employees", headers=get_headers())
             if emp_res.status_code == 200:
-                name = session.get('employee_name')
-                employee_id = next((e.get('id') for e in emp_res.json().get('employees', []) if e.get('name') == name), None)
-        except: pass
-    if not file or not employee_id:
-        flash('Upload failed: Missing file or ID', 'danger')
-        return redirect(request.referrer or url_for('user.profile'))
+                employees = emp_res.json().get('employees', [])
+                employee_id = next((e.get('id') for e in employees if e.get('name') == name), None)
+        except Exception as e:
+            print(f"Error fetching employee ID: {e}")
+
+    if not employee_id:
+        flash('Could not determine employee identity. Please log in again.', 'danger')
+        return redirect(url_for('auth.login'))
+
+    # 3. Process the upload
     try:
-        res = requests.post(f"{BASE_URL}/employees/{employee_id}/photo", 
-                           files={'photo': (file.filename, file.read(), file.mimetype)},
-                           headers={'Authorization': f"Bearer {session.get('token', '')}"})
+        # We use exclude_content_type=True because 'requests' sets the boundary automatically for files
+        headers = get_headers(exclude_content_type=True)
+        
+        upload_data = {'photo': (file.filename, file.read(), file.mimetype)}
+        res = requests.post(
+            f"{BASE_URL}/employees/{employee_id}/photo",
+            files=upload_data,
+            headers=headers,
+            timeout=15
+        )
+
         if res.status_code == 200:
-            session['photo_url'] = res.json().get('photo_url')
-            flash('Photo updated!', 'success')
-        else: flash('Upload failed', 'danger')
-    except: flash('Server error', 'danger')
+            resp_data = res.json()
+            session['photo_url'] = resp_data.get('photo_url')
+            flash('Profile photo updated successfully!', 'success')
+        else:
+            error_msg = res.json().get('error', 'Upload failed on server')
+            flash(f'Upload failed: {error_msg}', 'danger')
+            
+    except Exception as e:
+        print(f"Photo upload exception: {e}")
+        flash('An error occurred while uploading your photo. Please try again.', 'danger')
+
     return redirect(request.referrer or url_for('user.profile'))

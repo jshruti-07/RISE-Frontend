@@ -8,10 +8,14 @@ from app.utils import BASE_URL, get_headers, role_required
 projects_bp = Blueprint('projects', __name__)
 
 def load_projects():
-    projects_file = os.path.join(os.getcwd(), 'projects.json')
-    if os.path.exists(projects_file):
-        with open(projects_file, 'r') as f:
-            return json.load(f)
+    try:
+        projects_file = os.path.join(os.getcwd(), 'projects.json')
+        if os.path.exists(projects_file):
+            with open(projects_file, 'r') as f:
+                data = json.load(f)
+                return data if isinstance(data, list) else []
+    except Exception as e:
+        print(f"Error loading projects.json: {e}")
     return []
 
 def save_projects(db):
@@ -25,20 +29,46 @@ def projects_list():
     if 'token' not in session:
         return redirect(url_for('auth.login'))
     
-    projects_db = load_projects()
-    user_role = session.get('role')
-    user_name = session.get('employee_name')
-    
-    if user_role in ['hr', 'admin']:
-        projects_to_show = projects_db
-    elif user_role == 'manager':
-        projects_to_show = [proj for proj in projects_db if proj.get('assigned_manager') == user_name]
-    elif user_role == 'employee':
-        projects_to_show = [proj for proj in projects_db if user_name in proj.get('team_members', [])]
-    else:
-        projects_to_show = []
+    try:
+        projects_db = load_projects()
+        user_role = session.get('role')
+        user_name = session.get('employee_name')
         
-    return render_template('projects.html', projects=projects_to_show, user_role=user_role)
+        # Determine which projects to show based on role
+        projects_to_show = []
+        if user_role in ['hr', 'admin']:
+            projects_to_show = projects_db
+        elif user_role == 'manager':
+            projects_to_show = [proj for proj in projects_db if proj.get('assigned_manager') == user_name]
+        elif user_role == 'employee':
+            for proj in projects_db:
+                members = proj.get('team_members', [])
+                if not isinstance(members, list): continue
+                # Handle both string names and object-based team members safely
+                for m in members:
+                    m_name = m if isinstance(m, str) else (m.get('name') or m.get('employee_name'))
+                    if m_name == user_name:
+                        projects_to_show.append(proj)
+                        break
+        
+        # Fetch managers list for the Edit Project modal (critical for template rendering)
+        managers = []
+        try:
+            emp_res = requests.get(f"{BASE_URL}/employees", headers=get_headers(), timeout=5)
+            if emp_res.status_code == 200:
+                managers = [emp for emp in emp_res.json().get("employees", []) if emp.get('role') == 'manager']
+        except Exception as e:
+            print(f"Non-critical error fetching managers: {e}")
+
+        return render_template('projects.html', 
+                               projects=projects_to_show, 
+                               user_role=user_role,
+                               managers=managers)
+                               
+    except Exception as e:
+        print(f"Projects List Crash: {e}")
+        flash("Unable to load projects at this time.", "danger")
+        return render_template('projects.html', projects=[], user_role=session.get('role'), managers=[])
 
 @projects_bp.route('/create_project', methods=['GET', 'POST'])
 @role_required(['admin', 'hr'])

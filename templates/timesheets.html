@@ -83,6 +83,23 @@
     </div>
 
     <!-- Manager/HR Approval Section -->
+    {% if session.role in ['manager', 'hr', 'admin'] %}
+    <div class="card mb-4 border-0 shadow-sm" style="border-radius: 15px; background: #fdfdfd;">
+        <div class="card-header bg-white border-0 py-3">
+            <h6 class="mb-0 text-primary fw-bold">
+                <i class="bi bi-clock-history me-2"></i> Pending for Review
+            </h6>
+        </div>
+        <div class="card-body pt-0">
+            <div id="pendingTimesheetsContainer">
+                <div class="text-center py-4 text-muted">
+                    <div class="spinner-border spinner-border-sm text-primary me-2" role="status"></div>
+                    Loading pending items...
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
 
     <table class="table table-hover timesheet-table">
         <thead>
@@ -94,9 +111,7 @@
                 <th>Description</th>
                 <th>Hours</th>
                 <th>Date</th>
-                {% if session.role not in ['hr', 'admin'] %}
                 <th>Status</th>
-                {% endif %}
                 <th class="text-center">Actions</th>
             </tr>
         </thead>
@@ -117,7 +132,6 @@
                 <td>{{ t.description or '-' }}</td>
                 <td>{{ t.hours }}</td>
                 <td style="white-space: nowrap;">{{ t.start_date[:11] if t.start_date else '' }}</td>
-                {% if session.role not in ['hr', 'admin'] %}
                 <td>
                     {% if t.status == 'submitted' %}
                     <span class="badge text-dark" style="background-color:#e0ecfe; font-size: 0.7rem; padding: 0.35em 0.65em;">Submitted</span>
@@ -129,7 +143,6 @@
                     <span class="badge bg-secondary" style="font-size: 0.7rem; padding: 0.35em 0.65em;">{{ t.status|capitalize }}</span>
                     {% endif %}
                 </td>
-                {% endif %}
                 <td class="text-center">
                     <div class="d-flex flex-wrap gap-2 justify-content-center">
                         {% if session.role in ['employee','hr','admin'] and t.employee_name == session.employee_name and
@@ -531,28 +544,19 @@
 
     function getActiveTimesheetFilters() {
         const filters = {};
-        const urlParams = new URLSearchParams(window.location.search);
+        
+        // Map frontend filter IDs to backend export keys
+        const filterMap = {
+            'filterDate': 'start_date',
+            'filterProject': 'project',
+            'filterStatus': 'status',
+            'filterEmployee': 'employee_name'
+        };
 
-        // Start with active URL query filters
-        exportFilterKeys.forEach((key) => {
-            const value = (urlParams.get(key) || '').trim();
-            if (value) {
-                filters[key] = value;
-            }
-        });
-
-        // Merge with optional filter fields if present on page
-        exportFilterKeys.forEach((key) => {
-            const field = document.getElementById(key) || document.querySelector(`[name="${key}"]`);
-            if (!field) {
-                return;
-            }
-
-            const value = (field.value || '').toString().trim();
-            if (value) {
-                filters[key] = value;
-            } else {
-                delete filters[key];
+        Object.entries(filterMap).forEach(([fieldId, apiKey]) => {
+            const field = document.getElementById(fieldId);
+            if (field && field.value) {
+                filters[apiKey] = field.value.trim();
             }
         });
 
