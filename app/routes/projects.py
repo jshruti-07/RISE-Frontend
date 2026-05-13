@@ -22,10 +22,13 @@ def projects_list():
         all_projects = []
         if res.status_code == 200:
             data = res.json()
-            if isinstance(data, dict):
-                all_projects = data.get("projects", [])
-            elif isinstance(data, list):
-                all_projects = data
+            raw_projects = data.get("projects", []) if isinstance(data, dict) else data
+            # Standardize project objects (ensure 'id' key exists)
+            for p in raw_projects:
+                if isinstance(p, dict):
+                    if 'id' not in p and 'project_id' in p:
+                        p['id'] = p['project_id']
+                    all_projects.append(p)
         
         # 2. Filter projects based on role (Frontend side filtering to match current behavior)
         projects_to_show = []
