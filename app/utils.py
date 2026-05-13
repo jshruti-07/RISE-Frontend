@@ -26,11 +26,11 @@ def role_required(allowed_roles):
     def decorator(f):
         @wraps(f)
         def wrapper(*args, **kwargs):
-            if 'role' not in session:
-                return redirect(url_for('auth.login')) # Note: changed to auth.login
-            if session.get('role') not in allowed_roles:
+            user_role = str(session.get('role', '')).lower().strip()
+            allowed_roles_lower = [r.lower().strip() for r in allowed_roles]
+            if user_role not in allowed_roles_lower:
                 flash("Access denied", "danger")
-                return redirect(url_for('dashboard.dashboard')) # Note: changed to dashboard.dashboard
+                return redirect(url_for('dashboard.dashboard'))
             
             sig = inspect.signature(f)
             if 'current_user' in sig.parameters:
@@ -52,12 +52,13 @@ def token_required(f):
         if 'token' not in session:
             return redirect(url_for('auth.login'))
         
+        user_role = str(session.get('role', '')).lower().strip()
         sig = inspect.signature(f)
         if 'current_user' in sig.parameters:
             current_user = {
                 'user_id': session.get('user_id'),
                 'username': session.get('username'),
-                'role': session.get('role'),
+                'role': user_role,
                 'employee_name': session.get('employee_name')
             }
             return f(current_user, *args, **kwargs)
@@ -78,11 +79,21 @@ def fetch_leave_balance_helper(employee_name):
             res = requests.get(f"{BASE_URL}/leave-balance/{name}", headers=headers, timeout=5)
             if res.status_code == 200:
                 data = res.json()
-                if not data or not (data.get("balances") or data.get("summary")):
+                if not data:
+                    continue
+                
+                # Handle dictionary response
+                if isinstance(data, dict):
+                    bs = data.get("summary", {})
+                    balances = data.get("balances", [])
+                # Handle list response (if API returns balances array directly)
+                elif isinstance(data, list):
+                    bs = {}
+                    balances = data
+                else:
                     continue
                 
                 # Standardize summary keys for template consistency
-                bs = data.get("summary", {})
                 std_summary = {
                     "total_leaves": bs.get("total_leaves") or bs.get("total_quota") or 30,
                     "used_leaves": bs.get("used_leaves") or bs.get("total_used") or 0,
@@ -96,8 +107,8 @@ def fetch_leave_balance_helper(employee_name):
                 }
                 
                 # Try to fill missing from balances array
-                balances = data.get("balances", [])
                 for b in balances:
+                    if not isinstance(b, dict): continue
                     ltype = (b.get("leave_type") or "").lower()
                     used = b.get("used_leaves") or b.get("used") or 0
                     total = b.get("total_leaves") or b.get("total") or (used + (b.get("remaining") or 0))

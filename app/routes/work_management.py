@@ -46,26 +46,28 @@ def timesheets_list():
     current_user = session.get('employee_name')
     
     filtered_timesheets = []
+    filtered_timesheets = []
     for t in all_timesheets:
-        emp_name = t.get('employee_name')
+        if not isinstance(t, dict): continue
+        
+        emp_name = t.get('employee_name') or t.get('name') or t.get('emp_name')
+        if not emp_name: continue
+        
         t['employee_role'] = role_map.get(emp_name, 'employee')
+        is_own = is_match(emp_name, current_user)
         
         # Visibility Logic
         show = False
         if user_role in ['hr', 'admin']:
             show = True
-        elif user_role == 'employee':
-            show = is_match(emp_name, current_user)
+        elif is_own:
+            show = True
         elif user_role == 'manager':
-            # Manager sees own records
-            if is_match(emp_name, current_user):
+            # Manager sees records for projects they manage
+            proj_name = t.get('project', '').strip().lower()
+            mgr_for_proj = project_manager_map.get(proj_name)
+            if is_match(mgr_for_proj, current_user):
                 show = True
-            else:
-                # Manager sees records for projects they manage
-                proj_name = t.get('project', '').strip().lower()
-                mgr_for_proj = project_manager_map.get(proj_name)
-                if is_match(mgr_for_proj, current_user):
-                    show = True
         
         if show:
             filtered_timesheets.append(t)
@@ -229,7 +231,10 @@ def leaves_list():
         for l in all_leaves:
             if not isinstance(l, dict): continue
             
-            emp_name = l.get('employee_name')
+            # Robust name extraction
+            emp_name = l.get('employee_name') or l.get('name') or l.get('emp_name')
+            if not emp_name: continue
+            
             l['employee_role'] = role_map.get(emp_name, 'employee')
             
             # Robust self-check
