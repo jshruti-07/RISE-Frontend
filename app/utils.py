@@ -26,18 +26,29 @@ def role_required(allowed_roles):
     def decorator(f):
         @wraps(f)
         def wrapper(*args, **kwargs):
+            # Redirect to login if no session
+            if not session.get('token'):
+                if request.path.startswith('/api/') or request.is_json:
+                    from flask import jsonify
+                    return jsonify({"success": False, "error": "Not authenticated"}), 401
+                return redirect(url_for('auth.login'))
+
             user_role = str(session.get('role', '')).lower().strip()
             allowed_roles_lower = [r.lower().strip() for r in allowed_roles]
             if user_role not in allowed_roles_lower:
+                # Return JSON for API/AJAX calls instead of HTML redirect
+                if request.path.startswith('/api/') or request.is_json:
+                    from flask import jsonify
+                    return jsonify({"success": False, "error": "Access denied"}), 403
                 flash("Access denied", "danger")
                 return redirect(url_for('dashboard.dashboard'))
-            
+
             sig = inspect.signature(f)
             if 'current_user' in sig.parameters:
                 current_user = {
                     'user_id': session.get('user_id'),
                     'username': session.get('username'),
-                    'role': session.get('role'),
+                    'role': user_role,
                     'employee_name': session.get('employee_name')
                 }
                 return f(current_user, *args, **kwargs)

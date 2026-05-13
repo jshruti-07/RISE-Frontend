@@ -574,7 +574,20 @@
                     if (data.success) {
                         bootstrap.Modal.getInstance(document.getElementById('editBillingModal')).hide();
                         showProjectToast('Billing updated successfully', 'success');
-                        viewProjectDetails(_editBillingCtx.projectId);
+
+                        // Directly update the badge in the DOM without a full re-fetch
+                        var rowId = 'member-row-' + _editBillingCtx.employeeName.replace(/\s/g, '_');
+                        var row = document.getElementById(rowId);
+                        if (row) {
+                            var allocBadge = row.querySelector('.badge.bg-primary');
+                            if (allocBadge) allocBadge.textContent = percentage + '% Alloc.';
+
+                            var billingBadge = row.querySelector('.badge.bg-success, .badge.bg-warning');
+                            if (billingBadge) {
+                                billingBadge.textContent = isBillable ? 'Billable' : 'Non-Billable';
+                                billingBadge.className = 'badge rounded-pill ' + (isBillable ? 'bg-success' : 'bg-warning');
+                            }
+                        }
                     } else {
                         showProjectToast('Failed: ' + (data.error || 'Unknown error'), 'danger');
                     }
