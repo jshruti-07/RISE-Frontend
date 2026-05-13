@@ -168,10 +168,10 @@
             </tr>
         </thead>
         <tbody>
-        {% set found_my = false %}
+        {% set ns = namespace(found_my=false) %}
         {% for l in leaves %}
             {% if l.is_own %}
-                {% set found_my = true %}
+                {% set ns.found_my = true %}
                 <tr>
                     <td>{{ l.leave_type | capitalize }}</td>
                     <td>{{ l.start_date[:10] if l.start_date else '' }}</td>
@@ -188,7 +188,7 @@
                 </tr>
             {% endif %}
         {% endfor %}
-        {% if not found_my %}
+        {% if not ns.found_my %}
             <tr>
                 <td colspan="5" class="text-center">No personal leave records found</td>
             </tr>
