@@ -40,7 +40,7 @@ def timesheets_list():
         return redirect(url_for('auth.login'))
     
     all_timesheets = res.json().get("timesheets", [])
-    emp_res = requests.get(f"{BASE_URL}/employees", headers=get_headers())
+    emp_res = requests.get(f"{BASE_URL}/employees/", headers=get_headers())
     employees = []
     if emp_res.status_code == 200:
         emp_data = emp_res.json()
@@ -113,7 +113,7 @@ def add_timesheet():
     if os.path.exists(projects_file):
         with open(projects_file, 'r') as f:
             projects = json.load(f)
-    emp_res = requests.get(f"{BASE_URL}/employees", headers=get_headers())
+    emp_res = requests.get(f"{BASE_URL}/employees/", headers=get_headers())
     employees = emp_res.json().get("employees", []) if emp_res.status_code == 200 else []
     return render_template("add_timesheet.html", employees=employees, projects=projects, today_date=datetime.now().strftime('%Y-%m-%d'))
 
@@ -221,7 +221,7 @@ def leaves_list():
             all_leaves = data.get("leaves", []) if isinstance(data, dict) else (data if isinstance(data, list) else [])
         
         # Fetch employees and projects for context
-        emp_res = requests.get(f"{BASE_URL}/employees", headers=get_headers())
+        emp_res = requests.get(f"{BASE_URL}/employees/", headers=get_headers())
         employees = []
         if emp_res.status_code == 200:
             emp_data = emp_res.json()
@@ -329,7 +329,7 @@ def add_leave():
             
         return redirect(url_for('work.leaves_list'))
     
-    res = requests.get(f"{BASE_URL}/employees", headers=headers)
+    res = requests.get(f"{BASE_URL}/employees/", headers=headers)
     employees = res.json().get("employees", []) if res.status_code == 200 else []
     
     # Robust summary for add_leave template
@@ -486,7 +486,7 @@ def attendance_view():
             leave_balance = balance_data.get("summary", {}).get("remaining_leaves", 0)
 
         # Get employee list and target employee details
-        emp_res = requests.get(f"{BASE_URL}/employees", headers=get_headers())
+        emp_res = requests.get(f"{BASE_URL}/employees/", headers=get_headers())
         all_employees = []
         display_name = target_employee
         display_emp_id = 'N/A'

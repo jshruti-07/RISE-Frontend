@@ -17,8 +17,8 @@ def projects_list():
         user_role = str(session.get('role', '')).lower().strip()
         user_name = session.get('employee_name')
         
-        # 1. Fetch ALL projects from backend
-        res = requests.get(f"{BASE_URL}/projects", headers=get_headers(), timeout=10)
+        # 1. Fetch ALL projects from backend (trailing slash required)
+        res = requests.get(f"{BASE_URL}/projects/", headers=get_headers(), timeout=10)
         all_projects = []
         if res.status_code == 200:
             data = res.json()
@@ -51,7 +51,7 @@ def projects_list():
         # 3. Fetch managers list for modals
         managers = []
         try:
-            emp_res = requests.get(f"{BASE_URL}/employees", headers=get_headers(), timeout=5)
+            emp_res = requests.get(f"{BASE_URL}/employees/", headers=get_headers(), timeout=5)
             if emp_res.status_code == 200:
                 emp_data = emp_res.json()
                 all_emps = emp_data.get("employees", []) if isinstance(emp_data, dict) else emp_data
@@ -73,7 +73,7 @@ def projects_list():
 def create_project():
     if request.method == 'GET':
         try:
-            emp_res = requests.get(f"{BASE_URL}/employees", headers=get_headers(), timeout=5)
+            emp_res = requests.get(f"{BASE_URL}/employees/", headers=get_headers(), timeout=5)
             employees = []
             if emp_res.status_code == 200:
                 data = emp_res.json()
@@ -98,7 +98,7 @@ def create_project():
                 'assigned_manager': data.get('assigned_manager'),
                 'status': 'active'
             }
-            res = requests.post(f"{BASE_URL}/projects", json=payload, headers=get_headers(), timeout=10)
+            res = requests.post(f"{BASE_URL}/projects/", json=payload, headers=get_headers(), timeout=10)
             if res.status_code in [200, 201]:
                 return jsonify({"success": True, "message": "Project created on backend", "redirect": url_for('projects.projects_list')})
             else:
@@ -129,36 +129,22 @@ def get_project_details(project_id):
 @role_required(['admin', 'hr', 'manager'])
 def api_employees_with_allocation():
     try:
-        # 1. Fetch employees
-        emp_res = requests.get(f"{BASE_URL}/employees", headers=get_headers(), timeout=5)
+        # Use total_utilization from employee object  Eno need for a second /projects call
+        emp_res = requests.get(f"{BASE_URL}/employees/", headers=get_headers(), timeout=8)
         employees = []
         if emp_res.status_code == 200:
             data = emp_res.json()
             employees = data.get("employees", []) if isinstance(data, dict) else data
-            
-        # 2. Fetch all projects to calculate allocations
-        proj_res = requests.get(f"{BASE_URL}/projects", headers=get_headers(), timeout=10)
-        all_projects = []
-        if proj_res.status_code == 200:
-            data = proj_res.json()
-            all_projects = data.get("projects", []) if isinstance(data, dict) else data
-            
-        allocations = {}
-        for proj in all_projects:
-            if str(proj.get('status', '')).lower() == 'active':
-                for member in proj.get('team_members', []):
-                    name = member if isinstance(member, str) else (member.get('name') or member.get('employee_name'))
-                    if not name: continue
-                    alloc = int(member.get('allocation', 100) if isinstance(member, dict) else 100)
-                    allocations[name] = allocations.get(name, 0) + alloc
-        
+
         result = []
         for emp in employees:
             if str(emp.get('role', '')).lower() == 'employee':
                 name = emp.get("name")
-                total_alloc = allocations.get(name, 0)
+                total_alloc = int(emp.get('total_utilization', 0) or 0)
                 result.append({
-                    "name": name, "employee_name": name, "role": emp.get("role"),
+                    "name": name,
+                    "employee_name": name,
+                    "role": emp.get("role"),
                     "workload": {"total_allocation": total_alloc},
                     "available_capacity": max(0, 100 - total_alloc),
                     "availability_status": "fully_allocated" if total_alloc >= 100 else "available"
@@ -185,7 +171,7 @@ def add_team_members():
                 "is_billable": member.get('is_billable', True),
                 "billable_percentage": member.get('billable_percentage', member.get('allocation', 100))
             }
-            res = requests.post(f"{BASE_URL}/projects/assign", json=payload, headers=get_headers(), timeout=10)
+            res = requests.post(f"{BASE_URL}/projects/assign/", json=payload, headers=get_headers(), timeout=10)
             if res.status_code not in [200, 201]:
                 errors.append(f"{employee_name}: {res.text}")
 
@@ -206,7 +192,7 @@ def remove_team_member():
             "project_id": data.get('project_id'),
             "employee_name": data.get('employee_name')
         }
-        res = requests.delete(f"{BASE_URL}/projects/assign", json=payload, headers=get_headers(), timeout=10)
+        res = requests.delete(f"{BASE_URL}/projects/assign/", json=payload, headers=get_headers(), timeout=10)
         if res.status_code in [200, 204]:
             return jsonify({"success": True, "message": "Member removed successfully"})
         return jsonify({"success": False, "error": res.text}), res.status_code
@@ -226,7 +212,7 @@ def update_member_billing():
             "is_billable": data.get('is_billable'),
             "billable_percentage": data.get('billable_percentage')
         }
-        res = requests.put(f"{BASE_URL}/projects/assign", json=payload, headers=get_headers(), timeout=10)
+        res = requests.put(f"{BASE_URL}/projects/assign/", json=payload, headers=get_headers(), timeout=10)
         if res.status_code == 200:
             return jsonify({"success": True, "message": "Billing updated successfully"})
         return jsonify({"success": False, "error": res.text}), res.status_code
