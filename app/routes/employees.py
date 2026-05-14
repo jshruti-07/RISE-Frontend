@@ -1,6 +1,7 @@
 import requests
 from flask import Blueprint, render_template, redirect, url_for, request, flash, jsonify
 from app.utils import BASE_URL, get_headers, role_required, fetch_leave_balance_helper
+from app.ui_constants import UI_LABELS
 
 employees_bp = Blueprint('employees', __name__)
 
@@ -99,7 +100,7 @@ def add_employee():
             res = requests.post(f"{BASE_URL}/employees", json=payload, headers=get_headers())
 
         if res.status_code == 201:
-            flash("Employee added successfully!", "success")
+            flash(UI_LABELS['EMPLOYEE_ADDED_SUCCESS'], "success")
         else:
             flash("Failed to add employee!", "danger")
     except Exception as e:
@@ -154,7 +155,7 @@ def edit_employee(id):
                     res = requests.post(f"{BASE_URL}/employees/{id}", json=payload, headers=get_headers())
             
             if res.status_code == 200:
-                flash("Employee updated successfully!", "success")
+                flash(UI_LABELS['EMPLOYEE_UPDATED_SUCCESS'], "success")
             else:
                 flash(f"Failed to update employee: {res.text}", "danger")
         except Exception as e:

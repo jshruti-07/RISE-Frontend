@@ -11,7 +11,7 @@
                     <img src="{{ sidebar_photo_url if sidebar_photo_url else url_for('static', filename='images/user.jpg') }}" alt="User" class="rounded-circle" width="50" height="50" style="object-fit: cover;">
                 </div>
                 <div>
-                    <h5 class="mb-0">{{ (display_name[2:] if display_name and display_name|length > 2 else display_name) or 'Employee' }}</h5>
+                    <h5 class="mb-0">{{ (display_name[2:] if display_name and display_name|length > 2 else display_name) or labels.EMPLOYEE }}</h5>
                     <small class="text-muted">ID: {{ display_emp_id or 'N/A' }}</small>
                 </div>
             </div>
@@ -19,7 +19,7 @@
                 <form method="GET" action="{{ url_for('work.attendance_view') }}" class="d-flex gap-2 flex-wrap align-items-end">
                     {% if all_employees %}
                     <div>
-                        <label class="small text-muted">Employee</label>
+                        <label class="small text-muted">{{ labels.EMPLOYEE }}</label>
                         <select name="employee_name" class="form-select form-select-sm">
                             {% for emp in all_employees %}
                             <option value="{{ emp.name }}" {% if emp.name == attendance_summary.target_employee %}selected{% endif %}>
@@ -223,7 +223,7 @@
                         <thead>
                             <tr>
                                 <th>Date</th>
-                                <th>Employee</th>
+                                <th>{{ labels.EMPLOYEE }}</th>
                                 <th>Total Hours</th>
                                 <th>Overtime</th>
                                 <th>Status</th>

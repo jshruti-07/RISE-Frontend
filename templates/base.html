@@ -142,7 +142,7 @@
 
                 <div class="menu-title" onclick="toggleMenu('empMenu', this)">
 
-                    <span><i class="bi bi-people"></i> Employees</span>
+                    <span><i class="bi bi-people"></i> {{ labels.EMPLOYEES }}</span>
 
                     <span class="arrow">+</span>
 
@@ -152,13 +152,13 @@
 
                 <div class="submenu" id="empMenu">
 
-                    <a href="{{ url_for('employees.employee_list') }}">All Employees</a>
+                    <a href="{{ url_for('employees.employee_list') }}">{{ labels.EMPLOYEES }}</a>
 
 
 
                     {% if session.role in ['hr','admin'] %}
 
-                    <a href="{{ url_for('employees.add_employee') }}">Add Employee</a>
+                    <a href="{{ url_for('employees.add_employee') }}">{{ labels.ADD_EMPLOYEE }}</a>
                     <a href="{{ url_for('user.bank_verification') }}">Bank Verification</a>
                     {% endif %}
 
