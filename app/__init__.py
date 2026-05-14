@@ -1,5 +1,5 @@
 import os
-from app.ui_constants import UI_LABELS
+from app.ui_constants import UI_LABELS, UI_CONFIG
 
 from flask import Flask
 from dotenv import load_dotenv
@@ -43,7 +43,8 @@ def create_app():
             current_user=session.get('employee_name'),
             role=session.get('role'),
             sidebar_photo_url=session.get('photo_url'),
-            labels=UI_LABELS
+            labels=UI_LABELS,
+            config=UI_CONFIG
         )
 
     return app

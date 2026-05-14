@@ -26,6 +26,12 @@ UI_LABELS = {
     "EMPLOYEE_UPDATED_SUCCESS": "Team member updated successfully",
     "EMPLOYEE_DELETED_SUCCESS": "Team member deleted successfully",
     "CONFIRM_DELETE_EMPLOYEE": "Are you sure you want to delete this team member?",
+    "BANK_DETAILS_VIEW_ONLY": "Bank details are currently view-only.",
+}
+
+# Feature Flags and Global UI Configuration
+UI_CONFIG = {
+    "BANK_DETAILS_READ_ONLY": True,  # Set to False to enable editing
 }
 
 def get_ui_labels():

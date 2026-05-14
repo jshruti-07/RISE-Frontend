@@ -1907,4 +1907,24 @@ select.form-control {
     .topbar-left {
         gap: 10px !important;
     }
-}
+}
+
+/* ===== BANK DETAILS READ-ONLY STYLING ===== */
+.bank-input-readonly {
+    background-color: #f8f9fa !important;
+    border-color: #e2e8f0 !important;
+    color: #64748b !important;
+    cursor: not-allowed !important;
+    opacity: 0.8;
+}
+
+.bank-input-readonly:focus {
+    box-shadow: none !important;
+    transform: none !important;
+    border-color: #e2e8f0 !important;
+}
+
+[disabled], [readonly] {
+    cursor: not-allowed !important;
+}
+
