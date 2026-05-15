@@ -103,11 +103,11 @@
             {% for t in timesheets %}
             {% set manager_name = project_manager_map.get((t.project|string).strip().lower(), '-') %}
             <tr class="timesheet-row" 
-                data-employee="{{ t.employee_name|lower }}" 
-                data-project="{{ t.project|lower }}" 
-                data-manager="{{ manager_name|lower }}" 
-                data-date="{{ t.start_date[:10] }}" 
-                data-status="{{ t.status|lower }}">
+                data-employee="{{ (t.employee_name|string)|lower if t.employee_name else '' }}" 
+                data-project="{{ (t.project|string)|lower if t.project else '' }}" 
+                data-manager="{{ (manager_name|string)|lower if manager_name else '' }}" 
+                data-date="{{ t.start_date[:10] if t.start_date else '' }}" 
+                data-status="{{ (t.status|string)|lower if t.status else '' }}">
                 <td>{{ t.employee_name }}</td>
                 <td>{{ t.project }}</td>
                 <td>{{ project_manager_map.get((t.project|string).strip().lower(), '-') }}</td>
@@ -128,7 +128,7 @@
                 </td>
                 <td class="text-center">
                     <div class="d-flex flex-wrap gap-2 justify-content-center">
-                        {% if session.role in ['employee','hr','admin'] and t.employee_name == session.employee_name and
+                        {% if session.get('role') in ['employee','hr','admin'] and t.employee_name == session.get('employee_name') and
                         t.status == 'submitted' %}
                         <a href="/edit-timesheet/{{ t.id }}" class="btn btn-sm btn-outline-primary rounded-pill px-2"
                             style="font-size: 0.7rem; min-width: 80px; display: inline-flex; align-items: center; justify-content: center; gap: 4px; white-space: nowrap;">
@@ -138,9 +138,9 @@
 
                         {% if session.role in ['admin', 'manager', 'hr'] %}
                         {% if t.status == 'submitted' %}
-                            {% if (t.employee_role == 'hr' and session.role == 'admin') or 
-                                  (t.employee_role != 'hr' and session.role in ['admin', 'manager', 'hr']) %}
-                                {% if t.employee_name != session.employee_name %}
+                            {% if (t.employee_role == 'hr' and session.get('role') == 'admin') or 
+                                  (t.employee_role != 'hr' and session.get('role') in ['admin', 'manager', 'hr']) %}
+                                {% if t.employee_name != session.get('employee_name') %}
                                     <button class="btn btn-sm approve-btn border-0 rounded-pill px-2" data-timesheet-id="{{ t.id }}"
                                         data-employee-name="{{ t.employee_name }}"
                                         style="background-color: #D1E7DD; color: #000000; font-size: 0.7rem; min-width: 80px; display: inline-flex; align-items: center; justify-content: center; gap: 4px; white-space: nowrap;">
@@ -423,7 +423,7 @@
         storeNotification(employeeName, action, comments);
 
         // Show notification to current user if they are the employee
-        const currentUser = '{{ session.employee_name }}';
+        const currentUser = '{{ session.get("employee_name", "") }}';
 
         if (currentUser === employeeName) {
             const title = action === 'approved' ? 'Timesheet Approved' : 'Timesheet Rejected';
@@ -463,7 +463,7 @@
 
     // Check and show pending notifications for current user
     function checkPendingNotifications() {
-        const currentUser = '{{ session.employee_name }}';
+        const currentUser = '{{ session.get("employee_name", "") }}';
         if (!currentUser) return;
 
         const notifications = JSON.parse(localStorage.getItem('timesheetNotifications') || '[]');
