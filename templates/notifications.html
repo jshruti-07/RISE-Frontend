@@ -144,7 +144,7 @@ function showNotificationDetails(timestamp) {
         <hr>
         <p><strong>Status:</strong> Your timesheet has been ${notification.action.toLowerCase()}.</p>
         ${notification.comments ? `<p><strong>Comments:</strong> ${notification.comments}</p>` : ''}
-        <p class="text-muted small"><strong>Employee:</strong> ${notification.employeeName}</p>
+        <p class="text-muted small"><strong>{{ labels.EMPLOYEE }}:</strong> ${notification.employeeName}</p>
     `;
     
     document.getElementById('notificationModalContent').innerHTML = modalContent;

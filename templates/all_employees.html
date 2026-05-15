@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}Employees{% endblock %}
+{% block title %}{{ labels.EMPLOYEES }}{% endblock %}
 
 {% block content %}
 <style>
@@ -11,9 +11,9 @@
 <div class="form-card">
 
 <div class="d-flex justify-content-between mb-3">
-    <h5>Employee Records</h5>
+    <h5>{{ labels.EMPLOYEE_RECORDS }}</h5>
     {% if session.role in ['hr','admin'] %}
-    <a href="{{ url_for('employees.add_employee') }}" class="btn btn-primary">+ Add Employee</a>
+    <a href="{{ url_for('employees.add_employee') }}" class="btn btn-primary">+ {{ labels.ADD_EMPLOYEE }}</a>
     {% endif %}
 </div>
 

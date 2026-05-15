@@ -57,7 +57,7 @@
                     <span class="badge bg-{{ 'success' if project.status == 'active' else 'secondary' }} me-2">
                         {{ 'Active' if project.status == 'active' else 'Inactive' }}
                     </span>
-                    <span class="badge bg-info ms-2">{{ project.team_members|length }} Team Members</span>
+                    <span class="badge bg-info ms-2">{{ project.team_members|length }} {{ labels.EMPLOYEES }}</span>
                 </div>
             </div>
 
@@ -113,13 +113,13 @@
                 </div>
 
                 <div class="col-md-6">
-                    <h6 class="mb-3">Current Team Members</h6>
+                    <h6 class="mb-3">Current {{ labels.EMPLOYEES }}</h6>
                     <div class="card">
                         <div class="card-body">
                             <div class="mb-3">
                                 {% if user_role == 'manager' %}
                                 <div class="d-flex justify-content-between align-items-center">
-                                    <strong>Team Members:</strong>
+                                    <strong>{{ labels.EMPLOYEES }}:</strong>
                                     <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal"
                                         data-bs-target="#employeeSelectionModal">
                                         <i class="bi bi-person-plus me-1"></i>
@@ -197,14 +197,14 @@
             <div class="modal-header">
                 <h5 class="modal-title" id="employeeSelectionModalLabel">
                     <i class="bi bi-people-fill me-2"></i>
-                    Select Team Members for {{ project.name }}
+                    {{ labels.SELECT_TEAM_MEMBERS }} for {{ project.name }}
                 </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <div class="mb-3">
                     <div class="d-flex justify-content-between align-items-center mb-3">
-                        <h6 class="mb-0">Available Employees</h6>
+                        <h6 class="mb-0">{{ labels.AVAILABLE_EMPLOYEES }}</h6>
                         <div class="text-end">
                             <div class="badge bg-secondary mb-1" id="allocationTracker">
                                 Selected Allocation: <span id="totalAllocValue">0</span>%
@@ -288,7 +288,7 @@
                         </div>
                         {% endfor %}
                         {% else %}
-                        <p class="text-muted">No employees available for assignment</p>
+                        <p class="text-muted">No {{ labels.EMPLOYEES | lower }} available for assignment</p>
                         {% endif %}
                     </div>
                 </div>
@@ -297,7 +297,7 @@
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                 <button type="button" class="btn btn-primary" onclick="assignSelectedEmployees()">
                     <i class="bi bi-person-plus me-2"></i>
-                    Assign Selected Employees
+                    {{ labels.ASSIGN_TEAM_MEMBERS }}
                 </button>
             </div>
         </div>
@@ -500,7 +500,7 @@
         }
 
         if (selectedMembers.length === 0) {
-            alert('Please select at least one employee to assign');
+            alert('Please select at least one {{ labels.EMPLOYEE | lower }} to assign');
             return;
         }
 
@@ -531,7 +531,7 @@
         })
         .catch(error => {
             console.error('Error:', error);
-            alert('Error assigning employees. Please try again.');
+            alert('Error assigning {{ labels.EMPLOYEES | lower }}. Please try again.');
         });
     }
 
@@ -558,7 +558,7 @@
         })
         .catch(error => {
             console.error('Error:', error);
-            alert('Error removing employee. Please try again.');
+            alert('Error removing {{ labels.EMPLOYEE | lower }}. Please try again.');
         });
     }
 }

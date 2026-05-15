@@ -6,12 +6,19 @@
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
             <h5 class="mb-1">Bank Details Verification</h5>
-            <p class="text-muted small mb-0">Review and verify employee bank information for payroll processing.</p>
+            <p class="text-muted small mb-0">Review and verify {{ labels.EMPLOYEE | lower }} bank information for payroll processing.</p>
         </div>
         <div class="d-flex gap-2">
             <span class="badge bg-info text-dark">{{ bank_details|selectattr('status', 'equalto', 'submitted')|list|length }} Pending Requests</span>
         </div>
     </div>
+
+    {% if config.BANK_DETAILS_READ_ONLY %}
+    <div class="alert alert-secondary py-2 px-3 small border-0 mb-4"
+        style="background-color: #f8f9fa; color: #6c757d; border-left: 4px solid #6c757d !important;">
+        <i class="bi bi-info-circle-fill me-2"></i> {{ labels.BANK_DETAILS_VIEW_ONLY }}
+    </div>
+    {% endif %}
 
     {% if error %}
     <div class="alert alert-danger">{{ error }}</div>
@@ -21,7 +28,7 @@
         <table class="table table-hover align-middle">
             <thead class="table-light">
                 <tr>
-                    <th>Employee Name</th>
+                    <th>{{ labels.EMPLOYEE_NAME }}</th>
                     <th>Bank Name</th>
                     <th>A/C Holder</th>
                     <th>A/C Number</th>
@@ -63,10 +70,10 @@
                     <td class="text-end">
                         {% if req.status == 'submitted' %}
                         <div class="btn-group btn-group-sm">
-                            <button class="btn btn-success" onclick="processBankRequest({{ req.id }}, 'approve')">
+                            <button class="btn btn-success" onclick="processBankRequest({{ req.id }}, 'approve')" {% if config.BANK_DETAILS_READ_ONLY %}disabled style="cursor: not-allowed; opacity: 0.6;"{% endif %}>
                                 <i class="bi bi-check-circle"></i> Approve
                             </button>
-                            <button class="btn btn-danger" onclick="processBankRequest({{ req.id }}, 'reject')">
+                            <button class="btn btn-danger" onclick="processBankRequest({{ req.id }}, 'reject')" {% if config.BANK_DETAILS_READ_ONLY %}disabled style="cursor: not-allowed; opacity: 0.6;"{% endif %}>
                                 <i class="bi bi-x-circle"></i> Reject
                             </button>
                         </div>
@@ -147,6 +154,10 @@ document.getElementById('confirmRejectBtn').addEventListener('click', () => {
 });
 
 function performAction(id, action, data = {}) {
+    {% if config.BANK_DETAILS_READ_ONLY %}
+    alert('{{ labels.BANK_DETAILS_VIEW_ONLY }}');
+    return;
+    {% endif %}
     const url = `/bank-details/${id}/${action}`;
     
     fetch(url, {

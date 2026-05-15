@@ -1,4 +1,6 @@
 import os
+from app.ui_constants import UI_LABELS, UI_CONFIG
+
 from flask import Flask
 from dotenv import load_dotenv
 
@@ -34,14 +36,15 @@ def create_app():
     app.register_blueprint(user_bp)
     app.register_blueprint(main_bp)
 
-    # Context Processor for common variables
     @app.context_processor
     def inject_user():
         from flask import session
         return dict(
             current_user=session.get('employee_name'),
             role=session.get('role'),
-            sidebar_photo_url=session.get('photo_url')
+            sidebar_photo_url=session.get('photo_url'),
+            labels=UI_LABELS,
+            config=UI_CONFIG
         )
 
     return app
