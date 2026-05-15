@@ -458,12 +458,18 @@
                                 <div class="text-end" style="line-height: 1.2;">
                                     <div class="fw-bold text-primary" style="font-size: 0.8rem;">
                                         {% if b.date_of_birth %}
-                                            {% set dob_clean = b.date_of_birth[5:11] %}
-                                            {% set dob_parts = dob_clean.split('-') %}
-                                            {% if dob_parts|length >= 3 %}
-                                                {{ dob_parts[2] }} 
+                                            {% if '-' in b.date_of_birth and b.date_of_birth|length >= 10 %}
+                                                {% set dob_parts = b.date_of_birth[:10].split('-') %}
                                                 {% set months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'] %}
-                                                {{ months[dob_parts[1]|int - 1] }}
+                                                {{ dob_parts[2] }} {{ months[dob_parts[1]|int - 1] }}
+                                            {% elif ' ' in b.date_of_birth %}
+                                                {% set dob_parts = b.date_of_birth.split(' ') %}
+                                                {% if dob_parts|length >= 3 %}
+                                                    {# Handles "Tue, 16 May 1995..." format #}
+                                                    {{ dob_parts[1] }} {{ dob_parts[2] }}
+                                                {% else %}
+                                                    {{ b.date_of_birth }}
+                                                {% endif %}
                                             {% else %}
                                                 {{ b.date_of_birth }}
                                             {% endif %}
