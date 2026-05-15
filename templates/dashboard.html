@@ -458,11 +458,12 @@
                                 <div class="text-end" style="line-height: 1.2;">
                                     <div class="fw-bold text-primary" style="font-size: 0.8rem;">
                                         {% if b.date_of_birth %}
-                                            {% set dob_parts = b.date_of_birth.split('-') %}
+                                            {% set dob_clean = b.date_of_birth[5:11] %}
+                                            {% set dob_parts = dob_clean.split('-') %}
                                             {% if dob_parts|length >= 3 %}
-                                                {% set day = dob_parts[2].split(' ')[0] %}
-                                                {% set months = ['January','February','March','April','May','June','July','August','September','October','November','December'] %}
-                                                {{ day }} {{ months[dob_parts[1]|int - 1] }}
+                                                {{ dob_parts[2] }} 
+                                                {% set months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'] %}
+                                                {{ months[dob_parts[1]|int - 1] }}
                                             {% else %}
                                                 {{ b.date_of_birth }}
                                             {% endif %}
