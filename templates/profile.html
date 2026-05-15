@@ -11,6 +11,10 @@
             <div class="d-flex gap-4 align-items-center">
 
                 <!-- PROFILE PHOTO -->
+                {% set current_emp_id = session.get('employee_id') | string %}
+                {% set profile_emp_id = employee.id | string %}
+                
+                {% if current_emp_id == profile_emp_id %}
                 <form id="photoUploadForm" method="POST" action="/upload-photo" enctype="multipart/form-data">
                     <label style="cursor:pointer" title="Click to change photo">
                         <div class="position-relative">
@@ -26,6 +30,14 @@
                         <input type="hidden" name="employee_id" value="{{ employee.id }}">
                     </label>
                 </form>
+                {% else %}
+                <div class="position-relative">
+                    <img id="profileImage" src="{% if employee.photo_url %}{{ employee.photo_url }}{% elif employee.photo %}{{ employee.photo }}{% else %}{{ url_for('static', filename='images/default.png') }}{% endif %}"
+                        width="100" height="100" class="rounded-circle"
+                        style="object-fit:cover; border:2px solid #ddd;"
+                        onerror="this.src='{{ url_for('static', filename='images/default.png') }}'">
+                </div>
+                {% endif %}
 
                 <!-- DETAILS -->
                 <div>

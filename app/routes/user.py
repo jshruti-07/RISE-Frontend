@@ -103,18 +103,17 @@ def upload_photo():
         flash('Please select a valid photo first.', 'warning')
         return redirect(request.referrer or url_for('user.profile'))
 
-    # 2. Ensure we have an employee ID
+    # 2. Ensure we have an employee ID and verify it matches the current user
+    session_emp_id = str(session.get('employee_id', ''))
+    
     if not employee_id or employee_id == 'None' or employee_id == '':
-        try:
-            name = session.get('employee_name')
-            emp_res = requests.get(f"{BASE_URL}/employees", headers=get_headers())
-            if emp_res.status_code == 200:
-                employees = emp_res.json().get('employees', [])
-                employee_id = next((e.get('id') for e in employees if e.get('name') == name), None)
-        except Exception as e:
-            print(f"Error fetching employee ID: {e}")
+        employee_id = session_emp_id
+    
+    if str(employee_id) != session_emp_id:
+        flash('Access denied. You can only update your own profile photo.', 'danger')
+        return redirect(url_for('user.profile'))
 
-    if not employee_id:
+    if not employee_id or employee_id == 'N/A':
         flash('Could not determine employee identity. Please log in again.', 'danger')
         return redirect(url_for('auth.login'))
 

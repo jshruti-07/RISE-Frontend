@@ -204,7 +204,7 @@ def view_profile(employee_name):
     percent = int((uploaded / len(doc_keys)) * 100) if doc_keys else 0
     
     # Get leave balance
-    summary = {}
+    summary = {'remaining_leaves': 0}
     balance_data = fetch_leave_balance_helper(employee_name)
     if balance_data:
         summary = balance_data.get("summary", {})

@@ -82,8 +82,13 @@ def fetch_leave_balance_helper(employee_name):
     
     headers = get_headers()
     names_to_try = [employee_name]
-    if len(employee_name) > 2 and employee_name[1] == '_':
+    # Handle prefixes like 'H_', 'T_', '## ', etc.
+    if len(employee_name) > 2:
+        # Try stripping the first 2 characters (common pattern in this project)
         names_to_try.append(employee_name[2:].strip())
+        # Also try standardizing if it has an underscore at index 1
+        if employee_name[1] == '_':
+            names_to_try.append(employee_name[2:].strip())
 
     for name in names_to_try:
         try:

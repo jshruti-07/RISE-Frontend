@@ -73,15 +73,18 @@ def dashboard():
                     h["formatted_date"] = dt.strftime("%d %b")
                 except: h["formatted_date"] = raw_date
 
+        # Create a map for employee photos
+        photo_map = {emp.get('name'): (emp.get('photo_url') or emp.get('photo')) for emp in employees}
+
         # 1. Today's Birthdays
         try:
             today_res = requests.get(f"{BASE_URL}/birthdays/today/", headers=get_headers(), timeout=5)
             if today_res.status_code == 200:
                 today_data = today_res.json()
-                # Handle different possible response structures
                 today_list = today_data.get("birthdays", []) if isinstance(today_data, dict) else []
                 for b in today_list:
                     b['is_today'] = True
+                    b['photo_url'] = photo_map.get(b.get('name'))
                     birthday_data.append(b)
         except: pass
 
@@ -93,6 +96,7 @@ def dashboard():
                 upcoming_list = upcoming_data.get("upcoming_birthdays", []) if isinstance(upcoming_data, dict) else []
                 for b in upcoming_list:
                     b['is_today'] = False
+                    b['photo_url'] = photo_map.get(b.get('name'))
                     birthday_data.append(b)
         except: pass
 
@@ -181,5 +185,6 @@ def dashboard():
         pending_timesheets_count=pending_timesheets_count,
         pending_timesheets_list=pending_timesheets_list[:5],
         current_user=session.get('employee_name'),
-        role=session.get('role')
+        role=session.get('role'),
+        BASE_URL=BASE_URL
     )
