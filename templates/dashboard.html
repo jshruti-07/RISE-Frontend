@@ -430,9 +430,23 @@
             </div>
             {% endif %}
 
-            <!-- Birthdays and Holidays Row -->
-            <div class="row">
-                <div class="col-md-6">
+            <!-- Announcements, Birthdays and Holidays Row -->
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <div class="card-ui p-2 h-100">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h6 class="mb-0">Announcements 📢</h6>
+                        </div>
+                        <div class="no-scrollbar" style="max-height:230px; overflow-y:auto; font-size: 0.80rem;">
+                            <div class="text-muted text-center py-4">
+                                <i class="bi bi-megaphone fs-3 d-block mb-2"></i>
+                                No new announcements
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
                     <div class="card-ui p-2 h-100">
                         <div class="d-flex justify-content-between align-items-center mb-3">
                             <h6 class="mb-0">Upcoming Birthdays 🎂</h6>
@@ -443,11 +457,12 @@
                             {% for b in birthdays %}
                             <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
                                 <div class="d-flex align-items-center gap-2">
-                                    <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center shadow-sm" style="width: 32px; height: 32px; font-size: 0.85rem; font-weight: bold;">
-                                        {{ b.name[0] if b.name else '?' }}
-                                    </div>
+                                    <img src="{{ b.photo_url if b.photo_url else 'data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'32\' height=\'32\' viewBox=\'0 0 80 80\'%3E%3Ccircle cx=\'40\' cy=\'40\' r=\'40\' fill=\'%23475569\'/%3E%3Ccircle cx=\'40\' cy=\'30\' r=\'14\' fill=\'%23cbd5e1\'/%3E%3Cellipse cx=\'40\' cy=\'68\' rx=\'22\' ry=\'16\' fill=\'%23cbd5e1\'/%3E%3C/svg%3E' }}" 
+                                         class="rounded-circle shadow-sm" 
+                                         style="width: 32px; height: 32px; object-fit: cover;" 
+                                         alt="{{ b.name[2:] if b.name else 'User' }}">
                                     <div style="line-height: 1.2;">
-                                        <div class="fw-bold text-dark" style="font-size: 0.85rem;">{{ b.name }}</div>
+                                        <div class="fw-bold text-dark" style="font-size: 0.85rem;">{{ b.name[2:] if b.name else 'Unknown' }}</div>
                                         {% if b.is_today %}
                                         <span class="badge bg-success bg-opacity-10 text-success p-0" style="font-size: 0.65rem;">Today! 🎂</span>
                                         {% else %}
@@ -492,7 +507,7 @@
                     </div>
                 </div>
 
-                <div class="col-md-6">
+                <div class="col-md-4">
                     <div class="card-ui p-2 h-100">
                         <div class="d-flex justify-content-between align-items-center mb-3">
                             <h6 class="mb-0"> Holidays 🎉</h6>
