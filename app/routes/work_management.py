@@ -27,38 +27,45 @@ def timesheets_list():
         if len(n2) > 2 and n2[1] == '_' and n2[2:] == n1: return True
         return False
 
-    # 1. Fetch ALL projects from backend instead of projects.json
+    # 1. Fetch ALL projects
     projects_db = []
+    project_manager_map = {}
     try:
         proj_res = requests.get(f"{BASE_URL}/projects/", headers=get_headers(), timeout=10)
         if proj_res.status_code == 200:
             data = proj_res.json()
             projects_db = data.get("projects", []) if isinstance(data, dict) else data
+            
+            # Map projects to managers
+            for proj in projects_db:
+                if not isinstance(proj, dict): continue
+                p_name = str(proj.get('name', '')).strip().lower()
+                mgr = proj.get('assigned_manager') or proj.get('manager_name') or '-'
+                project_manager_map[p_name] = mgr
     except Exception as e:
         print(f"Error fetching projects for timesheets: {e}")
 
-    # 2. Fetch ALL timesheets with trailing slash
-    res = requests.get(f"{BASE_URL}/timesheets/", headers=get_headers(), timeout=15)
-    if res.status_code == 401:
-        return redirect(url_for('auth.login'))
-    
-    all_timesheets = res.json().get("timesheets", [])
+    # 2. Fetch ALL timesheets
+    all_timesheets = []
+    try:
+        res = requests.get(f"{BASE_URL}/timesheets/", headers=get_headers(), timeout=15)
+        if res.status_code == 200:
+            all_timesheets = res.json().get("timesheets", [])
+        elif res.status_code == 401:
+            return redirect(url_for('auth.login'))
+    except Exception as e:
+        print(f"Error fetching timesheets: {e}")
     
     # 3. Fetch employees for role mapping
-    emp_res = requests.get(f"{BASE_URL}/employees/", headers=get_headers())
-    employees = []
-    if emp_res.status_code == 200:
-        emp_data = emp_res.json()
-        employees = emp_data.get("employees", []) if isinstance(emp_data, dict) else emp_data
-    
-    role_map = {emp.get('name'): emp.get('role', 'employee') for emp in employees}
-    
-    # Map projects to managers (backend names might vary: 'assigned_manager' or 'manager_name')
-    project_manager_map = {}
-    for proj in projects_db:
-        p_name = str(proj.get('name', '')).strip().lower()
-        mgr = proj.get('assigned_manager') or proj.get('manager_name') or '-'
-        project_manager_map[p_name] = mgr
+    role_map = {}
+    try:
+        emp_res = requests.get(f"{BASE_URL}/employees/", headers=get_headers())
+        if emp_res.status_code == 200:
+            emp_data = emp_res.json()
+            employees = emp_data.get("employees", []) if isinstance(emp_data, dict) else emp_data
+            role_map = {emp.get('name'): emp.get('role', 'employee') for emp in employees if isinstance(emp, dict)}
+    except Exception as e:
+        print(f"Error fetching employees for timesheets: {e}")
     
     user_role = str(session.get('role', '')).lower()
     current_user = session.get('employee_name')
@@ -80,7 +87,6 @@ def timesheets_list():
         elif is_own:
             show = True
         elif user_role == 'manager':
-            # Manager sees records for projects they manage
             proj_name = t.get('project', '').strip().lower()
             mgr_for_proj = project_manager_map.get(proj_name)
             if is_match(mgr_for_proj, current_user):
@@ -88,10 +94,21 @@ def timesheets_list():
         
         if show:
             filtered_timesheets.append(t)
+
+    # 4. Fetch Holidays for Calendar [NEW]
+    holidays = []
+    try:
+        hol_res = requests.get(f"{BASE_URL}/holidays", headers=get_headers(), timeout=5)
+        if hol_res.status_code == 200:
+            holidays = hol_res.json().get("holidays", [])
+    except: pass
             
     return render_template("timesheets.html", 
                            timesheets=filtered_timesheets, 
-                           project_manager_map=project_manager_map)
+                           project_manager_map=project_manager_map,
+                           holidays=holidays,
+                           missing_timesheets=[],
+                           project_map={})
 
 @work_bp.route('/add-timesheet', methods=['GET', 'POST'])
 @role_required(['admin', 'employee', 'hr', 'manager'])

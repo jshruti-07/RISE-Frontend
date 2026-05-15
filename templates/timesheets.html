@@ -57,7 +57,7 @@
     <div class="row g-2 mb-3">
         {% if session.role in ['hr', 'admin'] %}
         <div class="col-md-2">
-            <input type="text" id="filterEmployee" class="form-control form-control-sm" placeholder="Search Employee..." style="border-radius: 8px;">
+            <input type="text" id="filterEmployee" class="form-control form-control-sm" placeholder="Search {{ labels.EMPLOYEE }}..." style="border-radius: 8px;">
         </div>
         {% endif %}
         <div class="col-md-2">
@@ -87,7 +87,7 @@
     <table class="table table-hover timesheet-table">
         <thead>
             <tr>
-                <th>Employee</th>
+                <th>{{ labels.EMPLOYEE }}</th>
                 <th>Project</th>
                 <th>Project Manager</th>
                 <th>Task</th>
@@ -1045,7 +1045,7 @@
             <table class="table table-sm">
                 <thead>
                     <tr>
-                        <th>Employee</th>
+                        <th>{{ labels.EMPLOYEE }}</th>
                         <th>Project</th>
                         <th>Project Manager</th>
                         <th>Task</th>
