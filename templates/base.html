@@ -86,7 +86,7 @@
 
             <h6>{{ (session.employee_name[2:] if session.employee_name and session.employee_name|length > 2 else session.employee_name) or 'User' }}</h6>
 
-            <span class="badge bg-info">{{ (session.role or 'User').upper() }}</span>
+            <span class="badge bg-info">{{ labels.EMPLOYEE.upper() if session.role == 'employee' else (session.role or 'User').upper() }}</span>
 
             <div class="sidebar-quick-links mt-2">
                 {% if session.role == 'employee' %}

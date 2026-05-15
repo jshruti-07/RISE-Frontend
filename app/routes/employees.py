@@ -1,5 +1,5 @@
 import requests
-from flask import Blueprint, render_template, redirect, url_for, request, flash, jsonify
+from flask import Blueprint, render_template, redirect, url_for, request, flash, jsonify, session
 from app.utils import BASE_URL, get_headers, role_required, fetch_leave_balance_helper
 from app.ui_constants import UI_LABELS
 
