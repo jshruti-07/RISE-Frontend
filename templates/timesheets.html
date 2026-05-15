@@ -47,7 +47,7 @@
                 style="border-radius: 10px;">
                 <i class="bi bi-file-earmark-excel"></i> Export Excel
             </button>
-            {% if session.role in ['employee','hr','admin'] %}
+            {% if session.role in ['employee','hr','admin', 'manager'] %}
             <a href="{{ url_for('work.add_timesheet') }}" class="btn btn-primary">Add Timesheet</a>
             {% endif %}
         </div>
@@ -84,23 +84,6 @@
 
     <!-- Manager/HR Approval Section -->
     {% if session.role in ['manager', 'hr', 'admin'] %}
-    <div class="card mb-4 border-0 shadow-sm" style="border-radius: 15px; background: #fdfdfd;">
-        <div class="card-header bg-white border-0 py-3">
-            <h6 class="mb-0 text-primary fw-bold">
-                <i class="bi bi-clock-history me-2"></i> Pending for Review
-            </h6>
-        </div>
-        <div class="card-body pt-0">
-            <div id="pendingTimesheetsContainer">
-                <div class="text-center py-4 text-muted">
-                    <div class="spinner-border spinner-border-sm text-primary me-2" role="status"></div>
-                    Loading pending items...
-                </div>
-            </div>
-        </div>
-    </div>
-    {% endif %}
-
     <table class="table table-hover timesheet-table">
         <thead>
             <tr>
