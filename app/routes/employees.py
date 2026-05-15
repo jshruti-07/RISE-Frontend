@@ -179,13 +179,24 @@ def view_profile(employee_name):
     headers = get_headers()
     # Fetch profile data from backend
     res = requests.get(f"{BASE_URL}/profile/{employee_name}", headers=headers)
-    if res.status_code != 200:
-        flash("Employee profile not found", "danger")
-        return redirect(url_for('employees.employee_list'))
-        
-    data = res.json()
-    employee = data.get("employee", {})
-    documents = data.get("documents") or {}
+    
+    employee = {}
+    documents = {}
+    
+    if res.status_code == 200:
+        data = res.json()
+        employee = data.get("employee", {})
+        documents = data.get("documents") or {}
+    else:
+        # Fallback: Try to find employee in the main list
+        list_res = requests.get(f"{BASE_URL}/employees", headers=headers)
+        if list_res.status_code == 200:
+            employees = list_res.json().get("employees", [])
+            employee = next((e for e in employees if e.get("name") == employee_name), None)
+            
+        if not employee:
+            flash("Employee profile not found", "danger")
+            return redirect(url_for('employees.employee_list'))
     
     # Calculate progress
     doc_keys = ["pan_card", "aadhar_card", "tenth_cert", "twelfth_cert", "graduation_cert", "postgrad_cert"]
