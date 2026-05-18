@@ -18,7 +18,7 @@ body {
 
 .sidebar {
 
-    width: 260px;
+    width: 220px;
 
     height: 100vh;
 
@@ -366,9 +366,9 @@ body {
 
 .main {
 
-    margin-left: 260px;
+    margin-left: 220px;
 
-    width: calc(100% - 260px);
+    width: calc(100% - 220px);
 
     transition: all 0.3s ease;
 
@@ -1896,7 +1896,7 @@ select.form-control {
 
 @media (max-width: 992px) {
     .sidebar {
-        left: -260px;
+        left: -220px;
         z-index: 1050;
         box-shadow: 10px 0 30px rgba(0,0,0,0.2);
     }
