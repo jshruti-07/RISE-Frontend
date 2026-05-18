@@ -45,26 +45,27 @@
             <div class="card h-100 policy-card-simple" data-category="{{ category }}" style="cursor: pointer;">
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-start">
-                        <div>
-                            <span class="badge bg-primary">{{ category|title }}</span>
-                            <h6 class="mb-2 mt-2">{{ category }} {{ 'Policies' if policy_list|length > 1 else 'Policy'
-                                }}</h6>
+                        <div class="w-100">
+                            <span class="badge bg-primary">{{ category|title|upper }}</span>
+                            <h6 class="mb-2 mt-2">{{ category }} {{ 'Policies' if policy_list|length > 1 else 'Policy' }}</h6>
                             <div class="mt-2">
                                 {% for policy in policy_list %}
-                                <div class="small text-muted mb-1">- {{ policy.title }}</div>
+                                <div class="d-flex justify-content-between align-items-center mb-1 pe-2">
+                                    <span class="small text-muted">- {{ policy.title }}</span>
+                                    {% if session.role == 'hr' %}
+                                    <button class="btn btn-sm btn-link p-0 text-primary edit-policy-btn"
+                                        data-policy-id="{{ policy.id }}"
+                                        onclick="event.stopPropagation(); openEditModal(this.dataset.policyId);"
+                                        title="Edit {{ policy.title }}">
+                                        <i class="bi bi-pencil-square" style="font-size: 0.85rem;"></i>
+                                    </button>
+                                    {% endif %}
+                                </div>
                                 {% endfor %}
                             </div>
                         </div>
                         <div class="d-flex flex-column align-items-end gap-2">
                             <i class="bi bi-arrow-right-circle text-primary"></i>
-                            {% if session.role == 'hr' %}
-                            <button class="btn btn-sm btn-outline-secondary edit-policy-btn"
-                                data-policy-index="{{ loop.index0 }}"
-                                onclick="event.stopPropagation(); openEditModal({{ loop.index0 }});"
-                                title="Edit Policy">
-                                <i class="bi bi-pencil"></i> Edit
-                            </button>
-                            {% endif %}
                         </div>
                     </div>
                     <small class="text-muted">
@@ -224,16 +225,7 @@
                 }
             }
 
-            // Handle edit button clicks (HR only)
-            var editButton = event.target.closest('.edit-policy-btn');
-            if (editButton && canEditPolicies) {
-                event.preventDefault();
-                event.stopPropagation();
-                var policyIndex = editButton.dataset.policyIndex;
-                if (policyIndex !== undefined) {
-                    openEditModal(policyIndex);
-                }
-            }
+
 
             // Handle backdrop click
             var modal = document.getElementById('policyModal');
@@ -337,9 +329,19 @@
         // Create policy list content
         var policyListHtml = '<div class="policy-list">';
         categoryPolicies.forEach(function (policy, index) {
+            var editBtnHtml = canEditPolicies ? `
+                <button class="btn btn-sm btn-outline-primary py-0 px-2" style="font-size: 0.75rem;" 
+                    onclick="closePolicyModal(); openEditModal(${policy.id});">
+                    <i class="bi bi-pencil me-1"></i>Edit
+                </button>
+            ` : '';
+
             policyListHtml += `
             <div class="policy-item mb-4 p-3 border rounded">
-                <h6 class="mb-2">${policy.title}</h6>
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <h6 class="mb-0">${policy.title}</h6>
+                    ${editBtnHtml}
+                </div>
                 <div class="policy-content">${policy.content}</div>
                 <small class="text-muted">
                     Updated: ${policy.updated_at ? policy.updated_at.slice(0, 10) : 'N/A'} | 
@@ -414,8 +416,8 @@
     }
 
     // Edit Modal Functions
-    function openEditModal(policyIndex) {
-        console.log('Opening edit modal for policy index:', policyIndex);
+    function openEditModal(policyId) {
+        console.log('Opening edit modal for policy ID:', policyId);
 
         // Get policiesData from the global scope
         var policiesDataInput = document.getElementById('policiesData');
@@ -432,9 +434,13 @@
             return;
         }
 
-        var policy = policiesData[policyIndex];
+        // Find policy by ID instead of flat index
+        var policy = policiesData.find(function(p) {
+            return p.id == policyId;
+        });
+        
         if (!policy) {
-            console.error('Policy not found at index:', policyIndex);
+            console.error('Policy not found with ID:', policyId);
             return;
         }
 
