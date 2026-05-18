@@ -356,7 +356,7 @@
 
         // Show latest update info
         var latestPolicy = categoryPolicies[categoryPolicies.length - 1];
-        modalUpdated.textContent = latestPolicy.updated_at ? latestPolicy.updated_at.slice(0, 10) : 'N/A';
+        modalUpdated.textContent = latestPolicy.updated_at ? latestPolicy.updated_at.slice(0, 11) : 'N/A';
         modalUpdatedBy.textContent = latestPolicy.updated_by || 'System';
 
         console.log('Modal populated, showing modal');
@@ -626,7 +626,7 @@
     }
 
     .policy-modal-content {
-        max-height: 400px;
+        max-height: 480px;
         overflow-y: auto;
         line-height: 1.6;
     }
@@ -693,8 +693,6 @@
     }
 
     .policy-list {
-        max-height: 500px;
-        overflow-y: auto;
     }
 </style>
 

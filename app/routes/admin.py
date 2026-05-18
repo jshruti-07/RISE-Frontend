@@ -120,6 +120,28 @@ def policies():
     categories = sorted(list(set(p.get('category', 'General') for p in policies_list)))
     return render_template("policies.html", policies=policies_list, categories=categories, BASE_URL=BASE_URL)
 
+@admin_bp.route('/api/policies/<int:policy_id>', methods=['PUT'])
+@role_required(['admin', 'hr'])
+def api_update_policy(policy_id):
+    try:
+        data = request.get_json()
+        res = requests.put(
+            f"{BASE_URL}/reports/policies/{policy_id}",
+            json=data,
+            headers=get_headers()
+        )
+        if res.status_code == 200:
+            return jsonify(res.json()), 200
+        else:
+            try:
+                return jsonify(res.json()), res.status_code
+            except:
+                return jsonify({"success": False, "error": res.text}), res.status_code
+    except Exception as e:
+        print(f"ERROR in policy update API: {e}")
+        return jsonify({"success": False, "error": str(e)}), 500
+
+
 @admin_bp.route('/bank-details/<int:detail_id>/<action>', methods=['PATCH'])
 @role_required(['admin', 'hr'])
 def verify_bank_admin(detail_id, action):
