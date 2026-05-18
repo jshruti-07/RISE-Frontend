@@ -278,3 +278,77 @@ def api_asset_acceptance(id):
         return jsonify({"success": False, "error": res.text}), res.status_code
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 500
+
+# --- ANNOUNCEMENTS ---
+
+@admin_bp.route('/api/announcements', methods=['GET', 'POST'])
+@role_required(['admin', 'employee', 'hr', 'manager'])
+def api_announcements():
+    if request.method == 'POST':
+        if str(session.get('role', '')).lower().strip() != 'hr':
+            return jsonify({"success": False, "error": "Access denied"}), 403
+        
+        if request.content_type and 'multipart' in request.content_type:
+            form_data = request.form.to_dict()
+            files = {}
+            if 'attachment' in request.files:
+                attachment_file = request.files['attachment']
+                if attachment_file.filename:
+                    files['attachment'] = (attachment_file.filename, attachment_file.read(), attachment_file.content_type)
+            
+            res = requests.post(f"{BASE_URL}/announcements/", data=form_data, files=files, headers=get_headers(exclude_content_type=True))
+        else:
+            res = requests.post(f"{BASE_URL}/announcements/", json=request.get_json(), headers=get_headers())
+    else:
+        res = requests.get(f"{BASE_URL}/announcements/", params=request.args.to_dict(), headers=get_headers())
+    
+    try:
+        return jsonify(res.json()), res.status_code
+    except:
+        return Response(res.content, status=res.status_code, headers=dict(res.headers))
+
+@admin_bp.route('/api/announcements/dashboard', methods=['GET'])
+@role_required(['admin', 'employee', 'hr', 'manager'])
+def api_announcements_dashboard():
+    res = requests.get(f"{BASE_URL}/announcements/dashboard", headers=get_headers())
+    try:
+        return jsonify(res.json()), res.status_code
+    except:
+        return Response(res.content, status=res.status_code, headers=dict(res.headers))
+
+@admin_bp.route('/api/announcements/<int:announcement_id>', methods=['GET', 'PUT', 'DELETE'])
+@role_required(['admin', 'employee', 'hr', 'manager'])
+def api_announcement_detail(announcement_id):
+    if request.method == 'PUT':
+        if str(session.get('role', '')).lower().strip() != 'hr':
+            return jsonify({"success": False, "error": "Access denied"}), 403
+        
+        if request.content_type and 'multipart' in request.content_type:
+            form_data = request.form.to_dict()
+            files = {}
+            if 'attachment' in request.files:
+                attachment_file = request.files['attachment']
+                if attachment_file.filename:
+                    files['attachment'] = (attachment_file.filename, attachment_file.read(), attachment_file.content_type)
+            
+            res = requests.put(f"{BASE_URL}/announcements/{announcement_id}", data=form_data, files=files, headers=get_headers(exclude_content_type=True))
+        else:
+            res = requests.put(f"{BASE_URL}/announcements/{announcement_id}", json=request.get_json(), headers=get_headers())
+    elif request.method == 'DELETE':
+        if str(session.get('role', '')).lower().strip() != 'hr':
+            return jsonify({"success": False, "error": "Access denied"}), 403
+        res = requests.delete(f"{BASE_URL}/announcements/{announcement_id}", headers=get_headers())
+    else:
+        res = requests.get(f"{BASE_URL}/announcements/{announcement_id}", headers=get_headers())
+        
+    try:
+        return jsonify(res.json()), res.status_code
+    except:
+        return Response(res.content, status=res.status_code, headers=dict(res.headers))
+
+@admin_bp.route('/api/announcements/<int:announcement_id>/attachment', methods=['GET'])
+@role_required(['admin', 'employee', 'hr', 'manager'])
+def api_announcement_attachment(announcement_id):
+    res = requests.get(f"{BASE_URL}/announcements/{announcement_id}/attachment", headers=get_headers(), stream=True)
+    return Response(res.content, status=res.status_code, headers=dict(res.headers))
+

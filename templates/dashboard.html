@@ -436,11 +436,51 @@
                     <div class="card-ui p-2 h-100">
                         <div class="d-flex justify-content-between align-items-center mb-3">
                             <h6 class="mb-0">Announcements 📢</h6>
+                            {% if session.role == 'hr' %}
+                            <button class="btn btn-sm btn-outline-primary rounded-pill px-2 py-0"
+                                    style="font-size: 0.75rem;"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#dashboardAnnouncementModal"
+                                    onclick="prepareDashboardCreate()">
+                                <i class="bi bi-plus-lg me-1"></i>Create
+                            </button>
+                            {% endif %}
                         </div>
                         <div class="no-scrollbar" style="max-height:230px; overflow-y:auto; font-size: 0.80rem;">
-                            <div class="text-muted text-center py-4">
-                                <i class="bi bi-megaphone fs-3 d-block mb-2"></i>
-                                No new announcements
+                            <div id="dashboardAnnouncementsListContainer">
+                                {% if announcements %}
+                                    <div class="list-group list-group-flush gap-2">
+                                        {% for ann in announcements %}
+                                            <div class="list-group-item px-1 py-2 border-0 bg-transparent rounded-3 hover-row-bg" style="cursor: pointer;" onclick="viewDashboardAnnouncement({{ ann.id }})">
+                                                <div class="d-flex align-items-center gap-2">
+                                                    <div class="flex-shrink-0 bg-primary bg-opacity-10 text-primary rounded-circle d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">
+                                                        <i class="bi bi-megaphone-fill"></i>
+                                                    </div>
+                                                    <div class="flex-grow-1" style="min-width: 0;">
+                                                        <div class="d-flex justify-content-between align-items-baseline mb-0">
+                                                            <h6 class="text-dark fw-bold mb-0 text-truncate" style="font-size: 0.85rem;">{{ ann.title | safe }}</h6>
+                                                            <small class="text-muted flex-shrink-0" style="font-size: 0.65rem;">
+                                                                {% if '-' in ann.created_at %}
+                                                                    {% set c_parts = ann.created_at[:10].split('-') %}
+                                                                    {% set months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'] %}
+                                                                    {{ c_parts[2] }} {{ months[c_parts[1]|int - 1] }}
+                                                                {% else %}
+                                                                    {{ ann.created_at[:10] }}
+                                                                {% endif %}
+                                                            </small>
+                                                        </div>
+                                                        <p class="text-muted mb-0 text-truncate-2" style="font-size: 0.75rem; line-height: 1.3;">{{ ann.short_description }}</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        {% endfor %}
+                                    </div>
+                                {% else %}
+                                    <div class="text-muted text-center py-4">
+                                        <i class="bi bi-megaphone fs-3 d-block mb-2"></i>
+                                        No new announcements
+                                    </div>
+                                {% endif %}
                             </div>
                         </div>
                     </div>
@@ -582,6 +622,149 @@
 </div>
 
 
+
+<!-- Announcements Style Overrides -->
+<style>
+    .badge-draft {
+        background-color: rgba(245, 158, 11, 0.15) !important;
+        color: #d97706 !important;
+    }
+    .badge-published {
+        background-color: rgba(16, 185, 129, 0.15) !important;
+        color: #059669 !important;
+    }
+    .badge-expired {
+        background-color: rgba(239, 68, 68, 0.15) !important;
+        color: #dc2626 !important;
+    }
+    .text-truncate-2 {
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+</style>
+
+<!-- Announcement Details Modal -->
+<div class="modal fade" id="dashboardAnnouncementDetailModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content border-0 shadow rounded-4">
+            <div class="modal-header border-0 pb-0">
+                <span id="dashDetailBadge" class="badge rounded-pill">Active</span>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body px-4 pb-4">
+                <h3 id="dashDetailTitle" class="fw-bold text-dark mb-2 mt-2">Loading Title...</h3>
+                <div class="d-flex align-items-center gap-3 text-muted mb-3 flex-wrap small">
+                    <span class="d-flex align-items-center gap-1">
+                        <i class="bi bi-person-circle"></i> Posted by: <strong id="dashDetailCreatedBy" class="text-dark">Admin</strong>
+                    </span>
+                    <span class="d-flex align-items-center gap-1">
+                        <i class="bi bi-calendar3"></i> Posted: <strong id="dashDetailCreatedAt" class="text-dark">Date</strong>
+                    </span>
+                    <span class="d-flex align-items-center gap-1">
+                        <i class="bi bi-calendar-x"></i> Expires: <strong id="dashDetailExpiresAt" class="text-dark">Date</strong>
+                    </span>
+                </div>
+                
+                <hr class="my-3 opacity-10">
+
+                <div class="announcement-content text-dark mb-4" id="dashDetailDescription" style="line-height: 1.6; font-size: 0.95rem;">
+                    Loading description...
+                </div>
+
+                <div id="dashDetailAttachmentBox" class="p-3 bg-light rounded-3 d-flex align-items-center justify-content-between mb-2" style="display: none !important;">
+                    <div class="d-flex align-items-center gap-2 overflow-hidden">
+                        <div class="bg-primary bg-opacity-10 text-primary rounded p-2 flex-shrink-0">
+                            <i class="bi bi-file-earmark-arrow-down-fill fs-5"></i>
+                        </div>
+                        <div class="overflow-hidden">
+                            <h6 class="mb-0 fw-semibold text-dark text-truncate" id="dashDetailAttachmentName" style="font-size: 0.85rem;">filename.pdf</h6>
+                            <span class="text-muted small" style="font-size: 0.7rem;">Click to download attachment</span>
+                        </div>
+                    </div>
+                    <button class="btn btn-sm btn-primary rounded-pill px-3 shadow-sm" id="dashDetailDownloadBtn">
+                        <i class="bi bi-download me-1"></i> Download
+                    </button>
+                </div>
+
+                {% if session.role == 'hr' %}
+                <div class="d-flex gap-2 justify-content-end mt-4 pt-3 border-top">
+                    <button class="btn btn-sm btn-outline-secondary rounded-pill px-3 py-1" id="dashDetailEditBtn">
+                        <i class="bi bi-pencil-fill me-1"></i> Edit
+                    </button>
+                    <button class="btn btn-sm btn-outline-danger rounded-pill px-3 py-1" id="dashDetailDeleteBtn">
+                        <i class="bi bi-trash-fill me-1"></i> Delete
+                    </button>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Create / Edit Announcement Modal (HR Only) -->
+{% if session.role == 'hr' %}
+<div class="modal fade" id="dashboardAnnouncementModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content border-0 shadow rounded-4">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title fw-bold text-dark d-flex align-items-center gap-2" id="dashAnnModalTitle">
+                    <i class="bi bi-pencil-square text-primary"></i> Create Announcement
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body px-4 py-3">
+                <form id="dashAnnForm" enctype="multipart/form-data" novalidate>
+                    <input type="hidden" id="dashAnnId" name="id">
+                    
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold text-dark">Title *</label>
+                        <input type="text" class="form-control rounded-3" id="dashAnnTitle" name="title" required placeholder="Enter announcement title...">
+                        <div class="invalid-feedback">Please enter a valid title.</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold text-dark">Description *</label>
+                        <textarea class="form-control rounded-3" id="dashAnnDescription" name="description" rows="5" required placeholder="Write detailed content... HTML is supported!"></textarea>
+                        <div class="invalid-feedback">Please enter a description.</div>
+                    </div>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold text-dark">Expiry Date *</label>
+                            <input type="datetime-local" class="form-control rounded-3" id="dashAnnExpiresAt" name="expires_at" required>
+                            <div class="invalid-feedback">Please select a valid future expiration date.</div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold text-dark">Status</label>
+                            <select class="form-select rounded-3" id="dashAnnStatus" name="status">
+                                <option value="published" selected>Published (visible to all)</option>
+                                <option value="draft">Draft (hidden from employees)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold text-dark">Attachment (File, max 10MB)</label>
+                        <div class="input-group">
+                            <input type="file" class="form-control rounded-3" id="dashAnnAttachment" name="attachment">
+                        </div>
+                        <div id="dashAnnCurrentAttachmentInfo" class="mt-2 small text-primary" style="display: none;">
+                            <i class="bi bi-paperclip"></i> Currently attached: <span id="dashAnnCurrentAttachmentName"></span>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-end gap-2 border-0 pt-3">
+                        <button type="button" class="btn btn-light rounded-pill px-4 fw-semibold" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary rounded-pill px-4 fw-bold shadow-sm" id="dashAnnSubmitBtn">Save Announcement</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
 
 <!-- Project Details Modal -->
 
@@ -1272,6 +1455,273 @@
 
 
 
+    // --- ANNOUNCEMENTS LOGIC ---
+    function viewDashboardAnnouncement(id) {
+        const token = sessionStorage.getItem('token') || "{{ session.get('token', '') }}";
+        fetch(`/api/announcements/${id}`, {
+            headers: { "Authorization": `Bearer ${token}` }
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (!data.success) {
+                alert("Failed to fetch announcement details: " + data.error);
+                return;
+            }
+
+            const ann = data.announcement;
+            const isExpired = new Date(ann.expires_at) <= new Date();
+            const badge = document.getElementById("dashDetailBadge");
+            
+            badge.className = "badge rounded-pill text-uppercase";
+            if (isExpired) {
+                badge.innerText = "Expired";
+                badge.classList.add("badge-expired");
+            } else if (ann.status === "draft") {
+                badge.innerText = "Draft";
+                badge.classList.add("badge-draft");
+            } else {
+                badge.innerText = "Active";
+                badge.classList.add("badge-published");
+            }
+
+            document.getElementById("dashDetailTitle").innerText = ann.title;
+            document.getElementById("dashDetailCreatedBy").innerText = ann.created_by[2:] || ann.created_by;
+            document.getElementById("dashDetailCreatedAt").innerText = formatDateString(ann.created_at);
+            document.getElementById("dashDetailExpiresAt").innerText = formatDateString(ann.expires_at);
+            document.getElementById("dashDetailDescription").innerHTML = ann.description;
+
+            // Handle Attachment Box
+            const attachBox = document.getElementById("dashDetailAttachmentBox");
+            if (ann.attachment_path) {
+                attachBox.style.setProperty("display", "flex", "important");
+                const filename = ann.attachment_path.split(/[\\/]/).pop();
+                document.getElementById("dashDetailAttachmentName").innerText = filename;
+                document.getElementById("dashDetailDownloadBtn").onclick = function() {
+                    window.open(`/api/announcements/${ann.id}/attachment?token=${token}`, "_blank");
+                };
+            } else {
+                attachBox.style.setProperty("display", "none", "important");
+            }
+
+            // Bind Edit and Delete handlers for HR users
+            const editBtn = document.getElementById("dashDetailEditBtn");
+            const deleteBtn = document.getElementById("dashDetailDeleteBtn");
+            if (editBtn) {
+                editBtn.onclick = function() {
+                    const detailModal = bootstrap.Modal.getInstance(document.getElementById("dashboardAnnouncementDetailModal"));
+                    if (detailModal) detailModal.hide();
+                    prepareDashboardEdit(ann);
+                };
+            }
+            if (deleteBtn) {
+                deleteBtn.onclick = function() {
+                    if (confirm("Are you sure you want to permanently delete this announcement?")) {
+                        deleteDashboardAnnouncement(ann.id);
+                    }
+                };
+            }
+
+            // Open Modal
+            const detailModal = new bootstrap.Modal(document.getElementById("dashboardAnnouncementDetailModal"));
+            detailModal.show();
+        })
+        .catch(err => {
+            console.error(err);
+            alert("Error loading announcement details.");
+        });
+    }
+
+    function prepareDashboardCreate() {
+        const titleEl = document.getElementById("dashAnnModalTitle");
+        if (titleEl) titleEl.innerText = "Create Announcement";
+        const form = document.getElementById("dashAnnForm");
+        if (form) {
+            form.reset();
+            form.classList.remove('was-validated');
+        }
+        document.getElementById("dashAnnId").value = "";
+        document.getElementById("dashAnnCurrentAttachmentInfo").style.display = "none";
+        document.getElementById("dashAnnExpiresAt").min = new Date().toISOString().slice(0, 16);
+    }
+
+    function prepareDashboardEdit(ann) {
+        document.getElementById("dashAnnModalTitle").innerText = "Edit Announcement";
+        document.getElementById("dashAnnId").value = ann.id;
+        document.getElementById("dashAnnTitle").value = ann.title;
+        document.getElementById("dashAnnDescription").value = ann.description;
+        
+        // Format datetime-local value (YYYY-MM-DDTHH:MM)
+        const expDate = new Date(ann.expires_at);
+        const offset = expDate.getTimezoneOffset();
+        const localizedExp = new Date(expDate.getTime() - (offset*60*1000)).toISOString().slice(0, 16);
+        document.getElementById("dashAnnExpiresAt").value = localizedExp;
+        document.getElementById("dashAnnExpiresAt").min = new Date().toISOString().slice(0, 16);
+
+        document.getElementById("dashAnnStatus").value = ann.status;
+
+        const attachInfo = document.getElementById("dashAnnCurrentAttachmentInfo");
+        if (ann.attachment_path) {
+            attachInfo.style.display = "block";
+            document.getElementById("dashAnnCurrentAttachmentName").innerText = ann.attachment_path.split(/[\\/]/).pop();
+        } else {
+            attachInfo.style.display = "none";
+        }
+
+        const editModal = new bootstrap.Modal(document.getElementById("dashboardAnnouncementModal"));
+        editModal.show();
+    }
+
+    function deleteDashboardAnnouncement(id) {
+        const token = sessionStorage.getItem('token') || "{{ session.get('token', '') }}";
+        fetch(`/api/announcements/${id}`, {
+            method: 'DELETE',
+            headers: { "Authorization": `Bearer ${token}` }
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (!data.success) {
+                alert("Failed to delete announcement: " + data.error);
+                return;
+            }
+
+            const detailModalEl = document.getElementById("dashboardAnnouncementDetailModal");
+            const detailModal = bootstrap.Modal.getInstance(detailModalEl);
+            if (detailModal) detailModal.hide();
+
+            alert("Announcement deleted successfully.");
+            refreshDashboardAnnouncements();
+        })
+        .catch(err => {
+            console.error(err);
+            alert("Error communicating with server.");
+        });
+    }
+
+    function refreshDashboardAnnouncements() {
+        const token = sessionStorage.getItem('token') || "{{ session.get('token', '') }}";
+        const container = document.getElementById("dashboardAnnouncementsListContainer");
+        if (!container) return;
+
+        fetch("/api/announcements/dashboard", {
+            headers: { "Authorization": `Bearer ${token}` }
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (!data.success) {
+                console.error("Failed to reload announcements widget", data.error);
+                return;
+            }
+
+            const list = data.announcements || [];
+            if (list.length === 0) {
+                container.innerHTML = `
+                    <div class="text-muted text-center py-4">
+                        <i class="bi bi-megaphone fs-3 d-block mb-2"></i>
+                        No new announcements
+                    </div>
+                `;
+                return;
+            }
+
+            let html = '<div class="list-group list-group-flush gap-2">';
+            list.forEach(ann => {
+                const dateText = formatDateString(ann.created_at);
+                html += `
+                    <div class="list-group-item px-1 py-2 border-0 bg-transparent rounded-3 hover-row-bg" style="cursor: pointer;" onclick="viewDashboardAnnouncement(${ann.id})">
+                        <div class="d-flex align-items-center gap-2">
+                            <div class="flex-shrink-0 bg-primary bg-opacity-10 text-primary rounded-circle d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">
+                                <i class="bi bi-megaphone-fill"></i>
+                            </div>
+                            <div class="flex-grow-1" style="min-width: 0;">
+                                <div class="d-flex justify-content-between align-items-baseline mb-0">
+                                    <h6 class="text-dark fw-bold mb-0 text-truncate" style="font-size: 0.85rem;">${ann.title}</h6>
+                                    <small class="text-muted flex-shrink-0" style="font-size: 0.65rem;">${dateText}</small>
+                                </div>
+                                <p class="text-muted mb-0 text-truncate-2" style="font-size: 0.75rem; line-height: 1.3;">${ann.short_description}</p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            html += '</div>';
+            container.innerHTML = html;
+        })
+        .catch(err => {
+            console.error("Error refreshing dashboard announcements:", err);
+        });
+    }
+
+    function formatDateString(isoStr) {
+        if (!isoStr) return '';
+        try {
+            const date = new Date(isoStr);
+            const options = { day: 'numeric', month: 'short', year: 'numeric' };
+            return date.toLocaleDateString('en-US', options);
+        } catch {
+            return isoStr;
+        }
+    }
+
+    // Attach form listener
+    document.addEventListener("DOMContentLoaded", function() {
+        const form = document.getElementById("dashAnnForm");
+        if (form) {
+            form.addEventListener("submit", function(e) {
+                e.preventDefault();
+                
+                if (!form.checkValidity()) {
+                    form.classList.add('was-validated');
+                    return;
+                }
+
+                const id = document.getElementById("dashAnnId").value;
+                const token = sessionStorage.getItem('token') || "{{ session.get('token', '') }}";
+                const formData = new FormData(form);
+                
+                const rawExpires = document.getElementById("dashAnnExpiresAt").value;
+                if (rawExpires) {
+                    formData.set("expires_at", rawExpires.replace('T', ' ') + ':00');
+                }
+
+                const submitBtn = document.getElementById("dashAnnSubmitBtn");
+                submitBtn.disabled = true;
+                submitBtn.innerText = "Saving...";
+
+                const url = id ? `/api/announcements/${id}` : '/api/announcements';
+                const method = id ? 'PUT' : 'POST';
+
+                fetch(url, {
+                    method: method,
+                    headers: { "Authorization": `Bearer ${token}` },
+                    body: formData
+                })
+                .then(res => res.json())
+                .then(data => {
+                    submitBtn.disabled = false;
+                    submitBtn.innerText = "Save Announcement";
+
+                    if (!data.success) {
+                        alert("Operation failed: " + data.error);
+                        return;
+                    }
+
+                    const modalEl = document.getElementById("dashboardAnnouncementModal");
+                    const modal = bootstrap.Modal.getInstance(modalEl);
+                    if (modal) modal.hide();
+                    
+                    alert(data.message || "Announcement saved successfully.");
+                    refreshDashboardAnnouncements();
+                })
+                .catch(err => {
+                    submitBtn.disabled = false;
+                    submitBtn.innerText = "Save Announcement";
+                    console.error(err);
+                    alert("An error occurred during submission.");
+                });
+            });
+        }
+    });
+
     // Make functions globally available
     window.loadNotificationsPage = loadNotificationsPage;
     window.viewProjectDetails = viewProjectDetails;
@@ -1280,6 +1730,11 @@
     window.selectAllEmployees = selectAllEmployees;
     window.clearAllEmployees = clearAllEmployees;
     window.assignSelectedEmployees = assignSelectedEmployees;
+    window.viewDashboardAnnouncement = viewDashboardAnnouncement;
+    window.prepareDashboardCreate = prepareDashboardCreate;
+    window.prepareDashboardEdit = prepareDashboardEdit;
+    window.deleteDashboardAnnouncement = deleteDashboardAnnouncement;
+    window.refreshDashboardAnnouncements = refreshDashboardAnnouncements;
 
 </script>
 

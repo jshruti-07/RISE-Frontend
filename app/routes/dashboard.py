@@ -25,6 +25,7 @@ def dashboard():
     team_leaves = []
     timesheets = []
     leaves = []
+    announcements = []
 
     try:
         emp_res = requests.get(f"{BASE_URL}/employees", headers=get_headers())
@@ -227,6 +228,14 @@ def dashboard():
             team_leaves = [l for l in leaves if l.get('employee_name') in team_member_names and l.get('status', '').lower() in ['pending', 'approved']]
             team_leaves.sort(key=lambda x: x.get('start_date', ''), reverse=True)
 
+        # Fetch active announcements for the dashboard widget
+        try:
+            ann_res = requests.get(f"{BASE_URL}/announcements/dashboard", headers=get_headers(), timeout=5)
+            if ann_res.status_code == 200:
+                announcements = ann_res.json().get("announcements", [])
+        except Exception as ann_err:
+            print(f"Error fetching dashboard announcements: {ann_err}")
+
     except Exception as e:
         print(f"Dashboard Exception: {e}")
         flash("Error loading some dashboard data", "warning")
@@ -244,6 +253,7 @@ def dashboard():
         team_leaves=team_leaves[:10],
         pending_timesheets_count=pending_timesheets_count,
         pending_timesheets_list=pending_timesheets_list[:5],
+        announcements=announcements,
         current_user=session.get('employee_name'),
         role=session.get('role'),
         BASE_URL=BASE_URL
