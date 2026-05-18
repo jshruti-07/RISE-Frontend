@@ -726,7 +726,7 @@
 
                     <div class="mb-3">
                         <label class="form-label small fw-bold text-dark">Description *</label>
-                        <textarea class="form-control rounded-3" id="dashAnnDescription" name="description" rows="5" required placeholder="Write detailed content... HTML is supported!"></textarea>
+                        <textarea class="form-control rounded-3" id="dashAnnDescription" name="description" rows="5" required placeholder="Write detailed content..."></textarea>
                         <div class="invalid-feedback">Please enter a description.</div>
                     </div>
 
@@ -748,7 +748,7 @@
                     <div class="mb-3">
                         <label class="form-label small fw-bold text-dark">Attachment (File, max 10MB)</label>
                         <div class="input-group">
-                            <input type="file" class="form-control rounded-3" id="dashAnnAttachment" name="attachment">
+                            <input type="file" class="form-control rounded-3" id="dashAnnAttachment" name="attachment" accept=".jpg,.jpeg,.png,.pdf">
                         </div>
                         <div id="dashAnnCurrentAttachmentInfo" class="mt-2 small text-primary" style="display: none;">
                             <i class="bi bi-paperclip"></i> Currently attached: <span id="dashAnnCurrentAttachmentName"></span>
@@ -1463,12 +1463,20 @@
         })
         .then(res => res.json())
         .then(data => {
-            if (!data.success) {
-                alert("Failed to fetch announcement details: " + data.error);
+            let ann = null;
+            if (data && data.announcement) {
+                ann = data.announcement;
+            } else if (data && data.data) {
+                ann = data.data;
+            } else if (data && typeof data === 'object' && !Array.isArray(data)) {
+                ann = data;
+            }
+
+            if (!ann || (!ann.id && !ann.title)) {
+                alert("Failed to fetch announcement details: invalid response structure.");
                 return;
             }
 
-            const ann = data.announcement;
             const isExpired = new Date(ann.expires_at) <= new Date();
             const badge = document.getElementById("dashDetailBadge");
             
@@ -1485,19 +1493,21 @@
             }
 
             document.getElementById("dashDetailTitle").innerText = ann.title;
-            document.getElementById("dashDetailCreatedBy").innerText = ann.created_by[2:] || ann.created_by;
+            document.getElementById("dashDetailCreatedBy").innerText = (ann.created_by && ann.created_by.startsWith('H_')) ? ann.created_by.substring(2) : (ann.created_by || 'Admin');
             document.getElementById("dashDetailCreatedAt").innerText = formatDateString(ann.created_at);
             document.getElementById("dashDetailExpiresAt").innerText = formatDateString(ann.expires_at);
             document.getElementById("dashDetailDescription").innerHTML = ann.description;
 
             // Handle Attachment Box
             const attachBox = document.getElementById("dashDetailAttachmentBox");
-            if (ann.attachment_path) {
+            const hasAttachment = ann.attachment_path || ann.has_attachment;
+            if (hasAttachment) {
                 attachBox.style.setProperty("display", "flex", "important");
-                const filename = ann.attachment_path.split(/[\\/]/).pop();
+                const path = ann.attachment_path || '';
+                const filename = path ? path.split(/[\\/]/).pop() : 'Attachment File';
                 document.getElementById("dashDetailAttachmentName").innerText = filename;
                 document.getElementById("dashDetailDownloadBtn").onclick = function() {
-                    window.open(`/api/announcements/${ann.id}/attachment?token=${token}`, "_blank");
+                    window.open(`/api/announcements/${ann.id || id}/attachment?token=${token}`, "_blank");
                 };
             } else {
                 attachBox.style.setProperty("display", "none", "important");
@@ -1516,7 +1526,7 @@
             if (deleteBtn) {
                 deleteBtn.onclick = function() {
                     if (confirm("Are you sure you want to permanently delete this announcement?")) {
-                        deleteDashboardAnnouncement(ann.id);
+                        deleteDashboardAnnouncement(ann.id || id);
                     }
                 };
             }
@@ -1579,8 +1589,9 @@
         })
         .then(res => res.json())
         .then(data => {
-            if (!data.success) {
-                alert("Failed to delete announcement: " + data.error);
+            const isSuccess = data && (data.success || !data.error);
+            if (!isSuccess) {
+                alert("Failed to delete announcement: " + (data.error || "Unknown error"));
                 return;
             }
 
@@ -1607,12 +1618,13 @@
         })
         .then(res => res.json())
         .then(data => {
-            if (!data.success) {
-                console.error("Failed to reload announcements widget", data.error);
-                return;
+            let list = [];
+            if (Array.isArray(data)) {
+                list = data;
+            } else if (data && typeof data === 'object') {
+                list = data.announcements || data.data || [];
             }
 
-            const list = data.announcements || [];
             if (list.length === 0) {
                 container.innerHTML = `
                     <div class="text-muted text-center py-4">
@@ -1637,7 +1649,7 @@
                                     <h6 class="text-dark fw-bold mb-0 text-truncate" style="font-size: 0.85rem;">${ann.title}</h6>
                                     <small class="text-muted flex-shrink-0" style="font-size: 0.65rem;">${dateText}</small>
                                 </div>
-                                <p class="text-muted mb-0 text-truncate-2" style="font-size: 0.75rem; line-height: 1.3;">${ann.short_description}</p>
+                                <p class="text-muted mb-0 text-truncate-2" style="font-size: 0.75rem; line-height: 1.3;">${ann.short_description || ann.description || ''}</p>
                             </div>
                         </div>
                     </div>
@@ -1700,8 +1712,9 @@
                     submitBtn.disabled = false;
                     submitBtn.innerText = "Save Announcement";
 
-                    if (!data.success) {
-                        alert("Operation failed: " + data.error);
+                    const isSuccess = data && (data.success || data.id || data.message || !data.error);
+                    if (!isSuccess) {
+                        alert("Operation failed: " + (data.error || "Unknown error"));
                         return;
                     }
 

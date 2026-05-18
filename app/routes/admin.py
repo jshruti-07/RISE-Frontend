@@ -288,6 +288,11 @@ def api_announcements():
         if str(session.get('role', '')).lower().strip() != 'hr':
             return jsonify({"success": False, "error": "Access denied"}), 403
         
+        print("--- DEBUG ANNOUNCEMENTS PROXY ---")
+        print("CONTENT TYPE:", request.content_type)
+        print("FORM DATA:", request.form.to_dict())
+        print("FILES:", request.files)
+        
         if request.content_type and 'multipart' in request.content_type:
             form_data = request.form.to_dict()
             files = {}
@@ -296,9 +301,19 @@ def api_announcements():
                 if attachment_file.filename:
                     files['attachment'] = (attachment_file.filename, attachment_file.read(), attachment_file.content_type)
             
-            res = requests.post(f"{BASE_URL}/announcements/", data=form_data, files=files, headers=get_headers(exclude_content_type=True))
+            if files:
+                print("SENDING MULTIPART TO BACKEND. FILES:", list(files.keys()))
+                res = requests.post(f"{BASE_URL}/announcements/", data=form_data, files=files, headers=get_headers(exclude_content_type=True))
+            else:
+                print("SENDING JSON FALLBACK TO BACKEND:", form_data)
+                res = requests.post(f"{BASE_URL}/announcements/", json=form_data, headers=get_headers())
         else:
+            print("SENDING JSON TO BACKEND:", request.get_json())
             res = requests.post(f"{BASE_URL}/announcements/", json=request.get_json(), headers=get_headers())
+            
+        print("BACKEND RESPONSE STATUS:", res.status_code)
+        print("BACKEND RESPONSE BODY:", res.content)
+        print("---------------------------------")
     else:
         res = requests.get(f"{BASE_URL}/announcements/", params=request.args.to_dict(), headers=get_headers())
     
@@ -323,6 +338,11 @@ def api_announcement_detail(announcement_id):
         if str(session.get('role', '')).lower().strip() != 'hr':
             return jsonify({"success": False, "error": "Access denied"}), 403
         
+        print("--- DEBUG ANNOUNCEMENT DETAIL PUT PROXY ---")
+        print("CONTENT TYPE:", request.content_type)
+        print("FORM DATA:", request.form.to_dict())
+        print("FILES:", request.files)
+        
         if request.content_type and 'multipart' in request.content_type:
             form_data = request.form.to_dict()
             files = {}
@@ -331,9 +351,19 @@ def api_announcement_detail(announcement_id):
                 if attachment_file.filename:
                     files['attachment'] = (attachment_file.filename, attachment_file.read(), attachment_file.content_type)
             
-            res = requests.put(f"{BASE_URL}/announcements/{announcement_id}", data=form_data, files=files, headers=get_headers(exclude_content_type=True))
+            if files:
+                print("SENDING MULTIPART PUT TO BACKEND. FILES:", list(files.keys()))
+                res = requests.put(f"{BASE_URL}/announcements/{announcement_id}", data=form_data, files=files, headers=get_headers(exclude_content_type=True))
+            else:
+                print("SENDING JSON PUT FALLBACK TO BACKEND:", form_data)
+                res = requests.put(f"{BASE_URL}/announcements/{announcement_id}", json=form_data, headers=get_headers())
         else:
+            print("SENDING JSON PUT TO BACKEND:", request.get_json())
             res = requests.put(f"{BASE_URL}/announcements/{announcement_id}", json=request.get_json(), headers=get_headers())
+            
+        print("BACKEND PUT RESPONSE STATUS:", res.status_code)
+        print("BACKEND PUT RESPONSE BODY:", res.content)
+        print("--------------------------------------------")
     elif request.method == 'DELETE':
         if str(session.get('role', '')).lower().strip() != 'hr':
             return jsonify({"success": False, "error": "Access denied"}), 403

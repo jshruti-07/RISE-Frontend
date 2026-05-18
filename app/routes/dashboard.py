@@ -232,7 +232,13 @@ def dashboard():
         try:
             ann_res = requests.get(f"{BASE_URL}/announcements/dashboard", headers=get_headers(), timeout=5)
             if ann_res.status_code == 200:
-                announcements = ann_res.json().get("announcements", [])
+                res_data = ann_res.json()
+                if isinstance(res_data, list):
+                    announcements = res_data
+                elif isinstance(res_data, dict):
+                    announcements = res_data.get("announcements", res_data.get("data", []))
+                else:
+                    announcements = []
         except Exception as ann_err:
             print(f"Error fetching dashboard announcements: {ann_err}")
 
