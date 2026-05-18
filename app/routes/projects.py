@@ -92,10 +92,24 @@ def create_project():
                 'start_date': data.get('start_date'),
                 'end_date': data.get('end_date'),
                 'customer_name': data.get('customer_name'),
+                
+                # Contact person keys
+                'contact_person': data.get('customer_contact') or data.get('contact_person'),
                 'customer_contact': data.get('customer_contact') or data.get('contact_person'),
-                'customer_phone': data.get('customer_phone'),
-                'customer_email': data.get('customer_email'),
+                
+                # Phone keys
+                'phone': data.get('customer_phone') or data.get('phone'),
+                'customer_phone': data.get('customer_phone') or data.get('phone'),
+                
+                # Email keys
+                'email': data.get('customer_email') or data.get('email'),
+                'customer_email': data.get('customer_email') or data.get('email'),
+                
+                # Manager keys
                 'assigned_manager': data.get('assigned_manager'),
+                'assigned_manager_name': data.get('assigned_manager'),
+                'manager_name': data.get('assigned_manager'),
+                
                 'status': 'active'
             }
             res = requests.post(f"{BASE_URL}/projects/", json=payload, headers=get_headers(), timeout=10)
@@ -228,7 +242,31 @@ def update_project():
     try:
         data = request.get_json()
         project_id = data.get('id')
-        payload = {k: data.get(k) for k in ['name', 'start_date', 'end_date', 'customer_name', 'assigned_manager', 'status']}
+        payload = {
+            'name': data.get('name'),
+            'start_date': data.get('start_date'),
+            'end_date': data.get('end_date'),
+            'customer_name': data.get('customer_name'),
+            
+            # Contact person keys
+            'contact_person': data.get('customer_contact') or data.get('contact_person'),
+            'customer_contact': data.get('customer_contact') or data.get('contact_person'),
+            
+            # Phone keys
+            'phone': data.get('customer_phone') or data.get('phone'),
+            'customer_phone': data.get('customer_phone') or data.get('phone'),
+            
+            # Email keys
+            'email': data.get('customer_email') or data.get('email'),
+            'customer_email': data.get('customer_email') or data.get('email'),
+            
+            # Manager keys
+            'assigned_manager': data.get('assigned_manager'),
+            'assigned_manager_name': data.get('assigned_manager'),
+            'manager_name': data.get('assigned_manager'),
+            
+            'status': data.get('status', 'active')
+        }
         
         res = requests.put(f"{BASE_URL}/projects/{project_id}", json=payload, headers=get_headers(), timeout=10)
         if res.status_code == 200:

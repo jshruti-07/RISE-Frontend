@@ -967,9 +967,9 @@
             '<table class="table table-sm">' +
             '<tr><td><strong>Project Name:</strong></td><td>' + (project.name || project.project_name || 'N/A') + '</td></tr>' +
             '<tr><td><strong>Status:</strong></td><td><span class="badge bg-success">' + (project.status || 'Active') + '</span></td></tr>' +
-            '<tr><td><strong>Assigned Manager:</strong></td><td>' + (project.assigned_manager || project.manager_name || project.manager || 'N/A') + '</td></tr>' +
+            '<tr><td><strong>Assigned Manager:</strong></td><td>' + (project.assigned_manager || project.assigned_manager_name || project.manager_name || project.manager || 'N/A') + '</td></tr>' +
             '<tr><td><strong>Created By:</strong></td><td>' + (project.created_by || 'N/A') + '</td></tr>' +
-            '<tr><td><strong>Created At:</strong></td><td>' + (project.created_at || 'N/A') + '</td></tr>' +
+            '<tr><td><strong>Created At:</strong></td><td>' + (project.created_at || project.createdAt || 'N/A') + '</td></tr>' +
             '</table>' +
             '</div>';
 
@@ -980,8 +980,8 @@
                 '<table class="table table-sm">' +
                 '<tr><td><strong>Customer Name:</strong></td><td>' + (project.customer_name || 'N/A') + '</td></tr>' +
                 '<tr><td><strong>Contact Person:</strong></td><td>' + (project.customer_contact || project.contact_person || project.contact || 'N/A') + '</td></tr>' +
-                '<tr><td><strong>Phone:</strong></td><td>' + (project.customer_phone || 'N/A') + '</td></tr>' +
-                '<tr><td><strong>Email:</strong></td><td>' + (project.customer_email || 'N/A') + '</td></tr>' +
+                '<tr><td><strong>Phone:</strong></td><td>' + (project.customer_phone || project.phone || 'N/A') + '</td></tr>' +
+                '<tr><td><strong>Email:</strong></td><td>' + (project.customer_email || project.email || 'N/A') + '</td></tr>' +
                 '</table>' +
                 '</div>';
         }
@@ -991,8 +991,8 @@
             '<div class="col-12">' +
             '<h6 class="text-muted">Project Timeline</h6>' +
             '<table class="table table-sm">' +
-            '<tr><td><strong>Start Date:</strong></td><td>' + (project.start_date || 'N/A') + '</td></tr>' +
-            '<tr><td><strong>End Date:</strong></td><td>' + (project.end_date || 'N/A') + '</td></tr>' +
+            '<tr><td><strong>Start Date:</strong></td><td>' + (project.start_date || project.startDate || 'N/A') + '</td></tr>' +
+            '<tr><td><strong>End Date:</strong></td><td>' + (project.end_date || project.endDate || 'N/A') + '</td></tr>' +
             '</table>' +
             '</div>' +
             '</div>';

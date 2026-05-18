@@ -66,18 +66,18 @@
                     <h6 class="mb-3">Project Information</h6>
                     <div class="card">
                         <div class="card-body">
-                            {% if user_role == 'manager' %}
+                            {% if user_role == 'manager' or user_role == 'hr' or user_role == 'admin' %}
                             <div class="mb-3">
-                                <strong>Customer:</strong> {{ project.customer_name }}
+                                <strong>Customer:</strong> {{ project.customer_name or 'Not Set' }}
                             </div>
                             <div class="mb-3">
                                 <strong>Contact Person:</strong> {{ project.customer_contact or project.contact_person or project.contact or 'Not Set' }}
                             </div>
                             <div class="mb-3">
-                                <strong>Contact Phone:</strong> {{ project.customer_phone }}
+                                <strong>Contact Phone:</strong> {{ project.customer_phone or project.phone or 'Not Set' }}
                             </div>
                             <div class="mb-3">
-                                <strong>Contact Email:</strong> {{ project.customer_email }}
+                                <strong>Contact Email:</strong> {{ project.customer_email or project.email or 'Not Set' }}
                             </div>
                             {% endif %}
                             <div class="mb-3">

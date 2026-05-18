@@ -166,7 +166,23 @@ def export_timesheets():
             return jsonify({"success": False, "error": "Failed to fetch timesheets from API"}), res.status_code
             
         timesheets = res.json().get("timesheets", [])
-        
+
+        # 1b. Build project → manager map
+        project_manager_map = {}
+        try:
+            proj_res = requests.get(f"{BASE_URL}/projects/", headers=get_headers(), timeout=10)
+            if proj_res.status_code == 200:
+                proj_data = proj_res.json()
+                projects_db = proj_data.get("projects", []) if isinstance(proj_data, dict) else proj_data
+                for proj in projects_db:
+                    if not isinstance(proj, dict):
+                        continue
+                    p_name = str(proj.get('name', '')).strip().lower()
+                    mgr = proj.get('assigned_manager') or proj.get('manager_name') or ''
+                    project_manager_map[p_name] = mgr
+        except Exception as proj_err:
+            print(f"Could not fetch projects for export manager map: {proj_err}")
+
         # 2. Apply Filters from query params
         start_date = request.args.get('start_date')
         end_date = request.args.get('end_date')
@@ -188,11 +204,17 @@ def export_timesheets():
             
         if not filtered:
             return jsonify({"success": False, "error": "No data found for selected filters"}), 404
+
+        # 2b. Inject manager field into each row from project_manager_map
+        for t in filtered:
+            proj_key = str(t.get('project', '')).strip().lower()
+            t['manager'] = project_manager_map.get(proj_key, '')
             
         # Select and rename columns mapping
         columns_map = {
             'employee_name': 'Employee Name',
             'project': 'Project',
+            'manager': 'Project Manager',
             'task': 'Task',
             'hours': 'Hours',
             'start_date': 'Date',
@@ -206,6 +228,10 @@ def export_timesheets():
         if PANDAS_AVAILABLE:
             try:
                 df = pd.DataFrame(filtered)
+                # Ensure all columns_map keys exist in df (add empty ones if missing)
+                for col_key in columns_map.keys():
+                    if col_key not in df.columns:
+                        df[col_key] = ''
                 df = df[[col for col in columns_map.keys() if col in df.columns]]
                 df.rename(columns=columns_map, inplace=True)
                 if 'Date' in df.columns:
@@ -261,6 +287,7 @@ def export_timesheets():
     except Exception as e:
         print(f"Export Error: {e}")
         return jsonify({"success": False, "error": str(e)}), 500
+
 
 @work_bp.route('/leaves')
 @role_required(['admin', 'employee', 'hr', 'manager'])
