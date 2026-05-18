@@ -1464,6 +1464,20 @@ select.form-control {
 
 }
 
+.menu-title.active {
+
+    color: #ffffff !important;
+
+    font-weight: 600 !important;
+
+}
+
+.menu-title.active i {
+
+    color: #EF6704 !important;
+
+}
+
 
 
 /* SUBMENU - Hover-based interaction */
@@ -1516,9 +1530,11 @@ select.form-control {
 
 .submenu a.active {
 
-    color: #EF6704;
+    color: #EF6704 !important;
 
-    font-weight: 500;
+    font-weight: 600 !important;
+
+    background: transparent !important;
 
 }
 

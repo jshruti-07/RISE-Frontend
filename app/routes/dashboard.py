@@ -106,18 +106,78 @@ def dashboard():
                 if hd_res.status_code == 200: hd_stats = hd_res.json()
             except: pass
             try:
-                rb_res = requests.get(f"{BASE_URL}/reimbursement/stats/", headers=get_headers(), timeout=5)
+                rb_res = requests.get(f"{BASE_URL}/reimbursements/", headers=get_headers(), timeout=5)
                 if rb_res.status_code == 200:
-                    raw_rb = rb_res.json()
-                    # Clean the keys to be lowercase to match template expectations
+                    claims = rb_res.json().get("reimbursements", [])
+                    pending_count = 0
+                    approved_count = 0
+                    rejected_count = 0
+                    
+                    for claim in claims:
+                        status = str(claim.get("status", "")).lower().strip()
+                        if status in ["pending", "submitted", "pending_approval"]:
+                            pending_count += 1
+                        elif status in ["approved", "paid"]:
+                            approved_count += 1
+                        elif status in ["rejected", "cancelled"]:
+                            rejected_count += 1
+                    
                     reimbursement_stats = {
-                        "pending_approval": raw_rb.get("pending_approval", {"count": 0}),
-                        "by_status": {}
+                        "pending_approval": {"count": pending_count},
+                        "by_status": {
+                            "approved": {"count": approved_count},
+                            "rejected": {"count": rejected_count}
+                        }
                     }
-                    if "by_status" in raw_rb:
-                        for status, data in raw_rb["by_status"].items():
-                            reimbursement_stats["by_status"][status.lower()] = data
-            except: pass
+                else:
+                    # Fallback to stats endpoint if /reimbursements/ fails
+                    rb_stat_res = requests.get(f"{BASE_URL}/reimbursement/stats/", headers=get_headers(), timeout=5)
+                    if rb_stat_res.status_code == 200:
+                        raw_rb = rb_stat_res.json()
+                        # Structure it correctly for the template
+                        pending = raw_rb.get("pending_approval", 0)
+                        if isinstance(pending, dict):
+                            pending_count = pending.get("count", 0)
+                        else:
+                            pending_count = int(pending or 0)
+                            
+                        approved_count = 0
+                        rejected_count = 0
+                        
+                        by_status = raw_rb.get("by_status", {})
+                        if isinstance(by_status, dict):
+                            app_data = by_status.get("approved", 0)
+                            rej_data = by_status.get("rejected", 0)
+                            approved_count = app_data.get("count", 0) if isinstance(app_data, dict) else int(app_data or 0)
+                            rejected_count = rej_data.get("count", 0) if isinstance(rej_data, dict) else int(rej_data or 0)
+                        else:
+                            approved_count = int(raw_rb.get("approved", 0))
+                            rejected_count = int(raw_rb.get("rejected", 0))
+                            
+                        reimbursement_stats = {
+                            "pending_approval": {"count": pending_count},
+                            "by_status": {
+                                "approved": {"count": approved_count},
+                                "rejected": {"count": rejected_count}
+                            }
+                        }
+                    else:
+                        reimbursement_stats = {
+                            "pending_approval": {"count": 0},
+                            "by_status": {
+                                "approved": {"count": 0},
+                                "rejected": {"count": 0}
+                            }
+                        }
+            except Exception as rb_err:
+                print(f"Error calculating reimbursement stats: {rb_err}")
+                reimbursement_stats = {
+                    "pending_approval": {"count": 0},
+                    "by_status": {
+                        "approved": {"count": 0},
+                        "rejected": {"count": 0}
+                    }
+                }
             
             # HR and Admin should see all pending/approved leaves as "Team Leaves" on dashboard
             team_leaves = [l for l in leaves if l.get('status', '').lower() in ['pending', 'approved']]

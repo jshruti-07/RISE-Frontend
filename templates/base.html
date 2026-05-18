@@ -589,6 +589,42 @@
 
             var sidebar = document.getElementById("sidebar");
 
+            // 1. Highlight current active menu and submenu items based on window.location.pathname
+            var currentPath = window.location.pathname;
+            var activeLink = null;
+
+            // Try exact match first
+            document.querySelectorAll(".menu a, .submenu a").forEach(function (link) {
+                var linkPath = link.getAttribute("href");
+                if (linkPath && currentPath === linkPath) {
+                    link.classList.add("active");
+                    activeLink = link;
+                }
+            });
+
+            // If no exact match (e.g. sub-pages or details pages), try startsWith / indexOf match
+            if (!activeLink) {
+                document.querySelectorAll(".menu a, .submenu a").forEach(function (link) {
+                    var linkPath = link.getAttribute("href");
+                    if (linkPath && linkPath !== "/" && currentPath.indexOf(linkPath) === 0) {
+                        link.classList.add("active");
+                        activeLink = link;
+                    }
+                });
+            }
+
+            // Expand and highlight parent submenu if an item in the submenu is active
+            if (activeLink) {
+                var submenu = activeLink.closest(".submenu");
+                if (submenu) {
+                    submenu.classList.add("show");
+                    var menuTitle = submenu.previousElementSibling;
+                    if (menuTitle && menuTitle.classList.contains("menu-title")) {
+                        menuTitle.classList.add("active");
+                    }
+                }
+            }
+
 
 
             // RESET SUBMENUS IF SIDEBAR IS COLLAPSED
@@ -615,7 +651,7 @@
 
                 if (submenu && submenu.classList.contains("show")) {
 
-                    arrow.innerText = "minus";
+                    arrow.innerText = "-";
 
                 } else {
 
