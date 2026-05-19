@@ -120,6 +120,8 @@ def edit_employee(id):
     if request.method == 'POST':
         form = request.form
         files = request.files
+
+        # ── Basic employee fields (name, email, phone, dates, document) ──────
         payload = {
             "name": form['name'],
             "email": form['email'],
@@ -127,48 +129,142 @@ def edit_employee(id):
             "date_of_joining": form['date_of_joining'],
             "date_of_birth": form.get('date_of_birth', '')
         }
-        if 'role' in form and form['role']:
-            payload['role'] = form['role']
-        
+
         file_data = {}
         if 'document' in files:
             doc = files['document']
             if doc.filename != "":
                 file_data['document'] = (doc.filename, doc.read(), doc.mimetype)
 
+        # ── Role update — must go to the dedicated /auth/users/<user_id>/role ─
+        # The employee table has NO role column; role lives in the users table.
+        # Sending role to PATCH /employees/<id> is silently ignored by the backend.
+        new_role = form.get('role', '').strip()
+        role_changed = False
+        role_error = None
+
+        if new_role:
+            try:
+                # 1. Look up the user record that owns this employee
+                users_res = requests.get(
+                    f"{BASE_URL}/auth/users", headers=get_headers(), timeout=10
+                )
+                # 2. Find current employee name to match against users table
+                emp_res = requests.get(
+                    f"{BASE_URL}/employees/{id}", headers=get_headers(), timeout=5
+                )
+                current_emp_name = None
+                if emp_res.status_code == 200:
+                    current_emp_name = emp_res.json().get("employee", {}).get("name")
+
+                if users_res.status_code == 200 and current_emp_name:
+                    all_users = users_res.json().get("users", [])
+                    matched_user = next(
+                        (u for u in all_users if u.get("employee_name") == current_emp_name),
+                        None
+                    )
+
+                    if matched_user:
+                        current_role = matched_user.get("role", "")
+                        if current_role == new_role:
+                            role_changed = True  # Same role — nothing to do
+                        else:
+                            user_id = matched_user["id"]
+                            role_res = requests.patch(
+                                f"{BASE_URL}/auth/users/{user_id}/role",
+                                json={"role": new_role},
+                                headers=get_headers(),
+                                timeout=10
+                            )
+                            if role_res.status_code == 200:
+                                role_changed = True
+                                # Backend also renames the employee_name prefix;
+                                # update payload so the basic-info save uses the new name
+                                new_username = role_res.json().get("new_username")
+                                if new_username:
+                                    payload["name"] = new_username
+                            else:
+                                role_error = role_res.json().get(
+                                    "error", f"Role update failed (HTTP {role_res.status_code})"
+                                )
+                    else:
+                        role_error = "No user account found for this employee. Role not changed."
+                else:
+                    role_error = f"Could not retrieve user list (HTTP {users_res.status_code})."
+
+            except Exception as e:
+                role_error = f"Role update error: {str(e)}"
+
+        # ── Save basic employee info (PATCH → PUT → POST fallback) ────────────
+        basic_ok = False
         try:
             if file_data:
-                res = requests.patch(f"{BASE_URL}/employees/{id}", data=payload, files=file_data, headers=get_headers())
+                res = requests.patch(f"{BASE_URL}/employees/{id}", data=payload,
+                                     files=file_data, headers=get_headers())
             else:
-                res = requests.patch(f"{BASE_URL}/employees/{id}", json=payload, headers=get_headers())
-            
+                res = requests.patch(f"{BASE_URL}/employees/{id}", json=payload,
+                                     headers=get_headers())
+
             if res.status_code == 405:
-                if file_data:
-                    res = requests.put(f"{BASE_URL}/employees/{id}", data=payload, files=file_data, headers=get_headers())
-                else:
-                    res = requests.put(f"{BASE_URL}/employees/{id}", json=payload, headers=get_headers())
-            
+                res = (requests.put(f"{BASE_URL}/employees/{id}", data=payload,
+                                    files=file_data, headers=get_headers())
+                       if file_data else
+                       requests.put(f"{BASE_URL}/employees/{id}", json=payload,
+                                    headers=get_headers()))
+
             if res.status_code == 405:
-                if file_data:
-                    res = requests.post(f"{BASE_URL}/employees/{id}", data=payload, files=file_data, headers=get_headers())
-                else:
-                    res = requests.post(f"{BASE_URL}/employees/{id}", json=payload, headers=get_headers())
-            
-            if res.status_code == 200:
-                flash(UI_LABELS['EMPLOYEE_UPDATED_SUCCESS'], "success")
-            else:
-                flash(f"Failed to update employee: {res.text}", "danger")
+                res = (requests.post(f"{BASE_URL}/employees/{id}", data=payload,
+                                     files=file_data, headers=get_headers())
+                       if file_data else
+                       requests.post(f"{BASE_URL}/employees/{id}", json=payload,
+                                     headers=get_headers()))
+
+            basic_ok = (res.status_code == 200)
         except Exception as e:
-            flash(f"Error updating employee: {str(e)}", "danger")
+            flash(f"Error updating employee details: {str(e)}", "danger")
+            return redirect(url_for('employees.employee_list'))
+
+        # ── Flash accurate result ─────────────────────────────────────────────
+        if role_error:
+            flash(f"Role update failed: {role_error}", "danger")
+        elif new_role and role_changed and basic_ok:
+            flash(f"{UI_LABELS['EMPLOYEE_UPDATED_SUCCESS']} (role updated to {new_role.upper()})", "success")
+        elif new_role and role_changed:
+            flash(f"Role updated to {new_role.upper()} successfully.", "success")
+        elif basic_ok:
+            flash(UI_LABELS['EMPLOYEE_UPDATED_SUCCESS'], "success")
+        else:
+            flash(f"Failed to update employee: {res.text}", "danger")
 
         return redirect(url_for('employees.employee_list'))
 
     else:
+        # ── GET: fetch employee, then overlay real role from users table ───────
         res = requests.get(f"{BASE_URL}/employees/{id}", headers=get_headers())
         if res.status_code == 401:
             return redirect(url_for('auth.login'))
-        data = res.json()
-        return render_template('edit_employee.html', employee=data.get("employee"))
+
+        employee = res.json().get("employee", {})
+
+        # The employee table has no 'role' column — get the real role from users
+        try:
+            users_res = requests.get(
+                f"{BASE_URL}/auth/users", headers=get_headers(), timeout=10
+            )
+            if users_res.status_code == 200:
+                all_users = users_res.json().get("users", [])
+                emp_name = employee.get("name", "")
+                matched = next(
+                    (u for u in all_users if u.get("employee_name") == emp_name),
+                    None
+                )
+                if matched:
+                    employee["role"] = matched.get("role", "employee")
+                    employee["user_id"] = matched.get("id")
+        except Exception as e:
+            print(f"Could not fetch user role for employee {id}: {e}")
+
+        return render_template('edit_employee.html', employee=employee)
 
 @employees_bp.route('/profile/<employee_name>')
 @role_required(['hr', 'admin'])
