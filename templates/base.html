@@ -89,12 +89,6 @@
             <span class="badge bg-info">{{ labels.EMPLOYEE.upper() if session.role == 'employee' else (session.role or 'User').upper() }}</span>
 
             <div class="sidebar-quick-links mt-2">
-                {% if session.role == 'employee' %}
-                <div id="sb-leave-balance" class="sidebar-leave-balance" style="display: none;">
-                    <span class="sidebar-leave-label">Leave Balance:</span>
-                    <span id="sb-leave-amount" class="sidebar-leave-amount text-white fw-bold">...</span>
-                </div>
-                {% endif %}
 
                 <div style="display: flex; justify-content: space-between; gap: 10px; ">
                     <a href="{{ url_for('work.add_leave') }}" title="Apply Leave">

@@ -1,6 +1,6 @@
 import requests
 from flask import Blueprint, render_template, redirect, url_for, request, flash, session, jsonify
-from datetime import datetime
+from datetime import datetime, timedelta
 from app.utils import BASE_URL, get_headers, role_required
 import os
 import json
@@ -38,7 +38,54 @@ def timesheets_list():
         print("ERROR:", e)
         timesheets = []
 
-    return render_template("timesheets.html", timesheets=timesheets)
+        return render_template("timesheets.html", timesheets=timesheets)
+
+@timesheets_bp.route('/hr/missing-timesheets')
+@role_required(['hr'])
+def hr_missing_timesheets():
+    """Render a view listing employees who have not submitted timesheets for the current week."""
+    try:
+        # Fetch all employees
+        emp_res = requests.get(f"{BASE_URL}/employees", headers=get_headers())
+        employees = emp_res.json().get("employees", []) if emp_res.status_code == 200 else []
+        # Fetch all submitted timesheets
+        ts_res = requests.get(f"{BASE_URL}/timesheets", headers=get_headers())
+        all_timesheets = ts_res.json().get("timesheets", []) if ts_res.status_code == 200 else []
+        # Determine 21‑day window starting from the 1st of the current month
+        today = datetime.utcnow().date()
+        start_of_month = today.replace(day=1)
+        end_of_window = start_of_month + timedelta(days=20)  # inclusive 21‑day period
+        # Build set of employee names who have submitted a timesheet within this window
+        submitted_in_window = set()
+        for ts in all_timesheets:
+            try:
+                ts_date_str = ts.get('start_date') or ts.get('date')
+                if not ts_date_str:
+                    continue
+                ts_date = datetime.strptime(ts_date_str[:10], "%Y-%m-%d").date()
+                if start_of_month <= ts_date <= end_of_window:
+                    submitted_in_window.add(ts.get('employee_name'))
+            except Exception:
+                continue
+        # Employees missing timesheets for the 21‑day period
+        missing_timesheets = []
+        for emp in employees:
+            name = emp.get('name')
+            if name not in submitted_in_window:
+                missing_timesheets.append({
+                    'employee_name': name,
+                    'missing_period': f"{start_of_month} to {end_of_window}",
+                    'project': emp.get('project', '-')
+                })
+        return render_template(
+            'hr_missing_timesheets.html',
+            missing_timesheets=missing_timesheets,
+            start_date=start_of_month,
+            end_date=end_of_window
+        )
+    except Exception as e:
+        print("ERROR in hr_missing_timesheets:", e)
+        return render_template('hr_missing_timesheets.html', missing_timesheets=[])
 
 @timesheets_bp.route('/add-timesheet', methods=['GET', 'POST'])
 @role_required(['admin', 'employee', 'hr', 'manager'])
