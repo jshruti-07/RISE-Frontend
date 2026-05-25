@@ -71,60 +71,7 @@ def timesheets_list():
         user_role = str(session.get('role', '')).lower().strip()
         current_user = session.get('employee_name')
         
-        # --- HR ROLE: Show only missing/unsubmitted timesheets ---
-        if user_role == 'hr':
-            today = datetime.utcnow().date()
-            start_of_month = today.replace(day=1)
-            end_of_window = start_of_month + timedelta(days=20)  # 21-day window
-
-            if today < end_of_window:
-                # Target previous month
-                if today.month == 1:
-                    target_start = today.replace(year=today.year-1, month=12, day=1)
-                else:
-                    target_start = today.replace(month=today.month-1, day=1)
-                target_end = target_start + timedelta(days=20)
-            else:
-                # Target current month
-                target_start = start_of_month
-                target_end = end_of_window
-
-            # Build set of employee names who submitted a timesheet within this window
-            submitted_in_window = set()
-            for ts in all_timesheets:
-                try:
-                    ts_date_str = ts.get('start_date') or ts.get('date')
-                    if not ts_date_str:
-                        continue
-                    ts_date = datetime.strptime(ts_date_str[:10], "%Y-%m-%d").date()
-                    if target_start <= ts_date <= target_end:
-                        submitted_in_window.add(ts.get('employee_name'))
-                except Exception:
-                    continue
-
-            # Employees missing timesheets for the target period
-            missing_timesheets = []
-            
-            for emp in employees:
-                if not isinstance(emp, dict):
-                    continue
-                name = emp.get('name')
-                if name and name not in submitted_in_window:
-                    missing_timesheets.append({
-                        'employee_name': name,
-                        'missing_period': f"{target_start} to {target_end}",
-                        'project': emp.get('project', '-')
-                    })
-
-            return render_template(
-                'hr_missing_timesheets.html',
-                missing_timesheets=missing_timesheets,
-                start_date=target_start,
-                end_date=target_end,
-                show_list=True
-            )
-
-        # --- Non-HR roles: existing filtering logic ---
+        # --- Filtering logic ---
         filtered_timesheets = []
         for t in all_timesheets:
             if not isinstance(t, dict): continue
@@ -175,6 +122,83 @@ def timesheets_list():
                                missing_timesheets=[],
                                project_map={},
                                BASE_URL=BASE_URL)
+
+@work_bp.route('/hr-missing-timesheets')
+@role_required(['hr', 'admin'])
+def hr_missing_timesheets():
+    try:
+        # Fetch employees
+        emp_res = requests.get(f"{BASE_URL}/employees/", headers=get_headers())
+        employees = []
+        if emp_res.status_code == 200:
+            emp_data = emp_res.json()
+            employees = emp_data.get("employees", []) if isinstance(emp_data, dict) else emp_data
+            
+        # Fetch timesheets
+        all_timesheets = []
+        res = requests.get(f"{BASE_URL}/timesheets/", headers=get_headers(), timeout=15)
+        if res.status_code == 200:
+            all_timesheets = res.json().get("timesheets", [])
+
+        today = datetime.utcnow().date()
+        start_of_month = today.replace(day=1)
+        end_of_window = start_of_month + timedelta(days=20)  # 21-day window
+
+        if today < end_of_window:
+            # Target previous month
+            if today.month == 1:
+                target_start = today.replace(year=today.year-1, month=12, day=1)
+            else:
+                target_start = today.replace(month=today.month-1, day=1)
+            target_end = target_start + timedelta(days=20)
+        else:
+            # Target current month
+            target_start = start_of_month
+            target_end = end_of_window
+
+        # Build set of employee names who submitted a timesheet within this window
+        submitted_in_window = set()
+        for ts in all_timesheets:
+            try:
+                ts_date_str = ts.get('start_date') or ts.get('date')
+                if not ts_date_str:
+                    continue
+                ts_date = datetime.strptime(ts_date_str[:10], "%Y-%m-%d").date()
+                if target_start <= ts_date <= target_end:
+                    submitted_in_window.add(ts.get('employee_name'))
+            except Exception:
+                continue
+
+        # Employees missing timesheets for the target period
+        missing_timesheets = []
+        
+        for emp in employees:
+            if not isinstance(emp, dict):
+                continue
+            name = emp.get('name')
+            if name and name not in submitted_in_window:
+                missing_timesheets.append({
+                    'employee_name': name,
+                    'missing_period': f"{target_start} to {target_end}",
+                    'project': emp.get('project', '-')
+                })
+
+        return render_template(
+            'hr_missing_timesheets.html',
+            missing_timesheets=missing_timesheets,
+            start_date=target_start,
+            end_date=target_end,
+            show_list=True
+        )
+    except Exception as e:
+        print(f"Error in hr_missing_timesheets: {e}")
+        flash(f"An error occurred: {str(e)}", "danger")
+        return redirect(url_for('work.timesheets_list'))
+
+@work_bp.route('/add-weekly-timesheet')
+@role_required(['admin', 'employee', 'hr', 'manager'])
+def add_weekly_timesheet():
+    return render_template('add_weekly_timesheet.html')
 
 @work_bp.route('/add-timesheet', methods=['GET', 'POST'])
 @role_required(['admin', 'employee', 'hr', 'manager'])

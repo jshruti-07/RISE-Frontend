@@ -47,6 +47,9 @@
                 style="border-radius: 10px;">
                 <i class="bi bi-file-earmark-excel"></i> Export Excel
             </button>
+            {% if session.role in ['hr', 'admin'] %}
+            <a href="{{ url_for('work.hr_missing_timesheets') }}" class="btn btn-outline-warning btn-sm" style="border-radius: 10px;">Missing Timesheets</a>
+            {% endif %}
             {% if session.role in ['employee','hr','admin', 'manager'] %}
             <a href="{{ url_for('work.add_timesheet') }}" class="btn btn-primary">Add Timesheet</a>
             {% endif %}
