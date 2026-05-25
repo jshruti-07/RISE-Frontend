@@ -127,6 +127,20 @@ def timesheets_list():
 @role_required(['hr', 'admin'])
 def hr_missing_timesheets():
     try:
+        start_date_str = request.args.get('start_date')
+        end_date_str = request.args.get('end_date')
+
+        today = datetime.utcnow().date()
+        if start_date_str:
+            target_start = datetime.strptime(start_date_str, "%Y-%m-%d").date()
+        else:
+            target_start = today.replace(day=1)
+            
+        if end_date_str:
+            target_end = datetime.strptime(end_date_str, "%Y-%m-%d").date()
+        else:
+            target_end = today
+
         # Fetch employees
         emp_res = requests.get(f"{BASE_URL}/employees/", headers=get_headers())
         employees = []
@@ -139,22 +153,6 @@ def hr_missing_timesheets():
         res = requests.get(f"{BASE_URL}/timesheets/", headers=get_headers(), timeout=15)
         if res.status_code == 200:
             all_timesheets = res.json().get("timesheets", [])
-
-        today = datetime.utcnow().date()
-        start_of_month = today.replace(day=1)
-        end_of_window = start_of_month + timedelta(days=20)  # 21-day window
-
-        if today < end_of_window:
-            # Target previous month
-            if today.month == 1:
-                target_start = today.replace(year=today.year-1, month=12, day=1)
-            else:
-                target_start = today.replace(month=today.month-1, day=1)
-            target_end = target_start + timedelta(days=20)
-        else:
-            # Target current month
-            target_start = start_of_month
-            target_end = end_of_window
 
         # Build set of employee names who submitted a timesheet within this window
         submitted_in_window = set()
@@ -179,15 +177,15 @@ def hr_missing_timesheets():
             if name and name not in submitted_in_window:
                 missing_timesheets.append({
                     'employee_name': name,
-                    'missing_period': f"{target_start} to {target_end}",
+                    'missing_period': f"{target_start.strftime('%Y-%m-%d')} to {target_end.strftime('%Y-%m-%d')}",
                     'project': emp.get('project', '-')
                 })
 
         return render_template(
             'hr_missing_timesheets.html',
             missing_timesheets=missing_timesheets,
-            start_date=target_start,
-            end_date=target_end,
+            start_date=target_start.strftime('%Y-%m-%d'),
+            end_date=target_end.strftime('%Y-%m-%d'),
             show_list=True
         )
     except Exception as e:
