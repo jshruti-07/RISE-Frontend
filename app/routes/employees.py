@@ -1,9 +1,57 @@
 import requests
+from urllib.parse import quote, unquote
 from flask import Blueprint, render_template, redirect, url_for, request, flash, jsonify, session
 from app.utils import BASE_URL, get_headers, role_required, fetch_leave_balance_helper
 from app.ui_constants import UI_LABELS
 
 employees_bp = Blueprint('employees', __name__)
+
+
+def _employee_names_match(record_name, target_name):
+    """Match system names with or without role prefix (e.g. T_John vs John)."""
+    if not record_name or not target_name:
+        return False
+    r, t = str(record_name).strip(), str(target_name).strip()
+    if r == t:
+        return True
+    if len(r) > 2 and r[1] == '_' and r[2:] == t:
+        return True
+    if len(t) > 2 and t[1] == '_' and t[2:] == r:
+        return True
+    return False
+
+
+def _find_employee_record(employee_name, headers):
+    """Find employee from list API with flexible name matching."""
+    if not employee_name:
+        return {}
+    try:
+        res = requests.get(f"{BASE_URL}/employees", headers=headers, timeout=10)
+        if res.status_code == 200:
+            employees = res.json().get("employees", [])
+            for emp in employees:
+                if _employee_names_match(emp.get("name"), employee_name):
+                    return emp
+    except Exception as e:
+        print(f"Employee list lookup failed: {e}")
+    return {}
+
+
+def _parse_profile_api_response(body):
+    """
+    Normalize profile API JSON (current backend uses data.profile;
+    legacy responses used top-level employee/documents).
+    """
+    if not body or not isinstance(body, dict):
+        return {}, {}
+
+    if body.get("employee"):
+        return body.get("employee") or {}, body.get("documents") or {}
+
+    payload = body.get("data") if isinstance(body.get("data"), dict) else body
+    profile = payload.get("profile") or {}
+    documents = payload.get("documents") or body.get("documents") or {}
+    return profile, documents
 
 @employees_bp.route('/employees')
 @role_required(['admin', 'hr', 'manager'])
@@ -266,44 +314,71 @@ def edit_employee(id):
 
         return render_template('edit_employee.html', employee=employee)
 
-@employees_bp.route('/profile/<employee_name>')
+@employees_bp.route('/profile/<path:employee_name>')
 @role_required(['hr', 'admin'])
 def view_profile(employee_name):
     if 'token' not in session:
         return redirect(url_for('auth.login'))
-    
+
+    employee_name = unquote(employee_name).strip()
     headers = get_headers()
-    # Fetch profile data from backend
-    res = requests.get(f"{BASE_URL}/profile/{employee_name}", headers=headers)
-    
+
     employee = {}
     documents = {}
-    
-    if res.status_code == 200:
-        data = res.json()
-        employee = data.get("employee", {})
-        documents = data.get("documents") or {}
-    else:
-        # Fallback: Try to find employee in the main list
-        list_res = requests.get(f"{BASE_URL}/employees", headers=headers)
-        if list_res.status_code == 200:
-            employees = list_res.json().get("employees", [])
-            employee = next((e for e in employees if e.get("name") == employee_name), None)
-            
-        if not employee:
-            flash("Employee profile not found", "danger")
-            return redirect(url_for('employees.employee_list'))
-    
+
+    # Primary: dedicated profile endpoint (returns data.profile)
+    try:
+        profile_url = f"{BASE_URL}/profile/{quote(employee_name, safe='')}"
+        res = requests.get(profile_url, headers=headers, timeout=10)
+        if res.status_code == 200:
+            employee, documents = _parse_profile_api_response(res.json())
+        elif res.status_code == 404:
+            flash(f"Team member '{employee_name}' was not found.", "warning")
+        else:
+            print(f"Profile API HTTP {res.status_code}: {res.text[:200]}")
+    except Exception as e:
+        print(f"Profile API error: {e}")
+
+    # Fallback: employees list (exact / prefixed name match)
+    if not employee or not employee.get("email"):
+        fallback = _find_employee_record(employee_name, headers)
+        if fallback:
+            employee = {**fallback, **{k: v for k, v in employee.items() if v is not None and v != ''}}
+
+    # Enrich via single-employee endpoint when we have an id
+    emp_id = employee.get("id")
+    if emp_id:
+        try:
+            detail_res = requests.get(
+                f"{BASE_URL}/employees/{emp_id}", headers=headers, timeout=10
+            )
+            if detail_res.status_code == 200:
+                detail = detail_res.json().get("employee") or {}
+                if detail:
+                    employee = {**employee, **detail}
+        except Exception as e:
+            print(f"Employee detail fetch failed: {e}")
+
+    if not employee:
+        flash("Employee profile not found", "danger")
+        return redirect(url_for('employees.employee_list'))
+
+    display_name = employee.get("name") or employee_name
+
     # Calculate progress
     doc_keys = ["pan_card", "aadhar_card", "tenth_cert", "twelfth_cert", "graduation_cert", "postgrad_cert"]
     uploaded = sum(1 for key in doc_keys if documents.get(key) and str(documents.get(key)).strip())
     percent = int((uploaded / len(doc_keys)) * 100) if doc_keys else 0
-    
-    # Get leave balance
-    summary = {'remaining_leaves': 0}
-    balance_data = fetch_leave_balance_helper(employee_name)
+
+    # Leave balance — prefer profile fields, then helper API
+    summary = {
+        'remaining_leaves': employee.get('remaining_leaves') or 0,
+        'total_leaves': employee.get('total_leaves') or 0,
+        'used_leaves': employee.get('used_leaves') or 0,
+    }
+    balance_data = fetch_leave_balance_helper(display_name)
     if balance_data:
-        summary = balance_data.get("summary", {})
+        summary = balance_data.get("summary", summary)
         
     # Get bank details
     bank_details = {}
@@ -312,10 +387,14 @@ def view_profile(employee_name):
         if bank_res.status_code == 200:
             bd_list = bank_res.json().get("bank_details", [])
             if isinstance(bd_list, list):
-                bank_details = next((b for b in bd_list if b.get("employee_name") == employee_name), {})
-    except: pass
-    
-    is_own_profile = employee.get('name') == session.get('employee_name')
+                bank_details = next(
+                    (b for b in bd_list if _employee_names_match(b.get("employee_name"), display_name)),
+                    {},
+                )
+    except Exception:
+        pass
+
+    is_own_profile = _employee_names_match(employee.get('name'), session.get('employee_name'))
 
     return render_template(
         "profile.html",

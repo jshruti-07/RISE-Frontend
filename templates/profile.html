@@ -37,11 +37,17 @@
 
                 <!-- DETAILS -->
                 <div>
-                    <h4 class="mb-1">{{ employee.name }}</h4>
-                    <small class="text-muted">ID: {{ employee.id }}</small>
+                    <h4 class="mb-1">{{ employee.name or '—' }}</h4>
+                    <small class="text-muted">ID: {{ employee.id if employee.id is not none else 'N/A' }}</small>
 
                     <div class="mt-2">
-                        <div>Email: {{ employee.email }}</div>
+                        <div>Email: {{ employee.email or 'Not set' }}</div>
+                        {% if employee.get('username') and is_hr_view|default(false) %}
+                            <div>Login: {{ employee.username }}</div>
+                        {% endif %}
+                        {% if employee.get('role') and is_hr_view|default(false) %}
+                            <div>Role: {{ employee.role | upper }}</div>
+                        {% endif %}
                         {% if employee.get('date_of_birth') %}
                             <div>DOB: {{ employee.date_of_birth[:11] }}</div>
                         {% else %}
