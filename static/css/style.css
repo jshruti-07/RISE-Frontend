@@ -839,6 +839,8 @@ select.form-control {
 
     /* overflow: hidden; */
 
+    margin-bottom: 10px;
+
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
     box-shadow: 0 4px 16px rgba(99, 102, 241, 0.3);
