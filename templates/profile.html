@@ -11,24 +11,20 @@
             <div class="d-flex gap-4 align-items-center">
 
                 <!-- PROFILE PHOTO -->
-                {% set current_emp_id = session.get('employee_id') | string %}
-                {% set profile_emp_id = employee.id | string %}
-                
-                {% if current_emp_id == profile_emp_id %}
+                {% if is_own_profile|default(false) %}
                 <form id="photoUploadForm" method="POST" action="/upload-photo" enctype="multipart/form-data">
-                    <label style="cursor:pointer" title="Click to change photo">
-                        <div class="position-relative">
-                            <img id="profileImage" src="{% if employee.photo_url %}{{ employee.photo_url }}{% elif employee.photo %}{{ employee.photo }}{% else %}{{ url_for('static', filename='images/default.png') }}{% endif %}"
-                                width="100" height="100" class="rounded-circle"
-                                style="object-fit:cover; border:2px solid #ddd;"
-                                onerror="this.src='{{ url_for('static', filename='images/default.png') }}'">
-                            <div id="uploadSpinner" class="spinner-border spinner-border-sm text-primary position-absolute top-50 start-50 translate-middle d-none" role="status">
-                                <span class="visually-hidden">Loading...</span>
-                            </div>
+                    <div class="position-relative" style="cursor:pointer" title="Click to change photo"
+                         onclick="document.getElementById('photoInput').click()">
+                        <img id="profileImage" src="{% if employee.photo_url %}{{ employee.photo_url }}{% elif employee.photo %}{{ employee.photo }}{% else %}{{ url_for('static', filename='images/default.png') }}{% endif %}"
+                            width="100" height="100" class="rounded-circle"
+                            style="object-fit:cover; border:2px solid #ddd;"
+                            onerror="this.src='{{ url_for('static', filename='images/default.png') }}'">
+                        <div id="uploadSpinner" class="spinner-border spinner-border-sm text-primary position-absolute top-50 start-50 translate-middle d-none" role="status">
+                            <span class="visually-hidden">Loading...</span>
                         </div>
-                        <input type="file" name="photo" id="photoInput" hidden accept="image/png,image/jpeg,image/webp,image/gif" onchange="triggerPhotoUpload()">
-                        <input type="hidden" name="employee_id" value="{{ employee.id }}">
-                    </label>
+                    </div>
+                    <input type="file" name="photo" id="photoInput" hidden accept="image/png,image/jpeg,image/webp,image/gif">
+                    <input type="hidden" name="employee_id" value="{{ employee.id }}">
                 </form>
                 {% else %}
                 <div class="position-relative">
@@ -302,34 +298,55 @@
             let isUploadingPhoto = false;
 
             function triggerPhotoUpload() {
-                const form = document.getElementById('photoUploadForm');
                 const input = document.getElementById('photoInput');
                 const spinner = document.getElementById('uploadSpinner');
                 const img = document.getElementById('profileImage');
+                const form = document.getElementById('photoUploadForm');
 
-                if (isUploadingPhoto || !input.files[0]) return;
+                if (!input || !form || isUploadingPhoto || !input.files || !input.files[0]) return;
+
+                const file = input.files[0];
+                const allowed = ['image/png', 'image/jpeg', 'image/webp', 'image/gif'];
+                if (!allowed.includes(file.type)) {
+                    showAlert('Please choose a PNG, JPEG, WebP, or GIF image.', 'warning');
+                    input.value = '';
+                    return;
+                }
 
                 isUploadingPhoto = true;
-                spinner.classList.remove('d-none');
-                img.style.opacity = '0.5';
-                form.submit();
+                if (spinner) spinner.classList.remove('d-none');
+                if (img) img.style.opacity = '0.5';
+
+                const formData = new FormData(form);
+                fetch('/upload-photo', {
+                    method: 'POST',
+                    body: formData,
+                    headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                })
+                    .then(res => res.json().then(data => ({ ok: res.ok, data })))
+                    .then(({ ok, data }) => {
+                        if (ok && data.success) {
+                            if (data.photo_url && img) {
+                                img.src = data.photo_url + (data.photo_url.includes('?') ? '&' : '?') + 't=' + Date.now();
+                            }
+                            showAlert(data.message || 'Profile photo updated successfully!', 'success');
+                        } else {
+                            showAlert(data.error || 'Upload failed. Please try again.', 'danger');
+                        }
+                    })
+                    .catch(() => showAlert('Upload failed. Please try again.', 'danger'))
+                    .finally(() => {
+                        isUploadingPhoto = false;
+                        if (spinner) spinner.classList.add('d-none');
+                        if (img) img.style.opacity = '1';
+                        input.value = '';
+                    });
             }
 
-            // Prevent double-submission via Enter key
             document.addEventListener('DOMContentLoaded', function() {
-                const photoForm = document.getElementById('photoUploadForm');
-                if (photoForm) {
-                    photoForm.addEventListener('submit', function(e) {
-                        if (isUploadingPhoto) {
-                            // Already submitting via triggerPhotoUpload
-                        } else {
-                            isUploadingPhoto = true;
-                            const spinner = document.getElementById('uploadSpinner');
-                            const img = document.getElementById('profileImage');
-                            if (spinner) spinner.classList.remove('d-none');
-                            if (img) img.style.opacity = '0.5';
-                        }
-                    });
+                const photoInput = document.getElementById('photoInput');
+                if (photoInput) {
+                    photoInput.addEventListener('change', triggerPhotoUpload);
                 }
             });
 

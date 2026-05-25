@@ -4,6 +4,22 @@ from app.utils import BASE_URL, get_headers, fetch_leave_balance_helper, role_re
 
 user_bp = Blueprint('user', __name__)
 
+def _find_employee_by_name(employee_name, headers=None):
+    """Look up employee record by prefixed system name."""
+    if not employee_name:
+        return {}
+    headers = headers or get_headers()
+    try:
+        res = requests.get(f"{BASE_URL}/employees", headers=headers, timeout=10)
+        if res.status_code == 200:
+            for emp in res.json().get("employees", []):
+                if emp.get("name") == employee_name:
+                    return emp
+    except Exception as e:
+        print(f"Employee lookup failed: {e}")
+    return {}
+
+
 @user_bp.route('/profile')
 def profile():
     if 'employee_name' not in session:
@@ -11,15 +27,11 @@ def profile():
     
     headers = get_headers()
     employee_name = session.get('employee_name')
-    
-    # Get employee details
-    res = requests.get(f"{BASE_URL}/employees", headers=headers)
-    employee = {}
-    if res.status_code == 200:
-        for emp in res.json().get("employees", []):
-            if emp.get("name") == employee_name:
-                employee = emp
-                break
+    employee = _find_employee_by_name(employee_name, headers)
+
+    # Cache employee table id for photo upload (session['employee_id'] is users.id from login)
+    if employee.get('id'):
+        session['employee_table_id'] = employee['id']
     
     # Get leave balance
     summary = {'remaining_leaves': 0}
@@ -32,10 +44,27 @@ def profile():
     try:
         bank_res = requests.get(f"{BASE_URL}/bank-details/", headers=headers)
         if bank_res.status_code == 200:
-            bank_details = bank_res.json().get("bank_details", {})
-    except: pass
+            bd = bank_res.json().get("bank_details", {})
+            if isinstance(bd, list):
+                bank_details = next(
+                    (b for b in bd if b.get("employee_name") == employee_name),
+                    {},
+                )
+            elif isinstance(bd, dict):
+                bank_details = bd
+    except Exception:
+        pass
 
-    return render_template("profile.html", employee=employee, summary=summary, bank_details=bank_details, percent=0, is_hr_view=False, BASE_URL=BASE_URL)
+    return render_template(
+        "profile.html",
+        employee=employee,
+        summary=summary,
+        bank_details=bank_details,
+        percent=0,
+        is_hr_view=False,
+        is_own_profile=True,
+        BASE_URL=BASE_URL,
+    )
 
 @user_bp.route('/bank-verification')
 @role_required(['admin', 'hr'])
@@ -93,53 +122,77 @@ def serve_upload(filename):
 @user_bp.route('/upload-photo', methods=['POST'])
 def upload_photo():
     if 'token' not in session:
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return jsonify({'success': False, 'error': 'Not authenticated'}), 401
         return redirect(url_for('auth.login'))
-    
+
     file = request.files.get('photo')
-    employee_id = request.form.get('employee_id')
-    
-    # 1. Validate file exists and has a filename
+    session_emp_name = session.get('employee_name')
+
     if not file or file.filename == '':
-        flash('Please select a valid photo first.', 'warning')
+        msg = 'Please select a valid photo first.'
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return jsonify({'success': False, 'error': msg}), 400
+        flash(msg, 'warning')
         return redirect(request.referrer or url_for('user.profile'))
 
-    # 2. Ensure we have an employee ID and verify it matches the current user
-    session_emp_id = str(session.get('employee_id', ''))
-    
-    if not employee_id or employee_id == 'None' or employee_id == '':
-        employee_id = session_emp_id
-    
-    if str(employee_id) != session_emp_id:
-        flash('Access denied. You can only update your own profile photo.', 'danger')
-        return redirect(url_for('user.profile'))
+    # Resolve employee table id by session name (not users.id from login)
+    employee = _find_employee_by_name(session_emp_name)
+    employee_id = employee.get('id') or session.get('employee_table_id')
 
-    if not employee_id or employee_id == 'N/A':
-        flash('Could not determine employee identity. Please log in again.', 'danger')
+    if not employee_id:
+        msg = 'Could not determine employee identity. Please log in again.'
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return jsonify({'success': False, 'error': msg}), 400
+        flash(msg, 'danger')
         return redirect(url_for('auth.login'))
 
-    # 3. Process the upload
+    # Optional: reject if form id does not match resolved id (tamper check)
+    form_emp_id = request.form.get('employee_id')
+    if form_emp_id and str(form_emp_id) not in ('', 'None', 'N/A') and str(form_emp_id) != str(employee_id):
+        msg = 'Access denied. You can only update your own profile photo.'
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return jsonify({'success': False, 'error': msg}), 403
+        flash(msg, 'danger')
+        return redirect(url_for('user.profile'))
+
     try:
-        # We use exclude_content_type=True because 'requests' sets the boundary automatically for files
         headers = get_headers(exclude_content_type=True)
-        
         upload_data = {'photo': (file.filename, file.read(), file.mimetype)}
         res = requests.post(
             f"{BASE_URL}/employees/{employee_id}/photo",
             files=upload_data,
             headers=headers,
-            timeout=15
+            timeout=15,
         )
 
         if res.status_code == 200:
-            resp_data = res.json()
-            session['photo_url'] = resp_data.get('photo_url')
-            flash('Profile photo updated successfully!', 'success')
+            resp_data = res.json() if res.content else {}
+            photo_url = (
+                resp_data.get('photo_url')
+                or resp_data.get('employee', {}).get('photo_url')
+                or resp_data.get('employee', {}).get('photo')
+            )
+            if photo_url:
+                session['photo_url'] = photo_url
+            msg = 'Profile photo updated successfully!'
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return jsonify({'success': True, 'message': msg, 'photo_url': photo_url}), 200
+            flash(msg, 'success')
         else:
-            error_msg = res.json().get('error', 'Upload failed on server')
+            try:
+                error_msg = res.json().get('error', 'Upload failed on server')
+            except Exception:
+                error_msg = f'Upload failed (HTTP {res.status_code})'
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return jsonify({'success': False, 'error': error_msg}), res.status_code
             flash(f'Upload failed: {error_msg}', 'danger')
-            
+
     except Exception as e:
         print(f"Photo upload exception: {e}")
-        flash('An error occurred while uploading your photo. Please try again.', 'danger')
+        msg = 'An error occurred while uploading your photo. Please try again.'
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return jsonify({'success': False, 'error': msg}), 500
+        flash(msg, 'danger')
 
     return redirect(request.referrer or url_for('user.profile'))

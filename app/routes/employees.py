@@ -315,8 +315,19 @@ def view_profile(employee_name):
                 bank_details = next((b for b in bd_list if b.get("employee_name") == employee_name), {})
     except: pass
     
-    return render_template("profile.html", employee=employee, documents=documents, percent=percent, 
-                           summary=summary, bank_details=bank_details, is_hr_view=True, BASE_URL=BASE_URL)
+    is_own_profile = employee.get('name') == session.get('employee_name')
+
+    return render_template(
+        "profile.html",
+        employee=employee,
+        documents=documents,
+        percent=percent,
+        summary=summary,
+        bank_details=bank_details,
+        is_hr_view=not is_own_profile,
+        is_own_profile=is_own_profile,
+        BASE_URL=BASE_URL,
+    )
 
 @employees_bp.route('/api/employees')
 @role_required(['admin', 'hr', 'manager'])
