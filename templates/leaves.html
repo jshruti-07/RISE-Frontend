@@ -530,5 +530,13 @@ function updateLeave(leaveId, status, btn) {
     })
     .catch(err => { alert(err.message || "Error updating leave"); });
 }
+
+document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('.table').forEach((table, index) => {
+        const id = `leave-table-${index}`;
+        table.id = table.id || id;
+        applyPagination(`#${table.id}`, 10);
+    });
+});
 </script>
 {% endblock %}

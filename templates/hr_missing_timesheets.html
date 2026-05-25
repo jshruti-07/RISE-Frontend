@@ -6,7 +6,6 @@
 <div class="form-card">
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h5 class="mb-0">Missing Timesheets ({{ start_date }} to {{ end_date }})</h5>
-        <a href="{{ url_for('work.timesheets_list') }}" class="btn btn-outline-primary btn-sm" style="border-radius: 8px;">Back to All Timesheets</a>
     </div>
     <table class="table table-hover">
         <thead>
@@ -35,48 +34,8 @@
 
 {% block scripts %}
 <script>
-// Simple client‑side pagination (10 rows per page)
-const rowsPerPage = 10;
-const table = document.querySelector('table');
-const tbody = table.querySelector('tbody');
-const rows = Array.from(tbody.querySelectorAll('tr'));
-let currentPage = 1;
-function renderPage(page) {
-    const start = (page - 1) * rowsPerPage;
-    const end = start + rowsPerPage;
-    rows.forEach((tr, i) => {
-        tr.style.display = (i >= start && i < end) ? '' : 'none';
+    document.addEventListener('DOMContentLoaded', () => {
+        applyPagination('table', 10);
     });
-    currentPage = page;
-    updatePaginationControls();
-}
-function updatePaginationControls() {
-    let pagination = document.getElementById('paginationControls');
-    if (!pagination) {
-        pagination = document.createElement('nav');
-        pagination.id = 'paginationControls';
-        pagination.innerHTML = `<ul class="pagination justify-content-center"></ul>`;
-        table.parentNode.appendChild(pagination);
-    }
-    const ul = pagination.querySelector('ul');
-    ul.innerHTML = '';
-    const totalPages = Math.ceil(rows.length / rowsPerPage);
-    for (let i = 1; i <= totalPages; i++) {
-        const li = document.createElement('li');
-        li.className = 'page-item' + (i === currentPage ? ' active' : '');
-        li.innerHTML = `<a class="page-link" href="#" data-page="${i}">${i}</a>`;
-        ul.appendChild(li);
-    }
-    ul.querySelectorAll('a').forEach(a => {
-        a.addEventListener('click', e => {
-            e.preventDefault();
-            const p = parseInt(e.target.getAttribute('data-page'));
-            renderPage(p);
-        });
-    });
-}
-if (rows.length > rowsPerPage) {
-    renderPage(1);
-}
 </script>
 {% endblock %}

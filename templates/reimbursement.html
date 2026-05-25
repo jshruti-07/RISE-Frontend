@@ -393,6 +393,9 @@ function renderReimbursements(reimbursements) {
             </tr>
         `;
     }).join('');
+    
+    // Apply pagination after rendering
+    applyPagination('.table', 10);
 }
 
 function applyFilters() {

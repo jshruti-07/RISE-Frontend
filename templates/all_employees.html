@@ -122,6 +122,10 @@ function setDeleteData(id, name) {
     document.getElementById('deleteEmpName').textContent = name;
     document.getElementById('deleteForm').action = '/delete/' + id;
 }
+
+document.addEventListener('DOMContentLoaded', () => {
+    applyPagination('.table', 10);
+});
 </script>
 
 {% endblock %}
