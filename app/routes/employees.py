@@ -226,11 +226,27 @@ def edit_employee(id):
                             )
                             if role_res.status_code == 200:
                                 role_changed = True
-                                # Backend also renames the employee_name prefix;
-                                # update payload so the basic-info save uses the new name
+                                
+                                # Manually update prefix in the frontend since backend might not return it
+                                role_prefixes = {'admin': 'A_', 'hr': 'H_', 'manager': 'M_', 'employee': 'T_'}
+                                new_prefix = role_prefixes.get(new_role.lower(), '')
+                                
+                                if new_prefix:
+                                    current_name = payload['name']
+                                    if len(current_name) > 2 and current_name[1] == '_':
+                                        payload['name'] = new_prefix + current_name[2:]
+                                    else:
+                                        payload['name'] = new_prefix + current_name
+                                
+                                # Also check if backend provided a renamed one just in case
                                 new_username = role_res.json().get("new_username")
                                 if new_username:
                                     payload["name"] = new_username
+
+                                # If the logged-in user changed their own role, update their active session
+                                if current_emp_name == session.get('employee_name'):
+                                    session['role'] = new_role.lower()
+                                    session['employee_name'] = payload['name']
                             else:
                                 role_error = role_res.json().get(
                                     "error", f"Role update failed (HTTP {role_res.status_code})"
