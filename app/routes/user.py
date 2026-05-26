@@ -220,7 +220,7 @@ def upload_photo():
     return redirect(request.referrer or url_for('user.profile'))
 
 
-@user_bp.route('/upload', methods=['POST'])
+@user_bp.route('/documents/upload', methods=['POST'])
 def upload_document():
     """Proxy document upload to the backend API."""
     if 'token' not in session:
@@ -250,7 +250,7 @@ def upload_document():
     try:
         headers = get_headers(exclude_content_type=True)
         res = requests.post(
-            f"{BASE_URL}/upload",
+            f"{BASE_URL}/documents/upload",
             data=payload_data,
             files=files,
             headers=headers,
