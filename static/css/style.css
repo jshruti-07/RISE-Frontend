@@ -881,6 +881,28 @@ select.form-control {
 
 }
 
+/* ===== FILTER BUTTON ===== */
+.btn-filter {
+    background: linear-gradient(135deg, #3e3f79 0%, #33069b 50%, #4A47A3 100%);
+    border: none;
+    border-radius: 6px; 
+    padding: 0 1rem;
+    font-weight: 500;
+    color: white;
+    transition: all 0.2s ease-in-out;
+    height: calc(1.5em + 0.5rem + 2px); /* Matches form-control-sm height exactly */
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-filter:hover {
+    background: linear-gradient(135deg, #09027c 0%, #370095 50%, #080190 100%);
+    color: white;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.25);
+}
+
 .btn-primary:active {
 
     transform: translateY(0);
