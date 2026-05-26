@@ -1619,29 +1619,32 @@ def upload_document():
             files=files,
             headers=get_headers()
         )
-        if res.status_code in (200, 201):
+        print('UPLOAD RESPONSE STATUS:', res.status_code)
+        print('UPLOAD RESPONSE TEXT:', res.text)
+        if res.status_code in [200, 201]:
             if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
                 return jsonify({"success": True, "message": "Document uploaded successfully"})
             else:
                 flash("Document uploaded successfully", "success")
                 return redirect(request.referrer)
         else:
+            error_msg = None
+            try:
+                error_msg = res.json().get('error')
+            except Exception:
+                error_msg = res.text
             if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-                return jsonify({"success": False, "error": "Upload failed"}), 400
+                return jsonify({"success": False, "error": error_msg or "Upload failed"}), res.status_code
             else:
-                flash("Upload failed", "danger")
+                flash(error_msg or "Upload failed", "danger")
                 return redirect(request.referrer)
     except Exception as e:
-        print(e)
+        print('EXCEPTION during upload:', e)
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             return jsonify({"success": False, "error": "Server error"}), 500
         else:
             flash("Server error", "danger")
             return redirect(request.referrer)
-    print("UPLOAD ROUTE HIT")
-    print("FILES:", request.files)
-    print("FORM:", request.form)
-    return redirect(request.referrer)
 
 
 # ── Lightweight photo URL endpoint (called async by sidebar JS) ───────────────
