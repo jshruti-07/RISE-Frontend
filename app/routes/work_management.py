@@ -397,13 +397,15 @@ def leaves_list():
                 employees = emp_data
         role_map = {emp.get('name'): emp.get('role', 'employee') for emp in employees}
         
-        projects_file = os.path.join(os.getcwd(), 'projects.json')
+        # Fetch projects from API instead of static json
         projects_db = []
-        if os.path.exists(projects_file):
-            try:
-                with open(projects_file, 'r') as f:
-                    projects_db = json.load(f)
-            except: projects_db = []
+        try:
+            proj_res = requests.get(f"{BASE_URL}/projects/", headers=get_headers(), timeout=10)
+            if proj_res.status_code == 200:
+                data = proj_res.json()
+                projects_db = data.get("projects", []) if isinstance(data, dict) else data
+        except Exception as e:
+            print(f"Error fetching projects for leaves: {e}")
 
         user_role = str(session.get('role', '')).lower().strip()
         current_user = session.get('employee_name')

@@ -41,11 +41,16 @@
                         <button type="submit" class="btn btn-primary btn-sm">Apply</button>
                     </div>
                 </form>
-                {% if session.role == 'employee' %}
-                <a href="{{ url_for('work.add_leave') }}" class="btn btn-primary btn-sm">
-                    <i class="bi bi-calendar-plus"></i> Apply Leave
-                </a>
-                {% endif %}
+                <div class="d-flex gap-2">
+                    <button type="button" class="btn btn-info btn-sm text-white" data-bs-toggle="modal" data-bs-target="#calendarModal">
+                        <i class="bi bi-calendar"></i> View Calendar
+                    </button>
+                    {% if session.role == 'employee' %}
+                    <a href="{{ url_for('work.add_leave') }}" class="btn btn-primary btn-sm">
+                        <i class="bi bi-calendar-plus"></i> Apply Leave
+                    </a>
+                    {% endif %}
+                </div>
             </div>
         </div>
     </div>
@@ -158,105 +163,6 @@
         </div>
     </div>
 
-    <!-- Tabs Section -->
-    <div class="form-card">
-        <ul class="nav nav-tabs mb-3" id="attendanceTabs" role="tablist">
-            <li class="nav-item" role="presentation">
-                <button class="nav-link active" id="leave-tab" data-bs-toggle="tab" data-bs-target="#leave" type="button" role="tab">
-                    Leave Details
-                </button>
-            </li>
-            <li class="nav-item" role="presentation">
-                <button class="nav-link" id="attendance-tab" data-bs-toggle="tab" data-bs-target="#attendance" type="button" role="tab">
-                    Attendance Details
-                </button>
-            </li>
-        </ul>
-
-        <div class="tab-content" id="attendanceTabsContent">
-            <!-- Leave Details Tab -->
-            <div class="tab-pane fade show active" id="leave" role="tabpanel">
-                <div class="table-responsive">
-                    <table class="table table-hover">
-                        <thead>
-                            <tr>
-                                <th>Leave Type</th>
-                                <th>Start Date</th>
-                                <th>End Date</th>
-                                <th>Days</th>
-                                <th>Status</th>
-                                <th>Reason</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for l in leave_details %}
-                            <tr>
-                                <td>{{ l.leave_type if l.leave_type else '-' }}</td>
-                                <td>{{ l.start_date[:10] if l.start_date else '-' }}</td>
-                                <td>{{ l.end_date[:10] if l.end_date else '-' }}</td>
-                                <td>{{ l.days if l.days else 0 }}</td>
-                                <td>
-                                    <span class="badge 
-                                        {% if l.status == 'approved' %}bg-success
-                                        {% elif l.status == 'pending' %}bg-warning
-                                        {% elif l.status == 'rejected' %}bg-danger
-                                        {% else %}bg-secondary{% endif %}">
-                                        {{ l.status|capitalize if l.status else '-' }}
-                                    </span>
-                                </td>
-                                <td>{{ l.reason if l.reason else '-' }}</td>
-                            </tr>
-                            {% else %}
-                            <tr>
-                                <td colspan="6" class="text-center">No leave records found</td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            <!-- Attendance Details Tab -->
-            <div class="tab-pane fade" id="attendance" role="tabpanel">
-                <div class="table-responsive">
-                    <table class="table table-hover">
-                        <thead>
-                            <tr>
-                                <th>Date</th>
-                                <th>{{ labels.EMPLOYEE }}</th>
-                                <th>Total Hours</th>
-                                <th>Overtime</th>
-                                <th>Status</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for a in attendance_details %}
-                            <tr>
-                                <td>{{ a.date if a.date else '-' }}</td>
-                                <td>{{ a.employee_name if a.employee_name else '-' }}</td>
-                                <td>{{ a.total_worked_hours if a.total_worked_hours else 0 }}</td>
-                                <td>{{ a.overtime_hours if a.overtime_hours else 0 }}</td>
-                                <td>
-                                    <span class="badge 
-                                        {% if a.status == 'present' %}bg-success
-                                        {% elif a.status == 'half-day' %}bg-warning
-                                        {% elif a.status == 'absent' %}bg-danger
-                                        {% else %}bg-secondary{% endif %}">
-                                        {{ a.status if a.status else '-' }}
-                                    </span>
-                                </td>
-                            </tr>
-                            {% else %}
-                            <tr>
-                                <td colspan="6" class="text-center">No attendance records found</td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-    </div>
 </div>
 
 <!-- Calendar Modal -->

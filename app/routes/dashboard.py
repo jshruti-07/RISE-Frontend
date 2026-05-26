@@ -207,15 +207,28 @@ def dashboard():
 
         if session.get('role') == 'manager':
             manager_name = session.get('employee_name')
-            # Look for projects.json in the project root (one level up from app/routes)
-            projects_file = os.path.join(os.getcwd(), 'projects.json')
-            if os.path.exists(projects_file):
-                with open(projects_file, 'r') as f:
-                    projects_db = json.load(f)
-                    projects = [proj for proj in projects_db if proj.get('assigned_manager') == manager_name and proj.get('status') == 'active']
             
-            manager_project_names = [proj.get('name') for proj in projects]
-            team_pending_timesheets = [t for t in timesheets if t.get('project') in manager_project_names and str(t.get('status', '')).lower() in ['pending', 'missing', 'missing entry']]
+            def is_match(n1, n2):
+                if not n1 or not n2: return False
+                s1, s2 = str(n1).lower().strip(), str(n2).lower().strip()
+                if s1 == s2: return True
+                if len(s1) > 2 and s1[1] == '_' and s1[2:] == s2: return True
+                if len(s2) > 2 and s2[1] == '_' and s2[2:] == s1: return True
+                return False
+
+            # Fetch projects from API instead of static json
+            projects_db = []
+            try:
+                proj_res = requests.get(f"{BASE_URL}/projects/", headers=get_headers(), timeout=10)
+                if proj_res.status_code == 200:
+                    data = proj_res.json()
+                    projects_db = data.get("projects", []) if isinstance(data, dict) else data
+            except: pass
+
+            projects = [proj for proj in projects_db if is_match(proj.get('assigned_manager') or proj.get('manager_name'), manager_name) and str(proj.get('status', '')).lower() == 'active']
+            
+            manager_project_names = [proj.get('name', '').lower().strip() for proj in projects]
+            team_pending_timesheets = [t for t in timesheets if str(t.get('project', '')).lower().strip() in manager_project_names and str(t.get('status', '')).lower() in ['pending', 'missing', 'missing entry']]
             
             team_member_names = set()
             for proj in projects:
@@ -225,7 +238,13 @@ def dashboard():
                 elif isinstance(mems, str):
                     team_member_names.update([m.strip() for m in mems.split(',') if m.strip()])
             
-            team_leaves = [l for l in leaves if l.get('employee_name') in team_member_names and l.get('status', '').lower() in ['pending', 'approved']]
+            team_leaves = []
+            for l in leaves:
+                if str(l.get('status', '')).lower() in ['pending', 'approved']:
+                    emp_n = l.get('employee_name') or l.get('name') or l.get('emp_name')
+                    # Check if this employee matches any in the team
+                    if any(is_match(emp_n, tm) for tm in team_member_names):
+                        team_leaves.append(l)
             team_leaves.sort(key=lambda x: x.get('start_date', ''), reverse=True)
 
         # Fetch active announcements for the dashboard widget
