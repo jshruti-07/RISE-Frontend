@@ -1619,7 +1619,7 @@ def upload_document():
             files=files,
             headers=get_headers()
         )
-        if res.status_code == 200:
+        if res.status_code in (200, 201):
             if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
                 return jsonify({"success": True, "message": "Document uploaded successfully"})
             else:
