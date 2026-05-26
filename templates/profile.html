@@ -264,7 +264,7 @@
                 {% endif %}
 
                 {% if not is_hr_view %}
-                <form method="POST" action="/upload-document" enctype="multipart/form-data" class="d-flex gap-2">
+                <form method="POST" action="/upload" enctype="multipart/form-data" class="d-flex gap-2">
                     <input type="file" name="file" class="form-control form-control-sm" required>
                     <input type="hidden" name="type" value="{{ key }}">
                     <input type="hidden" name="employee_id" value="{{ employee.id }}">
@@ -388,7 +388,7 @@
                 submitButton.disabled = true;
                 submitButton.textContent = 'Uploading...';
 
-                fetch('/upload-document', {
+                fetch('/upload', {
                     method: 'POST',
                     body: formData,
                     headers: {

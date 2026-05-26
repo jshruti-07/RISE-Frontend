@@ -55,12 +55,34 @@ def profile():
     except Exception:
         pass
 
+    # Get documents
+    documents = {}
+    try:
+        doc_res = requests.get(f"{BASE_URL}/documents", headers=headers)
+        if doc_res.status_code == 200:
+            docs_data = doc_res.json()
+            if isinstance(docs_data, list):
+                documents = next(
+                    (d for d in docs_data if d.get("employee_name") == employee_name),
+                    {},
+                )
+            elif isinstance(docs_data, dict):
+                documents = docs_data
+    except Exception:
+        pass
+
+    # Calculate document completion percentage
+    doc_types = ['pan_card', 'aadhar_card', 'tenth_cert', 'twelfth_cert', 'graduation_cert', 'postgrad_cert']
+    uploaded_count = sum(1 for doc_type in doc_types if documents.get(doc_type))
+    percent = int((uploaded_count / len(doc_types)) * 100) if doc_types else 0
+
     return render_template(
         "profile.html",
         employee=employee,
         summary=summary,
         bank_details=bank_details,
-        percent=0,
+        documents=documents,
+        percent=percent,
         is_hr_view=False,
         is_own_profile=True,
         BASE_URL=BASE_URL,
