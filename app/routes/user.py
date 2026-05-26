@@ -228,7 +228,7 @@ def upload_document():
     try:
         headers = get_headers(exclude_content_type=True)
         res = requests.post(
-            f"{BASE_URL}/upload-document",
+            f"{BASE_URL}/upload",
             data=payload_data,
             files=files,
             headers=headers,
