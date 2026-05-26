@@ -388,7 +388,7 @@
                 submitButton.disabled = true;
                 submitButton.textContent = 'Uploading...';
 
-                fetch('/upload', {
+                fetch('/documents/upload', {
                     method: 'POST',
                     body: formData,
                     headers: {
@@ -517,7 +517,9 @@
                     });
                 }
 
-                const uploadForms = document.querySelectorAll('form[action="/upload-document"]');
+                const uploadForms = document.querySelectorAll(
+                    'form[action="/documents/upload"], form[action="/upload-document"]'
+                );
                 uploadForms.forEach(form => {
                     form.addEventListener('submit', function (e) {
                         e.preventDefault();

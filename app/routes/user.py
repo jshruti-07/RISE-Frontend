@@ -55,19 +55,18 @@ def profile():
     except Exception:
         pass
 
-    # Get documents
+    # Get uploaded documents for this employee
     documents = {}
     try:
-        doc_res = requests.get(f"{BASE_URL}/documents", headers=headers)
+        doc_res = requests.get(f"{BASE_URL}/documents/my-status", headers=headers, timeout=10)
         if doc_res.status_code == 200:
-            docs_data = doc_res.json()
-            if isinstance(docs_data, list):
-                documents = next(
-                    (d for d in docs_data if d.get("employee_name") == employee_name),
-                    {},
-                )
-            elif isinstance(docs_data, dict):
-                documents = docs_data
+            rows = doc_res.json().get("documents", [])
+            if isinstance(rows, list):
+                documents = {
+                    r["doc_type"]: r.get("file_path")
+                    for r in rows
+                    if isinstance(r, dict) and r.get("doc_type") and r.get("file_path")
+                }
     except Exception:
         pass
 
@@ -221,6 +220,7 @@ def upload_photo():
 
 
 @user_bp.route('/documents/upload', methods=['POST'])
+@user_bp.route('/upload-document', methods=['POST'])  # legacy form action
 def upload_document():
     """Proxy document upload to the backend API."""
     if 'token' not in session:
@@ -229,8 +229,20 @@ def upload_document():
         return redirect(url_for('auth.login'))
 
     file = request.files.get('file')
-    doc_type = request.form.get('type')
-    employee_id = request.form.get('employee_id')
+    # Form uses hidden input name="type"; backend requires doc_type
+    doc_type = (request.form.get('doc_type') or request.form.get('type') or '').strip()
+    employee_id = (
+        request.form.get('employee_id')
+        or session.get('employee_table_id')
+        or ''
+    )
+
+    if not doc_type:
+        msg = "'doc_type' is required. Example: pan_card, aadhar_card"
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return jsonify({'success': False, 'error': msg}), 400
+        flash(msg, 'danger')
+        return redirect(request.referrer or url_for('user.profile'))
 
     if not file or file.filename == '':
         msg = 'No file selected'
@@ -240,22 +252,28 @@ def upload_document():
         return redirect(request.referrer or url_for('user.profile'))
 
     payload_data = {
-        'type': doc_type,
+        'doc_type': doc_type,
+        'type': doc_type,  # backward compatibility for older backends
         'employee_id': employee_id,
     }
+    file_bytes = file.read()
     files = {
-        'file': (file.filename, file.read(), file.mimetype),
+        'file': (file.filename, file_bytes, file.mimetype),
     }
 
     try:
         headers = get_headers(exclude_content_type=True)
-        res = requests.post(
+        upload_urls = [
             f"{BASE_URL}/documents/upload",
-            data=payload_data,
-            files=files,
-            headers=headers,
-            timeout=30,
-        )
+            f"{BASE_URL}/upload-document",
+        ]
+        res = None
+        for url in upload_urls:
+            res = requests.post(
+                url, data=payload_data, files=files, headers=headers, timeout=30
+            )
+            if res.status_code != 404:
+                break
         print('UPLOAD RESPONSE STATUS:', res.status_code)
         print('UPLOAD RESPONSE TEXT:', res.text)
 
