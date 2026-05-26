@@ -196,3 +196,65 @@ def upload_photo():
         flash(msg, 'danger')
 
     return redirect(request.referrer or url_for('user.profile'))
+
+
+@user_bp.route('/upload-document', methods=['POST'])
+def upload_document():
+    """Proxy document upload to the backend API."""
+    if 'token' not in session:
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return jsonify({'success': False, 'error': 'Not authenticated'}), 401
+        return redirect(url_for('auth.login'))
+
+    file = request.files.get('file')
+    doc_type = request.form.get('type')
+    employee_id = request.form.get('employee_id')
+
+    if not file or file.filename == '':
+        msg = 'No file selected'
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return jsonify({'success': False, 'error': msg}), 400
+        flash(msg, 'danger')
+        return redirect(request.referrer or url_for('user.profile'))
+
+    payload_data = {
+        'type': doc_type,
+        'employee_id': employee_id,
+    }
+    files = {
+        'file': (file.filename, file.read(), file.mimetype),
+    }
+
+    try:
+        headers = get_headers(exclude_content_type=True)
+        res = requests.post(
+            f"{BASE_URL}/upload-document",
+            data=payload_data,
+            files=files,
+            headers=headers,
+            timeout=30,
+        )
+        print('UPLOAD RESPONSE STATUS:', res.status_code)
+        print('UPLOAD RESPONSE TEXT:', res.text)
+
+        if res.status_code in [200, 201]:
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return jsonify({'success': True, 'message': 'Document uploaded successfully'})
+            flash('Document uploaded successfully', 'success')
+            return redirect(request.referrer or url_for('user.profile'))
+        else:
+            error_msg = None
+            try:
+                error_msg = res.json().get('error')
+            except Exception:
+                error_msg = res.text
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return jsonify({'success': False, 'error': error_msg or 'Upload failed'}), res.status_code
+            flash(error_msg or 'Upload failed', 'danger')
+            return redirect(request.referrer or url_for('user.profile'))
+    except Exception as e:
+        print('EXCEPTION during document upload:', e)
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return jsonify({'success': False, 'error': 'Server error during upload'}), 500
+        flash('Server error during upload', 'danger')
+        return redirect(request.referrer or url_for('user.profile'))
