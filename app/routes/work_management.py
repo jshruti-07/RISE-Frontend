@@ -9,6 +9,18 @@ from flask import Blueprint, render_template, redirect, url_for, request, flash,
 from datetime import datetime, timedelta
 from calendar import monthrange
 from app.utils import BASE_URL, get_headers, role_required, fetch_leave_balance_helper
+from app.api_helpers import (
+    names_match,
+    extract_list,
+    normalize_person,
+    normalize_people_list,
+    person_system_name,
+    person_role,
+    record_belongs_to_person,
+    project_team_members,
+    lookup_role,
+    pick,
+)
 import os
 import json
 
@@ -19,12 +31,6 @@ work_bp = Blueprint('work', __name__)
 @role_required(['admin', 'employee', 'hr', 'manager'])
 def timesheets_list():
     try:
-        def is_match(name1, name2):
-            if not name1 or not name2: return False
-            n1, n2 = str(name1).lower().strip(), str(name2).lower().strip()
-            if n1 == n2: return True
-            return False
-
         # 1. Fetch ALL projects
         projects_db = []
         project_manager_map = {}
@@ -32,13 +38,13 @@ def timesheets_list():
             proj_res = requests.get(f"{BASE_URL}/projects/", headers=get_headers(), timeout=10)
             if proj_res.status_code == 200:
                 data = proj_res.json()
-                projects_db = data.get("projects", []) if isinstance(data, dict) else data
+                projects_db = extract_list(data, 'projects', 'data')
                 
                 # Map projects to managers
                 for proj in projects_db:
                     if not isinstance(proj, dict): continue
                     p_name = str(proj.get('name', '')).strip().lower()
-                    mgr = proj.get('assigned_manager') or proj.get('manager_name') or '-'
+                    mgr = pick(proj, 'assigned_manager', 'manager_name', 'assigned_manager_name', default='-')
                     project_manager_map[p_name] = mgr
         except Exception as e:
             print(f"Error fetching projects for timesheets: {e}")
@@ -48,7 +54,7 @@ def timesheets_list():
         try:
             res = requests.get(f"{BASE_URL}/timesheets/", headers=get_headers(), timeout=15)
             if res.status_code == 200:
-                all_timesheets = res.json().get("timesheets", [])
+                all_timesheets = extract_list(res.json(), 'timesheets', 'data')
             elif res.status_code == 401:
                 return redirect(url_for('auth.login'))
         except Exception as e:
@@ -60,8 +66,11 @@ def timesheets_list():
             emp_res = requests.get(f"{BASE_URL}/employees/", headers=get_headers())
             if emp_res.status_code == 200:
                 emp_data = emp_res.json()
-                employees = emp_data.get("employees", []) if isinstance(emp_data, dict) else emp_data
-                role_map = {emp.get('name'): emp.get('role', 'employee') for emp in employees if isinstance(emp, dict)}
+                employees = extract_list(emp_data, 'employees', 'data')
+                role_map = {
+                    person_system_name(emp): person_role(emp)
+                    for emp in employees if isinstance(emp, dict)
+                }
         except Exception as e:
             print(f"Error fetching employees for timesheets: {e}")
         
@@ -76,8 +85,9 @@ def timesheets_list():
             emp_name = t.get('employee_name') or t.get('name') or t.get('emp_name')
             if not emp_name: continue
             
-            t['employee_role'] = role_map.get(emp_name, 'employee')
-            is_own = is_match(emp_name, current_user)
+            t['employee_role'] = lookup_role(role_map, emp_name)
+            is_own = names_match(emp_name, current_user)
+            t['is_own'] = is_own
             
             # Visibility Logic
             show = False
@@ -88,7 +98,7 @@ def timesheets_list():
             elif user_role == 'manager':
                 proj_name = str(t.get('project', '')).strip().lower()
                 mgr_for_proj = project_manager_map.get(proj_name)
-                if is_match(mgr_for_proj, current_user):
+                if names_match(mgr_for_proj, current_user):
                     show = True
             
             if show:
@@ -99,7 +109,7 @@ def timesheets_list():
         try:
             hol_res = requests.get(f"{BASE_URL}/holidays", headers=get_headers(), timeout=5)
             if hol_res.status_code == 200:
-                holidays = hol_res.json().get("holidays", [])
+                holidays = extract_list(hol_res.json(), 'holidays', 'data')
         except: pass
                 
         return render_template("timesheets.html", 
@@ -143,35 +153,38 @@ def hr_missing_timesheets():
         employees = []
         if emp_res.status_code == 200:
             emp_data = emp_res.json()
-            employees = emp_data.get("employees", []) if isinstance(emp_data, dict) else emp_data
+            employees = extract_list(emp_data, 'employees', 'data') if emp_res.status_code == 200 else []
             
         # Fetch timesheets
         all_timesheets = []
         res = requests.get(f"{BASE_URL}/timesheets/", headers=get_headers(), timeout=15)
         if res.status_code == 200:
-            all_timesheets = res.json().get("timesheets", [])
+            all_timesheets = extract_list(res.json(), 'timesheets', 'data')
 
-        # Build set of employee names who submitted a timesheet within this window
+        submitted_statuses = {'submitted', 'approved', 'rejected'}
         submitted_in_window = set()
         for ts in all_timesheets:
             try:
+                status = str(ts.get('status', '')).lower()
+                if status not in submitted_statuses:
+                    continue
                 ts_date_str = ts.get('start_date') or ts.get('date')
                 if not ts_date_str:
                     continue
                 ts_date = datetime.strptime(ts_date_str[:10], "%Y-%m-%d").date()
                 if target_start <= ts_date <= target_end:
-                    submitted_in_window.add(ts.get('employee_name'))
+                    en = pick(ts, 'employee_name', 'teamMemberName', 'name')
+                    if en:
+                        submitted_in_window.add(str(en).strip())
             except Exception:
                 continue
 
-        # Employees missing timesheets for the target period
         missing_timesheets = []
-        
         for emp in employees:
             if not isinstance(emp, dict):
                 continue
-            name = emp.get('name')
-            if name and name not in submitted_in_window:
+            name = person_system_name(emp)
+            if name and not any(names_match(name, s) for s in submitted_in_window):
                 missing_timesheets.append({
                     'employee_name': name,
                     'missing_period': f"{target_start.strftime('%Y-%m-%d')} to {target_end.strftime('%Y-%m-%d')}",
@@ -222,11 +235,10 @@ def add_timesheet():
     try:
         proj_res = requests.get(f"{BASE_URL}/projects/", headers=get_headers(), timeout=10)
         if proj_res.status_code == 200:
-            data = proj_res.json()
-            projects = data.get("projects", []) if isinstance(data, dict) else data
+            projects = extract_list(proj_res.json(), 'projects', 'data')
     except: pass
     emp_res = requests.get(f"{BASE_URL}/employees/", headers=get_headers())
-    employees = emp_res.json().get("employees", []) if emp_res.status_code == 200 else []
+    employees = extract_list(emp_res.json(), 'employees', 'data') if emp_res.status_code == 200 else []
     return render_template("add_timesheet.html", employees=employees, projects=projects, today_date=datetime.now().strftime('%Y-%m-%d'))
 
 
@@ -238,7 +250,7 @@ def edit_timesheet(timesheet_id):
         res = requests.get(f"{BASE_URL}/timesheets/", headers=get_headers(), timeout=15)
         if res.status_code == 401:
             return redirect(url_for('auth.login'))
-        timesheets = res.json().get("timesheets", [])
+        timesheets = extract_list(res.json(), 'timesheets', 'data')
     except Exception as e:
         print("Error fetching timesheets for edit:", e)
         flash("Error loading timesheet data from server", "danger")
@@ -265,7 +277,7 @@ def edit_timesheet(timesheet_id):
         return redirect(url_for('work.timesheets_list'))
     
     # Check if this timesheet belongs to current user
-    if str(timesheet.get('employee_name', '')).strip().lower() != str(current_user or '').strip().lower():
+    if not record_belongs_to_person(timesheet, current_user):
         flash("You can only edit your own timesheets", "danger")
         return redirect(url_for('work.timesheets_list'))
     
@@ -321,17 +333,15 @@ def edit_timesheet(timesheet_id):
     try:
         proj_res = requests.get(f"{BASE_URL}/projects/", headers=get_headers(), timeout=10)
         if proj_res.status_code == 200:
-            data = proj_res.json()
-            projects = data.get("projects", []) if isinstance(data, dict) else data
+            projects = extract_list(proj_res.json(), 'projects', 'data')
     except Exception as e:
         print("Failed to fetch projects from backend:", e)
 
-    # Fetch employees
     employees = []
     try:
         emp_res = requests.get(f"{BASE_URL}/employees/", headers=get_headers())
         if emp_res.status_code == 200:
-            employees = emp_res.json().get("employees", [])
+            employees = extract_list(emp_res.json(), 'employees', 'data')
     except Exception as e:
         print("Failed to fetch employees:", e)
 
@@ -352,20 +362,19 @@ def export_timesheets():
         if res.status_code != 200:
             return jsonify({"success": False, "error": "Failed to fetch timesheets from API"}), res.status_code
             
-        timesheets = res.json().get("timesheets", [])
+        timesheets = extract_list(res.json(), 'timesheets', 'data')
 
         # 1b. Build project → manager map
         project_manager_map = {}
         try:
             proj_res = requests.get(f"{BASE_URL}/projects/", headers=get_headers(), timeout=10)
             if proj_res.status_code == 200:
-                proj_data = proj_res.json()
-                projects_db = proj_data.get("projects", []) if isinstance(proj_data, dict) else proj_data
+                projects_db = extract_list(proj_res.json(), 'projects', 'data')
                 for proj in projects_db:
                     if not isinstance(proj, dict):
                         continue
                     p_name = str(proj.get('name', '')).strip().lower()
-                    mgr = proj.get('assigned_manager') or proj.get('manager_name') or ''
+                    mgr = pick(proj, 'assigned_manager', 'manager_name', 'assigned_manager_name', default='')
                     project_manager_map[p_name] = mgr
         except Exception as proj_err:
             print(f"Could not fetch projects for export manager map: {proj_err}")
@@ -387,7 +396,7 @@ def export_timesheets():
         if status:
             filtered = [t for t in filtered if str(t.get('status', '')).lower() == status.lower()]
         if employee_name:
-            filtered = [t for t in filtered if employee_name.lower() in str(t.get('employee_name', '')).lower()]
+            filtered = [t for t in filtered if record_belongs_to_person(t, employee_name)]
             
         if not filtered:
             return jsonify({"success": False, "error": "No data found for selected filters"}), 404
@@ -479,12 +488,6 @@ def export_timesheets():
 @work_bp.route('/leaves')
 @role_required(['admin', 'employee', 'hr', 'manager'])
 def leaves_list():
-    def is_match(name1, name2):
-        if not name1 or not name2: return False
-        n1, n2 = str(name1).lower().strip(), str(name2).lower().strip()
-        if n1 == n2: return True
-        return False
-
     try:
         leave_res = requests.get(f"{BASE_URL}/leaves", headers=get_headers())
         if leave_res.status_code == 401:
@@ -493,18 +496,15 @@ def leaves_list():
         all_leaves = []
         if leave_res.status_code == 200:
             data = leave_res.json()
-            all_leaves = data.get("leaves", []) if isinstance(data, dict) else (data if isinstance(data, list) else [])
+            all_leaves = extract_list(data, 'leaves', 'data') if isinstance(data, dict) else (data if isinstance(data, list) else [])
         
         # Fetch employees and projects for context
         emp_res = requests.get(f"{BASE_URL}/employees/", headers=get_headers())
-        employees = []
-        if emp_res.status_code == 200:
-            emp_data = emp_res.json()
-            if isinstance(emp_data, dict):
-                employees = emp_data.get("employees", [])
-            elif isinstance(emp_data, list):
-                employees = emp_data
-        role_map = {emp.get('name'): emp.get('role', 'employee') for emp in employees}
+        employees = extract_list(emp_res.json(), 'employees', 'data') if emp_res.status_code == 200 else []
+        role_map = {
+            person_system_name(emp): person_role(emp)
+            for emp in employees if isinstance(emp, dict)
+        }
         
         # Fetch projects from API instead of static json
         projects_db = []
@@ -512,7 +512,7 @@ def leaves_list():
             proj_res = requests.get(f"{BASE_URL}/projects/", headers=get_headers(), timeout=10)
             if proj_res.status_code == 200:
                 data = proj_res.json()
-                projects_db = data.get("projects", []) if isinstance(data, dict) else data
+                projects_db = extract_list(data, 'projects', 'data')
         except Exception as e:
             print(f"Error fetching projects for leaves: {e}")
 
@@ -527,10 +527,10 @@ def leaves_list():
             emp_name = l.get('employee_name') or l.get('name') or l.get('emp_name')
             if not emp_name: continue
             
-            l['employee_role'] = role_map.get(emp_name, 'employee')
+            l['employee_role'] = lookup_role(role_map, emp_name)
             
             # Robust self-check
-            l['is_own'] = is_match(emp_name, current_user)
+            l['is_own'] = names_match(emp_name, current_user)
             
             # Visibility Logic
             show = False
@@ -540,7 +540,7 @@ def leaves_list():
                 show = True
             elif user_role == 'manager':
                 # Managers see leaves of employees in projects they manage
-                managed_projects = [p['name'].strip().lower() for p in projects_db if is_match(p.get('assigned_manager'), current_user)]
+                managed_projects = [p['name'].strip().lower() for p in projects_db if names_match(pick(p, 'assigned_manager', 'manager_name', 'assigned_manager_name'), current_user)]
                 
                 # Check if this employee is in any of those projects
                 emp_projects = []
@@ -548,7 +548,7 @@ def leaves_list():
                     is_member = False
                     for m in p.get('team_members', []):
                         m_name = m.get('name') if isinstance(m, dict) else m
-                        if is_match(m_name, emp_name):
+                        if names_match(m_name, emp_name):
                             is_member = True
                             break
                     if is_member:
@@ -607,7 +607,7 @@ def add_leave():
         return redirect(url_for('work.leaves_list'))
     
     res = requests.get(f"{BASE_URL}/employees/", headers=headers)
-    employees = res.json().get("employees", []) if res.status_code == 200 else []
+    employees = extract_list(res.json(), 'employees', 'data') if res.status_code == 200 else []
     
     # Robust summary for add_leave template
     balance_data = fetch_leave_balance_helper(employee_name)
@@ -627,12 +627,12 @@ def add_leave():
         try:
             leaves_res = requests.get(f"{BASE_URL}/leaves", headers=get_headers(), timeout=10)
             if leaves_res.status_code == 200:
-                leaves_data = leaves_res.json().get("leaves", [])
+                leaves_data = extract_list(leaves_res.json(), 'leaves', 'data')
                 used_stats = {"casual": 0, "sick": 0, "earned": 0, "total": 0}
-                names_to_try = [employee_name]
 
                 for leave in leaves_data:
-                    if leave.get("employee_name") in names_to_try and leave.get("status") == "approved":
+                    emp = pick(leave, 'employee_name', 'teamMemberName', 'name')
+                    if names_match(emp, employee_name) and leave.get("status") == "approved":
                         try:
                             s_date = datetime.strptime(leave.get("start_date")[:10], "%Y-%m-%d")
                             e_date = datetime.strptime(leave.get("end_date")[:10], "%Y-%m-%d")
@@ -709,10 +709,10 @@ def attendance_view():
         working_days = total_days - weekends
         
         attendance_res = requests.get(f"{BASE_URL}/attendance/", headers=get_headers())
-        attendance_data = attendance_res.json().get("attendance", []) if attendance_res.status_code == 200 else []
+        attendance_data = extract_list(attendance_res.json(), 'attendance', 'data') if attendance_res.status_code == 200 else []
         
         leaves_res = requests.get(f"{BASE_URL}/leaves/", headers=get_headers())
-        leave_data = leaves_res.json().get("leaves", []) if leaves_res.status_code == 200 else []
+        leave_data = extract_list(leaves_res.json(), 'leaves', 'data') if leaves_res.status_code == 200 else []
         
         leave_balance = 0
         balance_data = fetch_leave_balance_helper(session.get('employee_name'))
@@ -723,7 +723,7 @@ def attendance_view():
         try:
             hol_res = requests.get(f"{BASE_URL}/holidays", headers=get_headers())
             if hol_res.status_code == 200:
-                hols = hol_res.json().get("holidays", [])
+                hols = extract_list(hol_res.json(), 'holidays', 'data')
                 holidays_count = len([h for h in hols if from_date <= h.get("date", "")[:10] <= to_date])
         except: pass
         
@@ -737,15 +737,8 @@ def attendance_view():
         if user_role == 'employee':
             target_employee = current_user
         
-        def is_match(rec_name, target):
-            if not rec_name or not target: return False
-            r, t = str(rec_name).lower().strip(), str(target).lower().strip()
-            if r == t: return True
-            return False
-
-        # Filter data by target employee with robust matching
-        attendance_data = [a for a in attendance_data if is_match(a.get('employee_name'), target_employee)]
-        leave_data = [l for l in leave_data if is_match(l.get('employee_name'), target_employee)]
+        attendance_data = [a for a in attendance_data if record_belongs_to_person(a, target_employee)]
+        leave_data = [l for l in leave_data if record_belongs_to_person(l, target_employee)]
         
         # Further filter by date range and calculate days
         final_leaves = []
@@ -774,14 +767,14 @@ def attendance_view():
         display_emp_id = 'N/A'
         
         if emp_res.status_code == 200:
-            emp_list = emp_res.json().get("employees", [])
+            emp_list = extract_list(emp_res.json(), 'employees', 'data')
             if user_role in ['hr', 'admin', 'manager']:
                 all_employees = emp_list
             
             for emp in emp_list:
-                if emp.get("name") == target_employee:
-                    display_name = emp.get("name")
-                    display_emp_id = emp.get("employee_id") or emp.get("id") or 'N/A'
+                if names_match(person_system_name(emp), target_employee):
+                    display_name = person_system_name(emp) or target_employee
+                    display_emp_id = pick(emp, 'employee_id', 'id', default='N/A')
                     break
 
         present_count = len([a for a in attendance_data if a.get('status') == 'present'])
@@ -836,13 +829,13 @@ def leaves_balance():
     try:
         leaves_res = requests.get(f"{BASE_URL}/leaves", headers=get_headers(), timeout=10)
         if leaves_res.status_code == 200:
-            leaves_data = leaves_res.json().get("leaves", [])
+            leaves_data = extract_list(leaves_res.json(), 'leaves', 'data')
             used_stats = {"casual": 0, "sick": 0, "earned": 0, "total": 0}
             quotas = {"casual": 12, "sick": 10, "earned": 8, "total": 30}
-            names_to_try = [employee_name]
 
             for leave in leaves_data:
-                if leave.get("employee_name") in names_to_try and leave.get("status") == "approved":
+                emp = pick(leave, 'employee_name', 'teamMemberName', 'name')
+                if names_match(emp, employee_name) and leave.get("status") == "approved":
                     try:
                         s_date = datetime.strptime(leave.get("start_date")[:10], "%Y-%m-%d")
                         e_date = datetime.strptime(leave.get("end_date")[:10], "%Y-%m-%d")

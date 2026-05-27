@@ -4,6 +4,15 @@ import requests
 from datetime import datetime
 from flask import Blueprint, render_template, redirect, url_for, session, flash
 from app.utils import BASE_URL, get_headers, role_required
+from app.api_helpers import (
+    names_match,
+    extract_list,
+    pick,
+    person_system_name,
+    project_team_members,
+    record_belongs_to_person,
+    strip_role_prefix,
+)
 
 dashboard_bp = Blueprint('dashboard', __name__)
 
@@ -32,13 +41,13 @@ def dashboard():
         if emp_res.status_code == 401:
             session.clear()
             return redirect(url_for('auth.login'))
-        employees = emp_res.json().get("employees", []) if emp_res.status_code == 200 else []
+        employees = extract_list(emp_res.json(), 'employees', 'data') if emp_res.status_code == 200 else []
         
         time_res = requests.get(f"{BASE_URL}/timesheets", headers=get_headers())
-        timesheets = time_res.json().get("timesheets", []) if time_res.status_code == 200 else []
+        timesheets = extract_list(time_res.json(), 'timesheets', 'data') if time_res.status_code == 200 else []
         
         leave_res = requests.get(f"{BASE_URL}/leaves", headers=get_headers())
-        leaves = leave_res.json().get("leaves", []) if leave_res.status_code == 200 else []
+        leaves = extract_list(leave_res.json(), 'leaves', 'data') if leave_res.status_code == 200 else []
         
         now = datetime.now()
         current_month = now.month
@@ -66,7 +75,7 @@ def dashboard():
 
         holiday_res = requests.get(f"{BASE_URL}/holidays?year=2026", headers=get_headers())
         if holiday_res.status_code == 200:
-            holidays = holiday_res.json().get("holidays", [])
+            holidays = extract_list(holiday_res.json(), 'holidays', 'data')
             for h in holidays:
                 raw_date = str(h.get("date", ""))
                 try:
@@ -75,17 +84,25 @@ def dashboard():
                 except: h["formatted_date"] = raw_date
 
         # Create a map for employee photos
-        photo_map = {emp.get('name'): (emp.get('photo_url') or emp.get('photo')) for emp in employees}
+        photo_map = {}
+        for emp in employees:
+            nm = person_system_name(emp)
+            photo = pick(emp, 'photo_url', 'photo')
+            if nm and photo:
+                photo_map[nm] = photo
+                bare = strip_role_prefix(nm)
+                if bare:
+                    photo_map[bare] = photo
 
         # 1. Today's Birthdays
         try:
             today_res = requests.get(f"{BASE_URL}/birthdays/today/", headers=get_headers(), timeout=5)
             if today_res.status_code == 200:
                 today_data = today_res.json()
-                today_list = today_data.get("birthdays", []) if isinstance(today_data, dict) else []
+                today_list = extract_list(today_data, 'birthdays', 'data')
                 for b in today_list:
                     b['is_today'] = True
-                    b['photo_url'] = photo_map.get(b.get('name'))
+                    b['photo_url'] = photo_map.get(b.get('name')) or photo_map.get(strip_role_prefix(b.get('name')))
                     birthday_data.append(b)
         except: pass
 
@@ -94,10 +111,10 @@ def dashboard():
             upcoming_res = requests.get(f"{BASE_URL}/birthdays/upcoming/", headers=get_headers(), timeout=5)
             if upcoming_res.status_code == 200:
                 upcoming_data = upcoming_res.json()
-                upcoming_list = upcoming_data.get("upcoming_birthdays", []) if isinstance(upcoming_data, dict) else []
+                upcoming_list = extract_list(upcoming_data, 'upcoming_birthdays', 'birthdays', 'data')
                 for b in upcoming_list:
                     b['is_today'] = False
-                    b['photo_url'] = photo_map.get(b.get('name'))
+                    b['photo_url'] = photo_map.get(b.get('name')) or photo_map.get(strip_role_prefix(b.get('name')))
                     birthday_data.append(b)
         except: pass
 
@@ -109,7 +126,7 @@ def dashboard():
             try:
                 rb_res = requests.get(f"{BASE_URL}/reimbursements/", headers=get_headers(), timeout=5)
                 if rb_res.status_code == 200:
-                    claims = rb_res.json().get("reimbursements", [])
+                    claims = extract_list(rb_res.json(), 'reimbursements', 'data')
                     pending_count = 0
                     approved_count = 0
                     rejected_count = 0
@@ -185,7 +202,10 @@ def dashboard():
             team_leaves.sort(key=lambda x: x.get('start_date', ''), reverse=True)
             
             # HR and Admin should also see all pending timesheets
-            team_pending_timesheets = [t for t in timesheets if str(t.get('status', '')).lower() in ['pending', 'missing', 'missing entry']]
+            team_pending_timesheets = [
+                t for t in timesheets
+                if str(t.get('status', '')).lower() in ['submitted', 'pending', 'missing', 'missing entry']
+            ]
             team_pending_timesheets.sort(key=lambda x: x.get('start_date', ''), reverse=True)
 
         if session.get('role') == 'employee':
@@ -197,9 +217,16 @@ def dashboard():
             except: pass
             
             current_user = session.get('employee_name')
-            pending_timesheets_list = [t for t in timesheets if t.get('employee_name') == current_user and str(t.get('status', '')).lower() in ['pending', 'missing', 'missing entry']]
+            pending_timesheets_list = [
+                t for t in timesheets
+                if record_belongs_to_person(t, current_user)
+                and str(t.get('status', '')).lower() in ['submitted', 'pending', 'missing', 'missing entry']
+            ]
             today_str = datetime.now().strftime('%Y-%m-%d')
-            has_today_entry = any(t for t in timesheets if t.get('employee_name') == current_user and t.get('start_date', '')[:10] == today_str)
+            has_today_entry = any(
+                t for t in timesheets
+                if record_belongs_to_person(t, current_user) and t.get('start_date', '')[:10] == today_str
+            )
             pending_timesheets_count = len(pending_timesheets_list)
             if not has_today_entry:
                 pending_timesheets_count += 1
@@ -208,42 +235,41 @@ def dashboard():
         if session.get('role') == 'manager':
             manager_name = session.get('employee_name')
             
-            def is_match(n1, n2):
-                if not n1 or not n2: return False
-                s1, s2 = str(n1).lower().strip(), str(n2).lower().strip()
-                if s1 == s2: return True
-                if len(s1) > 2 and s1[1] == '_' and s1[2:] == s2: return True
-                if len(s2) > 2 and s2[1] == '_' and s2[2:] == s1: return True
-                return False
-
             # Fetch projects from API instead of static json
             projects_db = []
             try:
                 proj_res = requests.get(f"{BASE_URL}/projects/", headers=get_headers(), timeout=10)
                 if proj_res.status_code == 200:
                     data = proj_res.json()
-                    projects_db = data.get("projects", []) if isinstance(data, dict) else data
+                    projects_db = extract_list(data, 'projects', 'data')
             except: pass
 
-            projects = [proj for proj in projects_db if is_match(proj.get('assigned_manager') or proj.get('manager_name'), manager_name) and str(proj.get('status', '')).lower() == 'active']
+            projects = [
+                proj for proj in projects_db
+                if names_match(pick(proj, 'assigned_manager', 'manager_name', 'assigned_manager_name'), manager_name)
+                and str(proj.get('status', '')).lower() == 'active'
+            ]
             
             manager_project_names = [proj.get('name', '').lower().strip() for proj in projects]
-            team_pending_timesheets = [t for t in timesheets if str(t.get('project', '')).lower().strip() in manager_project_names and str(t.get('status', '')).lower() in ['pending', 'missing', 'missing entry']]
+            team_pending_timesheets = [
+                t for t in timesheets
+                if str(t.get('project', '')).lower().strip() in manager_project_names
+                and str(t.get('status', '')).lower() in ['submitted', 'pending', 'missing', 'missing entry']
+            ]
             
             team_member_names = set()
             for proj in projects:
-                mems = proj.get('team_members')
-                if isinstance(mems, list):
-                    for m in mems: team_member_names.add(m if isinstance(m, str) else (m.get('name') or m.get('employee_name')))
-                elif isinstance(mems, str):
-                    team_member_names.update([m.strip() for m in mems.split(',') if m.strip()])
+                for m in project_team_members(proj):
+                    nm = m.get('employee_name') or m.get('name')
+                    if nm:
+                        team_member_names.add(nm)
             
             team_leaves = []
             for l in leaves:
                 if str(l.get('status', '')).lower() in ['pending', 'approved']:
                     emp_n = l.get('employee_name') or l.get('name') or l.get('emp_name')
                     # Check if this employee matches any in the team
-                    if any(is_match(emp_n, tm) for tm in team_member_names):
+                    if any(names_match(emp_n, tm) for tm in team_member_names):
                         team_leaves.append(l)
             team_leaves.sort(key=lambda x: x.get('start_date', ''), reverse=True)
 

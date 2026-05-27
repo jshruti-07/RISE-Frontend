@@ -79,13 +79,19 @@ def token_required(f):
 def fetch_leave_balance_helper(employee_name):
     if not employee_name:
         return None
-    
-    headers = get_headers()
-    names_to_try = [employee_name]
 
-    for name in names_to_try:
+    from app.api_helpers import names_match
+
+    headers = get_headers()
+
+    balance_urls = [
+        f"{BASE_URL}/leaves/balance/{employee_name}",
+        f"{BASE_URL}/leave-balance/{employee_name}",
+    ]
+
+    for url in balance_urls:
         try:
-            res = requests.get(f"{BASE_URL}/leave-balance/{name}", headers=headers, timeout=5)
+            res = requests.get(url, headers=headers, timeout=5)
             if res.status_code == 200:
                 data = res.json()
                 if not data:
@@ -137,30 +143,21 @@ def fetch_leave_balance_helper(employee_name):
                 
                 return {"success": True, "summary": std_summary, "balances": balances}
         except Exception as e:
-            print(f"Error fetching balance for {name}: {e}")
+            print(f"Error fetching balance for {employee_name}: {e}")
     # === Fallback: Calculate from approved leaves dynamically ===
     try:
         from datetime import datetime
         leaves_res = requests.get(f"{BASE_URL}/leaves", headers=headers, timeout=10)
         if leaves_res.status_code == 200:
-            leaves_data = leaves_res.json().get("leaves", [])
+            from app.api_helpers import extract_list
+            leaves_data = extract_list(leaves_res.json(), 'leaves', 'data')
             used_stats = {"casual": 0, "sick": 0, "earned": 0, "total": 0}
             quotas = {"casual": 12, "sick": 10, "earned": 8, "total": 30}
             
-            names_to_try = [employee_name]
-
-            def name_matches(rec_name):
-                if not rec_name: return False
-                r = str(rec_name).lower().strip()
-                for n in names_to_try:
-                    t = str(n).lower().strip()
-                    if r == t: return True
-                return False
-
             for leave in leaves_data:
                 if not isinstance(leave, dict): continue
                 emp_name = leave.get("employee_name") or leave.get("name") or leave.get("emp_name")
-                if name_matches(emp_name) and str(leave.get("status", "")).lower() == "approved":
+                if names_match(emp_name, employee_name) and str(leave.get("status", "")).lower() == "approved":
                     try:
                         s_str = leave.get("start_date", "")[:10]
                         e_str = leave.get("end_date", "")[:10]

@@ -49,13 +49,12 @@ def create_app():
 
     @app.template_filter('clean_name')
     def clean_name_filter(name):
-        if not name:
-            return name
-        name = str(name).strip()
-        prefixes = ['H_', 'M_', 'A_', 'T_', 'A_A_']
-        for p in sorted(prefixes, key=len, reverse=True):
-            if name.startswith(p):
-                return name[len(p):]
-        return name
+        from app.api_helpers import strip_role_prefix
+        return strip_role_prefix(name) or name
+
+    @app.template_filter('names_match')
+    def names_match_filter(name_a, name_b):
+        from app.api_helpers import names_match
+        return names_match(name_a, name_b)
 
     return app

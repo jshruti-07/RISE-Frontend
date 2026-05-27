@@ -219,7 +219,7 @@
         <tbody>
         {% for l in leaves %}
         <tr>
-            <td>{{ l.employee_name }}</td>
+            <td>{{ l.employee_name | clean_name }}</td>
             <td>{{ l.leave_type | capitalize }}</td>
             <td>{{ l.start_date[:10] if l.start_date else '' }}</td>
             <td>{{ l.end_date[:10] if l.end_date else '' }}</td>

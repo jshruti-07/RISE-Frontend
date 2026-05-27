@@ -35,7 +35,7 @@
                     {% for mt in missing_timesheets %}
                     <tr>
                         <td class="ps-3 fw-medium">
-                            {{ mt.employee_name }}
+                            {{ mt.employee_name | clean_name }}
                         </td>
                         <td>
                             {% if mt.project and mt.project != '-' %}

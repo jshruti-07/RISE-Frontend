@@ -4,6 +4,17 @@ import requests
 from datetime import datetime
 from flask import Blueprint, request, jsonify, render_template, redirect, url_for, session, flash
 from app.utils import BASE_URL, get_headers, role_required
+from app.api_helpers import (
+    names_match,
+    extract_list,
+    normalize_people_list,
+    parse_project_response,
+    person_system_name,
+    person_role,
+    person_display_name,
+    pick,
+    project_team_members,
+)
 
 projects_bp = Blueprint('projects', __name__)
 
@@ -22,7 +33,7 @@ def projects_list():
         all_projects = []
         if res.status_code == 200:
             data = res.json()
-            raw_projects = data.get("projects", []) if isinstance(data, dict) else data
+            raw_projects = extract_list(data, 'projects', 'data')
             # Standardize project objects (ensure 'id' key exists)
             for p in raw_projects:
                 if isinstance(p, dict):
@@ -36,17 +47,14 @@ def projects_list():
             projects_to_show = all_projects
         elif user_role == 'manager':
             # Manager sees projects where they are assigned as manager
-            projects_to_show = [p for p in all_projects if str(p.get('assigned_manager') or p.get('manager_name') or '').strip() == str(user_name).strip()]
+            projects_to_show = [
+                p for p in all_projects
+                if names_match(pick(p, 'assigned_manager', 'manager_name', 'assigned_manager_name'), user_name)
+            ]
         elif user_role == 'employee':
-            # Employee sees projects where they are in team_members
             for proj in all_projects:
-                members = proj.get('team_members', [])
-                if not isinstance(members, list): continue
-                for m in members:
-                    m_name = m if isinstance(m, str) else (m.get('name') or m.get('employee_name'))
-                    if str(m_name).strip() == str(user_name).strip():
-                        projects_to_show.append(proj)
-                        break
+                if any(names_match(m.get('employee_name') or m.get('name'), user_name) for m in project_team_members(proj)):
+                    projects_to_show.append(proj)
         
         # 3. Fetch managers list for modals
         managers = []
@@ -54,8 +62,8 @@ def projects_list():
             emp_res = requests.get(f"{BASE_URL}/employees/", headers=get_headers(), timeout=5)
             if emp_res.status_code == 200:
                 emp_data = emp_res.json()
-                all_emps = emp_data.get("employees", []) if isinstance(emp_data, dict) else emp_data
-                managers = [emp for emp in all_emps if isinstance(emp, dict) and str(emp.get('role', '')).lower() == 'manager']
+                all_emps = extract_list(emp_data, 'employees', 'data')
+                managers = [emp for emp in all_emps if person_role(emp) == 'manager']
         except: pass
 
         return render_template('projects.html', 
@@ -77,8 +85,8 @@ def create_project():
             employees = []
             if emp_res.status_code == 200:
                 data = emp_res.json()
-                employees = data.get("employees", []) if isinstance(data, dict) else data
-            managers = [emp for emp in employees if isinstance(emp, dict) and str(emp.get('role', '')).lower() == 'manager']     
+                employees = extract_list(data, 'employees', 'data')
+            managers = [emp for emp in employees if person_role(emp) == 'manager']     
             return render_template('create_project.html', managers=managers)
         except:
             return render_template('create_project.html', managers=[])
@@ -126,14 +134,8 @@ def get_project_details(project_id):
     try:
         res = requests.get(f"{BASE_URL}/projects/{project_id}", headers=get_headers(), timeout=5)
         if res.status_code == 200:
-            data = res.json()
-            # Backend may return project directly or nested under 'project' key
-            if isinstance(data, dict) and 'project' in data:
-                project = data['project']
-            elif isinstance(data, dict) and 'id' in data:
-                project = data
-            else:
-                project = data
+            project = parse_project_response(res.json())
+            project['team_members'] = project_team_members(project)
             return jsonify({"success": True, "project": project})
         return jsonify({"success": False, "error": "Project not found on backend"}), 404
     except Exception as e:
@@ -148,17 +150,18 @@ def api_employees_with_allocation():
         employees = []
         if emp_res.status_code == 200:
             data = emp_res.json()
-            employees = data.get("employees", []) if isinstance(data, dict) else data
+            employees = extract_list(data, 'employees', 'data')
 
         result = []
         for emp in employees:
-            if str(emp.get('role', '')).lower() == 'employee':
-                name = emp.get("name")
+            if person_role(emp) == 'employee':
+                name = person_system_name(emp)
                 total_alloc = int(emp.get('total_utilization', 0) or 0)
                 result.append({
                     "name": name,
                     "employee_name": name,
-                    "role": emp.get("role"),
+                    "display_name": person_display_name(emp) or name,
+                    "role": person_role(emp),
                     "workload": {
                         "total_allocation": total_alloc,
                         "projects": []

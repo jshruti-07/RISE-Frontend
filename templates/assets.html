@@ -527,12 +527,7 @@
 
             function cleanNameJS(name) {
                 if (!name) return name;
-                const n = String(name).trim();
-                const prefixes = ['A_A_', 'H_', 'M_', 'A_', 'T_'];
-                for (let p of prefixes) {
-                    if (n.startsWith(p)) return n.substring(p.length);
-                }
-                return n;
+                return String(name).trim().replace(/^[HMTA]_/, '');
             }
 
             if (isAssigned) {

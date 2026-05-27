@@ -1,6 +1,14 @@
 import requests
 from flask import flash, Blueprint, render_template, redirect, url_for, session, request, jsonify
 from app.utils import BASE_URL, get_headers, fetch_leave_balance_helper, role_required
+from app.api_helpers import (
+    names_match,
+    extract_list,
+    normalize_person,
+    parse_profile_response,
+    person_system_name,
+    pick,
+)
 
 user_bp = Blueprint('user', __name__)
 
@@ -68,16 +76,16 @@ def _document_view_urls(documents):
     return urls
 
 def _find_employee_by_name(employee_name, headers=None):
-    """Look up employee record by prefixed system name."""
+    """Look up employee record by system name (prefix-tolerant)."""
     if not employee_name:
         return {}
     headers = headers or get_headers()
     try:
         res = requests.get(f"{BASE_URL}/employees", headers=headers, timeout=10)
         if res.status_code == 200:
-            for emp in res.json().get("employees", []):
-                if emp.get("name") == employee_name:
-                    return emp
+            for emp in extract_list(res.json(), 'employees', 'data'):
+                if names_match(person_system_name(emp), employee_name):
+                    return normalize_person(emp)
     except Exception as e:
         print(f"Employee lookup failed: {e}")
     return {}
@@ -91,6 +99,21 @@ def profile():
     headers = get_headers()
     employee_name = session.get('employee_name')
     employee = _find_employee_by_name(employee_name, headers)
+
+    if not employee.get('email'):
+        try:
+            from urllib.parse import quote
+            profile_res = requests.get(
+                f"{BASE_URL}/profile/{quote(employee_name, safe='')}",
+                headers=headers,
+                timeout=10,
+            )
+            if profile_res.status_code == 200:
+                profile, _docs = parse_profile_response(profile_res.json())
+                if profile:
+                    employee = {**employee, **profile}
+        except Exception as e:
+            print(f'Profile API fallback failed: {e}')
 
     # Cache employee table id for photo upload (session['employee_id'] is users.id from login)
     if employee.get('id'):
@@ -110,7 +133,7 @@ def profile():
             bd = bank_res.json().get("bank_details", {})
             if isinstance(bd, list):
                 bank_details = next(
-                    (b for b in bd if b.get("employee_name") == employee_name),
+                    (b for b in bd if names_match(b.get("employee_name"), employee_name)),
                     {},
                 )
             elif isinstance(bd, dict):
@@ -168,9 +191,9 @@ def api_my_photo():
         emp_name = session.get('employee_name')
         res = requests.get(f"{BASE_URL}/employees", headers=get_headers(), timeout=4)
         if res.status_code == 200:
-            for emp in res.json().get('employees', []):
-                if emp.get('name') == emp_name:
-                    url = emp.get('photo_url') or emp.get('photo') or None
+            for emp in extract_list(res.json(), 'employees', 'data'):
+                if names_match(person_system_name(emp), emp_name):
+                    url = pick(emp, 'photo_url', 'photo')
                     if url: session['photo_url'] = url
                     return jsonify({'photo_url': url}), 200
     except: pass

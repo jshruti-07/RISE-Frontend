@@ -3,6 +3,7 @@ import os
 import json
 from flask import Blueprint, render_template, redirect, url_for, request, flash, session, jsonify, Response
 from app.utils import BASE_URL, get_headers, role_required
+from app.api_helpers import extract_list, with_list_key
 
 admin_bp = Blueprint('admin', __name__)
 
@@ -18,6 +19,11 @@ def api_helpdesk_list():
         res = requests.post(f"{BASE_URL}/helpdesk/", json=request.get_json(), headers=get_headers())
     else:
         res = requests.get(f"{BASE_URL}/helpdesk/", params=request.args.to_dict(), headers=get_headers())
+        try:
+            body = with_list_key(res.json(), 'tickets', 'data')
+            return jsonify(body), res.status_code
+        except Exception:
+            pass
     return jsonify(res.json()), res.status_code
 
 @admin_bp.route('/api/helpdesk/<int:ticket_id>', methods=['GET'])
@@ -60,6 +66,11 @@ def api_reimbursements():
             res = requests.post(f"{BASE_URL}/reimbursements/", json=request.get_json(), headers=get_headers())
     else:
         res = requests.get(f"{BASE_URL}/reimbursements/", params=request.args.to_dict(), headers=get_headers())
+        try:
+            body = with_list_key(res.json(), 'reimbursements', 'data')
+            return jsonify(body), res.status_code
+        except Exception:
+            pass
     
     return jsonify(res.json()), res.status_code
 
@@ -116,7 +127,7 @@ def assets():
 def policies():
     res = requests.get(f"{BASE_URL}/reports/policies", headers=get_headers())
     data = res.json() if res.status_code == 200 else {}
-    policies_list = data.get("policies", [])
+    policies_list = extract_list(data, 'policies', 'data')
     categories = sorted(list(set(p.get('category', 'General') for p in policies_list)))
     return render_template("policies.html", policies=policies_list, categories=categories, BASE_URL=BASE_URL)
 
@@ -162,7 +173,7 @@ def api_assets():
             res = requests.get(f"{BASE_URL}/devices", headers=get_headers(), timeout=10)
             if res.status_code == 200:
                 data = res.json()
-                assets = data if isinstance(data, list) else (data.get("assets") or data.get("devices") or [])
+                assets = data if isinstance(data, list) else extract_list(data, 'assets', 'devices', 'data')
                 return jsonify({"success": True, "assets": assets})
             return jsonify({"success": False, "error": res.text}), res.status_code
         except Exception as e:

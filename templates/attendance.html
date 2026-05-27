@@ -22,8 +22,8 @@
                         <label class="small text-muted">{{ labels.EMPLOYEE }}</label>
                         <select name="employee_name" class="form-select form-select-sm">
                             {% for emp in all_employees %}
-                            <option value="{{ emp.name }}" {% if emp.name == attendance_summary.target_employee %}selected{% endif %}>
-                                {{ emp.name }}
+                            <option value="{{ emp.name }}" {% if emp.name|names_match(attendance_summary.target_employee) %}selected{% endif %}>
+                                {{ emp.name | clean_name }}
                             </option>
                             {% endfor %}
                         </select>

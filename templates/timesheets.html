@@ -135,7 +135,7 @@
                 </td>
                 <td class="text-center">
                     <div class="d-flex flex-wrap gap-2 justify-content-center">
-                        {% if session.get('role') in ['employee','hr','admin'] and t.employee_name == session.get('employee_name') and
+                        {% if session.get('role') in ['employee','hr','admin'] and (t.is_own or (t.employee_name|names_match(session.get('employee_name')))) and
                         t.status == 'submitted' %}
                         <a href="/edit-timesheet/{{ t.id }}" class="btn btn-sm btn-outline-primary rounded-pill px-2"
                             style="font-size: 0.7rem; min-width: 80px; display: inline-flex; align-items: center; justify-content: center; gap: 4px; white-space: nowrap;">
@@ -147,7 +147,7 @@
                         {% if t.status == 'submitted' %}
                             {% if (t.employee_role == 'hr' and session.get('role') == 'admin') or 
                                   (t.employee_role != 'hr' and session.get('role') in ['admin', 'manager', 'hr']) %}
-                                {% if t.employee_name != session.get('employee_name') %}
+                                {% if not (t.is_own or (t.employee_name|names_match(session.get('employee_name')))) %}
                                     <button class="btn btn-sm approve-btn border-0 rounded-pill px-2" data-timesheet-id="{{ t.id }}"
                                         data-employee-name="{{ t.employee_name }}"
                                         style="background-color: #D1E7DD; color: #000000; font-size: 0.7rem; min-width: 80px; display: inline-flex; align-items: center; justify-content: center; gap: 4px; white-space: nowrap;">

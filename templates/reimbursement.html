@@ -277,6 +277,19 @@
 <script>
 let rejectFromDetails = false;
 
+function stripNamePrefix(name) {
+    if (!name) return '';
+    return String(name).trim().replace(/^[HMTA]_/, '');
+}
+
+function namesMatchJS(a, b) {
+    if (!a || !b) return false;
+    const x = String(a).trim().toLowerCase();
+    const y = String(b).trim().toLowerCase();
+    if (x === y) return true;
+    return stripNamePrefix(x) === stripNamePrefix(y);
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     // Check for status filter in URL
     const urlParams = new URLSearchParams(window.location.search);
@@ -355,7 +368,7 @@ function renderReimbursements(reimbursements) {
         
         let actions = '';
         // Employee actions
-        if (userRole === 'employee' && r.employee_name === employeeName && r.status === 'pending') {
+        if (userRole === 'employee' && namesMatchJS(r.employee_name, employeeName) && r.status === 'pending') {
             actions += `<button class="btn btn-sm btn-outline-danger" onclick="withdrawClaim(${r.id})">Withdraw</button>`;
         }
         // Manager/HR actions
@@ -493,7 +506,7 @@ function viewDetails(id) {
                     </div>
                     <div class="col-md-6">
                         <p><strong>Expense Date:</strong> ${r.expense_date}</p>
-                        <p><strong>Employee:</strong> ${r.employee_name}</p>
+                        <p><strong>Employee:</strong> ${stripNamePrefix(r.employee_name)}</p>
                         <p><strong>Project ID:</strong> ${r.project_id || 'N/A'}</p>
                         <p><strong>Billable:</strong> ${r.billable ? 'Yes' : 'No'}</p>
                         <p><strong>Receipt:</strong> ${hasReceipt ? 'Yes' : 'No'}</p>
