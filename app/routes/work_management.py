@@ -23,9 +23,6 @@ def timesheets_list():
             if not name1 or not name2: return False
             n1, n2 = str(name1).lower().strip(), str(name2).lower().strip()
             if n1 == n2: return True
-            # Handle prefixes like H_, T_, etc.
-            if len(n1) > 2 and n1[1] == '_' and n1[2:] == n2: return True
-            if len(n2) > 2 and n2[1] == '_' and n2[2:] == n1: return True
             return False
 
         # 1. Fetch ALL projects
@@ -372,8 +369,6 @@ def leaves_list():
         if not name1 or not name2: return False
         n1, n2 = str(name1).lower().strip(), str(name2).lower().strip()
         if n1 == n2: return True
-        if len(n1) > 2 and n1[1] == '_' and n1[2:] == n2: return True
-        if len(n2) > 2 and n2[1] == '_' and n2[2:] == n1: return True
         return False
 
     try:
@@ -521,8 +516,6 @@ def add_leave():
                 leaves_data = leaves_res.json().get("leaves", [])
                 used_stats = {"casual": 0, "sick": 0, "earned": 0, "total": 0}
                 names_to_try = [employee_name]
-                if len(employee_name) > 2 and employee_name[1] == '_':
-                    names_to_try.append(employee_name[2:].strip())
 
                 for leave in leaves_data:
                     if leave.get("employee_name") in names_to_try and leave.get("status") == "approved":
@@ -634,9 +627,6 @@ def attendance_view():
             if not rec_name or not target: return False
             r, t = str(rec_name).lower().strip(), str(target).lower().strip()
             if r == t: return True
-            # Handle cases where one has a prefix (H_, T_, etc) and the other doesn't
-            if len(r) > 2 and r[1] == '_' and r[2:] == t: return True
-            if len(t) > 2 and t[1] == '_' and t[2:] == r: return True
             return False
 
         # Filter data by target employee with robust matching
@@ -736,7 +726,6 @@ def leaves_balance():
             used_stats = {"casual": 0, "sick": 0, "earned": 0, "total": 0}
             quotas = {"casual": 12, "sick": 10, "earned": 8, "total": 30}
             names_to_try = [employee_name]
-            if len(employee_name) > 2: names_to_try.append(employee_name[2:].strip())
 
             for leave in leaves_data:
                 if leave.get("employee_name") in names_to_try and leave.get("status") == "approved":

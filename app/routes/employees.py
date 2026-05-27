@@ -3,6 +3,11 @@ from urllib.parse import quote, unquote
 from flask import Blueprint, render_template, redirect, url_for, request, flash, jsonify, session
 from app.utils import BASE_URL, get_headers, role_required, fetch_leave_balance_helper
 from app.ui_constants import UI_LABELS
+from app.routes.user import (
+    _fetch_employee_documents,
+    _document_view_urls,
+    DOC_TYPES,
+)
 
 employees_bp = Blueprint('employees', __name__)
 
@@ -381,10 +386,13 @@ def view_profile(employee_name):
 
     display_name = employee.get("name") or employee_name
 
-    # Calculate progress
-    doc_keys = ["pan_card", "aadhar_card", "tenth_cert", "twelfth_cert", "graduation_cert", "postgrad_cert"]
-    uploaded = sum(1 for key in doc_keys if documents.get(key) and str(documents.get(key)).strip())
-    percent = int((uploaded / len(doc_keys)) * 100) if doc_keys else 0
+    # Load documents for the viewed employee (HR/admin)
+    if not documents:
+        documents = _fetch_employee_documents(display_name, headers)
+    document_view_urls = _document_view_urls(documents)
+
+    uploaded = sum(1 for key in DOC_TYPES if documents.get(key) and str(documents.get(key)).strip())
+    percent = int((uploaded / len(DOC_TYPES)) * 100) if DOC_TYPES else 0
 
     # Leave balance — prefer profile fields, then helper API
     summary = {
@@ -416,6 +424,7 @@ def view_profile(employee_name):
         "profile.html",
         employee=employee,
         documents=documents,
+        document_view_urls=document_view_urls,
         percent=percent,
         summary=summary,
         bank_details=bank_details,

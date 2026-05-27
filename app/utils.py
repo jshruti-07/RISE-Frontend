@@ -82,13 +82,6 @@ def fetch_leave_balance_helper(employee_name):
     
     headers = get_headers()
     names_to_try = [employee_name]
-    # Handle prefixes like 'H_', 'T_', '## ', etc.
-    if len(employee_name) > 2:
-        # Try stripping the first 2 characters (common pattern in this project)
-        names_to_try.append(employee_name[2:].strip())
-        # Also try standardizing if it has an underscore at index 1
-        if employee_name[1] == '_':
-            names_to_try.append(employee_name[2:].strip())
 
     for name in names_to_try:
         try:
@@ -155,10 +148,6 @@ def fetch_leave_balance_helper(employee_name):
             quotas = {"casual": 12, "sick": 10, "earned": 8, "total": 30}
             
             names_to_try = [employee_name]
-            if len(employee_name) > 2:
-                names_to_try.append(employee_name[2:].strip())
-                if employee_name[1] == '_':
-                    names_to_try.append(employee_name[2:].strip())
 
             def name_matches(rec_name):
                 if not rec_name: return False
@@ -166,8 +155,6 @@ def fetch_leave_balance_helper(employee_name):
                 for n in names_to_try:
                     t = str(n).lower().strip()
                     if r == t: return True
-                    if len(r) > 2 and r[1] == '_' and r[2:] == t: return True
-                    if len(t) > 2 and t[1] == '_' and t[2:] == r: return True
                 return False
 
             for leave in leaves_data:

@@ -529,11 +529,12 @@
                 const emp = (empId && typeof employees !== 'undefined') ? employees.find(e => String(e.id) === String(empId)) : null;
                 let empName = emp ? emp.name : 'Assigned';
 
-                // Display name starting from the 3rd character (index 2) to remove prefixes like "T_" or "H_"
-                const formattedName = empName.length > 2 ? empName.substring(2) : empName;
+                // Display name
+                const formattedName = empName;
 
                 const displayId = empId || (emp ? emp.id : 'N/A');
-                allottedDisplay = `<div><strong>${formattedName}</strong></div><div class="small text-muted">ID: ${displayId}</div>`;
+                let roleDisplay = (emp && emp.role) ? `<span class="text-muted me-2">${emp.role.toUpperCase()}</span>` : '';
+                allottedDisplay = `<div><strong>${formattedName}</strong></div><div class="small text-muted">${roleDisplay}ID: ${displayId}</div>`;
             }
 
             return `
@@ -670,17 +671,17 @@
         const filtered = employees.filter(emp => {
             if (!emp.name) return false;
             const fullName = emp.name.toLowerCase();
-            const cleanName = (emp.name.length > 2 && emp.name[1] === '_') ? emp.name.substring(2).toLowerCase() : fullName;
-            return fullName.includes(val) || cleanName.includes(val);
+            return fullName.includes(val);
         });
 
         if (filtered.length > 0) {
             resultsDiv.innerHTML = filtered.map(emp => {
-                const displayName = (emp.name.length > 2 && emp.name[1] === '_') ? emp.name.substring(2) : emp.name;
+                const displayName = emp.name;
+                const roleDisplay = emp.role ? `<span class="badge bg-secondary me-1" style="font-size: 0.6rem;">${emp.role.toUpperCase()}</span>` : '';
                 return `
                     <div class="autocomplete-item" onclick="selectEmployee('${emp.name}', '${emp.id}', '${displayName}')">
                         <div class="fw-bold text-dark">${displayName}</div>
-                        <div class="small text-muted">ID: ${emp.id} <span class="ms-1 opacity-50">(${emp.name})</span></div>
+                        <div class="small text-muted">${roleDisplay}ID: ${emp.id}</div>
                     </div>
                 `;
             }).join('');
@@ -692,7 +693,7 @@
     });
 
     function selectEmployee(rawName, id, displayName) {
-        searchInput.value = displayName || (rawName.length > 2 && rawName[1] === '_' ? rawName.substring(2) : rawName);
+        searchInput.value = displayName || rawName;
         nameHidden.value = rawName;
         idField.value = id;
         resultsDiv.style.display = 'none';
@@ -899,7 +900,7 @@
         // Employee
         const empEl = document.getElementById('detailEmployee');
         if (assignedName) {
-            const formattedName = assignedName.length > 2 && assignedName[1] === '_' ? assignedName.substring(2) : assignedName;
+            const formattedName = assignedName;
             empEl.innerText = `${formattedName} (ID: ${assignedId})`;
         } else {
             empEl.innerText = 'Unassigned';

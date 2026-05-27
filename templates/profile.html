@@ -251,16 +251,18 @@
             </div>
 
             <!-- ACTION -->
-            <div style="flex:1;" class="d-flex gap-2 align-items-center">
+            <div style="flex:1;" class="d-flex gap-2 align-items-center flex-wrap" id="doc-actions-{{ key }}">
 
-                {% if documents and documents.get(key) %}
-
-                {% if documents and documents.get(key) %}
-                <button class="btn btn-sm btn-info" onclick="previewDoc('{{ BASE_URL }}/{{ documents[key] }}')">
-                    View
+                {% if document_view_urls and document_view_urls.get(key) %}
+                <button type="button" class="btn btn-sm btn-info doc-view-btn"
+                    data-view-url="{{ document_view_urls[key] }}"
+                    onclick="previewDoc(this.dataset.viewUrl)">
+                    <i class="bi bi-eye"></i> View
                 </button>
-                {% endif %}
-
+                <a href="{{ document_view_urls[key] }}" target="_blank" rel="noopener"
+                    class="btn btn-sm btn-outline-secondary">
+                    <i class="bi bi-box-arrow-up-right"></i> Open
+                </a>
                 {% endif %}
 
                 {% if not is_hr_view %}
@@ -357,25 +359,57 @@
             });
 
             function previewDoc(url) {
+                if (!url) {
+                    showAlert('Document preview is not available.', 'warning');
+                    return;
+                }
 
                 const img = document.getElementById("imgPreview");
                 const pdf = document.getElementById("pdfPreview");
+                const lower = url.split('?')[0].toLowerCase();
 
                 img.style.display = "none";
                 pdf.style.display = "none";
+                img.removeAttribute('src');
+                pdf.removeAttribute('src');
 
-                // DEBUG LOG
-                console.log("Preview URL:", url);
-
-                if (url.toLowerCase().endsWith(".pdf")) {
+                if (lower.endsWith(".pdf")) {
                     pdf.src = url;
                     pdf.style.display = "block";
-                } else {
+                } else if (/\.(png|jpe?g|gif|webp|bmp)$/.test(lower)) {
                     img.src = url;
                     img.style.display = "block";
+                } else {
+                    window.open(url, '_blank', 'noopener');
+                    return;
                 }
 
                 new bootstrap.Modal(document.getElementById('previewModal')).show();
+            }
+
+            function addDocumentViewButtons(docType, viewUrl) {
+                const container = document.getElementById('doc-actions-' + docType);
+                if (!container || !viewUrl) return;
+                container.querySelectorAll('.doc-view-btn, .doc-open-link').forEach(el => el.remove());
+                const viewBtn = document.createElement('button');
+                viewBtn.type = 'button';
+                viewBtn.className = 'btn btn-sm btn-info doc-view-btn';
+                viewBtn.innerHTML = '<i class="bi bi-eye"></i> View';
+                viewBtn.onclick = function() { previewDoc(viewUrl); };
+                const openLink = document.createElement('a');
+                openLink.href = viewUrl;
+                openLink.target = '_blank';
+                openLink.rel = 'noopener';
+                openLink.className = 'btn btn-sm btn-outline-secondary doc-open-link';
+                openLink.innerHTML = '<i class="bi bi-box-arrow-up-right"></i> Open';
+                const form = container.querySelector('form');
+                if (form) {
+                    container.insertBefore(viewBtn, form);
+                    container.insertBefore(openLink, form);
+                } else {
+                    container.appendChild(viewBtn);
+                    container.appendChild(openLink);
+                }
             }
 
             // Handle document upload with percentage update
@@ -398,17 +432,14 @@
                     .then(response => response.json())
                     .then(data => {
                         if (data.success) {
-                            // Show success message
                             showAlert('Document uploaded successfully!', 'success');
 
-                            // Update the document status
-                            const docType = formData.get('type');
+                            const docType = formData.get('type') || formData.get('doc_type');
                             updateDocumentStatus(docType, true);
-
-                            // Update percentage
+                            if (data.view_url) {
+                                addDocumentViewButtons(docType, data.view_url);
+                            }
                             updatePercentage();
-
-                            // Reset form
                             form.reset();
                         } else {
                             showAlert('Upload failed: ' + (data.error || 'Unknown error'), 'danger');

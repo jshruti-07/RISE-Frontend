@@ -4,6 +4,69 @@ from app.utils import BASE_URL, get_headers, fetch_leave_balance_helper, role_re
 
 user_bp = Blueprint('user', __name__)
 
+DOC_TYPES = (
+    'pan_card', 'aadhar_card', 'tenth_cert', 'twelfth_cert',
+    'graduation_cert', 'postgrad_cert',
+)
+
+
+def _normalize_upload_relative_path(file_path):
+    """Turn /uploads/documents/x.pdf into documents/x.pdf for the proxy route."""
+    if not file_path:
+        return None
+    path = str(file_path).strip().replace('\\', '/')
+    if path.startswith('/uploads/'):
+        return path[len('/uploads/'):]
+    if path.startswith('uploads/'):
+        return path[len('uploads/'):]
+    return path.lstrip('/')
+
+
+def _fetch_employee_documents(employee_name, headers):
+    """Load uploaded documents map {doc_type: file_path} from the backend API."""
+    documents = {}
+    if not employee_name:
+        return documents
+    try:
+        res = requests.get(
+            f"{BASE_URL}/documents/status",
+            headers=headers,
+            params={'employee_name': employee_name},
+            timeout=10,
+        )
+        if res.status_code == 200:
+            rows = res.json().get('documents', [])
+            if isinstance(rows, list):
+                for row in rows:
+                    if isinstance(row, dict) and row.get('doc_type') and row.get('file_path'):
+                        documents[row['doc_type']] = row['file_path']
+            return documents
+    except Exception as e:
+        print(f'Documents status fetch failed: {e}')
+
+    # Fallback: legacy endpoint (current user only)
+    try:
+        res = requests.get(f"{BASE_URL}/documents/my-status", headers=headers, timeout=10)
+        if res.status_code == 200:
+            rows = res.json().get('documents', [])
+            if isinstance(rows, list):
+                for row in rows:
+                    if isinstance(row, dict) and row.get('doc_type') and row.get('file_path'):
+                        documents[row['doc_type']] = row['file_path']
+    except Exception as e:
+        print(f'Documents my-status fetch failed: {e}')
+    return documents
+
+
+def _document_view_urls(documents):
+    """Build browser-safe view URLs via authenticated frontend proxy."""
+    urls = {}
+    for doc_type, file_path in (documents or {}).items():
+        rel = _normalize_upload_relative_path(file_path)
+        if rel:
+            urls[doc_type] = url_for('user.serve_upload', filename=rel)
+    return urls
+
 def _find_employee_by_name(employee_name, headers=None):
     """Look up employee record by prefixed system name."""
     if not employee_name:
@@ -55,25 +118,10 @@ def profile():
     except Exception:
         pass
 
-    # Get uploaded documents for this employee
-    documents = {}
-    try:
-        doc_res = requests.get(f"{BASE_URL}/documents/my-status", headers=headers, timeout=10)
-        if doc_res.status_code == 200:
-            rows = doc_res.json().get("documents", [])
-            if isinstance(rows, list):
-                documents = {
-                    r["doc_type"]: r.get("file_path")
-                    for r in rows
-                    if isinstance(r, dict) and r.get("doc_type") and r.get("file_path")
-                }
-    except Exception:
-        pass
-
-    # Calculate document completion percentage
-    doc_types = ['pan_card', 'aadhar_card', 'tenth_cert', 'twelfth_cert', 'graduation_cert', 'postgrad_cert']
-    uploaded_count = sum(1 for doc_type in doc_types if documents.get(doc_type))
-    percent = int((uploaded_count / len(doc_types)) * 100) if doc_types else 0
+    documents = _fetch_employee_documents(employee_name, headers)
+    document_view_urls = _document_view_urls(documents)
+    uploaded_count = sum(1 for doc_type in DOC_TYPES if documents.get(doc_type))
+    percent = int((uploaded_count / len(DOC_TYPES)) * 100) if DOC_TYPES else 0
 
     return render_template(
         "profile.html",
@@ -81,6 +129,7 @@ def profile():
         summary=summary,
         bank_details=bank_details,
         documents=documents,
+        document_view_urls=document_view_urls,
         percent=percent,
         is_hr_view=False,
         is_own_profile=True,
@@ -128,17 +177,33 @@ def api_my_photo():
     return jsonify({'photo_url': None}), 200
 
 from flask import Response
+
 @user_bp.route('/uploads/<path:filename>')
 def serve_upload(filename):
+    """Proxy uploaded files from the backend with the user's auth token."""
+    if 'token' not in session:
+        return '', 401
     try:
-        res = requests.get(f"{BASE_URL}/uploads/{filename}", 
-                          headers={'Authorization': f"Bearer {session.get('token', '')}"}, 
-                          stream=True, timeout=10)
+        safe_path = filename.lstrip('/').replace('..', '')
+        res = requests.get(
+            f"{BASE_URL}/uploads/{safe_path}",
+            headers={'Authorization': f"Bearer {session.get('token', '')}"},
+            stream=True,
+            timeout=30,
+        )
         if res.status_code == 200:
-            return Response(res.iter_content(chunk_size=8192), 
-                           content_type=res.headers.get('Content-Type', 'application/octet-stream'))
+            content_type = res.headers.get(
+                'Content-Type', 'application/octet-stream'
+            )
+            return Response(
+                res.iter_content(chunk_size=8192),
+                content_type=content_type,
+                headers={'Content-Disposition': 'inline'},
+            )
         return '', res.status_code
-    except: return '', 502
+    except Exception as e:
+        print(f'Upload proxy error: {e}')
+        return '', 502
 
 @user_bp.route('/upload-photo', methods=['POST'])
 def upload_photo():
@@ -278,8 +343,22 @@ def upload_document():
         print('UPLOAD RESPONSE TEXT:', res.text)
 
         if res.status_code in [200, 201]:
+            view_url = None
+            try:
+                body = res.json()
+                file_path = body.get('file_path')
+                rel = _normalize_upload_relative_path(file_path)
+                if rel:
+                    view_url = url_for('user.serve_upload', filename=rel)
+            except Exception:
+                pass
             if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-                return jsonify({'success': True, 'message': 'Document uploaded successfully'})
+                return jsonify({
+                    'success': True,
+                    'message': 'Document uploaded successfully',
+                    'doc_type': doc_type,
+                    'view_url': view_url,
+                })
             flash('Document uploaded successfully', 'success')
             return redirect(request.referrer or url_for('user.profile'))
         else:
