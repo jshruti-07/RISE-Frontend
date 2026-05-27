@@ -229,6 +229,120 @@ def add_timesheet():
     employees = emp_res.json().get("employees", []) if emp_res.status_code == 200 else []
     return render_template("add_timesheet.html", employees=employees, projects=projects, today_date=datetime.now().strftime('%Y-%m-%d'))
 
+
+@work_bp.route('/edit-timesheet/<int:timesheet_id>', methods=['GET', 'POST'])
+@role_required(['admin', 'employee', 'hr', 'manager'])
+def edit_timesheet(timesheet_id):
+    # GET existing timesheet data
+    try:
+        res = requests.get(f"{BASE_URL}/timesheets/", headers=get_headers(), timeout=15)
+        if res.status_code == 401:
+            return redirect(url_for('auth.login'))
+        timesheets = res.json().get("timesheets", [])
+    except Exception as e:
+        print("Error fetching timesheets for edit:", e)
+        flash("Error loading timesheet data from server", "danger")
+        return redirect(url_for('work.timesheets_list'))
+    
+    # Robust matching by casting both IDs to int
+    timesheet = next((t for t in timesheets if t.get('id') is not None and int(t.get('id')) == int(timesheet_id)), None)
+    
+    if not timesheet:
+        flash("Timesheet not found", "danger")
+        return redirect(url_for('work.timesheets_list'))
+    
+    # Backend validation: Only allow editing if status is submitted
+    if str(timesheet.get('status', '')).lower() != 'submitted':
+        flash("Cannot edit timesheet - it has already been approved or rejected", "danger")
+        return redirect(url_for('work.timesheets_list'))
+    
+    # Backend validation: Only allow employees to edit their own timesheets
+    current_user = session.get('employee_name')
+    user_role = session.get('role')
+    
+    if user_role not in ['employee', 'hr', 'admin']:
+        flash("Only authorized roles can edit their own timesheets", "danger")
+        return redirect(url_for('work.timesheets_list'))
+    
+    # Check if this timesheet belongs to current user
+    if str(timesheet.get('employee_name', '')).strip().lower() != str(current_user or '').strip().lower():
+        flash("You can only edit your own timesheets", "danger")
+        return redirect(url_for('work.timesheets_list'))
+    
+    if request.method == 'POST':
+        payload = {
+            "employee_name": request.form.get("employee_name"),
+            "project": request.form.get("project"),
+            "task": request.form.get("task"),
+            "hours": request.form.get("hours"),
+            "start_date": request.form.get("start_date"),
+            "end_date": request.form.get("end_date"),
+            "description": request.form.get("description")
+        }
+        
+        try:
+            # Try PATCH first
+            res = requests.patch(
+                f"{BASE_URL}/timesheets/{timesheet_id}",
+                json=payload,
+                headers=get_headers(),
+                timeout=10
+            )
+            
+            # If PATCH fails with 405, try PUT
+            if res.status_code == 405:
+                res = requests.put(
+                    f"{BASE_URL}/timesheets/{timesheet_id}",
+                    json=payload,
+                    headers=get_headers(),
+                    timeout=10
+                )
+                
+            # If PUT also fails with 405, try POST
+            if res.status_code == 405:
+                res = requests.post(
+                    f"{BASE_URL}/timesheets/{timesheet_id}",
+                    json=payload,
+                    headers=get_headers(),
+                    timeout=10
+                )
+            
+            if res.status_code in [200, 201]:
+                flash("Timesheet updated successfully!", "success")
+            else:
+                flash(f"Failed to update timesheet: {res.text}", "danger")
+        except Exception as e:
+            flash(f"Error updating timesheet: {e}", "danger")
+            
+        return redirect(url_for('work.timesheets_list'))
+
+    # GET projects from backend in real-time
+    projects = []
+    try:
+        proj_res = requests.get(f"{BASE_URL}/projects/", headers=get_headers(), timeout=10)
+        if proj_res.status_code == 200:
+            data = proj_res.json()
+            projects = data.get("projects", []) if isinstance(data, dict) else data
+    except Exception as e:
+        print("Failed to fetch projects from backend:", e)
+
+    # Fetch employees
+    employees = []
+    try:
+        emp_res = requests.get(f"{BASE_URL}/employees/", headers=get_headers())
+        if emp_res.status_code == 200:
+            employees = emp_res.json().get("employees", [])
+    except Exception as e:
+        print("Failed to fetch employees:", e)
+
+    return render_template(
+        "edit_timesheet.html",
+        timesheet=timesheet,
+        employees=employees,
+        projects=projects
+    )
+
+
 @work_bp.route('/timesheets/export')
 @role_required(['admin', 'hr', 'manager'])
 def export_timesheets():

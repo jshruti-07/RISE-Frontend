@@ -688,8 +688,15 @@ def add_timesheet():
         requests.post(f"{BASE_URL}/timesheets", json=payload, headers=get_headers())
         return redirect(url_for('timesheets'))
 
-    # GET projects from local database
-    projects = projects_db
+    # GET projects from backend in real-time
+    projects = []
+    try:
+        proj_res = requests.get(f"{BASE_URL}/projects/", headers=get_headers(), timeout=10)
+        if proj_res.status_code == 200:
+            data = proj_res.json()
+            projects = data.get("projects", []) if isinstance(data, dict) else data
+    except Exception as e:
+        print("Failed to fetch projects from backend:", e)
 
     # existing employees
     emp_res = requests.get(f"{BASE_URL}/employees", headers=get_headers())
@@ -714,7 +721,7 @@ def edit_timesheet(timesheet_id):
         return redirect(url_for('login'))
     
     timesheets = res.json().get("timesheets", [])
-    timesheet = next((t for t in timesheets if t.get('id') == timesheet_id), None)
+    timesheet = next((t for t in timesheets if t.get('id') is not None and int(t.get('id')) == int(timesheet_id)), None)
     
     if not timesheet:
         flash("Timesheet not found", "danger")
@@ -749,14 +756,12 @@ def edit_timesheet(timesheet_id):
             "description": request.form.get("description")
         }
         
-        
         # Try PATCH first
         res = requests.patch(
             f"{BASE_URL}/timesheets/{timesheet_id}",
             json=payload,
             headers=get_headers()
         )
-        
         
         # If PATCH fails with 405, try PUT
         if res.status_code == 405:
@@ -766,7 +771,6 @@ def edit_timesheet(timesheet_id):
                 headers=get_headers()
             )
             
-        
         # If PUT also fails with 405, try POST
         if res.status_code == 405:
             res = requests.post(
@@ -775,7 +779,6 @@ def edit_timesheet(timesheet_id):
                 headers=get_headers()
             )
             
-        
         if res.status_code == 200:
             flash("Timesheet updated successfully!", "success")
             return redirect(url_for('timesheets'))
@@ -783,8 +786,15 @@ def edit_timesheet(timesheet_id):
             flash(f"Failed to update timesheet: {res.text}", "danger")
             return redirect(url_for('timesheets'))
 
-    # GET projects from local database
-    projects = projects_db
+    # GET projects from backend in real-time
+    projects = []
+    try:
+        proj_res = requests.get(f"{BASE_URL}/projects/", headers=get_headers(), timeout=10)
+        if proj_res.status_code == 200:
+            data = proj_res.json()
+            projects = data.get("projects", []) if isinstance(data, dict) else data
+    except Exception as e:
+        print("Failed to fetch projects from backend:", e)
 
     # existing employees
     emp_res = requests.get(f"{BASE_URL}/employees", headers=get_headers())
