@@ -113,7 +113,7 @@
                 <td>
                     <div class="d-flex flex-column justify-content-center">
                         <span style="line-height: 1.2;">{{ t.employee_name | clean_name }}</span>
-                        <small class="text-muted" style="font-size: 0.75rem; margin-top: 2px;">[{{ labels.EMPLOYEE.upper() if t.employee_role == 'employee' else (t.employee_role | title) if t.employee_role else 'Team Member' }}]</small>
+                        <small class="text-muted" style="font-size: 0.6rem; margin-top: 2px;">[{{ labels.EMPLOYEE.upper() if t.employee_role == 'employee' else (t.employee_role | title) if t.employee_role else 'Team Member' }}]</small>
                     </div>
                 </td>
                 <td>{{ t.project }}</td>
