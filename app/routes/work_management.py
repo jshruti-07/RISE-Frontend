@@ -241,6 +241,7 @@ def add_timesheet():
     employees = extract_list(emp_res.json(), 'employees', 'data') if emp_res.status_code == 200 else []
     return render_template("add_timesheet.html", employees=employees, projects=projects, today_date=datetime.now().strftime('%Y-%m-%d'))
 
+<<<<<<< HEAD
 
 @work_bp.route('/edit-timesheet/<int:timesheet_id>', methods=['GET', 'POST'])
 @role_required(['admin', 'employee', 'hr', 'manager'])
@@ -284,10 +285,18 @@ def edit_timesheet(timesheet_id):
     if request.method == 'POST':
         payload = {
             "employee_name": request.form.get("employee_name"),
+=======
+@work_bp.route('/edit-timesheet/<int:entry_id>', methods=['GET', 'POST'])
+@role_required(['admin', 'employee', 'hr', 'manager'])
+def edit_timesheet(entry_id):
+    if request.method == 'POST':
+        payload = {
+>>>>>>> de200e1 (changes regarding login)
             "project": request.form.get("project"),
             "task": request.form.get("task"),
             "hours": request.form.get("hours"),
             "start_date": request.form.get("start_date"),
+<<<<<<< HEAD
             "end_date": request.form.get("end_date"),
             "description": request.form.get("description")
         }
@@ -352,6 +361,43 @@ def edit_timesheet(timesheet_id):
         projects=projects
     )
 
+=======
+            "description": request.form.get("description")
+        }
+        try:
+            res = requests.put(f"{BASE_URL}/timesheets/{entry_id}", json=payload, headers=get_headers(), timeout=10)
+            if res.status_code in [200, 201]:
+                flash('Timesheet updated successfully!', 'success')
+            else:
+                flash(f'Failed to update timesheet: {res.json().get("error", res.text)}', 'danger')
+        except Exception as e:
+            flash(f'Error updating timesheet: {e}', 'danger')
+            
+        return redirect(url_for('work.timesheets_list'))
+
+    # GET Request: Fetch existing timesheet and reference data
+    try:
+        # Fetch single timesheet
+        ts_res = requests.get(f"{BASE_URL}/timesheets/{entry_id}", headers=get_headers(), timeout=10)
+        if ts_res.status_code != 200:
+            flash('Timesheet not found or access denied.', 'danger')
+            return redirect(url_for('work.timesheets_list'))
+        
+        timesheet = ts_res.json().get('timesheet', {})
+        
+        # Fetch projects for dropdown
+        projects = []
+        proj_res = requests.get(f"{BASE_URL}/projects/", headers=get_headers(), timeout=10)
+        if proj_res.status_code == 200:
+            data = proj_res.json()
+            projects = data.get("projects", []) if isinstance(data, dict) else data
+            
+    except Exception as e:
+        flash(f'Error loading timesheet: {e}', 'danger')
+        return redirect(url_for('work.timesheets_list'))
+
+    return render_template("edit_timesheet.html", timesheet=timesheet, projects=projects)
+>>>>>>> de200e1 (changes regarding login)
 
 @work_bp.route('/timesheets/export')
 @role_required(['admin', 'hr', 'manager'])

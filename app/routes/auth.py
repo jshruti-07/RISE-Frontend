@@ -21,13 +21,28 @@ def login():
             "password": request.form.get("password")
         }
         try:
-            res = requests.post(f"{BASE_URL}/auth/login", json=payload)
+            res = requests.post(f"{BASE_URL}/auth/login", json=payload, timeout=10)
             data = res.json()
+        except requests.exceptions.Timeout:
+            print("LOGIN TIMEOUT: The authentication service took too long to respond.")
+            error_msg = "Authentication service timed out. Please try again."
+            if request.headers.get("X-Requested-With") == "XMLHttpRequest":
+                return jsonify({"success": False, "error": error_msg}), 504
+            flash(error_msg, "danger")
+            return render_template('login.html')
+        except requests.exceptions.ConnectionError:
+            print("LOGIN CONNECTION ERROR: Unable to connect to backend server.")
+            error_msg = "Unable to connect to backend server. Please contact support if the issue persists."
+            if request.headers.get("X-Requested-With") == "XMLHttpRequest":
+                return jsonify({"success": False, "error": error_msg}), 503
+            flash(error_msg, "danger")
+            return render_template('login.html')
         except Exception as e:
             print("LOGIN ERROR:", e)
+            error_msg = "Authentication service temporarily unavailable."
             if request.headers.get("X-Requested-With") == "XMLHttpRequest":
-                return jsonify({"success": False, "error": "Server not reachable"}), 500
-            flash("Server not reachable", "danger")
+                return jsonify({"success": False, "error": error_msg}), 500
+            flash(error_msg, "danger")
             return render_template('login.html')
 
         if res.status_code == 200 and data.get("success"):
@@ -79,14 +94,19 @@ def handle_forgot_password():
         res = requests.post(
             f"{BASE_URL}/auth/forgot-password",
             json={'email': email},
-            headers={'Content-Type': 'application/json'}
+            headers={'Content-Type': 'application/json'},
+            timeout=10
         )
         
         response_data = res.json()
         return jsonify(response_data), res.status_code
+    except requests.exceptions.Timeout:
+        return jsonify({'success': False, 'error': 'Authentication service timed out. Please try again.'}), 504
+    except requests.exceptions.ConnectionError:
+        return jsonify({'success': False, 'error': 'Unable to connect to backend server.'}), 503
     except Exception as e:
         print("Forgot password error:", e)
-        return jsonify({'success': False, 'error': 'Server error occurred'}), 500
+        return jsonify({'success': False, 'error': 'Authentication service temporarily unavailable'}), 500
 
 @auth_bp.route('/reset-password', methods=['GET'])
 def reset_password():
@@ -117,14 +137,19 @@ def handle_reset_password():
                 'new_password': new_password,
                 'confirm_password': confirm_password
             },
-            headers={'Content-Type': 'application/json'}
+            headers={'Content-Type': 'application/json'},
+            timeout=10
         )
         
         response_data = res.json()
         return jsonify(response_data), res.status_code
+    except requests.exceptions.Timeout:
+        return jsonify({'success': False, 'error': 'Authentication service timed out. Please try again.'}), 504
+    except requests.exceptions.ConnectionError:
+        return jsonify({'success': False, 'error': 'Unable to connect to backend server.'}), 503
     except Exception as e:
         print("Reset password error:", e)
-        return jsonify({'success': False, 'error': 'Server error occurred'}), 500
+        return jsonify({'success': False, 'error': 'Authentication service temporarily unavailable'}), 500
 
 @auth_bp.route('/change-password', methods=['GET', 'POST'])
 def change_password():
@@ -136,7 +161,7 @@ def change_password():
             "confirm_password": request.form.get("confirm_password")
         }
         try:
-            res = requests.post(f"{BASE_URL}/auth/change-password", json=payload, headers=get_headers())
+            res = requests.post(f"{BASE_URL}/auth/change-password", json=payload, headers=get_headers(), timeout=10)
             data = res.json()
             if res.status_code == 200 and data.get("success"):
                 if data.get("token"):
@@ -145,9 +170,13 @@ def change_password():
                 return redirect(url_for('dashboard.dashboard'))
             else:
                 flash(data.get("error", "Failed to change password"), "danger")
+        except requests.exceptions.Timeout:
+            flash("Authentication service timed out. Please try again.", "danger")
+        except requests.exceptions.ConnectionError:
+            flash("Unable to connect to backend server.", "danger")
         except Exception as e:
             print("Password change error:", e)
-            flash("Server error occurred", "danger")
+            flash("Authentication service temporarily unavailable", "danger")
     return render_template('change_password.html')
 
 @auth_bp.route('/logout')
