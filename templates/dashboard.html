@@ -500,9 +500,9 @@
                                     <img src="{% if b.photo_url %}{% if b.photo_url.startswith('http') %}{{ b.photo_url }}{% else %}{{ BASE_URL }}{{ b.photo_url }}{% endif %}{% else %}data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 80 80'%3E%3Ccircle cx='40' cy='40' r='40' fill='%23475569'/%3E%3Ccircle cx='40' cy='30' r='14' fill='%23cbd5e1'/%3E%3Cellipse cx='40' cy='68' rx='22' ry='16' fill='%23cbd5e1'/%3E%3C/svg%3E{% endif %}" 
                                          class="rounded-circle shadow-sm" 
                                          style="width: 32px; height: 32px; object-fit: cover;" 
-                                         alt="{{ b.name if b.name else 'User' }}">
+                                         alt="{{ b.name | clean_name if b.name else 'User' }}">
                                     <div style="line-height: 1.2;">
-                                        <div class="fw-bold text-dark" style="font-size: 0.85rem;">{{ b.name if b.name else 'Unknown' }}</div>
+                                        <div class="fw-bold text-dark" style="font-size: 0.85rem;">{{ b.name | clean_name if b.name else 'Unknown' }}</div>
                                         {% if b.is_today %}
                                         <span class="badge bg-success bg-opacity-10 text-success p-0" style="font-size: 0.65rem;">Today! 🎂</span>
                                         {% else %}

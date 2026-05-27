@@ -47,4 +47,15 @@ def create_app():
             config=UI_CONFIG
         )
 
+    @app.template_filter('clean_name')
+    def clean_name_filter(name):
+        if not name:
+            return name
+        name = str(name).strip()
+        prefixes = ['H_', 'M_', 'A_', 'T_', 'A_A_']
+        for p in sorted(prefixes, key=len, reverse=True):
+            if name.startswith(p):
+                return name[len(p):]
+        return name
+
     return app

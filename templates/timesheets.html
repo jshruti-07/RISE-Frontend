@@ -110,9 +110,14 @@
                 data-manager="{{ (manager_name|string)|lower if manager_name else '' }}" 
                 data-date="{{ t.start_date[:10] if t.start_date else '' }}" 
                 data-status="{{ (t.status|string)|lower if t.status else '' }}">
-                <td>{{ t.employee_name }}</td>
+                <td>
+                    <div class="d-flex flex-column justify-content-center">
+                        <span style="line-height: 1.2;">{{ t.employee_name | clean_name }}</span>
+                        <small class="text-muted" style="font-size: 0.75rem; margin-top: 2px;">[{{ labels.EMPLOYEE.upper() if t.employee_role == 'employee' else (t.employee_role | title) if t.employee_role else 'Team Member' }}]</small>
+                    </div>
+                </td>
                 <td>{{ t.project }}</td>
-                <td>{{ project_manager_map.get((t.project|string).strip().lower(), '-') }}</td>
+                <td>{{ project_manager_map.get((t.project|string).strip().lower(), '-') | clean_name }}</td>
                 <td>{{ t.task }}</td>
                 <td>{{ t.description or '-' }}</td>
                 <td>{{ t.hours }}</td>

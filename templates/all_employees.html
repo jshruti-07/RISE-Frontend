@@ -37,10 +37,11 @@
 <tr>
 
     <td>
-        <div class="d-flex align-items-center gap-2">
-            <a href="{{ url_for('employees.view_profile', employee_name=emp.name) }}" class="text-decoration-none fw-semibold text-dark hover-primary">
-                {{ emp.name }}
+        <div class="d-flex flex-column justify-content-center">
+            <a href="{{ url_for('employees.view_profile', employee_name=emp.name) }}" class="text-decoration-none fw-semibold text-dark hover-primary" style="line-height: 1.2;">
+                {{ emp.name | clean_name }}
             </a>
+            <small class="text-muted" style="font-size: 0.75rem; margin-top: 2px;">[{{ labels.EMPLOYEE.upper() if emp.role == 'employee' else (emp.role | title) if emp.role else 'Team Member' }}]</small>
         </div>
     </td>
 

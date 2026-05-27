@@ -525,12 +525,22 @@
 
             let allottedDisplay = '<span class="text-muted small">Available</span>';
 
+            function cleanNameJS(name) {
+                if (!name) return name;
+                const n = String(name).trim();
+                const prefixes = ['A_A_', 'H_', 'M_', 'A_', 'T_'];
+                for (let p of prefixes) {
+                    if (n.startsWith(p)) return n.substring(p.length);
+                }
+                return n;
+            }
+
             if (isAssigned) {
                 const emp = (empId && typeof employees !== 'undefined') ? employees.find(e => String(e.id) === String(empId)) : null;
                 let empName = emp ? emp.name : 'Assigned';
 
                 // Display name
-                const formattedName = empName;
+                const formattedName = cleanNameJS(empName);
 
                 const displayId = empId || (emp ? emp.id : 'N/A');
                 let roleDisplay = (emp && emp.role) ? `<span class="text-muted me-2">${emp.role.toUpperCase()}</span>` : '';
@@ -676,7 +686,7 @@
 
         if (filtered.length > 0) {
             resultsDiv.innerHTML = filtered.map(emp => {
-                const displayName = emp.name;
+                const displayName = cleanNameJS(emp.name);
                 const roleDisplay = emp.role ? `<span class="badge bg-secondary me-1" style="font-size: 0.6rem;">${emp.role.toUpperCase()}</span>` : '';
                 return `
                     <div class="autocomplete-item" onclick="selectEmployee('${emp.name}', '${emp.id}', '${displayName}')">
@@ -900,7 +910,7 @@
         // Employee
         const empEl = document.getElementById('detailEmployee');
         if (assignedName) {
-            const formattedName = assignedName;
+            const formattedName = cleanNameJS(assignedName);
             empEl.innerText = `${formattedName} (ID: ${assignedId})`;
         } else {
             empEl.innerText = 'Unassigned';
