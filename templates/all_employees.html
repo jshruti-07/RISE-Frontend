@@ -41,13 +41,13 @@
             <a href="{{ url_for('employees.view_profile', employee_name=emp.name) }}" class="text-decoration-none fw-semibold text-dark hover-primary" style="line-height: 1.2;">
                 {{ emp.name | clean_name }}
             </a>
-            <small class="text-muted" style="font-size: 0.75rem; margin-top: 2px;">[{{ labels.EMPLOYEE.capitalize() if emp.role == 'employee' else (emp.role | capitalize) if emp.role else 'Team Member' }}]</small>
+            <small class="text-muted" style="font-size: 0.6rem; margin-top: 2px;">[{{ labels.EMPLOYEE.upper() if emp.role == 'employee' else (emp.role | upper) if emp.role else 'TEAM MEMBER' }}]</small>
         </div>
     </td>
 
     <td>{{ emp.email }}</td>
     <td>{{ emp.date_of_joining[:11] if emp.date_of_joining else '' }}</td>
-    <td class="text-center"><span class="badge bg-secondary">{{ labels.EMPLOYEE.capitalize() if emp.role == 'employee' else emp.role | capitalize }}</span></td>
+    <td class="text-center"><span class="badge bg-secondary">{{ labels.EMPLOYEE.upper() if emp.role == 'employee' else emp.role | upper }}</span></td>
     <td class="text-center">
         <span class="badge {{ 'badge-pastel-success' if emp.leave_balance > 5 else 'badge-pastel-warning' if emp.leave_balance > 2 else 'badge-pastel-danger' }} rounded-pill">
             {{ emp.leave_balance }} days
