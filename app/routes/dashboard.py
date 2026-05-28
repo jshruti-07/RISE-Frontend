@@ -28,6 +28,7 @@ def dashboard():
     reimbursement_stats = {}
     pending_agreements = []
     projects = []
+    my_projects = []
     pending_timesheets_list = []
     pending_timesheets_count = 0
     team_pending_timesheets = []
@@ -232,6 +233,31 @@ def dashboard():
                 pending_timesheets_count += 1
                 pending_timesheets_list.insert(0, {'project': 'Today\'s Entry', 'start_date': today_str, 'status': 'missing'})
 
+            # Fetch projects assigned to this employee (limited view – no customer data)
+            try:
+                proj_res = requests.get(f"{BASE_URL}/projects/", headers=get_headers(), timeout=10)
+                if proj_res.status_code == 200:
+                    all_projects = extract_list(proj_res.json(), 'projects', 'data')
+                    for proj in all_projects:
+                        if str(proj.get('status', '')).lower() != 'active':
+                            continue
+                        for m in project_team_members(proj):
+                            nm = m.get('employee_name') or m.get('name')
+                            if names_match(nm, current_user):
+                                my_projects.append({
+                                    'id': proj.get('id'),
+                                    'name': proj.get('name', 'Unnamed Project'),
+                                    'status': proj.get('status', 'active'),
+                                    'start_date': proj.get('start_date', ''),
+                                    'end_date': proj.get('end_date', ''),
+                                    'manager': proj.get('assigned_manager') or proj.get('manager_name') or proj.get('assigned_manager_name', ''),
+                                    'allocation': m.get('allocation') or m.get('allocation_percentage') or m.get('billable_percentage') or m.get('billable_pct') or m.get('percentage') or 100,
+                                    'billing_type': m.get('billing_type') or ('Billable' if m.get('is_billable', True) else 'Non-Billable'),
+                                })
+                                break
+            except Exception as proj_err:
+                print(f"Error fetching employee projects on dashboard: {proj_err}")
+
         if session.get('role') == 'manager':
             manager_name = session.get('employee_name')
             
@@ -300,6 +326,7 @@ def dashboard():
         reimbursement_stats=reimbursement_stats,
         pending_agreements=pending_agreements,
         projects=projects,
+        my_projects=my_projects,
         team_pending_timesheets=team_pending_timesheets,
         team_leaves=team_leaves[:10],
         pending_timesheets_count=pending_timesheets_count,

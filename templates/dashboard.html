@@ -147,6 +147,91 @@
         {% endif %}
     </div>
 
+    <!-- MY PROJECTS ROW (Employee Only) -->
+    {% if session.role == 'employee' %}
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card-ui p-3">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h6 class="mb-0 fw-bold text-dark">
+                        <i class="bi bi-folder2-open me-2 text-primary"></i>My Projects
+                    </h6>
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="badge bg-primary bg-opacity-25 text-primary rounded-pill px-3">
+                            {{ my_projects|length }} Active
+                        </span>
+                        <a href="{{ url_for('projects.projects_list') }}" class="btn btn-sm btn-outline-primary rounded-pill px-3" style="font-size: 0.75rem;">
+                            View All <i class="bi bi-arrow-right small ms-1"></i>
+                        </a>
+                    </div>
+                </div>
+
+                {% if my_projects %}
+                <div class="table-responsive">
+                    <table class="table table-sm table-hover align-middle mb-0" style="font-size: 0.82rem;">
+                        <thead class="bg-light">
+                            <tr>
+                                <th class="border-0 px-3">Project Name</th>
+                                <th class="border-0 px-2">Manager</th>
+                                <th class="border-0 px-2">Start</th>
+                                <th class="border-0 px-2">End</th>
+                                <th class="border-0 px-2 text-center">My Allocation</th>
+                                <th class="border-0 px-2 text-center">Billing</th>
+                                <th class="border-0 px-2 text-end">Details</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for proj in my_projects %}
+                            <tr class="hover-row">
+                                <td class="px-3 border-0 fw-semibold text-dark">
+                                    <i class="bi bi-folder-fill text-primary me-1" style="font-size:0.75rem;"></i>
+                                    {{ proj.name }}
+                                </td>
+                                <td class="px-2 border-0 text-muted">
+                                    {{ proj.manager | clean_name if proj.manager else '—' }}
+                                </td>
+                                <td class="px-2 border-0 text-muted">
+                                    {{ proj.start_date[:10] if proj.start_date else '—' }}
+                                </td>
+                                <td class="px-2 border-0 text-muted">
+                                    {{ proj.end_date[:10] if proj.end_date else '—' }}
+                                </td>
+                                <td class="px-2 border-0 text-center">
+                                    <span class="badge bg-primary bg-opacity-15 text-primary rounded-pill" style="font-size: 0.72rem;">
+                                        {{ proj.allocation }}%
+                                    </span>
+                                </td>
+                                <td class="px-2 border-0 text-center">
+                                    {% if proj.billing_type and proj.billing_type|lower == 'billable' %}
+                                    <span class="badge bg-success bg-opacity-15 text-success rounded-pill" style="font-size: 0.72rem;">Billable</span>
+                                    {% else %}
+                                    <span class="badge bg-secondary bg-opacity-15 text-secondary rounded-pill" style="font-size: 0.72rem;">Non-Billable</span>
+                                    {% endif %}
+                                </td>
+                                <td class="px-2 border-0 text-end">
+                                    <button class="btn btn-sm btn-outline-primary py-0 btn-view-project"
+                                        data-id="{{ proj.id }}"
+                                        title="View Project Details"
+                                        style="font-size: 0.7rem; border-radius: 6px;">
+                                        <i class="bi bi-eye"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center py-5 text-muted">
+                    <i class="bi bi-folder-x fs-2 d-block mb-2"></i>
+                    <p class="mb-0">You are not assigned to any active projects yet.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
     <!-- SECOND ROW (FIXED LAYOUT) -->
     <div class="row mt-4">
         <!-- LEFT SIDE (PROJECTS + BIRTHDAYS + HOLIDAYS) -->
@@ -872,6 +957,9 @@
 <script id="projects-data" type="application/json">
     {{ projects | tojson | safe }}
 </script>
+<script id="my-projects-data" type="application/json">
+    {{ my_projects | tojson | safe }}
+</script>
 <script id="config-data" type="application/json">
     {
         "userRole": {{ session.role | tojson }},
@@ -881,18 +969,25 @@
 
 <script>
     // Helper to safely load data from JSON blocks
-    const getProjectsData = () => JSON.parse(document.getElementById('projects-data').textContent || '[]');
+    const getProjectsData = () => {
+        const managerProjects = JSON.parse(document.getElementById('projects-data').textContent || '[]');
+        const myProjects = JSON.parse((document.getElementById('my-projects-data') || {}).textContent || '[]');
+        // Merge both so employee's view modal can look up project by id
+        const allById = {};
+        managerProjects.forEach(p => { if (p.id) allById[p.id] = p; });
+        myProjects.forEach(p => { if (p.id) allById[p.id] = p; });
+        return Object.values(allById).length ? Object.values(allById) : managerProjects;
+    };
     const getConfigData = () => JSON.parse(document.getElementById('config-data').textContent || '{}');
 
     document.addEventListener('DOMContentLoaded', function() {
-        // Event delegation for project actions (Active Projects table)
-        const activeProjectsTable = document.querySelector('.table-hover');
-        if (activeProjectsTable) {
-            activeProjectsTable.addEventListener('click', function(e) {
+        // Event delegation for project actions (Active Projects table & My Projects table)
+        document.querySelectorAll('.table-hover').forEach(function(table) {
+            table.addEventListener('click', function(e) {
                 const viewBtn = e.target.closest('.btn-view-project');
                 if (viewBtn) viewProjectDetails(viewBtn.dataset.id);
             });
-        }
+        });
     });
 
     // Load notifications page function (needed for "View All Notifications" link)
