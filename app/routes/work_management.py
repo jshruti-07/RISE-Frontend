@@ -241,7 +241,6 @@ def add_timesheet():
     employees = extract_list(emp_res.json(), 'employees', 'data') if emp_res.status_code == 200 else []
     return render_template("add_timesheet.html", employees=employees, projects=projects, today_date=datetime.now().strftime('%Y-%m-%d'))
 
-<<<<<<< HEAD
 
 @work_bp.route('/edit-timesheet/<int:timesheet_id>', methods=['GET', 'POST'])
 @role_required(['admin', 'employee', 'hr', 'manager'])
@@ -285,18 +284,16 @@ def edit_timesheet(timesheet_id):
     if request.method == 'POST':
         payload = {
             "employee_name": request.form.get("employee_name"),
-=======
+
 @work_bp.route('/edit-timesheet/<int:entry_id>', methods=['GET', 'POST'])
 @role_required(['admin', 'employee', 'hr', 'manager'])
 def edit_timesheet(entry_id):
     if request.method == 'POST':
         payload = {
->>>>>>> de200e1 (changes regarding login)
             "project": request.form.get("project"),
             "task": request.form.get("task"),
             "hours": request.form.get("hours"),
             "start_date": request.form.get("start_date"),
-<<<<<<< HEAD
             "end_date": request.form.get("end_date"),
             "description": request.form.get("description")
         }
@@ -361,7 +358,6 @@ def edit_timesheet(entry_id):
         projects=projects
     )
 
-=======
             "description": request.form.get("description")
         }
         try:
@@ -397,7 +393,6 @@ def edit_timesheet(entry_id):
         return redirect(url_for('work.timesheets_list'))
 
     return render_template("edit_timesheet.html", timesheet=timesheet, projects=projects)
->>>>>>> de200e1 (changes regarding login)
 
 @work_bp.route('/timesheets/export')
 @role_required(['admin', 'hr', 'manager'])
