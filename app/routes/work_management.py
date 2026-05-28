@@ -284,12 +284,6 @@ def edit_timesheet(timesheet_id):
     if request.method == 'POST':
         payload = {
             "employee_name": request.form.get("employee_name"),
-
-@work_bp.route('/edit-timesheet/<int:entry_id>', methods=['GET', 'POST'])
-@role_required(['admin', 'employee', 'hr', 'manager'])
-def edit_timesheet(entry_id):
-    if request.method == 'POST':
-        payload = {
             "project": request.form.get("project"),
             "task": request.form.get("task"),
             "hours": request.form.get("hours"),
@@ -334,7 +328,7 @@ def edit_timesheet(entry_id):
             
         return redirect(url_for('work.timesheets_list'))
 
-    # GET projects from backend in real-time
+    # GET: Fetch projects and employees for the edit form
     projects = []
     try:
         proj_res = requests.get(f"{BASE_URL}/projects/", headers=get_headers(), timeout=10)
@@ -357,42 +351,6 @@ def edit_timesheet(entry_id):
         employees=employees,
         projects=projects
     )
-
-            "description": request.form.get("description")
-        }
-        try:
-            res = requests.put(f"{BASE_URL}/timesheets/{entry_id}", json=payload, headers=get_headers(), timeout=10)
-            if res.status_code in [200, 201]:
-                flash('Timesheet updated successfully!', 'success')
-            else:
-                flash(f'Failed to update timesheet: {res.json().get("error", res.text)}', 'danger')
-        except Exception as e:
-            flash(f'Error updating timesheet: {e}', 'danger')
-            
-        return redirect(url_for('work.timesheets_list'))
-
-    # GET Request: Fetch existing timesheet and reference data
-    try:
-        # Fetch single timesheet
-        ts_res = requests.get(f"{BASE_URL}/timesheets/{entry_id}", headers=get_headers(), timeout=10)
-        if ts_res.status_code != 200:
-            flash('Timesheet not found or access denied.', 'danger')
-            return redirect(url_for('work.timesheets_list'))
-        
-        timesheet = ts_res.json().get('timesheet', {})
-        
-        # Fetch projects for dropdown
-        projects = []
-        proj_res = requests.get(f"{BASE_URL}/projects/", headers=get_headers(), timeout=10)
-        if proj_res.status_code == 200:
-            data = proj_res.json()
-            projects = data.get("projects", []) if isinstance(data, dict) else data
-            
-    except Exception as e:
-        flash(f'Error loading timesheet: {e}', 'danger')
-        return redirect(url_for('work.timesheets_list'))
-
-    return render_template("edit_timesheet.html", timesheet=timesheet, projects=projects)
 
 @work_bp.route('/timesheets/export')
 @role_required(['admin', 'hr', 'manager'])
