@@ -59,6 +59,26 @@
                             <div>DOJ: Not set</div>
                         {% endif %}
                         <div>Leave Balance: {{ summary.remaining_leaves }} days</div>
+                        {% if employee.get('employment_type') %}
+                            <div>Employement Type: {{ employee.employment_type }}</div>
+                        {% else %}
+                            <div>Employement Type: Not set</div>
+                        {% endif %}
+                        {% if employee.get('designation') %}
+                            <div>Designation: {{ employee.designation }}</div>
+                        {% else %}
+                            <div>Designation: Not set</div>
+                        {% endif %}
+                        {% if employee.get('department') %}
+                            <div>Department: {{ employee.department }}</div>
+                        {% else %}
+                            <div>Department: Not set</div>
+                        {% endif %}
+                        {% if employee.get('reporting_manager') %}
+                            <div>Reporting Manager: {{ employee.reporting_manager }}</div>
+                        {% else %}
+                            <div>Reporting Manager: Not set</div>
+                        {% endif %}
 
                     </div>
                 </div>

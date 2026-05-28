@@ -112,6 +112,12 @@ def add_employee():
         "role": form.get('role', 'employee'),
         "date_of_birth": form.get('date_of_birth', ''),
         "phone": form.get('phone', ''),
+        "designation": form.get('designation', ''),
+        "department": form.get('department', ''),
+        "gender":form.get("gender",''),
+        "employment_type":form.get("employment_type",''),
+        "reporting_manager":form.get("reporting_manager",''),
+        "address":form.get("address",''),
     }
     files = {}
     if 'pdf_file' in request.files:
@@ -157,7 +163,13 @@ def edit_employee(id):
             "email": form['email'],
             "phone": form['phone'],
             "date_of_joining": form['date_of_joining'],
-            "date_of_birth": form.get('date_of_birth', '')
+            "date_of_birth": form.get('date_of_birth', ''),
+            "designation": form.get('designation', ''),
+            "department": form.get('department', ''),
+            "gender":form.get("gender",''),
+            "employment_type":form.get("employment_type",''),
+            "reporting_manager":form.get("reporting_manager",''),
+            "address":form.get("address",''),
         }
 
         file_data = {}
