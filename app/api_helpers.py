@@ -23,10 +23,16 @@ def strip_role_prefix(name: Optional[str]) -> str:
     return re.sub(r'^(?:[hmta]_|admin_|manager_|hr_|employee_|team_member_)', '', text, flags=re.IGNORECASE)
 
 
-def names_match(name_a: Optional[str], name_b: Optional[str]) -> bool:
+def names_match(name_a: Any, name_b: Any) -> bool:
     """Compare system or display names with optional role-prefix tolerance."""
+    if isinstance(name_a, dict):
+        name_a = name_a.get('employee_name') or name_a.get('name') or ''
+    if isinstance(name_b, dict):
+        name_b = name_b.get('employee_name') or name_b.get('name') or ''
+        
     if not name_a or not name_b:
         return False
+        
     a, b = str(name_a).lower().strip(), str(name_b).lower().strip()
     if a == b:
         return True

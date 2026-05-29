@@ -26,7 +26,7 @@ def projects_list():
     
     try:
         user_role = str(session.get('role', '')).lower().strip()
-        user_name = session.get('employee_name')
+        user_name = session.get('employee_name') or session.get('user') or session.get('username')
         
         # 1. Fetch ALL projects from backend (trailing slash required)
         res = requests.get(f"{BASE_URL}/projects/", headers=get_headers(), timeout=10)
@@ -45,15 +45,14 @@ def projects_list():
         projects_to_show = []
         if user_role in ['hr', 'admin']:
             projects_to_show = all_projects
-        elif user_role == 'manager':
-            # Manager sees projects where they are assigned as manager
-            projects_to_show = [
-                p for p in all_projects
-                if names_match(pick(p, 'assigned_manager', 'manager_name', 'assigned_manager_name', 'manager'), user_name)
-            ]
-        elif user_role == 'employee':
+        elif user_role in ['manager', 'employee']:
             for proj in all_projects:
-                if any(names_match(m.get('employee_name') or m.get('name'), user_name) for m in project_team_members(proj)):
+                # Check if user is the manager
+                is_manager = names_match(pick(proj, 'assigned_manager', 'manager_name', 'assigned_manager_name', 'manager'), user_name)
+                # Check if user is a team member
+                is_team_member = any(names_match(m.get('employee_name') or m.get('name'), user_name) for m in project_team_members(proj))
+                
+                if is_manager or is_team_member:
                     projects_to_show.append(proj)
         
         # 3. Fetch managers list for modals
