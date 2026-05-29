@@ -49,7 +49,7 @@ def projects_list():
             # Manager sees projects where they are assigned as manager
             projects_to_show = [
                 p for p in all_projects
-                if names_match(pick(p, 'assigned_manager', 'manager_name', 'assigned_manager_name'), user_name)
+                if names_match(pick(p, 'assigned_manager', 'manager_name', 'assigned_manager_name', 'manager'), user_name)
             ]
         elif user_role == 'employee':
             for proj in all_projects:

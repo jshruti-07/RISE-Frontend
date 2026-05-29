@@ -9,17 +9,18 @@ import re
 from typing import Any, Dict, List, Optional, Union
 
 # Role prefix on system names (backend generate_unique_username)
-ROLE_PREFIX_RE = re.compile(r'^[HMTA]_')
+ROLE_PREFIX_RE = re.compile(r'^(?:[hmtaHMTA]_|admin_|manager_|hr_|employee_|team_member_)')
 
 JsonDict = Dict[str, Any]
 
 
 def strip_role_prefix(name: Optional[str]) -> str:
-    """Display name without H_/M_/T_/A_ system prefix."""
+    """Display name without H_/M_/T_/A_ or full role system prefix."""
     if not name:
         return ''
     text = str(name).strip()
-    return ROLE_PREFIX_RE.sub('', text)
+    # Case insensitive substitution to handle lowercased names in names_match
+    return re.sub(r'^(?:[hmta]_|admin_|manager_|hr_|employee_|team_member_)', '', text, flags=re.IGNORECASE)
 
 
 def names_match(name_a: Optional[str], name_b: Optional[str]) -> bool:
@@ -29,12 +30,13 @@ def names_match(name_a: Optional[str], name_b: Optional[str]) -> bool:
     a, b = str(name_a).lower().strip(), str(name_b).lower().strip()
     if a == b:
         return True
-    if strip_role_prefix(a) == strip_role_prefix(b):
+    
+    sa = strip_role_prefix(a)
+    sb = strip_role_prefix(b)
+    
+    if sa and sb and sa == sb:
         return True
-    if len(a) > 2 and a[1] == '_' and a[2:] == b:
-        return True
-    if len(b) > 2 and b[1] == '_' and b[2:] == a:
-        return True
+        
     return False
 
 
@@ -110,7 +112,7 @@ def person_system_name(record: Optional[JsonDict]) -> str:
     if not isinstance(record, dict):
         return ''
     return (
-        pick(record, 'employee_name', 'teamMemberName', 'team_member_id', 'name', default='')
+        pick(record, 'employee_name', 'teamMemberName', 'team_member_id', 'name', 'employee', 'member_name', 'm_name', default='')
         or ''
     ).strip()
 
