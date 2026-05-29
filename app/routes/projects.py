@@ -34,11 +34,34 @@ def projects_list():
         if res.status_code == 200:
             data = res.json()
             raw_projects = extract_list(data, 'projects', 'data')
+            
+            # Load local projects.json for team_members and manager lookups
+            # The README specifies projects.json is used for lookups across the dashboard and projects.
+            local_projects = {}
+            if os.path.exists('projects.json'):
+                try:
+                    with open('projects.json', 'r') as f:
+                        for lp in json.load(f):
+                            pid = str(lp.get('id') or lp.get('project_id', ''))
+                            if pid:
+                                local_projects[pid] = lp
+                except Exception as e:
+                    print(f"Failed to load projects.json: {e}")
+
             # Standardize project objects (ensure 'id' key exists)
             for p in raw_projects:
                 if isinstance(p, dict):
-                    if 'id' not in p and 'project_id' in p:
-                        p['id'] = p['project_id']
+                    pid = str(p.get('id') or p.get('project_id', ''))
+                    p['id'] = p.get('id') or p.get('project_id')
+                    
+                    # Merge missing lookup fields from projects.json
+                    if pid in local_projects:
+                        lp = local_projects[pid]
+                        if not p.get('team_members') and lp.get('team_members'):
+                            p['team_members'] = lp['team_members']
+                        if not p.get('assigned_manager') and lp.get('assigned_manager'):
+                            p['assigned_manager'] = lp['assigned_manager']
+                            
                     all_projects.append(p)
         
         # 2. Filter projects based on role (Frontend side filtering to match current behavior)

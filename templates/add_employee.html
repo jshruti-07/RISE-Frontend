@@ -53,7 +53,13 @@
         <div class="row mb-3">
             <div class="col-md-6">
                 <label>Gender</label>
-                <input type="text" name="gender" class="form-control" required>
+                <select name="gender" class="form-select" required>
+                    <option value="" disabled selected>Select Gender</option>
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                    <option value="Other">Other</option>
+                    <option value="Prefer not to say">Prefer not to say</option>
+                </select>
             </div>
             <div class="col-md-6">
                 <label>Address</label>
