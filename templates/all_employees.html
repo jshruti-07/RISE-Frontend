@@ -116,7 +116,89 @@
 
     </div>
   </div>
+    </div>
+  </div>
 </div>
+
+{% if session.role in ['hr','admin'] %}
+<!-- ✉️ CARD 2: PENDING WELCOME EMAILS -->
+<div class="form-card mt-4 p-4 shadow-sm border-0" style="border-radius: 12px; background: #ffffff;">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h5 class="mb-0 fw-bold text-dark d-flex align-items-center">
+                <i class="bi bi-envelope-open-fill text-warning me-2 fs-4"></i> Pending Welcome Emails
+                <span class="badge bg-warning text-dark ms-2 rounded-pill px-2 fs-6" id="pending-count">0</span>
+            </h5>
+            <small class="text-muted">Dispatch official onboarding welcome letters to recently added team members</small>
+        </div>
+        <button id="btn-send-bulk" class="btn btn-success d-none shadow-sm px-3 py-2 fw-semibold transition-all" onclick="sendBulkWelcomeEmails()">
+            <i class="bi bi-send-fill me-1"></i> Send Welcome Emails
+        </button>
+    </div>
+    
+    <div class="table-responsive">
+        <table class="table table-hover align-middle" id="table-pending">
+            <thead class="table-light">
+                <tr>
+                    <th style="width: 50px;" class="ps-3">
+                        <input type="checkbox" id="check-all-pending" class="form-check-input check-lg cursor-pointer" onclick="toggleSelectAllPending(this)">
+                    </th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th class="text-center" style="width: 150px;">Actions</th>
+                </tr>
+            </thead>
+            <tbody id="tbody-pending">
+                <tr>
+                    <td colspan="4" class="text-center text-muted py-5">
+                        <div class="spinner-border spinner-border-sm text-primary me-2" role="status"></div> 
+                        Loading pending welcome emails...
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% if welcome_modal %}
+<!-- ✉️ MODAL PROMPT FOR NEW CREATION -->
+<div class="modal fade" id="welcomePromptModal" tabindex="-1" data-bs-backdrop="static">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-0 shadow-lg" style="border-radius: 14px;">
+      <div class="modal-header text-white border-0 py-3" style="background: linear-gradient(135deg, #1f4e78, #3b71a0); border-top-left-radius: 14px; border-top-right-radius: 14px;">
+        <h5 class="modal-title fw-bold"><i class="bi bi-envelope-heart-fill me-2 text-warning"></i> Send Welcome Email?</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body p-4">
+        <div class="d-flex align-items-center gap-3 mb-3">
+            <div class="rounded-circle bg-light p-3 d-flex align-items-center justify-content-center text-primary fs-3">
+                <i class="bi bi-person-check-fill"></i>
+            </div>
+            <div>
+                <h6 class="mb-0 fw-bold text-dark">Success! Employee Created</h6>
+                <small class="text-muted">{{ welcome_modal.name }} has been added to RISE.</small>
+            </div>
+        </div>
+        <p class="mb-0 text-secondary">Would you like to send the official welcome email containing onboarding details to this employee now?</p>
+      </div>
+      <div class="modal-footer border-0 p-3 bg-light" style="border-bottom-left-radius: 14px; border-bottom-right-radius: 14px;">
+        <button type="button" class="btn btn-outline-secondary px-3 py-2 fw-semibold" data-bs-dismiss="modal" style="border-radius: 8px;">No, Later</button>
+        <button type="button" class="btn btn-primary px-3 py-2 fw-semibold d-flex align-items-center gap-2" onclick="sendSingleWelcomeEmail('{{ welcome_modal.id }}')" style="border-radius: 8px; background: linear-gradient(135deg, #1f4e78, #2a6293); border: none;">
+          <span id="btn-welcome-spinner" class="spinner-border spinner-border-sm d-none" role="status"></span> Yes, Send Now
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endif %}
+{% endif %}
+
+<style>
+    .check-lg { width: 1.2rem; height: 1.2rem; cursor: pointer; }
+    .cursor-pointer { cursor: pointer; }
+    .transition-all { transition: all 0.25s ease-in-out; }
+    .hover-scale:hover { transform: scale(1.03); }
+</style>
 
 <script>
 function setDeleteData(id, name) {
@@ -127,6 +209,228 @@ function setDeleteData(id, name) {
 document.addEventListener('DOMContentLoaded', () => {
     applyPagination('.table', 10);
 });
+
+{% if session.role in ['hr','admin'] %}
+// ── WELCOME EMAIL FEATURE LOGIC ──────────────────────────────────────
+
+document.addEventListener("DOMContentLoaded", function() {
+    // 1. Fetch pending list on load
+    loadPendingEmails();
+
+    // 2. Trigger automatic popup modal if new employee has been created
+    {% if welcome_modal %}
+    var myModal = new bootstrap.Modal(document.getElementById('welcomePromptModal'));
+    myModal.show();
+    {% endif %}
+});
+
+// Toast notification helper
+function showSuccessToast(message) {
+    let container = document.getElementById('toast-container');
+    if (!container) {
+        container = document.createElement('div');
+        container.id = 'toast-container';
+        container.className = 'position-fixed bottom-0 end-0 p-3';
+        container.style.zIndex = '1090';
+        document.body.appendChild(container);
+    }
+    
+    const id = 'toast-' + Date.now();
+    const html = `
+      <div id="${id}" class="toast align-items-center text-white bg-success border-0 shadow-lg" role="alert" aria-live="assertive" aria-atomic="true" style="border-radius: 8px;">
+        <div class="d-flex">
+          <div class="toast-body py-3 fw-medium">
+            <i class="bi bi-check-circle-fill me-2 fs-5"></i> ${message}
+          </div>
+          <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+      </div>
+    `;
+    container.insertAdjacentHTML('beforeend', html);
+    const toastEl = document.getElementById(id);
+    const toast = new bootstrap.Toast(toastEl, { delay: 4500 });
+    toast.show();
+    
+    toastEl.addEventListener('hidden.bs.toast', () => {
+        toastEl.remove();
+    });
+}
+
+// Fetch pending list
+function loadPendingEmails() {
+    const tbody = document.getElementById('tbody-pending');
+    
+    fetch('/api/pending-welcome-emails')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success && data.pending_emails && data.pending_emails.length > 0) {
+                document.getElementById('pending-count').textContent = data.pending_emails.length;
+                let html = '';
+                data.pending_emails.forEach(emp => {
+                    html += `
+                        <tr id="row-pending-${emp.id}" class="transition-all">
+                            <td class="ps-3">
+                                <input type="checkbox" class="form-check-input pending-checkbox check-lg cursor-pointer" data-id="${emp.id}" onclick="toggleBulkButtonState()">
+                            </td>
+                            <td class="fw-semibold text-dark">${emp.fullName}</td>
+                            <td>${emp.email}</td>
+                            <td class="text-center">
+                                <button class="btn btn-sm btn-outline-primary hover-scale transition-all" onclick="sendIndividualWelcomeEmailFromTable('${emp.id}', '${emp.fullName}', this)" style="border-radius: 6px;">
+                                    <i class="bi bi-send-fill me-1"></i> Send
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                });
+                tbody.innerHTML = html;
+            } else {
+                document.getElementById('pending-count').textContent = '0';
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="4" class="text-center text-muted py-5">
+                            <i class="bi bi-check-circle-fill text-success fs-3 d-block mb-2"></i>
+                            All welcome emails have been sent! No pending entries.
+                        </td>
+                    </tr>
+                `;
+            }
+            toggleSelectAllState();
+            toggleBulkButtonState();
+        })
+        .catch(err => {
+            console.error(err);
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="4" class="text-center text-danger py-4">
+                        <i class="bi bi-exclamation-octagon-fill fs-4 d-block mb-2"></i>
+                        Failed to load pending welcome list.
+                    </td>
+                </tr>
+            `;
+        });
+}
+
+// Select All functionality
+function toggleSelectAllPending(masterCheck) {
+    const checkboxes = document.querySelectorAll('.pending-checkbox');
+    checkboxes.forEach(chk => chk.checked = masterCheck.checked);
+    toggleBulkButtonState();
+}
+
+function toggleSelectAllState() {
+    const master = document.getElementById('check-all-pending');
+    if (master) master.checked = false;
+}
+
+// Enable/Disable bulk send button
+function toggleBulkButtonState() {
+    const checked = document.querySelectorAll('.pending-checkbox:checked');
+    const btn = document.getElementById('btn-send-bulk');
+    
+    if (checked.length > 0) {
+        btn.classList.remove('d-none');
+    } else {
+        btn.classList.add('d-none');
+    }
+}
+
+// AJAX Trigger: Send welcome email to a single employee from new creation popup
+function sendSingleWelcomeEmail(empId) {
+    const spinner = document.getElementById('btn-welcome-spinner');
+    spinner.classList.remove('d-none');
+    
+    fetch('/api/send-welcome-emails', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ employee_ids: [parseInt(empId)] })
+    })
+    .then(response => response.json())
+    .then(data => {
+        spinner.classList.add('d-none');
+        // Hide welcome modal
+        const modalEl = document.getElementById('welcomePromptModal');
+        const modal = bootstrap.Modal.getInstance(modalEl);
+        if (modal) modal.hide();
+        
+        if (data.success) {
+            showSuccessToast("Welcome email successfully queued for sending in the background!");
+            loadPendingEmails();
+        } else {
+            alert("Failed to send email: " + (data.error || "Unknown error"));
+        }
+    })
+    .catch(err => {
+        spinner.classList.add('d-none');
+        console.error(err);
+        alert("Server error occurred!");
+    });
+}
+
+// AJAX Trigger: Send welcome email to a single employee directly from pending table
+function sendIndividualWelcomeEmailFromTable(empId, name, btnEl) {
+    const originalContent = btnEl.innerHTML;
+    btnEl.disabled = true;
+    btnEl.innerHTML = `<span class="spinner-border spinner-border-sm" role="status"></span> Sending...`;
+    
+    fetch('/api/send-welcome-emails', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ employee_ids: [parseInt(empId)] })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showSuccessToast(`Welcome email successfully sent to ${name}!`);
+            loadPendingEmails();
+        } else {
+            btnEl.disabled = false;
+            btnEl.innerHTML = originalContent;
+            alert("Failed to send: " + (data.error || "Unknown error"));
+        }
+    })
+    .catch(err => {
+        btnEl.disabled = false;
+        btnEl.innerHTML = originalContent;
+        console.error(err);
+        alert("Server error occurred!");
+    });
+}
+
+// AJAX Trigger: Send welcome emails to multiple checked employees in bulk
+function sendBulkWelcomeEmails() {
+    const checked = document.querySelectorAll('.pending-checkbox:checked');
+    const ids = Array.from(checked).map(chk => parseInt(chk.getAttribute('data-id')));
+    
+    const btn = document.getElementById('btn-send-bulk');
+    const originalContent = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = `<span class="spinner-border spinner-border-sm" role="status"></span> Dispatched...`;
+    
+    fetch('/api/send-welcome-emails', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ employee_ids: ids })
+    })
+    .then(response => response.json())
+    .then(data => {
+        btn.disabled = false;
+        btn.innerHTML = originalContent;
+        
+        if (data.success) {
+            showSuccessToast(`Welcome emails successfully queued for ${ids.length} employees!`);
+            loadPendingEmails();
+        } else {
+            alert("Failed to send emails: " + (data.error || "Unknown error"));
+        }
+    })
+    .catch(err => {
+        btn.disabled = false;
+        btn.innerHTML = originalContent;
+        console.error(err);
+        alert("Server error occurred!");
+    });
+}
+{% endif %}
 </script>
 
 {% endblock %}

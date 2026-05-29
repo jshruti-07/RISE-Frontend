@@ -40,6 +40,7 @@ def _find_employee_record(employee_name, headers):
 @role_required(['admin', 'hr', 'manager'])
 def employee_list():
     try:
+        welcome_modal = session.pop('show_welcome_email_modal', None)
         res = requests.get(f"{BASE_URL}/employees", headers=get_headers())
         if res.status_code == 401:
             return redirect(url_for('auth.login'))
@@ -96,7 +97,7 @@ def employee_list():
         print("ERROR:", e)
         employees_with_balance = []
 
-    return render_template("all_employees.html", employees=employees_with_balance, BASE_URL=BASE_URL)
+    return render_template("all_employees.html", employees=employees_with_balance, BASE_URL=BASE_URL, welcome_modal=welcome_modal)
 
 @employees_bp.route('/add', methods=['GET', 'POST'])
 @role_required(['admin', 'hr'])
@@ -137,6 +138,16 @@ def add_employee():
 
         if res.status_code == 201:
             flash(UI_LABELS['EMPLOYEE_ADDED_SUCCESS'], "success")
+            try:
+                res_data = res.json()
+                new_emp_id = res_data.get("id")
+                if new_emp_id:
+                    session['show_welcome_email_modal'] = {
+                        "id": new_emp_id,
+                        "name": form['name']
+                    }
+            except Exception as e:
+                print("Error parsing created employee ID:", e)
         else:
             flash("Failed to add employee!", "danger")
     except Exception as e:
@@ -395,6 +406,29 @@ def api_get_employees():
             data = res.json()
             employees = normalize_people_list(extract_list(data, 'employees', 'data'))
             return jsonify({"success": True, "employees": employees})
+        return jsonify({"success": False, "error": res.text}), res.status_code
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@employees_bp.route('/api/pending-welcome-emails', methods=['GET'])
+@role_required(['hr', 'admin'])
+def get_pending_welcome_emails():
+    try:
+        res = requests.get(f"{BASE_URL}/pending-welcome-emails", headers=get_headers(), timeout=10)
+        if res.status_code == 200:
+            return jsonify(res.json())
+        return jsonify({"success": False, "error": res.text}), res.status_code
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@employees_bp.route('/api/send-welcome-emails', methods=['POST'])
+@role_required(['hr', 'admin'])
+def send_welcome_emails_api():
+    try:
+        payload = request.get_json() or {}
+        res = requests.post(f"{BASE_URL}/send-welcome-emails", json=payload, headers=get_headers(), timeout=10)
+        if res.status_code == 200:
+            return jsonify(res.json())
         return jsonify({"success": False, "error": res.text}), res.status_code
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 500
