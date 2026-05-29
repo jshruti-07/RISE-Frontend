@@ -191,7 +191,7 @@ def parse_project_response(body: Any) -> JsonDict:
 
 
 def project_team_members(project: JsonDict) -> List[JsonDict]:
-    members = pick(project, 'team_members', 'teamMembers', 'members', default=[]) or []
+    members = pick(project, 'team_members', 'teamMembers', 'team', 'assignments', 'project_team', 'members', 'employees', 'member_list', default=[]) or []
     if not isinstance(members, list):
         return []
     normalized = []
