@@ -40,8 +40,8 @@
                     <div class="project-info mb-3">
                         <div class="mb-2">
                             <small class="text-muted">Manager:</small>
-                            <div class="fw-semibold">{{ project.assigned_manager or project.manager_name or
-                                project.manager or 'Not Set' }}</div>
+                            <div class="fw-semibold">{{ project.assigned_manager_name or project.manager_name or
+                                project.assigned_manager or project.manager or 'Not Set' }}</div>
                         </div>
                         <div class="mb-2">
                             <small class="text-muted">Customer:</small>
@@ -317,6 +317,20 @@
     const getProjectsData = () => JSON.parse(document.getElementById('projects-data').textContent || '[]');
     const getManagersData = () => JSON.parse(document.getElementById('managers-data').textContent || '[]');
 
+    function getProjectManagerName(project) {
+        if (!project) return '';
+        return project.assigned_manager_name || project.manager_name || project.assigned_manager || project.manager || '';
+    }
+
+    function managerNamesMatch(a, b) {
+        if (!a || !b) return false;
+        const na = String(a).toLowerCase().trim();
+        const nb = String(b).toLowerCase().trim();
+        if (na === nb) return true;
+        const strip = (n) => n.replace(/^(?:[hmta]_|admin_|manager_|hr_|employee_|team_member_)/i, '');
+        return strip(na) === strip(nb);
+    }
+
     document.addEventListener('DOMContentLoaded', function() {
         // Event delegation for project actions
         const container = document.getElementById('projectsContainer');
@@ -401,7 +415,7 @@
             '<table class="table table-sm">' +
             '<tr><td><strong>Project Name:</strong></td><td>' + (project.name || project.project_name || 'N/A') + '</td></tr>' +
             '<tr><td><strong>Status:</strong></td><td><span class="badge bg-success">' + (project.status || 'Active') + '</span></td></tr>' +
-            '<tr><td><strong>Assigned Manager:</strong></td><td>' + (project.assigned_manager || project.assigned_manager_name || project.manager_name || project.manager || 'N/A') + '</td></tr>' +
+            '<tr><td><strong>Assigned Manager:</strong></td><td>' + (getProjectManagerName(project) || 'N/A') + '</td></tr>' +
             '<tr><td><strong>Created By:</strong></td><td>' + (project.created_by || 'N/A') + '</td></tr>' +
             '<tr><td><strong>Created At:</strong></td><td>' + (project.created_at || project.createdAt || 'N/A') + '</td></tr>' +
             '</table>' +
@@ -432,7 +446,7 @@
             '</div>';
 
         // Standardize manager name
-        var projectManager = project.assigned_manager || project.manager_name || project.manager || project.assigned_manager_name;
+        var projectManager = getProjectManagerName(project);
 
         // Debug: Log raw project data
         console.log("DEBUG: Full Data for " + project.name, project);
@@ -467,7 +481,7 @@
         });
 
         // Define permissions BEFORE the member loop so buttons render correctly
-        var projectManager = project.assigned_manager || project.manager_name || project.manager || project.assigned_manager_name;
+        var projectManager = getProjectManagerName(project);
         var isAssignedManager = (userRole === 'manager' && projectManager === employeeName);
         var isHr = (userRole === 'hr' || userRole === 'admin');
 
@@ -920,7 +934,7 @@
     if (project) {
         // Standardize data from different possible backend keys
         var pName = project.name || project.project_name || '';
-        var pManager = project.assigned_manager || project.manager_name || project.assigned_manager_name || '';
+        var pManager = getProjectManagerName(project);
         var pCustomer = project.customer_name || project.customer || '';
         var pContact = project.customer_contact || project.contact_person || project.contact || '';
         var pPhone = project.customer_phone || project.phone || '';
@@ -955,9 +969,13 @@
     // Add manager options
     for (var i = 0; i < managers.length; i++) {
         var option = document.createElement('option');
-        option.value = managers[i].name;
-        option.textContent = managers[i].name;
-        if (managers[i].name === selectedManager) {
+        var sysName = managers[i].employee_name || managers[i].name || '';
+        option.value = sysName;
+        option.textContent = managers[i].display_name || managers[i].original_name || sysName;
+        if (managers[i].id != null && managers[i].id !== '') {
+            option.dataset.managerId = String(managers[i].id);
+        }
+        if (managerNamesMatch(sysName, selectedManager)) {
             option.selected = true;
         }
         select.appendChild(option);
@@ -968,6 +986,8 @@
         var projectId = document.getElementById('editProjectId').value;
 
         // Get form data
+        var managerSelect = document.getElementById('editAssignedManager');
+        var selectedManagerOption = managerSelect.options[managerSelect.selectedIndex];
         var formData = {
             id: parseInt(projectId),
             name: document.getElementById('editProjectName').value,
@@ -977,7 +997,8 @@
             customer_contact: document.getElementById('editCustomerContact').value,
             customer_phone: document.getElementById('editCustomerPhone').value,
             customer_email: document.getElementById('editCustomerEmail').value,
-            assigned_manager: document.getElementById('editAssignedManager').value
+            assigned_manager: managerSelect.value,
+            assigned_manager_id: selectedManagerOption && selectedManagerOption.dataset.managerId
         };
 
         // Validate required fields

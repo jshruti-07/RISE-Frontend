@@ -198,6 +198,23 @@ def parse_project_response(body: Any) -> JsonDict:
     return project if isinstance(project, dict) else {}
 
 
+def project_manager_name(project: Optional[JsonDict]) -> str:
+    """Canonical assigned manager from API list/detail payloads."""
+    if not isinstance(project, dict):
+        return ''
+    return str(
+        pick(
+            project,
+            'assigned_manager_name',
+            'manager_name',
+            'assigned_manager',
+            'manager',
+            default='',
+        )
+        or ''
+    ).strip()
+
+
 def project_team_members(project: JsonDict) -> List[JsonDict]:
     members = pick(project, 'team_members', 'teamMembers', 'team', 'assignments', 'project_team', 'members', 'employees', 'member_list', default=[]) or []
     if not isinstance(members, list):

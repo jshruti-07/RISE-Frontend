@@ -6,10 +6,12 @@ from flask import Blueprint, request, jsonify, render_template, redirect, url_fo
 from app.utils import BASE_URL, get_headers, role_required
 from app.api_helpers import (
     extract_list,
+    normalize_person,
     parse_project_response,
     person_system_name,
     person_role,
     person_display_name,
+    project_manager_name,
     project_team_members,
 )
 
@@ -51,14 +53,17 @@ def projects_list():
                     pid = str(p.get('id') or p.get('project_id', ''))
                     p['id'] = p.get('id') or p.get('project_id')
                     
-                    # Merge missing lookup fields from projects.json
+                    # Merge team_members from projects.json only (never manager — API is source of truth)
                     if pid in local_projects:
                         lp = local_projects[pid]
                         if not p.get('team_members') and lp.get('team_members'):
                             p['team_members'] = lp['team_members']
-                        if not p.get('assigned_manager') and lp.get('assigned_manager'):
-                            p['assigned_manager'] = lp['assigned_manager']
-                            
+
+                    mgr = project_manager_name(p)
+                    if mgr:
+                        p['assigned_manager'] = mgr
+                        p['assigned_manager_name'] = mgr
+
                     all_projects.append(p)
         
         # 2. Filter projects based on role
@@ -78,7 +83,11 @@ def projects_list():
             if emp_res.status_code == 200:
                 emp_data = emp_res.json()
                 all_emps = extract_list(emp_data, 'employees', 'data')
-                managers = [emp for emp in all_emps if person_role(emp) == 'manager']
+                managers = [
+                    normalize_person(emp)
+                    for emp in all_emps
+                    if person_role(emp) == 'manager'
+                ]
         except: pass
 
         return render_template('projects.html', 
@@ -151,6 +160,10 @@ def get_project_details(project_id):
         if res.status_code == 200:
             project = parse_project_response(res.json())
             project['team_members'] = project_team_members(project)
+            mgr = project_manager_name(project)
+            if mgr:
+                project['assigned_manager'] = mgr
+                project['assigned_manager_name'] = mgr
             return jsonify({"success": True, "project": project})
         return jsonify({"success": False, "error": "Project not found on backend"}), 404
     except Exception as e:
@@ -278,10 +291,10 @@ def update_project():
             'email': data.get('customer_email') or data.get('email'),
             'customer_email': data.get('customer_email') or data.get('email'),
             
-            # Manager keys
-            'assigned_manager': data.get('assigned_manager'),
-            'assigned_manager_name': data.get('assigned_manager'),
+            # Manager keys (backend resolves manager_name / assigned_manager_name)
             'manager_name': data.get('assigned_manager'),
+            'assigned_manager_name': data.get('assigned_manager'),
+            'assigned_manager_id': data.get('assigned_manager_id'),
             
             'status': data.get('status', 'active')
         }
