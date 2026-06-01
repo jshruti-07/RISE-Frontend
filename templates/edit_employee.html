@@ -73,6 +73,60 @@
                 </div>
 
                 <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label class="d-flex align-items-center gap-2">
+                            <i class="bi bi-gender-male"></i>
+                            Gender
+                        </label>
+                        <div class="field-wrap">
+                            <select class="form-select" name="gender" required>
+                                <option value="" disabled {% if not employee.gender %}selected{% endif %}>Select Gender</option>
+                                <option value="Male" {% if employee.gender == 'Male' %}selected{% endif %}>Male</option>
+                                <option value="Female" {% if employee.gender == 'Female' %}selected{% endif %}>Female</option>
+                                <option value="Other" {% if employee.gender == 'Other' %}selected{% endif %}>Other</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="d-flex align-items-center gap-2">
+                            <i class="bi bi-briefcase"></i>
+                            Employment Type
+                        </label>
+                        <div class="field-wrap">
+                            <select class="form-select" name="employment_type" required>
+                                <option value="" disabled {% if not employee.employment_type %}selected{% endif %}>Select Employment Type</option>
+                                <option value="Full-time" {% if employee.employment_type == 'Full-time' %}selected{% endif %}>Full-time</option>
+                                <option value="Part-time" {% if employee.employment_type == 'Part-time' %}selected{% endif %}>Part-time</option>
+                                <option value="Contract" {% if employee.employment_type == 'Contract' %}selected{% endif %}>Contract</option>
+                                <option value="Temporary" {% if employee.employment_type == 'Temporary' %}selected{% endif %}>Temporary</option>
+                                <option value="Internship" {% if employee.employment_type == 'Internship' %}selected{% endif %}>Internship</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label class="d-flex align-items-center gap-2">
+                            <i class="bi bi-person"></i>
+                            Reporting Manager
+                        </label>
+                        <div class="field-wrap">
+                            <input type="text" class="form-control" name="reporting_manager" value="{{ employee.reporting_manager or '' }}" placeholder="Reporting manager">
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="d-flex align-items-center gap-2">
+                            <i class="bi bi-geo-alt"></i>
+                            Address
+                        </label>
+                        <div class="field-wrap">
+                            <textarea class="form-control" name="address" placeholder="Address">{{ employee.address or '' }}</textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
 
                     <div class="col-md-6">
                         <label class="d-flex align-items-center gap-2">
@@ -95,6 +149,8 @@
                         </div>
                     </div>
                 </div>
+
+
 
                 {% if session.role in ['admin'] %}
                 <div class="row mb-3">
