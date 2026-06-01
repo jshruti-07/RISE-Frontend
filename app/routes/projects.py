@@ -5,14 +5,11 @@ from datetime import datetime
 from flask import Blueprint, request, jsonify, render_template, redirect, url_for, session, flash
 from app.utils import BASE_URL, get_headers, role_required
 from app.api_helpers import (
-    names_match,
     extract_list,
-    normalize_people_list,
     parse_project_response,
     person_system_name,
     person_role,
     person_display_name,
-    pick,
     project_team_members,
 )
 
@@ -64,19 +61,15 @@ def projects_list():
                             
                     all_projects.append(p)
         
-        # 2. Filter projects based on role (Frontend side filtering to match current behavior)
+        # 2. Filter projects based on role
         projects_to_show = []
         if user_role in ['hr', 'admin']:
             projects_to_show = all_projects
         elif user_role in ['manager', 'employee']:
-            for proj in all_projects:
-                # Check if user is the manager
-                is_manager = names_match(pick(proj, 'assigned_manager', 'manager_name', 'assigned_manager_name', 'manager'), user_name)
-                # Check if user is a team member
-                is_team_member = any(names_match(m.get('employee_name') or m.get('name'), user_name) for m in project_team_members(proj))
-                
-                if is_manager or is_team_member:
-                    projects_to_show.append(proj)
+            # Backend GET /projects/ is already scoped by role (manager_name or
+            # project_assignments). List payloads do not include team_members, so
+            # client-side member matching would incorrectly hide every project.
+            projects_to_show = all_projects
         
         # 3. Fetch managers list for modals
         managers = []

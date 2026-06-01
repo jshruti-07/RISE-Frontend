@@ -273,6 +273,34 @@
         </div>
     </div>
 </div>
+
+<!-- Edit Billing Modal -->
+<div class="modal fade" id="editBillingModal" tabindex="-1" aria-labelledby="editBillingModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editBillingModalLabel">Edit Billing</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p class="mb-3">Member: <strong id="editBillingName"></strong></p>
+                <div class="mb-3 form-check form-switch">
+                    <input class="form-check-input" type="checkbox" id="editBillingIsBillable">
+                    <label class="form-check-label" for="editBillingIsBillable">Billable</label>
+                </div>
+                <div class="mb-3">
+                    <label for="editBillingPercentage" class="form-label">Allocation % <small class="text-muted">(1–100)</small></label>
+                    <input type="number" class="form-control" id="editBillingPercentage" min="1" max="100" value="100">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="saveBillingBtn">Save Changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 {% endblock %}
 
 {% block scripts %}
@@ -1141,32 +1169,4 @@
             });
     }
 </script>
-
-<!-- Edit Billing Modal -->
-<div class="modal fade" id="editBillingModal" tabindex="-1" aria-labelledby="editBillingModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-sm">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="editBillingModalLabel">Edit Billing</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <p class="mb-3">Member: <strong id="editBillingName"></strong></p>
-                <div class="mb-3 form-check form-switch">
-                    <input class="form-check-input" type="checkbox" id="editBillingIsBillable">
-                    <label class="form-check-label" for="editBillingIsBillable">Billable</label>
-                </div>
-                <div class="mb-3">
-                    <label for="editBillingPercentage" class="form-label">Allocation % <small class="text-muted">(1–100)</small></label>
-                    <input type="number" class="form-control" id="editBillingPercentage" min="1" max="100" value="100">
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-primary" id="saveBillingBtn">Save Changes</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-{% endblock %}
+{% endblock %}

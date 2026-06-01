@@ -241,20 +241,31 @@ def dashboard():
                     for proj in all_projects:
                         if str(proj.get('status', '')).lower() != 'active':
                             continue
+                        # Backend already returns only this employee's assigned projects.
+                        allocation = 100
+                        billing_type = 'Billable'
                         for m in project_team_members(proj):
                             nm = m.get('employee_name') or m.get('name')
                             if names_match(nm, current_user):
-                                my_projects.append({
-                                    'id': proj.get('id'),
-                                    'name': proj.get('name', 'Unnamed Project'),
-                                    'status': proj.get('status', 'active'),
-                                    'start_date': proj.get('start_date', ''),
-                                    'end_date': proj.get('end_date', ''),
-                                    'manager': proj.get('assigned_manager') or proj.get('manager_name') or proj.get('assigned_manager_name', ''),
-                                    'allocation': m.get('allocation') or m.get('allocation_percentage') or m.get('billable_percentage') or m.get('billable_pct') or m.get('percentage') or 100,
-                                    'billing_type': m.get('billing_type') or ('Billable' if m.get('is_billable', True) else 'Non-Billable'),
-                                })
+                                allocation = (
+                                    m.get('allocation') or m.get('allocation_percentage')
+                                    or m.get('billable_percentage') or m.get('billable_pct')
+                                    or m.get('percentage') or 100
+                                )
+                                billing_type = m.get('billing_type') or (
+                                    'Billable' if m.get('is_billable', True) else 'Non-Billable'
+                                )
                                 break
+                        my_projects.append({
+                            'id': proj.get('id'),
+                            'name': proj.get('name', 'Unnamed Project'),
+                            'status': proj.get('status', 'active'),
+                            'start_date': proj.get('start_date', ''),
+                            'end_date': proj.get('end_date', ''),
+                            'manager': proj.get('assigned_manager') or proj.get('manager_name') or proj.get('assigned_manager_name', ''),
+                            'allocation': allocation,
+                            'billing_type': billing_type,
+                        })
             except Exception as proj_err:
                 print(f"Error fetching employee projects on dashboard: {proj_err}")
 
@@ -270,10 +281,10 @@ def dashboard():
                     projects_db = extract_list(data, 'projects', 'data')
             except: pass
 
+            # Backend already returns projects this manager directs or is assigned to.
             projects = [
                 proj for proj in projects_db
-                if names_match(pick(proj, 'assigned_manager', 'manager_name', 'assigned_manager_name'), manager_name)
-                and str(proj.get('status', '')).lower() == 'active'
+                if str(proj.get('status', '')).lower() == 'active'
             ]
             
             manager_project_names = [proj.get('name', '').lower().strip() for proj in projects]
