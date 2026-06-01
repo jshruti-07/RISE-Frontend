@@ -1019,11 +1019,12 @@
             body: JSON.stringify(formData)
         })
             .then(function (response) {
-                if (response.ok) {
-                    return response.json();
-                } else {
-                    throw new Error('Failed to update project');
-                }
+                return response.json().then(function (data) {
+                    if (!response.ok || !data.success) {
+                        throw new Error(data.error || 'Failed to update project');
+                    }
+                    return data;
+                });
             })
             .then(function (data) {
                 if (data.success) {
@@ -1042,7 +1043,7 @@
             })
             .catch(function (error) {
                 console.error('Error updating project:', error);
-                alert('Error updating project. Please try again.');
+                alert(error.message || 'Error updating project. Please try again.');
             });
     }
 

@@ -6,6 +6,7 @@ from flask import Blueprint, request, jsonify, render_template, redirect, url_fo
 from app.utils import BASE_URL, get_headers, role_required
 from app.api_helpers import (
     extract_list,
+    names_match,
     normalize_person,
     parse_project_response,
     person_system_name,
@@ -16,6 +17,42 @@ from app.api_helpers import (
 )
 
 projects_bp = Blueprint('projects', __name__)
+
+
+def _manager_fields_for_api(data):
+    """
+    Build manager keys for HRSystem PUT/POST.
+    Resolves display/prefixed names to canonical employee_name and omits null assigned_manager_id
+    (sending null triggers backend manager resolution and can clear manager_name).
+    """
+    mgr = (data.get('assigned_manager') or data.get('manager_name') or '').strip()
+    if not mgr:
+        return {}
+
+    fields = {}
+    mgr_id = data.get('assigned_manager_id')
+
+    try:
+        emp_res = requests.get(f"{BASE_URL}/employees/", headers=get_headers(), timeout=5)
+        if emp_res.status_code == 200:
+            for emp in extract_list(emp_res.json(), 'employees', 'data'):
+                if person_role(emp) not in ('manager', 'hr'):
+                    continue
+                if names_match(person_system_name(emp), mgr):
+                    sys_name = person_system_name(emp)
+                    fields['manager_name'] = sys_name
+                    fields['assigned_manager_name'] = sys_name
+                    if emp.get('id') is not None and str(emp.get('id')).strip() != '':
+                        fields['assigned_manager_id'] = emp['id']
+                    return fields
+    except Exception:
+        pass
+
+    fields['manager_name'] = mgr
+    fields['assigned_manager_name'] = mgr
+    if mgr_id is not None and str(mgr_id).strip() not in ('', 'undefined', 'null'):
+        fields['assigned_manager_id'] = mgr_id
+    return fields
 
 @projects_bp.route('/projects')
 @role_required(['admin', 'hr', 'manager', 'employee'])
@@ -137,13 +174,9 @@ def create_project():
                 'email': data.get('customer_email') or data.get('email'),
                 'customer_email': data.get('customer_email') or data.get('email'),
                 
-                # Manager keys
-                'assigned_manager': data.get('assigned_manager'),
-                'assigned_manager_name': data.get('assigned_manager'),
-                'manager_name': data.get('assigned_manager'),
-                
                 'status': 'active'
             }
+            payload.update(_manager_fields_for_api(data))
             res = requests.post(f"{BASE_URL}/projects/", json=payload, headers=get_headers(), timeout=10)
             if res.status_code in [200, 201]:
                 return jsonify({"success": True, "message": "Project created on backend", "redirect": url_for('projects.projects_list')})
@@ -271,38 +304,35 @@ def update_member_billing():
 @role_required(['admin', 'hr'])
 def update_project():
     try:
-        data = request.get_json()
+        data = request.get_json() or {}
         project_id = data.get('id')
+        if not project_id:
+            return jsonify({"success": False, "error": "Project id is required"}), 400
+
         payload = {
             'name': data.get('name'),
             'start_date': data.get('start_date'),
             'end_date': data.get('end_date'),
             'customer_name': data.get('customer_name'),
-            
-            # Contact person keys
             'contact_person': data.get('customer_contact') or data.get('contact_person'),
-            'customer_contact': data.get('customer_contact') or data.get('contact_person'),
-            
-            # Phone keys
             'phone': data.get('customer_phone') or data.get('phone'),
-            'customer_phone': data.get('customer_phone') or data.get('phone'),
-            
-            # Email keys
             'email': data.get('customer_email') or data.get('email'),
-            'customer_email': data.get('customer_email') or data.get('email'),
-            
-            # Manager keys (backend resolves manager_name / assigned_manager_name)
-            'manager_name': data.get('assigned_manager'),
-            'assigned_manager_name': data.get('assigned_manager'),
-            'assigned_manager_id': data.get('assigned_manager_id'),
-            
-            'status': data.get('status', 'active')
+            'status': data.get('status', 'active'),
         }
-        
+        if data.get('project_type'):
+            payload['project_type'] = data.get('project_type')
+        payload.update(_manager_fields_for_api(data))
+
         res = requests.put(f"{BASE_URL}/projects/{project_id}", json=payload, headers=get_headers(), timeout=10)
         if res.status_code == 200:
             return jsonify({"success": True, "message": "Project updated on backend"})
-        return jsonify({"success": False, "error": f"Backend failed: {res.text}"}), res.status_code
+        err_body = res.text
+        try:
+            err_json = res.json()
+            err_body = err_json.get('error') or err_json.get('message') or err_body
+        except Exception:
+            pass
+        return jsonify({"success": False, "error": f"Backend failed: {err_body}"}), res.status_code
     except Exception as e: 
         return jsonify({"success": False, "error": str(e)}), 500
 
