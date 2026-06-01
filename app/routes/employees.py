@@ -168,6 +168,7 @@ def edit_employee(id):
             "department": form.get('department', ''),
             "gender":form.get("gender",''),
             "employment_type":form.get("employment_type",''),
+            "reporting_manager":form.get("reporting_manager",''),
             "address":form.get("address",''),
         }
 
