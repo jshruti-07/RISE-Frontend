@@ -972,9 +972,6 @@
         var sysName = managers[i].employee_name || managers[i].name || '';
         option.value = sysName;
         option.textContent = managers[i].display_name || managers[i].original_name || sysName;
-        if (managers[i].id != null && managers[i].id !== '') {
-            option.dataset.managerId = String(managers[i].id);
-        }
         if (managerNamesMatch(sysName, selectedManager)) {
             option.selected = true;
         }
@@ -987,7 +984,6 @@
 
         // Get form data
         var managerSelect = document.getElementById('editAssignedManager');
-        var selectedManagerOption = managerSelect.options[managerSelect.selectedIndex];
         var formData = {
             id: parseInt(projectId),
             name: document.getElementById('editProjectName').value,
@@ -997,8 +993,7 @@
             customer_contact: document.getElementById('editCustomerContact').value,
             customer_phone: document.getElementById('editCustomerPhone').value,
             customer_email: document.getElementById('editCustomerEmail').value,
-            assigned_manager: managerSelect.value,
-            assigned_manager_id: selectedManagerOption && selectedManagerOption.dataset.managerId
+            assigned_manager: managerSelect.value
         };
 
         // Validate required fields

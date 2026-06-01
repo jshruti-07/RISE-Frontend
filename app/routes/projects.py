@@ -22,15 +22,12 @@ projects_bp = Blueprint('projects', __name__)
 def _manager_fields_for_api(data):
     """
     Build manager keys for HRSystem PUT/POST.
-    Resolves display/prefixed names to canonical employee_name and omits null assigned_manager_id
-    (sending null triggers backend manager resolution and can clear manager_name).
+    Uses manager_name only — assigned_manager_id must be users.id, but /employees/
+    returns employee.id, which causes "Invalid assigned_manager_id" on update.
     """
     mgr = (data.get('assigned_manager') or data.get('manager_name') or '').strip()
     if not mgr:
         return {}
-
-    fields = {}
-    mgr_id = data.get('assigned_manager_id')
 
     try:
         emp_res = requests.get(f"{BASE_URL}/employees/", headers=get_headers(), timeout=5)
@@ -40,19 +37,14 @@ def _manager_fields_for_api(data):
                     continue
                 if names_match(person_system_name(emp), mgr):
                     sys_name = person_system_name(emp)
-                    fields['manager_name'] = sys_name
-                    fields['assigned_manager_name'] = sys_name
-                    if emp.get('id') is not None and str(emp.get('id')).strip() != '':
-                        fields['assigned_manager_id'] = emp['id']
-                    return fields
+                    return {
+                        'manager_name': sys_name,
+                        'assigned_manager_name': sys_name,
+                    }
     except Exception:
         pass
 
-    fields['manager_name'] = mgr
-    fields['assigned_manager_name'] = mgr
-    if mgr_id is not None and str(mgr_id).strip() not in ('', 'undefined', 'null'):
-        fields['assigned_manager_id'] = mgr_id
-    return fields
+    return {'manager_name': mgr, 'assigned_manager_name': mgr}
 
 @projects_bp.route('/projects')
 @role_required(['admin', 'hr', 'manager', 'employee'])
