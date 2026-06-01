@@ -380,6 +380,7 @@ def view_profile(employee_name):
         documents=documents,
         document_view_urls=document_view_urls,
         percent=percent,
+        uploaded_doc_count=uploaded,
         summary=summary,
         bank_details=bank_details,
         is_hr_view=not is_own_profile,

@@ -1,656 +1,886 @@
 {% extends "base.html" %}
 
+{% block title %}{{ employee.display_name or (employee.name|clean_name) or 'Profile' }}{% endblock %}
+
 {% block content %}
+{% set display_name = employee.display_name or employee.original_name or (employee.name|clean_name) or '—' %}
+{% set system_name = employee.name or employee.employee_name or '' %}
+{% set role_label = (employee.role or '')|upper %}
+{% set photo_src = employee.photo_url or employee.photo or url_for('static', filename='images/default.png') %}
+{% set doc_list = [
+    ('pan_card','PAN Card'),
+    ('aadhar_card','Aadhar Card'),
+    ('tenth_cert','10th Certificate'),
+    ('twelfth_cert','12th/Diploma'),
+    ('graduation_cert','Graduation'),
+    ('postgrad_cert','Post Graduation')
+] %}
 
-<div class="container mt-4">
-    <div class="card-ui p-4 mb-4">
+<style>
+    .profile-page .card-ui:hover {
+        transform: none;
+    }
 
-        <div class="d-flex justify-content-between align-items-center">
+    .profile-hero {
+        background: linear-gradient(135deg, #4f46e5 0%, #6366f1 45%, #818cf8 100%);
+        border-radius: 20px;
+        color: #fff;
+        padding: 2rem 2rem 1.5rem;
+        position: relative;
+        overflow: hidden;
+    }
 
-            <!-- LEFT -->
-            <div class="d-flex gap-4 align-items-center">
+    .profile-hero::after {
+        content: '';
+        position: absolute;
+        width: 280px;
+        height: 280px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.08);
+        top: -80px;
+        right: -60px;
+        pointer-events: none;
+    }
 
-                <!-- PROFILE PHOTO -->
+    .profile-avatar-wrap {
+        position: relative;
+        flex-shrink: 0;
+    }
+
+    .profile-avatar {
+        width: 112px;
+        height: 112px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 4px solid rgba(255, 255, 255, 0.9);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+        background: #fff;
+    }
+
+    .profile-avatar-edit {
+        position: absolute;
+        bottom: 4px;
+        right: 4px;
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background: #fff;
+        color: #4f46e5;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        cursor: pointer;
+        border: none;
+    }
+
+    .profile-stat {
+        background: rgba(255, 255, 255, 0.15);
+        border: 1px solid rgba(255, 255, 255, 0.25);
+        border-radius: 12px;
+        padding: 0.75rem 1rem;
+        min-width: 120px;
+    }
+
+    .profile-stat .stat-value {
+        font-size: 1.35rem;
+        font-weight: 600;
+        line-height: 1.2;
+    }
+
+    .profile-stat .stat-label {
+        font-size: 0.75rem;
+        opacity: 0.9;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+    }
+
+    .profile-info-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+        gap: 1rem 1.5rem;
+    }
+
+    .profile-info-item {
+        display: flex;
+        gap: 0.75rem;
+        align-items: flex-start;
+    }
+
+    .profile-info-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        background: #eef2ff;
+        color: #4f46e5;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        font-size: 1.1rem;
+    }
+
+    .profile-info-item .info-label {
+        font-size: 0.75rem;
+        color: #6b7280;
+        margin-bottom: 0.15rem;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+    }
+
+    .profile-info-item .info-value {
+        font-weight: 500;
+        color: #111827;
+        word-break: break-word;
+    }
+
+    .profile-section-title {
+        font-size: 1.05rem;
+        font-weight: 600;
+        color: #111827;
+        margin-bottom: 1.25rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .profile-section-title i {
+        color: #6366f1;
+    }
+
+    .doc-progress-ring {
+        width: 64px;
+        height: 64px;
+        border-radius: 50%;
+        background: conic-gradient(#22c55e 0deg, #22c55e calc(var(--pct, 0) * 3.6deg), #e5e7eb calc(var(--pct, 0) * 3.6deg));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+    }
+
+    .doc-progress-ring::before {
+        content: '';
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        background: #fff;
+        position: absolute;
+    }
+
+    .doc-progress-ring span {
+        position: relative;
+        z-index: 1;
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: #111827;
+    }
+
+    .doc-row {
+        display: grid;
+        grid-template-columns: 1fr auto minmax(0, 1fr);
+        gap: 1rem;
+        align-items: center;
+        padding: 0.85rem 0;
+        border-bottom: 1px solid #f3f4f6;
+    }
+
+    .doc-row:last-child {
+        border-bottom: none;
+    }
+
+    @media (max-width: 768px) {
+        .doc-row {
+            grid-template-columns: 1fr;
+            gap: 0.5rem;
+        }
+
+        .profile-hero .d-flex.flex-wrap {
+            flex-direction: column;
+            align-items: flex-start !important;
+        }
+    }
+
+    .profile-empty-state {
+        text-align: center;
+        padding: 2rem 1rem;
+        color: #6b7280;
+        background: #f9fafb;
+        border-radius: 12px;
+        border: 1px dashed #e5e7eb;
+    }
+
+    .profile-empty-state i {
+        font-size: 2rem;
+        color: #9ca3af;
+        margin-bottom: 0.5rem;
+    }
+</style>
+
+<div class="container-fluid profile-page py-4 px-3 px-lg-4">
+
+    <!-- Hero header -->
+    <div class="profile-hero mb-4">
+        <div class="d-flex flex-wrap align-items-start gap-4 position-relative" style="z-index: 1;">
+            <div class="profile-avatar-wrap">
                 {% if is_own_profile|default(false) %}
                 <form id="photoUploadForm" method="POST" action="/upload-photo" enctype="multipart/form-data">
-                    <div class="position-relative" style="cursor:pointer" title="Click to change photo"
-                         onclick="document.getElementById('photoInput').click()">
-                        <img id="profileImage" src="{% if employee.photo_url %}{{ employee.photo_url }}{% elif employee.photo %}{{ employee.photo }}{% else %}{{ url_for('static', filename='images/default.png') }}{% endif %}"
-                            width="100" height="100" class="rounded-circle"
-                            style="object-fit:cover; border:2px solid #ddd;"
-                            onerror="this.src='{{ url_for('static', filename='images/default.png') }}'">
-                        <div id="uploadSpinner" class="spinner-border spinner-border-sm text-primary position-absolute top-50 start-50 translate-middle d-none" role="status">
-                            <span class="visually-hidden">Loading...</span>
-                        </div>
-                    </div>
+                    <img id="profileImage" src="{{ photo_src }}" alt="{{ display_name }}"
+                        class="profile-avatar"
+                        onerror="this.src='{{ url_for('static', filename='images/default.png') }}'">
+                    <button type="button" class="profile-avatar-edit" title="Change photo"
+                        onclick="document.getElementById('photoInput').click()">
+                        <i class="bi bi-camera-fill"></i>
+                    </button>
+                    <div id="uploadSpinner"
+                        class="spinner-border spinner-border-sm text-light position-absolute top-50 start-50 translate-middle d-none"
+                        role="status"></div>
                     <input type="file" name="photo" id="photoInput" hidden accept="image/png,image/jpeg,image/webp,image/gif">
                     <input type="hidden" name="employee_id" value="{{ employee.id }}">
                 </form>
                 {% else %}
-                <div class="position-relative">
-                    <img id="profileImage" src="{% if employee.photo_url %}{{ employee.photo_url }}{% elif employee.photo %}{{ employee.photo }}{% else %}{{ url_for('static', filename='images/default.png') }}{% endif %}"
-                        width="100" height="100" class="rounded-circle"
-                        style="object-fit:cover; border:2px solid #ddd;"
-                        onerror="this.src='{{ url_for('static', filename='images/default.png') }}'">
+                <img id="profileImage" src="{{ photo_src }}" alt="{{ display_name }}"
+                    class="profile-avatar"
+                    onerror="this.src='{{ url_for('static', filename='images/default.png') }}'">
+                {% endif %}
+            </div>
+
+            <div class="flex-grow-1 min-w-0">
+                <div class="d-flex flex-wrap align-items-center gap-2 mb-1">
+                    <h2 class="mb-0 fw-semibold">{{ display_name }}</h2>
+                    {% if role_label %}
+                    <span class="badge rounded-pill bg-light text-primary">{{ role_label }}</span>
+                    {% endif %}
+                </div>
+                {% if system_name and system_name|clean_name != display_name %}
+                <p class="mb-2 small opacity-75">{{ system_name }}</p>
+                {% endif %}
+                {% if employee.designation or employee.department %}
+                <p class="mb-0 opacity-90">
+                    {% if employee.designation %}{{ employee.designation }}{% endif %}
+                    {% if employee.designation and employee.department %} · {% endif %}
+                    {% if employee.department %}{{ employee.department }}{% endif %}
+                </p>
+                {% endif %}
+            </div>
+
+            <div class="d-flex flex-wrap gap-2 ms-lg-auto">
+                <div class="profile-stat text-center">
+                    <div class="stat-value">{{ summary.remaining_leaves|default(0) }}</div>
+                    <div class="stat-label">Leave balance</div>
+                </div>
+                <div class="profile-stat text-center">
+                    <div class="stat-value" id="heroDocPercent">{{ percent }}%</div>
+                    <div class="stat-label">Documents</div>
+                </div>
+                {% if employee.id is not none %}
+                <div class="profile-stat text-center">
+                    <div class="stat-value">#{{ employee.id }}</div>
+                    <div class="stat-label">Employee ID</div>
                 </div>
                 {% endif %}
-
-                <!-- DETAILS -->
-                <div>
-                    <h4 class="mb-1">{{ employee.name or '—' }}</h4>
-                    <small class="text-muted">ID: {{ employee.id if employee.id is not none else 'N/A' }}</small>
-
-                    <div class="mt-2">
-                        <div>Email: {{ employee.email or 'Not set' }}</div>
-                        {% if employee.get('username') and is_hr_view|default(false) %}
-                            <div>Login: {{ employee.username }}</div>
-                        {% endif %}
-                        {% if employee.get('role') and is_hr_view|default(false) %}
-                            <div>Role: {{ employee.role | upper }}</div>
-                        {% endif %}
-                        {% if employee.get('date_of_birth') %}
-                            <div>DOB: {{ employee.date_of_birth[:11] }}</div>
-                        {% else %}
-                            <div>DOB: Not set</div>
-                        {% endif %}
-                        {% if employee.get('date_of_joining') %}
-                            <div>DOJ: {{ employee.date_of_joining[:11] }}</div>
-                        {% else %}
-                            <div>DOJ: Not set</div>
-                        {% endif %}
-                        <div>Leave Balance: {{ summary.remaining_leaves }} days</div>
-                        {% if employee.get('employment_type') %}
-                            <div>Employement Type: {{ employee.employment_type }}</div>
-                        {% else %}
-                            <div>Employement Type: Not set</div>
-                        {% endif %}
-                        {% if employee.get('designation') %}
-                            <div>Designation: {{ employee.designation }}</div>
-                        {% else %}
-                            <div>Designation: Not set</div>
-                        {% endif %}
-                        {% if employee.get('department') %}
-                            <div>Department: {{ employee.department }}</div>
-                        {% else %}
-                            <div>Department: Not set</div>
-                        {% endif %}
-                        {% if employee.get('reporting_manager') %}
-                            <div>Reporting Manager: {{ employee.reporting_manager }}</div>
-                        {% else %}
-                            <div>Reporting Manager: Not set</div>
-                        {% endif %}
-
-                    </div>
-                </div>
-
             </div>
-
-            <!-- RIGHT: PROGRESS -->
-            <div style="width:250px">
-
-                <label class="mb-1">Documents Completion</label>
-
-                <div class="progress" style="height:20px;">
-                    <div class="progress-bar bg-success" style="width: {{ percent }}%">
-                        {{ percent }}%
-                    </div>
-                </div>
-
-            </div>
-
         </div>
-
     </div>
 
-
-    <!-- 🏦 BANK INFORMATION SECTION -->
-    <div class="card-ui p-4 mb-4">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h5 class="mb-0">Bank Information</h5>
-            <div id="bankStatusBadge">
-                {% if bank_details %}
-                    {% if bank_details.status == 'completed' %}
-                        <span class="badge bg-success"><i class="bi bi-patch-check"></i> Completed</span>
-                    {% elif bank_details.status == 'rejected' %}
-                        <span class="badge bg-danger"><i class="bi bi-x-circle"></i> Rejected</span>
-                    {% else %}
-                        <span class="badge bg-warning text-dark"><i class="bi bi-clock-history"></i> Submitted</span>
+    <div class="row g-4">
+        <!-- Left column: details + bank -->
+        <div class="col-lg-7">
+            <!-- Employment & contact -->
+            <div class="card-ui p-4 mb-4">
+                <h5 class="profile-section-title"><i class="bi bi-person-vcard"></i> Employment & contact</h5>
+                <div class="profile-info-grid">
+                    <div class="profile-info-item">
+                        <div class="profile-info-icon"><i class="bi bi-envelope"></i></div>
+                        <div>
+                            <div class="info-label">Email</div>
+                            <div class="info-value">{{ employee.email or 'Not set' }}</div>
+                        </div>
+                    </div>
+                    {% if employee.get('username') and is_hr_view|default(false) %}
+                    <div class="profile-info-item">
+                        <div class="profile-info-icon"><i class="bi bi-key"></i></div>
+                        <div>
+                            <div class="info-label">Login</div>
+                            <div class="info-value">{{ employee.username }}</div>
+                        </div>
+                    </div>
                     {% endif %}
+                    <div class="profile-info-item">
+                        <div class="profile-info-icon"><i class="bi bi-calendar-event"></i></div>
+                        <div>
+                            <div class="info-label">Date of birth</div>
+                            <div class="info-value">{{ employee.date_of_birth[:10] if employee.get('date_of_birth') else 'Not set' }}</div>
+                        </div>
+                    </div>
+                    <div class="profile-info-item">
+                        <div class="profile-info-icon"><i class="bi bi-calendar-check"></i></div>
+                        <div>
+                            <div class="info-label">Date of joining</div>
+                            <div class="info-value">{{ employee.date_of_joining[:10] if employee.get('date_of_joining') else 'Not set' }}</div>
+                        </div>
+                    </div>
+                    <div class="profile-info-item">
+                        <div class="profile-info-icon"><i class="bi bi-briefcase"></i></div>
+                        <div>
+                            <div class="info-label">Employment type</div>
+                            <div class="info-value">{{ employee.employment_type or 'Not set' }}</div>
+                        </div>
+                    </div>
+                    <div class="profile-info-item">
+                        <div class="profile-info-icon"><i class="bi bi-award"></i></div>
+                        <div>
+                            <div class="info-label">Designation</div>
+                            <div class="info-value">{{ employee.designation or 'Not set' }}</div>
+                        </div>
+                    </div>
+                    <div class="profile-info-item">
+                        <div class="profile-info-icon"><i class="bi bi-building"></i></div>
+                        <div>
+                            <div class="info-label">Department</div>
+                            <div class="info-value">{{ employee.department or 'Not set' }}</div>
+                        </div>
+                    </div>
+                    <div class="profile-info-item">
+                        <div class="profile-info-icon"><i class="bi bi-person-badge"></i></div>
+                        <div>
+                            <div class="info-label">Reporting manager</div>
+                            <div class="info-value">{{ (employee.reporting_manager|clean_name) if employee.reporting_manager else 'Not set' }}</div>
+                        </div>
+                    </div>
+                    <div class="profile-info-item">
+                        <div class="profile-info-icon"><i class="bi bi-sun"></i></div>
+                        <div>
+                            <div class="info-label">Leave summary</div>
+                            <div class="info-value">
+                                {{ summary.remaining_leaves|default(0) }} remaining
+                                {% if summary.total_leaves %}<span class="text-muted fw-normal">/ {{ summary.total_leaves }} total</span>{% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bank information -->
+            <div class="card-ui p-4 mb-4">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="profile-section-title mb-0"><i class="bi bi-bank2"></i> Bank information</h5>
+                    <div id="bankStatusBadge">
+                        {% if bank_details %}
+                            {% if bank_details.status == 'completed' %}
+                                <span class="badge bg-success rounded-pill"><i class="bi bi-patch-check me-1"></i>Verified</span>
+                            {% elif bank_details.status == 'rejected' %}
+                                <span class="badge bg-danger rounded-pill"><i class="bi bi-x-circle me-1"></i>Rejected</span>
+                            {% else %}
+                                <span class="badge bg-warning text-dark rounded-pill"><i class="bi bi-clock-history me-1"></i>Under review</span>
+                            {% endif %}
+                        {% else %}
+                            <span class="badge bg-secondary rounded-pill"><i class="bi bi-exclamation-circle me-1"></i>Not provided</span>
+                        {% endif %}
+                    </div>
+                </div>
+
+                {% if is_hr_view and not bank_details %}
+                <div class="profile-empty-state">
+                    <i class="bi bi-bank d-block"></i>
+                    <p class="mb-0">No bank details on file for this employee.</p>
+                </div>
                 {% else %}
-                    <span class="badge bg-secondary"><i class="bi bi-exclamation-triangle"></i> Not Provided</span>
+
+                <div id="bankView" class="{% if not bank_details or editing_bank %}d-none{% endif %}">
+                    {% if bank_details and bank_details.status == 'submitted' %}
+                    <div class="alert alert-info py-2 px-3 small border-0 mb-3">
+                        <i class="bi bi-info-circle-fill me-2"></i> Bank details are under review. You can still update them if needed.
+                    </div>
+                    {% elif bank_details and bank_details.status == 'rejected' %}
+                    <div class="alert alert-danger py-2 px-3 small border-0 mb-3">
+                        <i class="bi bi-x-circle-fill me-2"></i> Rejected: {{ bank_details.rejection_reason or 'No reason provided' }}
+                    </div>
+                    {% endif %}
+
+                    {% if config.BANK_DETAILS_READ_ONLY %}
+                    <div class="alert alert-secondary py-2 px-3 small border-0 mb-3">
+                        <i class="bi bi-info-circle-fill me-2"></i> {{ labels.BANK_DETAILS_VIEW_ONLY }}
+                    </div>
+                    {% endif %}
+
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="small text-muted d-block">Account holder</label>
+                            <span id="view_holder" class="fw-medium">{{ bank_details.account_holder_name if bank_details else '—' }}</span>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="small text-muted d-block">Bank name</label>
+                            <span id="view_bank" class="fw-medium">{{ bank_details.bank_name if bank_details else '—' }}</span>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="small text-muted d-block">Account number</label>
+                            <div class="d-flex align-items-center gap-2">
+                                <span id="view_account" class="font-monospace fw-medium" data-full="{{ bank_details.account_number if bank_details else '' }}">
+                                    {% if bank_details and bank_details.account_number %}
+                                        ••••••{{ bank_details.account_number[-4:] if bank_details.account_number|length > 4 else bank_details.account_number }}
+                                    {% else %}—{% endif %}
+                                </span>
+                                {% if bank_details %}
+                                <button class="btn btn-sm btn-link p-0 text-muted" type="button" onclick="toggleAccountNumberVisibility()" title="Toggle visibility">
+                                    <i id="toggleEyeIcon" class="bi bi-eye"></i>
+                                </button>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="small text-muted d-block">IFSC code</label>
+                            <span id="view_ifsc" class="fw-medium">{{ bank_details.ifsc_code if bank_details else '—' }}</span>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="small text-muted d-block">Branch</label>
+                            <span id="view_branch" class="fw-medium">{{ bank_details.branch_name if bank_details else '—' }}</span>
+                        </div>
+                    </div>
+
+                    {% if not is_hr_view and not config.BANK_DETAILS_READ_ONLY %}
+                    <div class="mt-3">
+                        <button type="button" class="btn btn-sm btn-outline-primary" onclick="toggleBankEdit(true)">
+                            <i class="bi bi-pencil me-1"></i>{% if bank_details %}Update bank details{% else %}Add bank details{% endif %}
+                        </button>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <div id="bankFormContainer" class="{% if (bank_details and not editing_bank) or is_hr_view %}d-none{% endif %}">
+                    {% if not bank_details and not is_hr_view %}
+                    <p class="text-muted small mb-3">Add your bank account for payroll. Details are encrypted and verified by HR.</p>
+                    {% endif %}
+                    <form id="bankDetailsForm" class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Account holder name</label>
+                            <input type="text" name="account_holder_name" required class="form-control"
+                                value="{{ bank_details.account_holder_name if bank_details else '' }}"
+                                {% if config.BANK_DETAILS_READ_ONLY %}readonly disabled{% endif %}>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Bank name</label>
+                            <input type="text" name="bank_name" required class="form-control"
+                                value="{{ bank_details.bank_name if bank_details else '' }}"
+                                {% if config.BANK_DETAILS_READ_ONLY %}readonly disabled{% endif %}>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Account number</label>
+                            <div class="input-group">
+                                <input type="password" name="account_number" id="bank_account_input" required
+                                    placeholder="Enter full account number" class="form-control"
+                                    value="{{ bank_details.account_number if bank_details else '' }}"
+                                    {% if config.BANK_DETAILS_READ_ONLY %}readonly disabled{% endif %}>
+                                <button class="btn btn-outline-secondary" type="button" onclick="toggleInputVisibility('bank_account_input', this)">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">IFSC code</label>
+                            <input type="text" name="ifsc_code" required pattern="^[A-Z]{4}0[A-Z0-9]{6}$"
+                                title="Invalid IFSC format (e.g. SBIN0001234)" class="form-control"
+                                value="{{ bank_details.ifsc_code if bank_details else '' }}"
+                                {% if config.BANK_DETAILS_READ_ONLY %}readonly disabled{% endif %}>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Branch name</label>
+                            <input type="text" name="branch_name" required class="form-control"
+                                value="{{ bank_details.branch_name if bank_details else '' }}"
+                                {% if config.BANK_DETAILS_READ_ONLY %}readonly disabled{% endif %}>
+                        </div>
+                        {% if not config.BANK_DETAILS_READ_ONLY %}
+                        <div class="col-12">
+                            <button type="submit" class="btn btn-primary">Submit for verification</button>
+                            {% if bank_details %}
+                            <button type="button" class="btn btn-link text-muted" onclick="toggleBankEdit(false)">Cancel</button>
+                            {% endif %}
+                            <p class="text-muted small mt-2 mb-0"><i class="bi bi-shield-lock me-1"></i>Data is stored securely and sent for verification.</p>
+                        </div>
+                        {% endif %}
+                    </form>
+                </div>
                 {% endif %}
             </div>
         </div>
 
-        <div id="bankView" class="{% if not bank_details or editing_bank %}d-none{% endif %}">
-            {% if bank_details and bank_details.status == 'submitted' %}
-            <div class="alert alert-info py-2 px-3 small border-0 mb-4"
-                style="background-color: #e3f2fd; color: #0d47a1;">
-                <i class="bi bi-info-circle-fill me-2"></i> Your bank details are under review. You can still update them if needed.
-            </div>
-            {% elif bank_details and bank_details.status == 'rejected' %}
-            <div class="alert alert-danger py-2 px-3 small border-0 mb-4">
-                <i class="bi bi-x-circle-fill me-2"></i> Rejected: {{ bank_details.rejection_reason or 'No reason provided' }}
-            </div>
-            {% endif %}
-
-            {% if config.BANK_DETAILS_READ_ONLY %}
-            <div class="alert alert-secondary py-2 px-3 small border-0 mb-4"
-                style="background-color: #f8f9fa; color: #6c757d; border-left: 4px solid #6c757d !important;">
-                <i class="bi bi-info-circle-fill me-2"></i> {{ labels.BANK_DETAILS_VIEW_ONLY }}
-            </div>
-            {% endif %}
-
-            <div class="row g-3">
-                <div class="col-md-4">
-                    <label class="small text-muted d-block">Account Holder</label>
-                    <span id="view_holder" class="fw-medium text-dark">{{ bank_details.account_holder_name if bank_details else '-' }}</span>
-                </div>
-                <div class="col-md-4">
-                    <label class="small text-muted d-block">Bank Name</label>
-                    <span id="view_bank" class="fw-medium text-dark">{{ bank_details.bank_name if bank_details else '-' }}</span>
-                </div>
-                <div class="col-md-4">
-                    <label class="small text-muted d-block">Account Number</label>
-                    <div class="d-flex align-items-center gap-2">
-                        <span id="view_account" class="font-monospace fw-medium text-dark" data-full="{{ bank_details.account_number if bank_details else '' }}">
-                            {% if bank_details %}
-                                ••••••{{ bank_details.account_number[-4:] if bank_details.account_number|length > 4 else bank_details.account_number }}
-                            {% else %}
-                                -
-                            {% endif %}
-                        </span>
-                        {% if bank_details %}
-                        <button class="btn btn-link p-0 text-muted" onclick="toggleAccountNumberVisibility()" title="Toggle Visibility">
-                            <i id="toggleEyeIcon" class="bi bi-eye"></i>
-                        </button>
-                        {% endif %}
+        <!-- Right column: documents -->
+        <div class="col-lg-5">
+            <div class="card-ui p-4 h-100">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h5 class="profile-section-title mb-0"><i class="bi bi-folder2-open"></i> Documents</h5>
+                    <div class="doc-progress-ring" id="docProgressRing" style="--pct: {{ percent }};">
+                        <span id="docProgressLabel">{{ percent }}%</span>
                     </div>
                 </div>
-                <div class="col-md-4">
-                    <label class="small text-muted d-block">IFSC Code</label>
-                    <span id="view_ifsc" class="fw-medium text-dark">{{ bank_details.ifsc_code if bank_details else '-' }}</span>
-                </div>
-                <div class="col-md-4">
-                    <label class="small text-muted d-block">Branch</label>
-                    <span id="view_branch" class="fw-medium text-dark">{{ bank_details.branch_name if bank_details else '-' }}</span>
-                </div>
-            </div>
-            
-            {% if not is_hr_view and not config.BANK_DETAILS_READ_ONLY %}
-            <div class="mt-4">
-                <button class="btn btn-sm btn-outline-primary" onclick="toggleBankEdit(true)">
-                    <i class="bi bi-pencil"></i> {% if bank_details %}Update Bank Details{% else %}Add Bank Details{% endif %}
-                </button>
-            </div>
-            {% endif %}
-        </div>
 
-        <!-- Bank Form -->
-        <div id="bankFormContainer" class="{% if bank_details and not editing_bank %}d-none{% endif %}">
-            <form id="bankDetailsForm" class="row g-3">
-                <div class="col-md-6">
-                    <label class="form-label">Account Holder Name</label>
-                    <input type="text" name="account_holder_name" required
-                        value="{{ bank_details.account_holder_name if bank_details else '' }}"
-                        {% if config.BANK_DETAILS_READ_ONLY %}readonly disabled class="form-control bank-input-readonly"{% else %}class="form-control"{% endif %}>
+                <div class="progress mb-4" style="height: 8px;">
+                    <div class="progress-bar bg-success" id="mainProgressBar" role="progressbar"
+                        style="width: {{ percent }}%;" aria-valuenow="{{ percent }}" aria-valuemin="0" aria-valuemax="100"></div>
                 </div>
-                <div class="col-md-6">
-                    <label class="form-label">Bank Name</label>
-                    <input type="text" name="bank_name" required
-                        value="{{ bank_details.bank_name if bank_details else '' }}"
-                        {% if config.BANK_DETAILS_READ_ONLY %}readonly disabled class="form-control bank-input-readonly"{% else %}class="form-control"{% endif %}>
-                </div>
-                <div class="col-md-6">
-                    <label class="form-label">Account Number</label>
-                    <div class="input-group">
-                        <input type="password" name="account_number" id="bank_account_input" required
-                            placeholder="Enter full account number" value="{{ bank_details.account_number if bank_details else '' }}"
-                            {% if config.BANK_DETAILS_READ_ONLY %}readonly disabled class="form-control bank-input-readonly"{% else %}class="form-control"{% endif %}>
-                        <button class="btn btn-outline-secondary" type="button" onclick="toggleInputVisibility('bank_account_input', this)">
+                <p class="text-muted small mb-4">
+                    <span id="docCountText">{{ uploaded_doc_count|default(0) }} of {{ doc_list|length }} documents uploaded</span>
+                </p>
+
+                {% for key, label in doc_list %}
+                <div class="doc-row">
+                    <div>
+                        <strong class="d-block">{{ label }}</strong>
+                        <small class="text-muted">{{ key|replace('_', ' ') }}</small>
+                    </div>
+                    <div>
+                        {% if documents and documents.get(key) %}
+                        <span class="badge bg-success-subtle text-success border border-success-subtle">Uploaded</span>
+                        {% else %}
+                        <span class="badge bg-danger-subtle text-danger border border-danger-subtle">Missing</span>
+                        {% endif %}
+                    </div>
+                    <div class="d-flex gap-2 align-items-center flex-wrap justify-content-lg-end" id="doc-actions-{{ key }}">
+                        {% if document_view_urls and document_view_urls.get(key) %}
+                        <button type="button" class="btn btn-sm btn-outline-primary doc-view-btn"
+                            data-view-url="{{ document_view_urls[key] }}"
+                            onclick="previewDoc(this.dataset.viewUrl)">
                             <i class="bi bi-eye"></i>
                         </button>
+                        <a href="{{ document_view_urls[key] }}" target="_blank" rel="noopener"
+                            class="btn btn-sm btn-outline-secondary">
+                            <i class="bi bi-box-arrow-up-right"></i>
+                        </a>
+                        {% endif %}
+                        {% if not is_hr_view %}
+                        <form method="POST" action="/documents/upload" enctype="multipart/form-data"
+                            class="d-flex gap-1 align-items-center flex-grow-1" style="min-width: 140px;">
+                            <input type="file" name="file" class="form-control form-control-sm" required>
+                            <input type="hidden" name="type" value="{{ key }}">
+                            <input type="hidden" name="employee_id" value="{{ employee.id }}">
+                            <button type="submit" class="btn btn-sm btn-primary">Upload</button>
+                        </form>
+                        {% endif %}
                     </div>
-                    <small class="text-muted">Data is stored securely and sent for verification.</small>
                 </div>
-                <div class="col-md-6">
-                    <label class="form-label">IFSC Code</label>
-                    <input type="text" name="ifsc_code" required pattern="^[A-Z]{4}0[A-Z0-9]{6}$"
-                        title="Invalid IFSC format (e.g. SBIN0001234)"
-                        value="{{ bank_details.ifsc_code if bank_details else '' }}"
-                        {% if config.BANK_DETAILS_READ_ONLY %}readonly disabled class="form-control bank-input-readonly"{% else %}class="form-control"{% endif %}>
-                </div>
-                <div class="col-md-12">
-                    <label class="form-label">Branch Name</label>
-                    <input type="text" name="branch_name" required
-                        value="{{ bank_details.branch_name if bank_details else '' }}"
-                        {% if config.BANK_DETAILS_READ_ONLY %}readonly disabled class="form-control bank-input-readonly"{% else %}class="form-control"{% endif %}>
-                </div>
-                {% if not config.BANK_DETAILS_READ_ONLY %}
-                <div class="col-12 mt-4">
-                    <button type="submit" class="btn btn-primary">Submit for Verification</button>
-                    {% if bank_details %}
-                    <button type="button" class="btn btn-link text-muted"
-                        onclick="toggleBankEdit(false)">Cancel</button>
-                    {% endif %}
-                </div>
-                {% endif %}
-            </form>
+                {% endfor %}
+            </div>
         </div>
     </div>
+</div>
 
-
-    <div class="card-ui p-4">
-
-        <h5 class="mb-4">Documents</h5>
-
-        {% set doc_list = [
-        ('pan_card','PAN Card'),
-        ('aadhar_card','Aadhar Card'),
-        ('tenth_cert','10th Certificate'),
-        ('twelfth_cert','12th/Diploma'),
-        ('graduation_cert','Graduation'),
-        ('postgrad_cert','Post Graduation')
-        ] %}
-
-        {% for key, label in doc_list %}
-        <div class="d-flex justify-content-between align-items-center mb-3 border-bottom pb-2">
-
-            <!-- NAME -->
-            <div style="width:200px;">
-                <strong>{{ label }}</strong>
+<!-- Document preview modal -->
+<div class="modal fade" id="previewModal" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Document preview</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-
-            <!-- STATUS -->
-            <div style="width:150px;">
-                {% if documents and documents.get(key) %}
-                <span class="badge bg-success">Uploaded</span>
-                {% else %}
-                <span class="badge bg-danger">Missing</span>
-                {% endif %}
-            </div>
-
-            <!-- ACTION -->
-            <div style="flex:1;" class="d-flex gap-2 align-items-center flex-wrap" id="doc-actions-{{ key }}">
-
-                {% if document_view_urls and document_view_urls.get(key) %}
-                <button type="button" class="btn btn-sm btn-info doc-view-btn"
-                    data-view-url="{{ document_view_urls[key] }}"
-                    onclick="previewDoc(this.dataset.viewUrl)">
-                    <i class="bi bi-eye"></i> View
-                </button>
-                <a href="{{ document_view_urls[key] }}" target="_blank" rel="noopener"
-                    class="btn btn-sm btn-outline-secondary">
-                    <i class="bi bi-box-arrow-up-right"></i> Open
-                </a>
-                {% endif %}
-
-                {% if not is_hr_view %}
-                <form method="POST" action="/documents/upload" enctype="multipart/form-data" class="d-flex gap-2">
-                    <input type="file" name="file" class="form-control form-control-sm" required>
-                    <input type="hidden" name="type" value="{{ key }}">
-                    <input type="hidden" name="employee_id" value="{{ employee.id }}">
-                    <button type="submit" class="btn">Upload</button>
-                </form>
-                {% endif %}
-
-            </div>
-
-        </div>
-        {% endfor %}
-
-        <div class="modal fade" id="previewModal" tabindex="-1">
-            <div class="modal-dialog modal-lg">
-                <div class="modal-content">
-
-                    <div class="modal-header">
-                        <h5 class="modal-title">Document Preview</h5>
-                        <button class="btn-close" data-bs-dismiss="modal"></button>
-                    </div>
-
-                    <div class="modal-body text-center">
-
-                        <!-- IMAGE -->
-                        <img id="imgPreview" class="img-fluid rounded" style="display:none; max-height:500px;">
-
-                        <!-- PDF -->
-                        <iframe id="pdfPreview" class="w-100 border rounded"
-                            style="height:500px; display:none;"></iframe>
-
-                    </div>
-
-                </div>
+            <div class="modal-body text-center p-0">
+                <img id="imgPreview" class="img-fluid rounded" style="display:none; max-height:70vh;">
+                <iframe id="pdfPreview" class="w-100 border-0" style="height:70vh; display:none;"></iframe>
             </div>
         </div>
-        <script>
-            let isUploadingPhoto = false;
-
-            function triggerPhotoUpload() {
-                const input = document.getElementById('photoInput');
-                const spinner = document.getElementById('uploadSpinner');
-                const img = document.getElementById('profileImage');
-                const form = document.getElementById('photoUploadForm');
-
-                if (!input || !form || isUploadingPhoto || !input.files || !input.files[0]) return;
-
-                const file = input.files[0];
-                const allowed = ['image/png', 'image/jpeg', 'image/webp', 'image/gif'];
-                if (!allowed.includes(file.type)) {
-                    showAlert('Please choose a PNG, JPEG, WebP, or GIF image.', 'warning');
-                    input.value = '';
-                    return;
-                }
-
-                isUploadingPhoto = true;
-                if (spinner) spinner.classList.remove('d-none');
-                if (img) img.style.opacity = '0.5';
-
-                const formData = new FormData(form);
-                fetch('/upload-photo', {
-                    method: 'POST',
-                    body: formData,
-                    headers: { 'X-Requested-With': 'XMLHttpRequest' }
-                })
-                    .then(res => res.json().then(data => ({ ok: res.ok, data })))
-                    .then(({ ok, data }) => {
-                        if (ok && data.success) {
-                            if (data.photo_url && img) {
-                                img.src = data.photo_url + (data.photo_url.includes('?') ? '&' : '?') + 't=' + Date.now();
-                            }
-                            showAlert(data.message || 'Profile photo updated successfully!', 'success');
-                        } else {
-                            showAlert(data.error || 'Upload failed. Please try again.', 'danger');
-                        }
-                    })
-                    .catch(() => showAlert('Upload failed. Please try again.', 'danger'))
-                    .finally(() => {
-                        isUploadingPhoto = false;
-                        if (spinner) spinner.classList.add('d-none');
-                        if (img) img.style.opacity = '1';
-                        input.value = '';
-                    });
-            }
-
-            document.addEventListener('DOMContentLoaded', function() {
-                const photoInput = document.getElementById('photoInput');
-                if (photoInput) {
-                    photoInput.addEventListener('change', triggerPhotoUpload);
-                }
-            });
-
-            function previewDoc(url) {
-                if (!url) {
-                    showAlert('Document preview is not available.', 'warning');
-                    return;
-                }
-
-                const img = document.getElementById("imgPreview");
-                const pdf = document.getElementById("pdfPreview");
-                const lower = url.split('?')[0].toLowerCase();
-
-                img.style.display = "none";
-                pdf.style.display = "none";
-                img.removeAttribute('src');
-                pdf.removeAttribute('src');
-
-                if (lower.endsWith(".pdf")) {
-                    pdf.src = url;
-                    pdf.style.display = "block";
-                } else if (/\.(png|jpe?g|gif|webp|bmp)$/.test(lower)) {
-                    img.src = url;
-                    img.style.display = "block";
-                } else {
-                    window.open(url, '_blank', 'noopener');
-                    return;
-                }
-
-                new bootstrap.Modal(document.getElementById('previewModal')).show();
-            }
-
-            function addDocumentViewButtons(docType, viewUrl) {
-                const container = document.getElementById('doc-actions-' + docType);
-                if (!container || !viewUrl) return;
-                container.querySelectorAll('.doc-view-btn, .doc-open-link').forEach(el => el.remove());
-                const viewBtn = document.createElement('button');
-                viewBtn.type = 'button';
-                viewBtn.className = 'btn btn-sm btn-info doc-view-btn';
-                viewBtn.innerHTML = '<i class="bi bi-eye"></i> View';
-                viewBtn.onclick = function() { previewDoc(viewUrl); };
-                const openLink = document.createElement('a');
-                openLink.href = viewUrl;
-                openLink.target = '_blank';
-                openLink.rel = 'noopener';
-                openLink.className = 'btn btn-sm btn-outline-secondary doc-open-link';
-                openLink.innerHTML = '<i class="bi bi-box-arrow-up-right"></i> Open';
-                const form = container.querySelector('form');
-                if (form) {
-                    container.insertBefore(viewBtn, form);
-                    container.insertBefore(openLink, form);
-                } else {
-                    container.appendChild(viewBtn);
-                    container.appendChild(openLink);
-                }
-            }
-
-            // Handle document upload with percentage update
-            function handleDocumentUpload(form) {
-                const formData = new FormData(form);
-                const submitButton = form.querySelector('button[type="submit"]');
-                const originalText = submitButton.textContent;
-
-                // Show loading state
-                submitButton.disabled = true;
-                submitButton.textContent = 'Uploading...';
-
-                fetch('/documents/upload', {
-                    method: 'POST',
-                    body: formData,
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest'
-                    }
-                })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            showAlert('Document uploaded successfully!', 'success');
-
-                            const docType = formData.get('type') || formData.get('doc_type');
-                            updateDocumentStatus(docType, true);
-                            if (data.view_url) {
-                                addDocumentViewButtons(docType, data.view_url);
-                            }
-                            updatePercentage();
-                            form.reset();
-                        } else {
-                            showAlert('Upload failed: ' + (data.error || 'Unknown error'), 'danger');
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Upload error:', error);
-                        showAlert('Upload failed. Please try again.', 'danger');
-                    })
-                    .finally(() => {
-                        // Reset button
-                        submitButton.disabled = false;
-                        submitButton.textContent = originalText;
-                    });
-
-                return false;
-            }
-
-            // Update document status badge
-            function updateDocumentStatus(docType, isUploaded) {
-                const badges = document.querySelectorAll('.badge');
-                badges.forEach(badge => {
-                    const row = badge.closest('.d-flex');
-                    if (row && row.textContent.includes(getDocumentLabel(docType))) {
-                        const statusBadge = row.querySelector('.badge');
-                        if (statusBadge) {
-                            if (isUploaded) {
-                                statusBadge.className = 'badge bg-success';
-                                statusBadge.textContent = 'Uploaded';
-                            } else {
-                                statusBadge.className = 'badge bg-danger';
-                                statusBadge.textContent = 'Missing';
-                            }
-                        }
-                    }
-                });
-            }
-
-            // Get document label from type
-            function getDocumentLabel(docType) {
-                const labels = {
-                    'pan_card': 'PAN Card',
-                    'aadhar_card': 'Aadhar Card',
-                    'tenth_cert': '10th Certificate',
-                    'twelfth_cert': '12th/Diploma',
-                    'graduation_cert': 'Graduation',
-                    'postgrad_cert': 'Post Graduation'
-                };
-                return labels[docType] || docType;
-            }
-
-            // Update percentage
-            function updatePercentage() {
-                const totalDocs = 6; // Total document types
-                let uploadedDocs = 0;
-
-                // Count uploaded documents specifically in the documents list
-                const docBadges = document.querySelectorAll('.border-bottom .badge.bg-success');
-                uploadedDocs = docBadges.length;
-
-                const percentage = Math.round((uploadedDocs / totalDocs) * 100);
-
-                const progressBar = document.querySelector('.progress-bar');
-                if (progressBar) {
-                    progressBar.style.width = percentage + '%';
-                    progressBar.textContent = percentage + '%';
-                }
-            }
-
-            // Show alert message
-            function showAlert(message, type) {
-                // Remove existing alerts
-                const existingAlerts = document.querySelectorAll('.alert');
-                existingAlerts.forEach(alert => alert.remove());
-
-                // Create new alert
-                const alertDiv = document.createElement('div');
-                alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
-                alertDiv.innerHTML = `
-        ${message}
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    `;
-
-                // Insert at the top of the container
-                const container = document.querySelector('.container');
-                if (container) {
-                    container.insertBefore(alertDiv, container.firstChild);
-                }
-
-                // Auto-dismiss after 5 seconds
-                setTimeout(() => {
-                    if (alertDiv.parentNode) {
-                        alertDiv.remove();
-                    }
-                }, 5000);
-            }
-
-            // Add event listeners to all upload forms
-            document.addEventListener('DOMContentLoaded', function () {
-                // 🏦 BANK DETAILS LOGIC [NEW]
-                const bankForm = document.getElementById('bankDetailsForm');
-                if (bankForm) {
-                    bankForm.addEventListener('submit', function (e) {
-                        e.preventDefault();
-                        handleBankSubmit(this);
-                    });
-                }
-
-                const uploadForms = document.querySelectorAll(
-                    'form[action="/documents/upload"], form[action="/upload-document"]'
-                );
-                uploadForms.forEach(form => {
-                    form.addEventListener('submit', function (e) {
-                        e.preventDefault();
-                        handleDocumentUpload(this);
-                    });
-                });
-            });
-
-            function toggleBankEdit(show) {
-                document.getElementById('bankView').classList.toggle('d-none', show);
-                document.getElementById('bankFormContainer').classList.toggle('d-none', !show);
-            }
-
-            function toggleAccountNumberVisibility() {
-                const el = document.getElementById('view_account');
-                const icon = document.getElementById('toggleEyeIcon');
-                const fullNum = el.getAttribute('data-full');
-                const isMasked = el.textContent.includes('•');
-
-                if (isMasked) {
-                    el.textContent = fullNum;
-                    icon.className = 'bi bi-eye-slash';
-                } else {
-                    const masked = '••••••' + fullNum.slice(-4);
-                    el.textContent = masked;
-                    icon.className = 'bi bi-eye';
-                }
-            }
-
-            function toggleInputVisibility(inputId, btn) {
-                const input = document.getElementById(inputId);
-                const icon = btn.querySelector('i');
-                if (input.type === 'password') {
-                    input.type = 'text';
-                    icon.className = 'bi bi-eye-slash';
-                } else {
-                    input.type = 'password';
-                    icon.className = 'bi bi-eye';
-                }
-            }
-
-            function handleBankSubmit(form) {
-                {% if config.BANK_DETAILS_READ_ONLY %}
-                showAlert('{{ labels.BANK_DETAILS_VIEW_ONLY }}', 'warning');
-                return;
-                {% endif %}
-                const formData = new FormData(form);
-                const data = Object.fromEntries(formData.entries());
-                const submitBtn = form.querySelector('button[type="submit"]');
-
-                submitBtn.disabled = true;
-                submitBtn.textContent = 'Submitting...';
-
-                fetch('/update-bank-details', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-Requested-With': 'XMLHttpRequest'
-                    },
-                    body: JSON.stringify(data)
-                })
-                    .then(response => response.json())
-                    .then(result => {
-                        if (result.success) {
-                            showAlert(result.message || 'Bank details submitted and sent for verification', 'success');
-                            setTimeout(() => location.reload(), 1500);
-                        } else {
-                            showAlert('Error: ' + result.error, 'danger');
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        showAlert('Failed to update bank details', 'danger');
-                    })
-                    .finally(() => {
-                        submitBtn.disabled = false;
-                        submitBtn.textContent = 'Submit for Verification';
-                    });
-            }
-        </script>
-
     </div>
-    {% endblock %}
+</div>
+
+<script>
+    let isUploadingPhoto = false;
+
+    function triggerPhotoUpload() {
+        const input = document.getElementById('photoInput');
+        const spinner = document.getElementById('uploadSpinner');
+        const img = document.getElementById('profileImage');
+        const form = document.getElementById('photoUploadForm');
+
+        if (!input || !form || isUploadingPhoto || !input.files || !input.files[0]) return;
+
+        const file = input.files[0];
+        const allowed = ['image/png', 'image/jpeg', 'image/webp', 'image/gif'];
+        if (!allowed.includes(file.type)) {
+            showAlert('Please choose a PNG, JPEG, WebP, or GIF image.', 'warning');
+            input.value = '';
+            return;
+        }
+
+        isUploadingPhoto = true;
+        if (spinner) spinner.classList.remove('d-none');
+        if (img) img.style.opacity = '0.5';
+
+        const formData = new FormData(form);
+        fetch('/upload-photo', {
+            method: 'POST',
+            body: formData,
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        })
+            .then(res => res.json().then(data => ({ ok: res.ok, data })))
+            .then(({ ok, data }) => {
+                if (ok && data.success) {
+                    if (data.photo_url && img) {
+                        img.src = data.photo_url + (data.photo_url.includes('?') ? '&' : '?') + 't=' + Date.now();
+                    }
+                    showAlert(data.message || 'Profile photo updated successfully!', 'success');
+                } else {
+                    showAlert(data.error || 'Upload failed. Please try again.', 'danger');
+                }
+            })
+            .catch(() => showAlert('Upload failed. Please try again.', 'danger'))
+            .finally(() => {
+                isUploadingPhoto = false;
+                if (spinner) spinner.classList.add('d-none');
+                if (img) img.style.opacity = '1';
+                input.value = '';
+            });
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const photoInput = document.getElementById('photoInput');
+        if (photoInput) {
+            photoInput.addEventListener('change', triggerPhotoUpload);
+        }
+    });
+
+    function previewDoc(url) {
+        if (!url) {
+            showAlert('Document preview is not available.', 'warning');
+            return;
+        }
+
+        const img = document.getElementById("imgPreview");
+        const pdf = document.getElementById("pdfPreview");
+        const lower = url.split('?')[0].toLowerCase();
+
+        img.style.display = "none";
+        pdf.style.display = "none";
+        img.removeAttribute('src');
+        pdf.removeAttribute('src');
+
+        if (lower.endsWith(".pdf")) {
+            pdf.src = url;
+            pdf.style.display = "block";
+        } else if (/\.(png|jpe?g|gif|webp|bmp)$/.test(lower)) {
+            img.src = url;
+            img.style.display = "block";
+        } else {
+            window.open(url, '_blank', 'noopener');
+            return;
+        }
+
+        new bootstrap.Modal(document.getElementById('previewModal')).show();
+    }
+
+    function addDocumentViewButtons(docType, viewUrl) {
+        const container = document.getElementById('doc-actions-' + docType);
+        if (!container || !viewUrl) return;
+        container.querySelectorAll('.doc-view-btn, .doc-open-link').forEach(el => el.remove());
+        const viewBtn = document.createElement('button');
+        viewBtn.type = 'button';
+        viewBtn.className = 'btn btn-sm btn-outline-primary doc-view-btn';
+        viewBtn.innerHTML = '<i class="bi bi-eye"></i>';
+        viewBtn.onclick = function() { previewDoc(viewUrl); };
+        const openLink = document.createElement('a');
+        openLink.href = viewUrl;
+        openLink.target = '_blank';
+        openLink.rel = 'noopener';
+        openLink.className = 'btn btn-sm btn-outline-secondary doc-open-link';
+        openLink.innerHTML = '<i class="bi bi-box-arrow-up-right"></i>';
+        const form = container.querySelector('form');
+        if (form) {
+            container.insertBefore(viewBtn, form);
+            container.insertBefore(openLink, form);
+        } else {
+            container.appendChild(viewBtn);
+            container.appendChild(openLink);
+        }
+    }
+
+    function handleDocumentUpload(form) {
+        const formData = new FormData(form);
+        const submitButton = form.querySelector('button[type="submit"]');
+        const originalText = submitButton.textContent;
+
+        submitButton.disabled = true;
+        submitButton.textContent = 'Uploading...';
+
+        fetch('/documents/upload', {
+            method: 'POST',
+            body: formData,
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showAlert('Document uploaded successfully!', 'success');
+                    const docType = formData.get('type') || formData.get('doc_type');
+                    updateDocumentStatus(docType, true);
+                    if (data.view_url) {
+                        addDocumentViewButtons(docType, data.view_url);
+                    }
+                    updatePercentage();
+                    form.reset();
+                } else {
+                    showAlert('Upload failed: ' + (data.error || 'Unknown error'), 'danger');
+                }
+            })
+            .catch(error => {
+                console.error('Upload error:', error);
+                showAlert('Upload failed. Please try again.', 'danger');
+            })
+            .finally(() => {
+                submitButton.disabled = false;
+                submitButton.textContent = originalText;
+            });
+
+        return false;
+    }
+
+    function updateDocumentStatus(docType, isUploaded) {
+        const row = document.getElementById('doc-actions-' + docType);
+        if (!row) return;
+        const badge = row.parentElement.querySelector('.badge');
+        if (badge) {
+            if (isUploaded) {
+                badge.className = 'badge bg-success-subtle text-success border border-success-subtle';
+                badge.textContent = 'Uploaded';
+            } else {
+                badge.className = 'badge bg-danger-subtle text-danger border border-danger-subtle';
+                badge.textContent = 'Missing';
+            }
+        }
+    }
+
+    function getDocumentLabel(docType) {
+        const labels = {
+            'pan_card': 'PAN Card',
+            'aadhar_card': 'Aadhar Card',
+            'tenth_cert': '10th Certificate',
+            'twelfth_cert': '12th/Diploma',
+            'graduation_cert': 'Graduation',
+            'postgrad_cert': 'Post Graduation'
+        };
+        return labels[docType] || docType;
+    }
+
+    function updatePercentage() {
+        const totalDocs = 6;
+        const uploadedDocs = document.querySelectorAll('.doc-row .badge.bg-success-subtle').length;
+        const percentage = Math.round((uploadedDocs / totalDocs) * 100);
+
+        const progressBar = document.getElementById('mainProgressBar');
+        if (progressBar) {
+            progressBar.style.width = percentage + '%';
+            progressBar.setAttribute('aria-valuenow', percentage);
+        }
+
+        const ring = document.getElementById('docProgressRing');
+        const ringLabel = document.getElementById('docProgressLabel');
+        const heroPct = document.getElementById('heroDocPercent');
+        if (ring) ring.style.setProperty('--pct', percentage);
+        if (ringLabel) ringLabel.textContent = percentage + '%';
+        if (heroPct) heroPct.textContent = percentage + '%';
+
+        const countText = document.getElementById('docCountText');
+        if (countText) countText.textContent = uploadedDocs + ' of ' + totalDocs + ' documents uploaded';
+    }
+
+    function showAlert(message, type) {
+        const existingAlerts = document.querySelectorAll('.profile-page > .alert');
+        existingAlerts.forEach(alert => alert.remove());
+
+        const alertDiv = document.createElement('div');
+        alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
+        alertDiv.innerHTML = `${message}<button type="button" class="btn-close" data-bs-dismiss="alert"></button>`;
+
+        const container = document.querySelector('.profile-page');
+        if (container) {
+            container.insertBefore(alertDiv, container.firstChild);
+        }
+
+        setTimeout(() => { if (alertDiv.parentNode) alertDiv.remove(); }, 5000);
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const bankForm = document.getElementById('bankDetailsForm');
+        if (bankForm) {
+            bankForm.addEventListener('submit', function (e) {
+                e.preventDefault();
+                handleBankSubmit(this);
+            });
+        }
+
+        document.querySelectorAll('form[action="/documents/upload"], form[action="/upload-document"]').forEach(form => {
+            form.addEventListener('submit', function (e) {
+                e.preventDefault();
+                handleDocumentUpload(this);
+            });
+        });
+    });
+
+    function toggleBankEdit(show) {
+        document.getElementById('bankView').classList.toggle('d-none', show);
+        document.getElementById('bankFormContainer').classList.toggle('d-none', !show);
+    }
+
+    function toggleAccountNumberVisibility() {
+        const el = document.getElementById('view_account');
+        const icon = document.getElementById('toggleEyeIcon');
+        const fullNum = el.getAttribute('data-full');
+        const isMasked = el.textContent.includes('•');
+
+        if (isMasked) {
+            el.textContent = fullNum;
+            icon.className = 'bi bi-eye-slash';
+        } else {
+            el.textContent = '••••••' + fullNum.slice(-4);
+            icon.className = 'bi bi-eye';
+        }
+    }
+
+    function toggleInputVisibility(inputId, btn) {
+        const input = document.getElementById(inputId);
+        const icon = btn.querySelector('i');
+        if (input.type === 'password') {
+            input.type = 'text';
+            icon.className = 'bi bi-eye-slash';
+        } else {
+            input.type = 'password';
+            icon.className = 'bi bi-eye';
+        }
+    }
+
+    function handleBankSubmit(form) {
+        {% if config.BANK_DETAILS_READ_ONLY %}
+        showAlert('{{ labels.BANK_DETAILS_VIEW_ONLY }}', 'warning');
+        return;
+        {% endif %}
+        const formData = new FormData(form);
+        const data = Object.fromEntries(formData.entries());
+        const submitBtn = form.querySelector('button[type="submit"]');
+
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Submitting...';
+
+        fetch('/update-bank-details', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: JSON.stringify(data)
+        })
+            .then(response => response.json())
+            .then(result => {
+                if (result.success) {
+                    showAlert(result.message || 'Bank details submitted for verification', 'success');
+                    setTimeout(() => location.reload(), 1500);
+                } else {
+                    showAlert('Error: ' + result.error, 'danger');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showAlert('Failed to update bank details', 'danger');
+            })
+            .finally(() => {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Submit for verification';
+            });
+    }
+</script>
+{% endblock %}

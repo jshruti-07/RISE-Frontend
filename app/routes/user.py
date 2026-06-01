@@ -154,6 +154,7 @@ def profile():
         documents=documents,
         document_view_urls=document_view_urls,
         percent=percent,
+        uploaded_doc_count=uploaded_count,
         is_hr_view=False,
         is_own_profile=True,
         BASE_URL=BASE_URL,
