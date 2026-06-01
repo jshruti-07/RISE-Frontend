@@ -172,11 +172,6 @@
                         <thead class="bg-light">
                             <tr>
                                 <th class="border-0 px-3">Project Name</th>
-                                <th class="border-0 px-2">Manager</th>
-                                <th class="border-0 px-2">Start</th>
-                                <th class="border-0 px-2">End</th>
-                                <th class="border-0 px-2 text-center">My Allocation</th>
-                                <th class="border-0 px-2 text-center">Billing</th>
                                 <th class="border-0 px-2 text-end">Details</th>
                             </tr>
                         </thead>
@@ -186,27 +181,6 @@
                                 <td class="px-3 border-0 fw-semibold text-dark">
                                     <i class="bi bi-folder-fill text-primary me-1" style="font-size:0.75rem;"></i>
                                     {{ proj.name }}
-                                </td>
-                                <td class="px-2 border-0 text-muted">
-                                    {{ proj.manager | clean_name if proj.manager else '—' }}
-                                </td>
-                                <td class="px-2 border-0 text-muted">
-                                    {{ proj.start_date[:10] if proj.start_date else '—' }}
-                                </td>
-                                <td class="px-2 border-0 text-muted">
-                                    {{ proj.end_date[:10] if proj.end_date else '—' }}
-                                </td>
-                                <td class="px-2 border-0 text-center">
-                                    <span class="badge bg-primary bg-opacity-15 text-primary rounded-pill" style="font-size: 0.72rem;">
-                                        {{ proj.allocation }}%
-                                    </span>
-                                </td>
-                                <td class="px-2 border-0 text-center">
-                                    {% if proj.billing_type and proj.billing_type|lower == 'billable' %}
-                                    <span class="badge bg-success bg-opacity-15 text-success rounded-pill" style="font-size: 0.72rem;">Billable</span>
-                                    {% else %}
-                                    <span class="badge bg-secondary bg-opacity-15 text-secondary rounded-pill" style="font-size: 0.72rem;">Non-Billable</span>
-                                    {% endif %}
                                 </td>
                                 <td class="px-2 border-0 text-end">
                                     <button class="btn btn-sm btn-outline-primary py-0 btn-view-project"
@@ -235,7 +209,7 @@
     <!-- SECOND ROW (FIXED LAYOUT) -->
     <div class="row mt-4">
         <!-- LEFT SIDE (PROJECTS + BIRTHDAYS + HOLIDAYS) -->
-        <div class="col-md-12">
+        <div class="col-md-4">
             {% if session.role == 'manager' %}
             <div class="row mb-4">
                 <div class="col-xl-4">
