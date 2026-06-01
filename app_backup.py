@@ -527,7 +527,13 @@ def add_employee():
         #"password": form.get('initial_password', ''),
         "date_of_birth": form.get('date_of_birth', ''),
         "phone": form.get('phone', ''),
-        #"salary": form.get('salary', '')
+        #"salary": form.get('salary', ''),
+        "designation": form.get('designation', ''),
+        "department": form.get('department', ''),
+        "gender": form.get('gender', ''),
+        "employment_type": form.get('employment_type', ''),
+        "reporting_manager": form.get('reporting_manager', ''),
+        "address": form.get('address', ''),
     }
     files = {}
     # PDF file
@@ -588,7 +594,13 @@ def edit_employee(id):
             "email": form['email'],
             "phone": form['phone'],
             "date_of_joining": form['date_of_joining'],
-            "date_of_birth": form.get('date_of_birth', '')
+            "date_of_birth": form.get('date_of_birth', ''),
+            "designation": form.get('designation', ''),
+            "department": form.get('department', ''),
+            "gender": form.get('gender', ''),
+            "employment_type": form.get('employment_type', ''),
+            "reporting_manager": form.get('reporting_manager', ''),
+            "address": form.get('address', ''),
         }
         # Add role to payload if provided (admin only)
         if 'role' in form and form['role']:
