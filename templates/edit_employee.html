@@ -116,7 +116,61 @@
                 {% endif %}
 
                 <div class="row mb-3">
-                    
+                    <div class="col-md-6">
+                        <label class="d-flex align-items-center gap-2">
+                            <i class="bi bi-briefcase"></i>
+                            Designation
+                        </label>
+                        <div class="field-wrap">
+                            <select class="form-select" name="designation" required>
+                                <option value="" disabled {% if not employee.designation %}selected{% endif %}>Select Designation</option>
+                                <option value="Software Engineer" {% if employee.designation == 'Software Engineer' %}selected{% endif %}>Software Engineer</option>
+                                <option value="Senior Software Engineer" {% if employee.designation == 'Senior Software Engineer' %}selected{% endif %}>Senior Software Engineer</option>
+                                <option value="HR Executive" {% if employee.designation == 'HR Executive' %}selected{% endif %}>HR Executive</option>
+                                <option value="HR Manager" {% if employee.designation == 'HR Manager' %}selected{% endif %}>HR Manager</option>
+                                <option value="Project Manager" {% if employee.designation == 'Project Manager' %}selected{% endif %}>Project Manager</option>
+                                <option value="Recruiter" {% if employee.designation == 'Recruiter' %}selected{% endif %}>Recruiter</option>
+                                <option value="Senior Developer" {% if employee.designation == 'Senior Developer' %}selected{% endif %}>Senior Developer</option>
+                                <option value="Team Lead" {% if employee.designation == 'Team Lead' %}selected{% endif %}>Team Lead</option>
+                                <option value="QA Engineer" {% if employee.designation == 'QA Engineer' %}selected{% endif %}>QA Engineer</option>
+                                <option value="DevOps Engineer" {% if employee.designation == 'DevOps Engineer' %}selected{% endif %}>DevOps Engineer</option>
+                                <option value="Business Analyst" {% if employee.designation == 'Business Analyst' %}selected{% endif %}>Business Analyst</option>
+                                <option value="Product Manager" {% if employee.designation == 'Product Manager' %}selected{% endif %}>Product Manager</option>
+                                <option value="Technical Lead" {% if employee.designation == 'Technical Lead' %}selected{% endif %}>Technical Lead</option>
+                                <option value="Data Analyst" {% if employee.designation == 'Data Analyst' %}selected{% endif %}>Data Analyst</option>
+                                <option value="UI/UX Designer" {% if employee.designation == 'UI/UX Designer' %}selected{% endif %}>UI/UX Designer</option>
+                                <option value="System Administrator" {% if employee.designation == 'System Administrator' %}selected{% endif %}>System Administrator</option>
+                                <option value="Intern" {% if employee.designation == 'Intern' %}selected{% endif %}>Intern</option>
+                                <option value="Trainee" {% if employee.designation == 'Trainee' %}selected{% endif %}>Trainee</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="d-flex align-items-center gap-2">
+                            <i class="bi bi-building"></i>
+                            Department
+                        </label>
+                        <div class="field-wrap">
+                            <select class="form-select" name="department" required>
+                                <option value="" disabled {% if not employee.department %}selected{% endif %}>Select Department</option>
+                                <option value="Engineering" {% if employee.department == 'Engineering' %}selected{% endif %}>Engineering</option>
+                                <option value="HR" {% if employee.department == 'HR' %}selected{% endif %}>HR</option>
+                                <option value="Finance" {% if employee.department == 'Finance' %}selected{% endif %}>Finance</option>
+                                <option value="Recruitment" {% if employee.department == 'Recruitment' %}selected{% endif %}>Recruitment</option>
+                                <option value="Operations" {% if employee.department == 'Operations' %}selected{% endif %}>Operations</option>
+                                <option value="Marketing" {% if employee.department == 'Marketing' %}selected{% endif %}>Marketing</option>
+                                <option value="Sales" {% if employee.department == 'Sales' %}selected{% endif %}>Sales</option>
+                                <option value="Legal" {% if employee.department == 'Legal' %}selected{% endif %}>Legal</option>
+                                <option value="IT" {% if employee.department == 'IT' %}selected{% endif %}>IT</option>
+                                <option value="Administration" {% if employee.department == 'Administration' %}selected{% endif %}>Administration</option>
+                                <option value="Product" {% if employee.department == 'Product' %}selected{% endif %}>Product</option>
+                                <option value="Design" {% if employee.department == 'Design' %}selected{% endif %}>Design</option>
+                                <option value="Quality Assurance" {% if employee.department == 'Quality Assurance' %}selected{% endif %}>Quality Assurance</option>
+                                <option value="Customer Support" {% if employee.department == 'Customer Support' %}selected{% endif %}>Customer Support</option>
+                                <option value="Research & Development" {% if employee.department == 'Research & Development' %}selected{% endif %}>Research & Development</option>
+                            </select>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="divider"></div>
