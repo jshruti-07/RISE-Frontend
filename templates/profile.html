@@ -5,7 +5,20 @@
 {% block content %}
 {% set display_name = employee.display_name or employee.original_name or (employee.name|clean_name) or '—' %}
 {% set system_name = employee.name or employee.employee_name or '' %}
-{% set role_label = (employee.role or '')|upper %}
+{% set raw_role = (employee.role or '')|lower|trim|replace(' ', '_') %}
+{% if raw_role in ['employee', 'team_member', 'teammember'] %}
+{% set role_label = 'Team Member' %}
+{% elif raw_role == 'hr' %}
+{% set role_label = 'HR' %}
+{% elif raw_role == 'admin' %}
+{% set role_label = 'Admin' %}
+{% elif raw_role == 'manager' %}
+{% set role_label = 'Manager' %}
+{% elif raw_role %}
+{% set role_label = (employee.role or '')|title %}
+{% else %}
+{% set role_label = '' %}
+{% endif %}
 {% set photo_src = employee.photo_url or employee.photo or url_for('static', filename='images/default.png') %}
 {% set doc_list = [
     ('pan_card','PAN Card'),
