@@ -44,14 +44,23 @@
 
     .profile-page .card-ui {
         overflow: visible;
+        background: #ffffff;
+        border: 1px solid #e5e7eb;
+        backdrop-filter: none;
     }
 
     .profile-page .card-ui:hover {
         transform: none;
     }
 
+    .profile-page .card-ui::before {
+        display: none;
+    }
+
     .profile-docs-card {
-        overflow: visible;
+        overflow-y: auto;
+        overflow-x: hidden;
+        max-height: 78vh;
     }
 
     .profile-hero {
@@ -567,7 +576,7 @@
 
         <!-- Right column: documents -->
         <div class="col-lg-5">
-            <div class="card-ui profile-docs-card p-4 h-100">
+            <div class="card-ui profile-docs-card p-4">
                 <div class="d-flex justify-content-between align-items-center mb-4">
                     <h5 class="profile-section-title mb-0"><i class="bi bi-folder2-open"></i> Documents</h5>
                     <div class="doc-progress-ring" id="docProgressRing" style="--pct: {{ percent }};">
