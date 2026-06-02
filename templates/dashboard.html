@@ -102,7 +102,8 @@
         <div class="position-relative" style="z-index: 1;">
             <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
                 <div>
-                    <h4 class="mb-1 fw-semibold">Good Day, {{ (session.employee_name | clean_name) if session.employee_name else (session.user or 'there') }}!</h4>
+                    {% set dashboard_name = (session.get('employee_name') | clean_name) if session.get('employee_name') else (session.get('user') or 'there') %}
+                    <h4 class="mb-1 fw-semibold">Good Day, {{ dashboard_name }}!</h4>
                 </div>
             </div>
         </div>
