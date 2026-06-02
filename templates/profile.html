@@ -58,9 +58,19 @@
     }
 
     .profile-docs-card {
+        overflow: hidden;
+        max-height: 78vh;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .profile-docs-list {
         overflow-y: auto;
         overflow-x: hidden;
-        max-height: 78vh;
+        padding-right: 0.25rem;
+        margin-right: -0.25rem;
+        flex: 1 1 auto;
+        min-height: 0;
     }
 
     .profile-hero {
@@ -592,6 +602,7 @@
                     <span id="docCountText">{{ uploaded_doc_count|default(0) }} of {{ doc_list|length }} documents uploaded</span>
                 </p>
 
+                <div class="profile-docs-list">
                 {% for key, label in doc_list %}
                 <div class="doc-item">
                     <div class="d-flex justify-content-between align-items-start gap-2 mb-2">
@@ -633,6 +644,7 @@
                     </div>
                 </div>
                 {% endfor %}
+                </div>
             </div>
         </div>
     </div>

@@ -12,13 +12,76 @@
 
 {% block content %}
 <style>
+    .dashboard-page {
+        font-size: 0.92rem;
+    }
+
+    .dashboard-hero {
+        background: linear-gradient(135deg, #4f46e5 0%, #6366f1 45%, #818cf8 100%);
+        border-radius: 20px;
+        color: #fff;
+        padding: 1.25rem 1.5rem;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .dashboard-hero::after {
+        content: '';
+        position: absolute;
+        width: 220px;
+        height: 220px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.08);
+        top: -70px;
+        right: -40px;
+        pointer-events: none;
+    }
+
+    .dashboard-page .card-ui {
+        background: #fff;
+        border: 1px solid #e5e7eb;
+        border-radius: 16px;
+        box-shadow: 0 8px 24px rgba(15, 23, 42, 0.07);
+        backdrop-filter: none;
+        overflow: hidden;
+    }
+
+    .dashboard-page .card-ui::before {
+        display: none;
+    }
+
+    .dashboard-page .card-ui:hover {
+        transform: none;
+        border-color: #d1d5db;
+        box-shadow: 0 10px 28px rgba(15, 23, 42, 0.09);
+    }
+
+    .dashboard-stat-card {
+        padding: 1rem 1.2rem;
+    }
+
+    .dashboard-stat-label {
+        color: #6b7280;
+        font-size: 0.82rem;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+        margin-bottom: 0.2rem;
+    }
+
+    .dashboard-stat-value {
+        color: #111827;
+        font-size: 1.5rem;
+        font-weight: 700;
+        line-height: 1.1;
+    }
+
     .hover-card {
         transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
     .hover-card:hover {
-        transform: translateY(-8px);
-        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.12) !important;
+        transform: translateY(-2px);
+        box-shadow: 0 12px 22px rgba(15, 23, 42, 0.12) !important;
     }
 
     .no-scrollbar::-webkit-scrollbar {
@@ -33,7 +96,19 @@
 
 
 
-<div class="container-fluid mt-3">
+<div class="container-fluid mt-3 dashboard-page">
+
+    <div class="dashboard-hero mb-4">
+        <div class="position-relative" style="z-index: 1;">
+            <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
+                <div>
+                    <h4 class="mb-1 fw-semibold">Dashboard</h4>
+                    <p class="mb-0 opacity-90">Overview of tasks, updates, and team activity.</p>
+                </div>
+                <span class="badge rounded-pill bg-light text-primary px-3 py-2 text-capitalize">{{ session.role or 'user' }}</span>
+            </div>
+        </div>
+    </div>
 
 
 
@@ -83,12 +158,13 @@
         <!-- EMPLOYEES -->
         <div class="col-md-4">
             <a href="{{ url_for('employees.employee_list') }}" class="text-decoration-none">
-                <div class="card shadow-sm border-0 rounded-4 h-100 hover-card">
-                    <div class="card-body d-flex justify-content-between align-items-center">
-                        <div class="d-flex align-items-center gap-2">
-                            <h6 class="text-muted mb-0">{{ labels.TOTAL_EMPLOYEES }}:</h6>
-                            <h6 class="fw-bold mb-0 text-dark">{{ stats.employees }}</h6>
+                <div class="card-ui h-100 hover-card dashboard-stat-card">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="dashboard-stat-label">{{ labels.TOTAL_EMPLOYEES }}</div>
+                            <div class="dashboard-stat-value">{{ stats.employees }}</div>
                         </div>
+                        <div class="profile-info-icon"><i class="bi bi-people"></i></div>
                     </div>
                 </div>
             </a>
@@ -96,12 +172,13 @@
         <!-- TIMESHEETS -->
         <div class="col-md-4">
             <a href="{{ url_for('work.timesheets_list') }}" class="text-decoration-none">
-                <div class="card shadow-sm border-0 rounded-4 h-100 hover-card">
-                    <div class="card-body d-flex justify-content-between align-items-center">
-                        <div class="d-flex align-items-center gap-2">
-                            <h6 class="text-muted mb-0">Pending Timesheets:</h6>
-                            <h6 class="fw-bold mb-0 text-dark">{{ stats.timesheets }}</h6>
+                <div class="card-ui h-100 hover-card dashboard-stat-card">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="dashboard-stat-label">Pending Timesheets</div>
+                            <div class="dashboard-stat-value">{{ stats.timesheets }}</div>
                         </div>
+                        <div class="profile-info-icon"><i class="bi bi-clock-history"></i></div>
                     </div>
                 </div>
             </a>
@@ -109,12 +186,13 @@
         <!-- LEAVES -->
         <div class="col-md-4">
             <a href="{{ url_for('work.leaves_list') }}" class="text-decoration-none">
-                <div class="card shadow-sm border-0 rounded-4 h-100 hover-card">
-                    <div class="card-body d-flex justify-content-between align-items-center">
-                        <div class="d-flex align-items-center gap-2">
-                            <h6 class="text-muted mb-0">Pending Leaves:</h6>
-                            <h6 class="fw-bold mb-0 text-dark">{{ stats.leaves }}</h6>
+                <div class="card-ui h-100 hover-card dashboard-stat-card">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="dashboard-stat-label">Pending Leaves</div>
+                            <div class="dashboard-stat-value">{{ stats.leaves }}</div>
                         </div>
+                        <div class="profile-info-icon"><i class="bi bi-calendar-check"></i></div>
                     </div>
                 </div>
             </a>
@@ -123,21 +201,15 @@
         <!-- PENDING TIMESHEETS (Employee Only) -->
         <div class="col-md-4">
             <a href="{{ url_for('work.add_timesheet') }}" class="text-decoration-none">
-                <div class="card shadow-sm border-0 rounded-4 h-100 border-start border-4 border-warning hover-card">
-                    <div class="card-body d-flex justify-content-between align-items-center">
+                <div class="card-ui h-100 border-start border-4 border-warning hover-card dashboard-stat-card">
+                    <div class="d-flex justify-content-between align-items-center">
                         <div>
-                            <h6 class="text-muted mb-1 small fw-bold text-uppercase">Pending Timesheets</h6>
-                            <h2 class="fw-bold mb-0 text-dark">{{ pending_timesheets_count }}</h2>
                             {% if pending_timesheets_list %}
-                            <div class="mt-2">
-                                <small class="text-muted" style="font-size: 0.65rem;">
-                                    Recent: {{ pending_timesheets_list[0].project }} ({{
-                                    pending_timesheets_list[0].start_date[:10] }})
-                                </small>
-                            </div>
+                            <div class="dashboard-stat-label">Pending Timesheets</div>
+                            <div class="dashboard-stat-value">{{ pending_timesheets_count|default(0) }}</div>
                             {% endif %}
                         </div>
-                        <div class="icon-box bg-warning bg-opacity-25 text-warning">
+                        <div class="profile-info-icon">
                             <i class="bi bi-clock-history"></i>
                         </div>
                     </div>
