@@ -75,6 +75,13 @@
         line-height: 1.1;
     }
 
+    .dashboard-stat-subtext {
+        color: #6b7280;
+        font-size: 0.82rem;
+        line-height: 1.35;
+        margin-top: 0.2rem;
+    }
+
     .hover-card {
         transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
@@ -198,7 +205,13 @@
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
                             <div class="dashboard-stat-label">Pending Timesheets</div>
-                            <p>You have pending timesheets to submit.</p>
+                            <div class="dashboard-stat-subtext">
+                                {% if pending_timesheets_count and pending_timesheets_count|int > 0 %}
+                                    You have pending timesheets to submit.
+                                {% else %}
+                                    You have no pending timesheets right now.
+                                {% endif %}
+                            </div>
                         </div>
                         <div class="profile-info-icon">
                             <i class="bi bi-clock-history"></i>
