@@ -49,7 +49,7 @@ A full-featured Human Resource Management System built with **Flask**, designed 
 | **Dashboard**        | Role-aware stats (Employees, Timesheets, Leaves), Birthdays (today + upcoming 7-day), Holidays, Announcements, Pending Agreements, Team Leaves, Pending Timesheets |
 | **Employees**        | Add / edit / delete employees, role-prefix naming (`H_`, `M_`, `T_`), document uploads, photo upload/update             |
 | **Leaves**           | Apply for leave (Full/Half day), leave balance tracking, manager/HR approval workflow, calendar API                     |
-| **Timesheets**       | Daily submissions, manager review (approve/reject), calendar view with holidays & missing markers, Excel/CSV export      |
+| **Timesheets**       | Daily & weekly submissions, manager review, calendar view with holidays, Excel/CSV export, HR Missing Timesheets report |
 | **Projects**         | HR creates projects, assigns managers; managers manage teams & view project details; employee project view               |
 | **Help Desk**        | Ticketing system with priority/status management, HR assignment, internal resolution messaging                           |
 | **Assets & Devices** | Digital device inventory, assignment tracking, e-agreements with electronic signatures, image upload                     |
@@ -116,7 +116,7 @@ Altzor3/
 │       │                         #   team leaves, pending timesheets, pending agreements
 │       ├── employees.py          # Employee CRUD: add, edit, delete, view all employees
 │       ├── projects.py           # HR project creation/management, manager project views, project details
-│       ├── work_management.py    # Timesheets (list, add, export), Leaves (list, add, approve/reject, calendar,
+│       ├── work_management.py    # Timesheets (list, add daily/weekly, export, missing), Leaves (list, add, approve/reject, calendar,
 │       │                         #   balance), Attendance (date-range view, metrics), Leave Balance API
 │       ├── admin.py              # Help Desk, Reimbursements (full CRUD + approval workflow),
 │       │                         #   Assets/Devices (CRUD, assign, image, history), Policies,
@@ -138,6 +138,7 @@ Altzor3/
 │   ├── add_timesheet.html        # Add daily timesheet
 │   ├── add_weekly_timesheet.html # Add weekly timesheet
 │   ├── edit_timesheet.html       # Edit timesheet entry
+│   ├── hr_missing_timesheets.html# HR Missing Timesheets view
 │   ├── leaves.html               # Leave list + balance summary
 │   ├── add_leave.html            # Apply for leave (full/half day)
 │   ├── attendance.html           # Attendance view with metrics
@@ -291,7 +292,8 @@ To access the Altzor HR system from any device (Mobile, Tablet, Laptop) on your 
 - **Leave Balance API** — `/api/leaves/balance` endpoint with multi-tier fallback logic.
 
 ### Timesheet Management
-- **Submit Timesheets** — Daily timesheet submission with project, task, hours, and description.
+- **Submit Timesheets** — Daily and weekly timesheet submission with project, task, hours, and description.
+- **HR Missing Timesheets** — Track and report employees who have not submitted timesheets for a given date range.
 - **Role-Based Visibility** — Employees see own; managers see their project team's; HR/Admin see all.
 - **Approve / Reject** — Manager & HR can approve or reject timesheets with optional rejection reason.
 - **Calendar Integration** — Visual calendar view marking submitted, missing, and holiday dates.
@@ -396,6 +398,8 @@ The frontend acts as a transparent proxy for the backend API. Key proxy routes:
 | `/manager/timesheets/approve`                     | POST               | work       | Approve a timesheet                              |
 | `/manager/timesheets/reject`                      | POST               | work       | Reject a timesheet with reason                   |
 | `/timesheets/export`                              | GET                | work       | Export timesheets as Excel (.xlsx) or CSV        |
+| `/hr-missing-timesheets`                          | GET                | work       | HR Missing Timesheets report                     |
+| `/add-weekly-timesheet`                           | GET                | work       | Render Add Weekly Timesheet page                 |
 | `/update-leave/<id>/<status>`                     | PUT                | work       | Update leave approval status                     |
 | `/bank-details/<id>/<action>`                     | PATCH              | admin      | Approve or reject bank details (HR only)         |
 | `/api/my-photo`                                   | GET                | user       | Fetch the logged-in user's profile photo URL     |
