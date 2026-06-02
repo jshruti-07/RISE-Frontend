@@ -102,19 +102,11 @@
         <div class="position-relative" style="z-index: 1;">
             <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
                 <div>
-                    <h4 class="mb-1 fw-semibold">Dashboard</h4>
-                    <p class="mb-0 opacity-90">Overview of tasks, updates, and team activity.</p>
+                    <h4 class="mb-1 fw-semibold">Good Day, {{ session.username }}!</h4>
                 </div>
-                <span class="badge rounded-pill bg-light text-primary px-3 py-2 text-capitalize">{{ session.role or 'user' }}</span>
             </div>
         </div>
     </div>
-
-
-
-
-
-
 
     <!-- PENDING AGREEMENTS ALERT -->
     {% if pending_agreements %}
@@ -198,16 +190,14 @@
             </a>
         </div>
         {% elif session.role == 'employee' %}
-        <!-- PENDING TIMESHEETS (Employee Only) -->
-        <div class="col-md-4">
+        <!-- EMPLOYEE: Pending timesheets + projects in same row -->
+        <div class="col-lg-4">
             <a href="{{ url_for('work.add_timesheet') }}" class="text-decoration-none">
-                <div class="card-ui h-100 border-start border-4 border-warning hover-card dashboard-stat-card">
+                <div class="card-ui h-100 hover-card dashboard-stat-card">
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
-                            {% if pending_timesheets_list %}
                             <div class="dashboard-stat-label">Pending Timesheets</div>
                             <div class="dashboard-stat-value">{{ pending_timesheets_count|default(0) }}</div>
-                            {% endif %}
                         </div>
                         <div class="profile-info-icon">
                             <i class="bi bi-clock-history"></i>
@@ -216,14 +206,9 @@
                 </div>
             </a>
         </div>
-        {% endif %}
-    </div>
 
-    <!-- MY PROJECTS ROW (Employee Only) -->
-    {% if session.role == 'employee' %}
-    <div class="row mt-4">
-        <div class="col-12">
-            <div class="card-ui p-3">
+        <div class="col-lg-8">
+            <div class="card-ui p-3 h-100">
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <h6 class="mb-0 fw-bold text-dark">
                         <i class="bi bi-folder2-open me-2 text-primary"></i>My Projects
@@ -275,8 +260,8 @@
                 {% endif %}
             </div>
         </div>
+        {% endif %}
     </div>
-    {% endif %}
 
     <!-- SECOND ROW (FIXED LAYOUT) -->
     <div class="row mt-2">
