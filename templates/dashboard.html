@@ -102,7 +102,7 @@
         <div class="position-relative" style="z-index: 1;">
             <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
                 <div>
-                    <h4 class="mb-1 fw-semibold">Good Day, {{ session.username }}!</h4>
+                    <h4 class="mb-1 fw-semibold">Good Day, {{ (session.employee_name | clean_name) if session.employee_name else (session.user or 'there') }}!</h4>
                 </div>
             </div>
         </div>
@@ -192,12 +192,12 @@
         {% elif session.role == 'employee' %}
         <!-- EMPLOYEE: Pending timesheets + projects in same row -->
         <div class="col-lg-4">
-            <a href="{{ url_for('work.add_timesheet') }}" class="text-decoration-none">
+            <a href="{{ url_for('work.timesheets') }}" class="text-decoration-none">
                 <div class="card-ui h-100 hover-card dashboard-stat-card">
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
                             <div class="dashboard-stat-label">Pending Timesheets</div>
-                            <div class="dashboard-stat-value">{{ pending_timesheets_count|default(0) }}</div>
+                            <p>You have pending timesheets to submit.</p>
                         </div>
                         <div class="profile-info-icon">
                             <i class="bi bi-clock-history"></i>
