@@ -21,7 +21,7 @@
         {% if projects %}
         {% for project in projects %}
         <div class="col-md-6 col-lg-4">
-            <div class="card shadow-sm border-0 rounded-4 h-100">
+            <div class="card shadow-sm border-0 rounded-4 h-100 project-card" data-id="{{ project.id }}" role="button" style="cursor: pointer;">
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-start mb-3">
                         <h6 class="card-title fw-bold">{{ project.name }}</h6>
@@ -65,10 +65,7 @@
                         <small class="text-muted">
                             Created: {{ project.created_at }}
                         </small>
-                        <div class="btn-group btn-group-sm">
-                            <button class="btn btn-outline-primary btn-view-project" data-id="{{ project.id }}">
-                                <i class="bi bi-eye"></i>
-                            </button>
+                        <div class="btn-group btn-group-sm project-card-actions">
                             {% if user_role == 'hr' %}
                             <button class="btn btn-outline-warning btn-edit-project" data-id="{{ project.id }}">
                                 <i class="bi bi-pencil"></i>
@@ -336,48 +333,30 @@
         const container = document.getElementById('projectsContainer');
         if (container) {
             container.addEventListener('click', function(e) {
-                const viewBtn = e.target.closest('.btn-view-project');
                 const editBtn = e.target.closest('.btn-edit-project');
                 const deleteBtn = e.target.closest('.btn-delete-project');
 
-                if (viewBtn) viewProjectDetails(viewBtn.dataset.id);
-                if (editBtn) editProject(editBtn.dataset.id);
-                if (deleteBtn) deleteProject(deleteBtn.dataset.id, deleteBtn.dataset.name);
+                if (editBtn) {
+                    e.stopPropagation();
+                    editProject(editBtn.dataset.id);
+                    return;
+                }
+                if (deleteBtn) {
+                    e.stopPropagation();
+                    deleteProject(deleteBtn.dataset.id, deleteBtn.dataset.name);
+                    return;
+                }
+
+                const card = e.target.closest('.project-card');
+                if (card) viewProjectDetails(card.dataset.id);
             });
         }
     });
 
 
     function viewProjectDetails(projectId) {
-        // Find project data from the current page state
-        var projectCards = document.querySelectorAll('.col-md-6.col-lg-4');
-        var project = null;
-
-        // Look for the project in the current DOM
-        for (var i = 0; i < projectCards.length; i++) {
-            var card = projectCards[i];
-            var viewBtn = card.querySelector('button[onclick*="viewProjectDetails(' + projectId + '"]');
-            if (viewBtn) {
-                // Extract project data from the card
-                var cardTitle = card.querySelector('.card-title');
-                var cardContent = card.querySelector('.project-info');
-
-                if (cardTitle && cardContent) {
-                    project = {
-                        id: projectId,
-                        name: cardTitle.textContent.trim(),
-                        // We'll need to extract other data from the card or fetch it
-                    };
-                    break;
-                }
-            }
-        }
-
-        // If we can't find it in DOM, fall back to the static data
-        if (!project) {
-            const projectsData = getProjectsData();
-            project = projectsData.find(function (p) { return p.id == projectId; });
-        }
+        const projectsData = getProjectsData();
+        var project = projectsData.find(function (p) { return p.id == projectId; });
     if (project) {
         // Fetch fresh project data from the server
         var fetchUrl = '/get_project_details/' + projectId;
