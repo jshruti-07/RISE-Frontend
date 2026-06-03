@@ -414,9 +414,15 @@ body {
     justify-content: space-between;
     align-items: center;
     position: relative;
+    z-index: 1030;
     overflow: visible;
     border-bottom: 1px solid rgba(0, 0, 0, 0.1);
     margin-bottom: 15px;
+}
+
+/* Keep profile/menu dropdown above page heroes and cards below the topbar */
+.topbar .dropdown-menu {
+    z-index: 1031;
 }
 
 
