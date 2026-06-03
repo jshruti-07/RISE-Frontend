@@ -339,12 +339,12 @@
 </div>
 
 <!-- Detail Modal -->
-<div class="modal fade" id="assetDetailModal" tabindex="-1">
+<div class="modal fade modal-split-detail" id="assetDetailModal" tabindex="-1">
     <div class="modal-dialog modal-xl modal-dialog-centered">
-        <div class="modal-content border-0 shadow-lg" style="border-radius: 24px; overflow: hidden;">
+        <div class="modal-content">
             <div class="modal-body p-0">
                 <div class="row g-0">
-                    <div class="col-md-5 p-5 bg-white">
+                    <div class="col-md-5 detail-pane">
                         <h4 class="fw-bold mb-4" id="detailAssetTag">Asset Details</h4>
                         <div id="detailImageContainer" class="mb-4 text-center" style="display: none;">
                             <div id="imageCarousel" class="carousel slide" data-bs-ride="carousel">
@@ -415,7 +415,7 @@
                             <div class="text-muted small" id="detailNotes">No notes available.</div>
                         </div>
 
-                        <div class="p-3 bg-light rounded-4 border mb-4">
+                        <div class="detail-card mb-4">
                             <label class="detail-label text-primary">Current Owner</label>
                             <div class="d-flex align-items-center gap-2 mt-1">
                                 <i class="bi bi-person-circle fs-4 text-primary"></i>
@@ -423,7 +423,7 @@
                             </div>
                         </div>
 
-                        <div class="p-3 bg-light rounded-4 border mb-4" id="detailAgreementSection"
+                        <div class="detail-card mb-4" id="detailAgreementSection"
                             style="display: none;">
                             <label class="detail-label text-warning">Device Usage Agreement</label>
                             <div id="detailAgreementStatus" class="mt-1"></div>
@@ -438,7 +438,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-7 p-5 bg-light border-start">
+                    <div class="col-md-7 split-pane-secondary border-start">
                         <div class="d-flex justify-content-between align-items-center mb-4">
                             <h5 class="fw-bold m-0">Activity History</h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal"></button>

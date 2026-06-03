@@ -192,16 +192,16 @@
 <!-- Employee Selection Modal -->
 <div class="modal fade" id="employeeSelectionModal" tabindex="-1" aria-labelledby="employeeSelectionModalLabel"
     aria-hidden="true" style="display: none;">
-    <div class="modal-dialog modal-lg">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="employeeSelectionModalLabel">
-                    <i class="bi bi-people-fill me-2"></i>
+                <h5 class="modal-title mb-0" id="employeeSelectionModalLabel">
+                    <i class="bi bi-people-fill text-primary me-2"></i>
                     {{ labels.SELECT_TEAM_MEMBERS }} for {{ project.name }}
                 </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body">
+            <div class="modal-body modal-body-detail">
                 <div class="mb-3">
                     <div class="d-flex justify-content-between align-items-center mb-3">
                         <h6 class="mb-0">{{ labels.AVAILABLE_EMPLOYEES }}</h6>

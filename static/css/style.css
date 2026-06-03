@@ -1967,3 +1967,367 @@ select.form-control {
     cursor: not-allowed !important;
 }
 
+/* ===== APP MODALS (global) ===== */
+
+.modal.fade .modal-content {
+    border: none;
+    border-radius: 1rem;
+    overflow: hidden;
+    box-shadow: 0 1rem 2.5rem rgba(15, 23, 42, 0.12);
+}
+
+.modal.fade .modal-header {
+    background: linear-gradient(135deg, #eef2ff 0%, #f8fafc 100%);
+    border-bottom: 1px solid #e2e8f0;
+    padding: 1rem 1.25rem;
+}
+
+.modal.fade .modal-header.modal-header-brand {
+    background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%);
+    border-bottom: none;
+    color: #fff;
+}
+
+.modal.fade .modal-header.modal-header-brand .modal-title {
+    color: #fff;
+}
+
+.modal.fade .modal-header.modal-header-brand .btn-close {
+    filter: brightness(0) invert(1);
+}
+
+.modal.fade .modal-body {
+    padding: 1.25rem;
+}
+
+.modal.fade .modal-body.modal-body-detail,
+.modal.fade .modal-body:has(.detail-view) {
+    background: #f8fafc;
+}
+
+.modal.fade .modal-body.modal-body-form,
+.modal.fade .modal-body.modal-body-plain {
+    background: #fff;
+}
+
+.modal.fade .modal-body.p-0 {
+    padding: 0;
+    background: #fff;
+}
+
+.modal.fade .modal-footer {
+    background: #fff;
+    border-top: 1px solid #e2e8f0;
+    padding: 0.75rem 1.25rem;
+}
+
+.modal.fade .modal-footer .btn-secondary {
+    background-color: #f8fafc;
+    border-color: #e2e8f0;
+    color: #334155;
+}
+
+.modal.fade .modal-footer .btn-secondary:hover {
+    background-color: #f1f5f9;
+    border-color: #cbd5e1;
+    color: #0f172a;
+}
+
+.modal.fade .modal-content > .modal-body:only-child {
+    background: #fff;
+    border-radius: 1rem;
+}
+
+.modal.fade .modal-dialog-scrollable .modal-body {
+    max-height: min(70vh, 640px);
+}
+
+/* ===== DETAIL VIEW (dynamic modal content) ===== */
+
+.detail-view .detail-hero {
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.75rem;
+    padding: 1rem 1.25rem;
+    margin-bottom: 1rem;
+}
+
+.detail-view .detail-hero-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #0f172a;
+    margin: 0 0 0.5rem;
+    line-height: 1.3;
+}
+
+.detail-view .detail-card {
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.75rem;
+    padding: 1rem 1.25rem;
+    height: 100%;
+}
+
+.detail-view .detail-card-title {
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #64748b;
+    margin-bottom: 0.85rem;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.detail-view .detail-card-title i {
+    color: #4f46e5;
+    font-size: 0.95rem;
+}
+
+.detail-view .detail-fields {
+    display: grid;
+    grid-template-columns: minmax(7rem, 38%) 1fr;
+    gap: 0.5rem 1rem;
+    align-items: start;
+}
+
+.detail-view .detail-field-label {
+    font-size: 0.8125rem;
+    color: #64748b;
+    margin: 0;
+}
+
+.detail-view .detail-field-value {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #0f172a;
+    margin: 0;
+    word-break: break-word;
+}
+
+.detail-view .detail-timeline {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+}
+
+.detail-view .detail-timeline-item {
+    background: #f1f5f9;
+    border-radius: 0.5rem;
+    padding: 0.65rem 0.85rem;
+}
+
+.detail-view .detail-timeline-item .detail-field-label {
+    display: block;
+    margin-bottom: 0.2rem;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.detail-view .detail-timeline-item .detail-field-value {
+    font-size: 0.9rem;
+}
+
+.detail-view .detail-members {
+    max-height: 260px;
+    overflow-y: auto;
+}
+
+.detail-view .detail-member {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.65rem 0;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.detail-view .detail-member:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.detail-view .detail-member:first-child {
+    padding-top: 0;
+}
+
+.detail-view .detail-member-avatar {
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    color: #fff;
+    font-size: 0.7rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.detail-view .detail-member-name {
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: #0f172a;
+    flex: 1;
+    min-width: 0;
+}
+
+.detail-view .detail-member-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.35rem;
+}
+
+.detail-view .detail-empty {
+    text-align: center;
+    padding: 1.25rem;
+    color: #64748b;
+    font-size: 0.875rem;
+}
+
+.detail-view .detail-empty i {
+    font-size: 1.75rem;
+    display: block;
+    margin-bottom: 0.35rem;
+    opacity: 0.5;
+}
+
+.detail-view .detail-note {
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.5rem;
+    padding: 0.75rem 1rem;
+    font-size: 0.875rem;
+    color: #475569;
+    margin: 0;
+}
+
+/* Audit / history timeline in modals */
+.detail-history-timeline {
+    border-left: 2px solid #e2e8f0;
+    padding-left: 1.25rem;
+    margin-left: 0.35rem;
+}
+
+.detail-history-item {
+    position: relative;
+    padding-bottom: 1.1rem;
+}
+
+.detail-history-item::before {
+    content: '';
+    position: absolute;
+    left: -1.45rem;
+    top: 0.35rem;
+    width: 0.55rem;
+    height: 0.55rem;
+    border-radius: 50%;
+    background: #6366f1;
+    box-shadow: 0 0 0 3px #eef2ff;
+}
+
+.detail-history-date {
+    font-size: 0.75rem;
+    color: #64748b;
+}
+
+.detail-history-field {
+    font-weight: 600;
+    font-size: 0.875rem;
+    color: #0f172a;
+}
+
+/* Split-layout detail modals (helpdesk, assets, etc.) */
+.modal-split-detail .modal-body.p-0,
+.modal-helpdesk-ticket .modal-body.p-0 {
+    padding: 0;
+    background: #fff;
+}
+
+.modal-split-detail .detail-pane,
+.modal-helpdesk-ticket .detail-pane {
+    background: #f8fafc;
+    border-right: 1px solid #e2e8f0;
+    max-height: min(80vh, 800px);
+    overflow-y: auto;
+    padding: 1.5rem !important;
+}
+
+.modal-split-detail .detail-pane .detail-label,
+.modal-split-detail .detail-pane .detail-field-label,
+.modal-helpdesk-ticket .detail-pane .detail-label,
+.modal-helpdesk-ticket .detail-pane .detail-field-label {
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 0.35rem;
+}
+
+.modal-split-detail .detail-pane .detail-value,
+.modal-split-detail .detail-pane .detail-field-value,
+.modal-helpdesk-ticket .detail-pane .detail-value,
+.modal-helpdesk-ticket .detail-pane .detail-field-value {
+    font-size: 0.9rem;
+    color: #0f172a;
+    font-weight: 500;
+}
+
+.modal-split-detail .detail-pane .detail-card,
+.modal-helpdesk-ticket .detail-pane .detail-card {
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.75rem;
+    padding: 1rem;
+    margin-bottom: 1rem;
+}
+
+.modal-split-detail .split-pane-secondary {
+    background: #f8fafc;
+    max-height: min(80vh, 800px);
+    overflow-y: auto;
+    padding: 1.5rem;
+}
+
+.modal-helpdesk-ticket .chat-pane {
+    background: #f8fafc;
+    max-height: min(80vh, 800px);
+    display: flex;
+    flex-direction: column;
+}
+
+.modal-helpdesk-ticket .chat-header {
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid #e2e8f0;
+    background: #fff;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.modal-helpdesk-ticket .chat-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.modal-helpdesk-ticket .chat-footer {
+    padding: 1rem 1.25rem;
+    background: #fff;
+    border-top: 1px solid #e2e8f0;
+}
+
+/* Reimbursement status badges in detail modal */
+.status-pending { background: #fef9c3 !important; color: #a16207 !important; }
+.status-approved { background: #dcfce7 !important; color: #15803d !important; }
+.status-rejected { background: #fee2e2 !important; color: #b91c1c !important; }
+.status-paid { background: #dbeafe !important; color: #1d4ed8 !important; }
+

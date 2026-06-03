@@ -197,7 +197,7 @@
                 <h5 class="modal-title" id="rejectTimesheetModalLabel">Reject Timesheet</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body">
+            <div class="modal-body modal-body-form">
                 <form id="rejectTimesheetForm">
                     <div class="mb-3">
                         <label for="rejectEmployeeName" class="form-label">Employee Name</label>
@@ -235,7 +235,7 @@
             </div>
 
             <!-- BODY -->
-            <div class="modal-body">
+            <div class="modal-body modal-body-plain">
                 <p>
                     Are you sure you want to approve the timesheet for
                     <strong id="approveEmpName"></strong>?
@@ -271,7 +271,7 @@
             </div>
 
             <!-- BODY -->
-            <div class="modal-body text-center">
+            <div class="modal-body modal-body-plain text-center">
                 <div class="mb-3">
                     <i class="bi bi-check-circle-fill text-success" style="font-size: 3rem;"></i>
                 </div>
@@ -299,7 +299,7 @@
                 <h5 class="modal-title" id="calendarModalLabel">Timesheet & Holiday Calendar</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body py-2 px-3" style="background: #f8f9fa;">
+            <div class="modal-body modal-body-detail py-2 px-3">
                 <div id="calendar"
                     style="background: white; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
                 </div>
@@ -333,21 +333,21 @@
 
 <!-- Day Details Modal -->
 <div class="modal fade" id="dayDetailsModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content border-0 shadow-lg">
-            <div class="modal-header bg-light">
-                <h5 class="modal-title">
-                    <i class="bi bi-calendar-event me-2"></i>
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title mb-0">
+                    <i class="bi bi-calendar-event text-primary me-2"></i>
                     Details for <span id="detailDateLabel">--</span>
                 </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body" id="dayDetailsContent">
+            <div class="modal-body modal-body-detail" id="dayDetailsContent">
                 <div class="text-center py-4">
                     <div class="spinner-border text-primary" role="status"></div>
                 </div>
             </div>
-            <div class="modal-footer bg-light border-0">
+            <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                 {% if session.role == 'employee' %}
                 <button type="button" class="btn btn-primary d-none" id="addTimesheetDayBtn"
@@ -1452,7 +1452,7 @@
                         return;
                     }
 
-                    let html = '';
+                    let html = '<div class="detail-view">';
 
                     // Render Day Status Info
                     const statusColors = {
@@ -1465,43 +1465,44 @@
                     };
 
                     html += `
-                <div class="mb-4">
-                    <span class="badge bg-${statusColors[data.status] || 'secondary'} fs-6 mb-2">
-                        ${data.label}
-                    </span>
-                    ${data.holiday ? `<div class="p-3 bg-light rounded mt-2">
-                        <h6 class="mb-1"><i class="bi bi-gift me-2"></i>${data.holiday.name}</h6>
-                        <small class="text-muted d-block">${data.holiday.description || 'Public holiday'}</small>
+                <div class="detail-hero mb-3">
+                    <span class="badge bg-${statusColors[data.status] || 'secondary'} fs-6">${escapeHtml(data.label)}</span>
+                    ${data.holiday ? `<div class="detail-card mt-3 mb-0">
+                        <div class="detail-card-title"><i class="bi bi-gift"></i> Holiday</div>
+                        <p class="detail-field-value mb-1">${escapeHtml(data.holiday.name)}</p>
+                        <small class="text-muted">${escapeHtml(data.holiday.description || 'Public holiday')}</small>
                     </div>` : ''}
                 </div>
             `;
 
                     // Render Timesheet Entries
                     if (data.entries && data.entries.length > 0) {
-                        html += '<h6 class="fw-bold mb-3">Timesheet Entries</h6>';
+                        html += '<div class="detail-card"><div class="detail-card-title"><i class="bi bi-list-check"></i> Timesheet entries</div>';
                         data.entries.forEach(entry => {
                             html += `
-                        <div class="card mb-2 border-start border-4 border-primary">
-                            <div class="card-body p-3">
-                                <div class="d-flex justify-content-between">
-                                    <h6 class="mb-1">${entry.project}</h6>
-                                    <span class="badge bg-primary">${entry.hours}h</span>
+                        <div class="detail-member border-bottom pb-2 mb-2">
+                            <div class="flex-grow-1">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div class="detail-member-name">${escapeHtml(entry.project)}</div>
+                                    <span class="badge bg-primary">${escapeHtml(entry.hours)}h</span>
                                 </div>
-                                <div class="small fw-medium text-dark mb-1">${entry.task}</div>
-                                ${entry.description ? `<p class="small text-muted mb-0">${entry.description}</p>` : ''}
+                                <div class="small fw-medium text-dark mb-1">${escapeHtml(entry.task)}</div>
+                                ${entry.description ? `<p class="small text-muted mb-0">${escapeHtml(entry.description)}</p>` : ''}
                             </div>
                         </div>
                     `;
                         });
+                        html += '</div>';
                     } else if (data.status === 'missing') {
                         html += `
-                    <div class="text-center py-3 text-muted">
-                        <i class="bi bi-clock-history fs-1"></i>
+                    <div class="detail-empty">
+                        <i class="bi bi-clock-history"></i>
                         <p class="mt-2 mb-0">No entries submitted for this day.</p>
                     </div>
                 `;
                     }
 
+                    html += '</div>';
                     contentDiv.innerHTML = html;
 
                     // Handle "Add Entry" button visibility

@@ -91,13 +91,15 @@
 
 <!-- Submit Claim Modal -->
 <div class="modal fade" id="submitClaimModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-lg modal-dialog-centered">
-        <div class="modal-content border-0 shadow">
-            <div class="modal-header border-0 pb-0">
-                <h5 class="modal-title fw-bold">Submit Expense Claim</h5>
+    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title fw-bold mb-0">
+                    <i class="bi bi-receipt text-primary me-2"></i>Submit Expense Claim
+                </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <div class="modal-body p-4">
+            <div class="modal-body modal-body-form">
                 <form id="submitClaimForm" enctype="multipart/form-data">
                     <div class="row g-3">
                         <div class="col-md-6 mb-3">
@@ -154,9 +156,11 @@
                     </div>
                 </form>
             </div>
-            <div class="modal-footer border-0 pt-0 pb-4 justify-content-center">
-                <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-primary rounded-pill px-4" onclick="submitClaim()">Submit Claim</button>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="submitClaim()">
+                    <i class="bi bi-send me-1"></i>Submit Claim
+                </button>
             </div>
         </div>
     </div>
@@ -164,13 +168,15 @@
 
 <!-- View Details Modal -->
 <div class="modal fade" id="viewDetailsModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Reimbursement Details</h5>
+                <h5 class="modal-title mb-0" id="viewDetailsModalTitle">
+                    <i class="bi bi-receipt-cutoff text-primary me-2"></i>Reimbursement Details
+                </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <div class="modal-body" id="detailsContent">
+            <div class="modal-body modal-body-detail" id="detailsContent">
                 <div class="text-center py-4">
                     <div class="spinner-border text-primary" role="status"></div>
                 </div>
@@ -187,10 +193,12 @@
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Reject Claim</h5>
+                <h5 class="modal-title mb-0">
+                    <i class="bi bi-x-circle text-danger me-2"></i>Reject Claim
+                </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <div class="modal-body">
+            <div class="modal-body modal-body-form">
                 <div class="mb-3">
                     <label class="form-label">Rejection Reason *</label>
                     <textarea class="form-control" id="rejectReason" rows="3" required></textarea>
@@ -208,8 +216,8 @@
 <!-- Approve Confirmation Modal -->
 <div class="modal fade" id="approveModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content border-0 shadow">
-            <div class="modal-body text-center p-4">
+        <div class="modal-content">
+            <div class="modal-body modal-body-plain text-center p-4">
                 <div class="mb-3">
                     <i class="bi bi-check-circle text-success" style="font-size: 3rem;"></i>
                 </div>
@@ -229,7 +237,7 @@
 <!-- Success Modal -->
 <div class="modal fade" id="successModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-sm">
-        <div class="modal-content border-0 shadow text-center p-4">
+        <div class="modal-content text-center p-4">
             <div class="mb-2">
                 <i class="bi bi-check-circle-fill text-success fs-1"></i>
             </div>
@@ -238,41 +246,6 @@
         </div>
     </div>
 </div>
-
-<style>
-    .status-pending { background: #fef9c3 !important; color: #a16207 !important; }
-    .status-approved { background: #dcfce7 !important; color: #15803d !important; }
-    .status-rejected { background: #fee2e2 !important; color: #b91c1c !important; }
-    .status-paid { background: #dbeafe !important; color: #1d4ed8 !important; }
-    
-    .history-timeline {
-        border-left: 2px solid #e5e7eb;
-        padding-left: 20px;
-        margin-left: 10px;
-    }
-    .history-item {
-        position: relative;
-        padding-bottom: 20px;
-    }
-    .history-item::before {
-        content: '';
-        position: absolute;
-        left: -26px;
-        top: 5px;
-        width: 10px;
-        height: 10px;
-        border-radius: 50%;
-        background: #3b82f6;
-    }
-    .history-date {
-        font-size: 0.85rem;
-        color: #6b7280;
-    }
-    .history-field {
-        font-weight: 600;
-        color: #1f2937;
-    }
-</style>
 
 <script>
 let rejectFromDetails = false;
@@ -466,14 +439,14 @@ function viewDetails(id) {
             
             let historyHtml = '';
             if (data.history && data.history.length > 0) {
-                historyHtml = '<div class="mt-4"><h6 class="fw-semibold mb-3">History</h6><div class="history-timeline">';
+                historyHtml = '<div class="detail-card mt-3"><div class="detail-card-title"><i class="bi bi-clock-history"></i> History</div><div class="detail-history-timeline">';
                 data.history.forEach(h => {
                     historyHtml += `
-                        <div class="history-item">
-                            <div class="history-date">${h.changed_at}</div>
-                            <div class="history-field">${h.field}: ${h.old_value || 'None'} → ${h.new_value}</div>
-                            <div class="small text-muted">By: ${h.changed_by}</div>
-                            ${h.note ? `<div class="small text-muted mt-1">Note: ${h.note}</div>` : ''}
+                        <div class="detail-history-item">
+                            <div class="detail-history-date">${escapeHtml(h.changed_at)}</div>
+                            <div class="detail-history-field">${escapeHtml(h.field)}: ${escapeHtml(h.old_value || 'None')} → ${escapeHtml(h.new_value)}</div>
+                            <div class="small text-muted">By: ${escapeHtml(h.changed_by)}</div>
+                            ${h.note ? `<div class="small text-muted mt-1">Note: ${escapeHtml(h.note)}</div>` : ''}
                         </div>
                     `;
                 });
@@ -495,27 +468,55 @@ function viewDetails(id) {
                 receiptBtn = `<button class="btn btn-sm btn-outline-primary" onclick="downloadReceipt(${r.id})"><i class="bi bi-eye me-1"></i>View Receipt</button>`;
             }
             
+            const statusLabel = r.status.charAt(0).toUpperCase() + r.status.slice(1);
+            const titleText = escapeHtml(r.title || 'Claim');
+            document.getElementById('viewDetailsModalTitle').innerHTML =
+                '<i class="bi bi-receipt-cutoff text-primary me-2"></i>' + titleText;
+
             content.innerHTML = `
-                <div class="row">
-                    <div class="col-md-6">
-                        <p><strong>Reference:</strong> ${r.ref}</p>
-                        <p><strong>Title:</strong> ${r.title}</p>
-                        <p><strong>Amount:</strong> ${r.currency} ${parseFloat(r.amount).toFixed(2)}</p>
-                        <p><strong>Category:</strong> ${categoryLabels[r.category] || r.category}</p>
-                        <p><strong>Status:</strong> <span class="badge status-${r.status}">${r.status.charAt(0).toUpperCase() + r.status.slice(1)}</span></p>
+                <div class="detail-view">
+                    <div class="detail-hero">
+                        <h4 class="detail-hero-title">${titleText}</h4>
+                        <div class="d-flex flex-wrap gap-2 align-items-center">
+                            <span class="badge status-${escapeHtml(r.status)}">${escapeHtml(statusLabel)}</span>
+                            <span class="badge bg-primary">${escapeHtml(r.currency)} ${parseFloat(r.amount).toFixed(2)}</span>
+                            <span class="badge bg-light text-dark border">${escapeHtml(categoryLabels[r.category] || r.category)}</span>
+                        </div>
                     </div>
-                    <div class="col-md-6">
-                        <p><strong>Expense Date:</strong> ${r.expense_date}</p>
-                        <p><strong>Employee:</strong> ${stripNamePrefix(r.employee_name)}</p>
-                        <p><strong>Project ID:</strong> ${r.project_id || 'N/A'}</p>
-                        <p><strong>Billable:</strong> ${r.billable ? 'Yes' : 'No'}</p>
-                        <p><strong>Receipt:</strong> ${hasReceipt ? 'Yes' : 'No'}</p>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <div class="detail-card">
+                                <div class="detail-card-title"><i class="bi bi-info-circle"></i> Claim details</div>
+                                <div class="detail-fields">
+                                    ${detailField('Reference', escapeHtml(r.ref || 'N/A'))}
+                                    ${detailField('Expense date', escapeHtml(formatDisplayDate(r.expense_date)))}
+                                    ${detailField('Billable', escapeHtml(r.billable ? 'Yes' : 'No'))}
+                                    ${detailField('Receipt', escapeHtml(hasReceipt ? 'Attached' : 'None'))}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="detail-card">
+                                <div class="detail-card-title"><i class="bi bi-person"></i> Submitted by</div>
+                                <div class="detail-fields">
+                                    ${detailField('Employee', escapeHtml(stripNamePrefix(r.employee_name)))}
+                                    ${detailField('Project ID', escapeHtml(r.project_id || 'N/A'))}
+                                </div>
+                            </div>
+                        </div>
                     </div>
+                    ${r.description ? `
+                    <div class="detail-card mt-3">
+                        <div class="detail-card-title"><i class="bi bi-card-text"></i> Description</div>
+                        <p class="detail-note mb-0">${escapeHtml(r.description)}</p>
+                    </div>` : ''}
+                    ${r.rejection_reason ? `
+                    <div class="alert alert-danger mt-3 mb-0 py-2">
+                        <strong>Rejection reason:</strong> ${escapeHtml(r.rejection_reason)}
+                    </div>` : ''}
+                    ${receiptBtn ? `<div class="mt-3">${receiptBtn}</div>` : ''}
+                    ${historyHtml}
                 </div>
-                ${r.description ? `<div class="mt-3"><p><strong>Description:</strong></p><p class="text-muted">${r.description}</p></div>` : ''}
-                ${r.rejection_reason ? `<div class="mt-3 alert alert-danger"><strong>Rejection Reason:</strong> ${r.rejection_reason}</div>` : ''}
-                ${receiptBtn ? `<div class="mt-3">${receiptBtn}</div>` : ''}
-                ${historyHtml}
             `;
 
             const reviewActions = canReviewReimbursement(userRole, r.status)
