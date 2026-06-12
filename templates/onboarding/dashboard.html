@@ -149,6 +149,9 @@
 
 <script>
     window.BASE_URL = "{{ BASE_URL }}";
+    {% if token %}
+    localStorage.setItem('token', '{{ token }}');
+    {% endif %}
 </script>
 {% endblock %}
 
