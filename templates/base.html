@@ -118,7 +118,7 @@
                 src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'%3E%3Ccircle cx='40' cy='40' r='40' fill='%23475569'/%3E%3Ccircle cx='40' cy='30' r='14' fill='%23cbd5e1'/%3E%3Cellipse cx='40' cy='68' rx='22' ry='16' fill='%23cbd5e1'/%3E%3C/svg%3E"
                 class="user-img" alt="Profile Photo">
 
-            <h6>{{ session.original_name or (session.employee_name | clean_name if session.employee_name else None) or 'User' }}</h6>
+            <h6>{{ session.display_name or session.full_name or session.original_name or (session.employee_name | clean_name if session.employee_name else None) or 'User' }}</h6>
 
             <span class="badge bg-info">{{ labels.EMPLOYEE.upper() if session.role == 'employee' else (session.role or 'User').upper() }}</span>
 

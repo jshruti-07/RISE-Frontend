@@ -52,6 +52,8 @@ def login():
                 session['role'] = data['user']['role']
                 session['employee_name'] = data['user'].get('employee_name')
                 session['original_name'] = data['user'].get('original_name')
+                session['full_name'] = data['user'].get('full_name')
+                session['display_name'] = data['user'].get('display_name')
                 session['employee_id'] = data['user'].get('employee_id') or data['user'].get('id', 'N/A')
 
                 if request.headers.get("X-Requested-With") == "XMLHttpRequest":

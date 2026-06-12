@@ -109,7 +109,7 @@
         <div class="position-relative" style="z-index: 1;">
             <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
                 <div>
-                    {% set dashboard_name = session.get('original_name') or (session.get('employee_name') | clean_name if session.get('employee_name') else None) or session.get('user') or 'there' %}
+                    {% set dashboard_name = session.get('display_name') or session.get('full_name') or session.get('original_name') or (session.get('employee_name') | clean_name if session.get('employee_name') else None) or session.get('user') or 'there' %}
                     <h4 class="mb-1 fw-semibold">Good Day, {{ dashboard_name }}!</h4>
                 </div>
             </div>
