@@ -1,0 +1,483 @@
+{% extends "joinee/base.html" %}
+
+{% block title %}My Onboarding Dashboard{% endblock %}
+
+{% block content %}
+<div class="joinee-main">
+
+    <!-- Change Password Gate (shown when temp_password_changed=false) -->
+    <div id="pwGate" class="joinee-pw-wrap d-none">
+        <div class="joinee-pw-card">
+            <div class="text-center mb-4">
+                <div class="mb-3">
+                    <span style="font-size:2.5rem;">🔐</span>
+                </div>
+                <h4>Set Your Password</h4>
+                <p class="text-muted small">You must change your temporary password before continuing.</p>
+            </div>
+            <div id="pwAlert" class="alert d-none mb-3" role="alert"></div>
+            <form id="changePasswordForm">
+                <div class="mb-3">
+                    <label class="form-label">Current Password</label>
+                    <input type="password" class="form-control" id="currentPassword" placeholder="Enter your temporary password" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">New Password</label>
+                    <input type="password" class="form-control" id="newPassword" placeholder="Min 8 characters" required>
+                </div>
+                <div class="mb-4">
+                    <label class="form-label">Confirm New Password</label>
+                    <input type="password" class="form-control" id="confirmPassword" placeholder="Repeat new password" required>
+                </div>
+                <button type="submit" class="btn btn-primary w-100 fw-bold" id="btnChangePw">
+                    Set Password & Continue
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Main Onboarding Dashboard (shown after password changed) -->
+    <div id="mainDashboard" class="joinee-container d-none">
+
+        <!-- Page Header -->
+        <div class="mb-4">
+            <h3 class="fw-bold mb-1">My Onboarding</h3>
+            <p class="text-muted small">Complete all steps below to finish your onboarding process.</p>
+        </div>
+
+        <!-- SECTION A: Declaration Form -->
+        <div class="joinee-card" id="declarationSection">
+            <div class="joinee-section-title">
+                <i class="bi bi-file-earmark-text"></i>
+                Section A — Declaration Form
+            </div>
+
+            <!-- Status Badge (shown for SUBMITTED/APPROVED/CHANGES_REQUESTED) -->
+            <div id="declarationStatusBadge" class="d-none"></div>
+
+            <!-- Changes Requested Banner -->
+            <div id="changesRequestedBanner" class="joinee-warning-banner d-none">
+                <strong><i class="bi bi-exclamation-triangle me-1"></i>HR has requested changes:</strong>
+                <span id="hrNotesText"></span>
+            </div>
+
+            <!-- Stepper -->
+            <div class="joinee-stepper" id="stepperNav">
+                <div class="step-item active" data-step="1">
+                    <div class="step-circle">1</div>
+                    <div class="step-label">Personal Info</div>
+                </div>
+                <div class="step-item" data-step="2">
+                    <div class="step-circle">2</div>
+                    <div class="step-label">Address</div>
+                </div>
+                <div class="step-item" data-step="3">
+                    <div class="step-circle">3</div>
+                    <div class="step-label">ID & Academic</div>
+                </div>
+                <div class="step-item" data-step="4">
+                    <div class="step-circle">4</div>
+                    <div class="step-label">Employment</div>
+                </div>
+                <div class="step-item" data-step="5">
+                    <div class="step-circle">5</div>
+                    <div class="step-label">References & Other</div>
+                </div>
+                <div class="step-item" data-step="6">
+                    <div class="step-circle">6</div>
+                    <div class="step-label">Review & Sign</div>
+                </div>
+            </div>
+
+            <div id="declarationForm">
+
+                <!-- ========== STEP 1: Personal Information ========== -->
+                <div class="step-panel" id="step1">
+                    <div class="joinee-form-grid">
+                        <div>
+                            <label class="form-label">Full Name <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="pi_full_name" placeholder="As per records">
+                        </div>
+                        <div>
+                            <label class="form-label">Contact No. <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="pi_contact" placeholder="+91 9XXXXXXXXX">
+                        </div>
+                        <div>
+                            <label class="form-label">Email ID <span class="text-danger">*</span></label>
+                            <input type="email" class="form-control" id="pi_email" placeholder="your@email.com">
+                        </div>
+                        <div>
+                            <label class="form-label">Father's Name</label>
+                            <input type="text" class="form-control" id="pi_father_name" placeholder="Father's full name">
+                        </div>
+                        <div class="full-width">
+                            <label class="form-label">Gender</label>
+                            <div class="d-flex gap-3 mt-1">
+                                <label class="d-flex align-items-center gap-2 fw-normal">
+                                    <input type="radio" name="pi_gender" value="Male"> Male
+                                </label>
+                                <label class="d-flex align-items-center gap-2 fw-normal">
+                                    <input type="radio" name="pi_gender" value="Female"> Female
+                                </label>
+                                <label class="d-flex align-items-center gap-2 fw-normal">
+                                    <input type="radio" name="pi_gender" value="Other"> Other
+                                </label>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="form-label">Actual D.O.B</label>
+                            <input type="date" class="form-control" id="pi_actual_dob">
+                        </div>
+                        <div>
+                            <label class="form-label">Certificate D.O.B</label>
+                            <input type="date" class="form-control" id="pi_cert_dob">
+                            <div class="form-text text-muted small mt-1">
+                                <i class="bi bi-info-circle me-1"></i>Certificate DOB may differ from actual DOB
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="step-nav">
+                        <div class="auto-save-indicator" id="autoSave1"></div>
+                        <div class="d-flex gap-2">
+                            <button class="btn-nav-prev" disabled>Previous</button>
+                            <button class="btn-nav-next" id="next1">Next</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ========== STEP 2: Address Details ========== -->
+                <div class="step-panel d-none" id="step2">
+                    <div class="address-grid">
+                        <!-- Permanent Address -->
+                        <div>
+                            <div class="address-col-title"><i class="bi bi-geo-alt me-1"></i>Permanent Address</div>
+                            <div class="mb-3">
+                                <label class="form-label">Address</label>
+                                <textarea class="form-control" id="perm_address" rows="3" placeholder="House/Flat, Street, Area..."></textarea>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Landmark</label>
+                                <input type="text" class="form-control" id="perm_landmark" placeholder="Near...">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Landline No.</label>
+                                <input type="text" class="form-control" id="perm_landline" placeholder="0xx-xxxxxxx">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Mobile</label>
+                                <input type="text" class="form-control" id="perm_mobile" placeholder="+91 9XXXXXXXXX">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Period of Stay</label>
+                                <input type="text" class="form-control" id="perm_period" placeholder="e.g. 5 years">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Nature of Residence</label>
+                                <input type="text" class="form-control" id="perm_nature" placeholder="Owned / Rented...">
+                            </div>
+                        </div>
+                        <!-- Current Address -->
+                        <div>
+                            <div class="address-col-title"><i class="bi bi-house me-1"></i>Current Address</div>
+                            <div class="form-check mb-3">
+                                <input class="form-check-input" type="checkbox" id="sameAsPermanent">
+                                <label class="form-check-label small fw-semibold" for="sameAsPermanent">Same as Permanent Address</label>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Address</label>
+                                <textarea class="form-control" id="curr_address" rows="3" placeholder="House/Flat, Street, Area..."></textarea>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Landmark</label>
+                                <input type="text" class="form-control" id="curr_landmark" placeholder="Near...">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Landline No.</label>
+                                <input type="text" class="form-control" id="curr_landline" placeholder="0xx-xxxxxxx">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Mobile</label>
+                                <input type="text" class="form-control" id="curr_mobile" placeholder="+91 9XXXXXXXXX">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Period of Stay</label>
+                                <input type="text" class="form-control" id="curr_period" placeholder="e.g. 2 years">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Nature of Residence</label>
+                                <input type="text" class="form-control" id="curr_nature" placeholder="Owned / Rented...">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="step-nav">
+                        <div class="auto-save-indicator" id="autoSave2"></div>
+                        <div class="d-flex gap-2">
+                            <button class="btn-nav-prev" data-target="1">Previous</button>
+                            <button class="btn-nav-next" id="next2">Next</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ========== STEP 3: ID Proof & Academic Details ========== -->
+                <div class="step-panel d-none" id="step3">
+
+                    <!-- ID Proof -->
+                    <div class="joinee-subsection">
+                        <div class="joinee-subsection-title">ID Proof</div>
+                        <div class="joinee-form-grid">
+                            <div>
+                                <label class="form-label">PAN No.</label>
+                                <input type="text" class="form-control" id="id_pan" placeholder="ABCDE1234F">
+                            </div>
+                            <div>
+                                <label class="form-label">Aadhar Card No.</label>
+                                <input type="text" class="form-control" id="id_aadhar" placeholder="XXXX XXXX XXXX">
+                            </div>
+                        </div>
+                        <div class="joinee-subsection-title mt-3">Passport Details</div>
+                        <div class="joinee-form-grid">
+                            <div>
+                                <label class="form-label">Name as per Passport</label>
+                                <input type="text" class="form-control" id="id_passport_name">
+                            </div>
+                            <div>
+                                <label class="form-label">Place of Issue</label>
+                                <input type="text" class="form-control" id="id_passport_place">
+                            </div>
+                            <div>
+                                <label class="form-label">Issue Date</label>
+                                <input type="date" class="form-control" id="id_passport_issue">
+                            </div>
+                            <div>
+                                <label class="form-label">Expiry Date</label>
+                                <input type="date" class="form-control" id="id_passport_expiry">
+                            </div>
+                            <div class="full-width">
+                                <label class="form-label">Others (Driving License / Voter ID / etc.)</label>
+                                <textarea class="form-control" id="id_others" rows="2" placeholder="Enter details of any other ID proofs..."></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Academic Details -->
+                    <div class="joinee-subsection">
+                        <div class="joinee-subsection-title">Academic Details</div>
+                        <p class="small text-muted mb-3">
+                            <i class="bi bi-paperclip me-1"></i>Please attach copies of Academic Certificates with Mark sheets
+                        </p>
+                        <div id="academicBlocks">
+                            <!-- Institution blocks injected by JS -->
+                        </div>
+                        <button class="btn-add-block" id="btnAddInstitution" type="button">
+                            <i class="bi bi-plus-lg"></i> Add Institution
+                        </button>
+                    </div>
+
+                    <div class="step-nav">
+                        <div class="auto-save-indicator" id="autoSave3"></div>
+                        <div class="d-flex gap-2">
+                            <button class="btn-nav-prev" data-target="2">Previous</button>
+                            <button class="btn-nav-next" id="next3">Next</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ========== STEP 4: Employment History ========== -->
+                <div class="step-panel d-none" id="step4">
+                    <p class="small text-muted mb-3">
+                        <i class="bi bi-paperclip me-1"></i>Please attach: Offer Letter, Appraisal/Promotion letter, Relieving letter/Experience Certificate, 3 months Pay Slip
+                    </p>
+                    <div id="employmentBlocks">
+                        <!-- Employment blocks injected by JS -->
+                    </div>
+                    <button class="btn-add-block" id="btnAddEmployment" type="button">
+                        <i class="bi bi-plus-lg"></i> Add Employment
+                    </button>
+
+                    <div class="step-nav">
+                        <div class="auto-save-indicator" id="autoSave4"></div>
+                        <div class="d-flex gap-2">
+                            <button class="btn-nav-prev" data-target="3">Previous</button>
+                            <button class="btn-nav-next" id="next4">Next</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ========== STEP 5: References & Other Details ========== -->
+                <div class="step-panel d-none" id="step5">
+
+                    <!-- Professional References -->
+                    <div class="joinee-subsection">
+                        <div class="joinee-subsection-title">Professional References</div>
+                        <p class="small text-muted mb-3">
+                            <i class="bi bi-info-circle me-1"></i>Please share minimum 3 valid professional references (mobile no and email id mandatory)
+                        </p>
+                        <div id="referenceBlocks">
+                            <!-- Reference rows injected by JS -->
+                        </div>
+                        <button class="btn-add-block" id="btnAddReference" type="button">
+                            <i class="bi bi-plus-lg"></i> Add Reference
+                        </button>
+                    </div>
+
+                    <!-- Other Details -->
+                    <div class="joinee-subsection">
+                        <div class="joinee-subsection-title">Other Details</div>
+
+                        <div class="mb-4">
+                            <p class="mb-2 small fw-semibold">Are you currently under service agreement/bond with any other employer?</p>
+                            <div class="yesno-group">
+                                <label><input type="radio" name="od_bond" value="yes"> Yes</label>
+                                <label><input type="radio" name="od_bond" value="no" checked> No</label>
+                            </div>
+                            <div class="conditional-textarea" id="cond_bond">
+                                <textarea class="form-control" id="od_bond_detail" rows="2" placeholder="Please provide details..."></textarea>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <p class="mb-2 small fw-semibold">Have you ever been charged or convicted in any court in India or abroad?</p>
+                            <div class="yesno-group">
+                                <label><input type="radio" name="od_court" value="yes"> Yes</label>
+                                <label><input type="radio" name="od_court" value="no" checked> No</label>
+                            </div>
+                            <div class="conditional-textarea" id="cond_court">
+                                <textarea class="form-control" id="od_court_detail" rows="2" placeholder="Please provide details..."></textarea>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <p class="mb-2 small fw-semibold">Do you know or are related to anyone who works for the company?</p>
+                            <div class="yesno-group">
+                                <label><input type="radio" name="od_related" value="yes"> Yes</label>
+                                <label><input type="radio" name="od_related" value="no" checked> No</label>
+                            </div>
+                            <div class="conditional-textarea" id="cond_related">
+                                <textarea class="form-control" id="od_related_detail" rows="2" placeholder="Please provide details..."></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Onsite Details -->
+                    <div class="joinee-subsection">
+                        <div class="joinee-subsection-title">Onsite Details</div>
+                        <p class="small text-muted mb-3">
+                            <i class="bi bi-paperclip me-1"></i>Please attach copy of Visa filling pages in Passport
+                        </p>
+                        <div class="table-responsive">
+                            <table class="onsite-table" id="onsiteTable">
+                                <thead>
+                                    <tr>
+                                        <th>Country</th>
+                                        <th>Visa Type</th>
+                                        <th>Duration of Stay</th>
+                                        <th>Purpose</th>
+                                        <th style="width:50px;"></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="onsiteTableBody"></tbody>
+                            </table>
+                        </div>
+                        <button class="btn-add-block mt-2" id="btnAddOnsiteRow" type="button">
+                            <i class="bi bi-plus-lg"></i> Add Row
+                        </button>
+                    </div>
+
+                    <div class="step-nav">
+                        <div class="auto-save-indicator" id="autoSave5"></div>
+                        <div class="d-flex gap-2">
+                            <button class="btn-nav-prev" data-target="4">Previous</button>
+                            <button class="btn-nav-next" id="next5">Next</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ========== STEP 6: Review & Authorization ========== -->
+                <div class="step-panel d-none" id="step6">
+
+                    <!-- Review Summary (filled dynamically by JS) -->
+                    <div class="joinee-subsection">
+                        <div class="joinee-subsection-title">Review Your Information</div>
+                        <div id="reviewSummary" class="mb-4">
+                            <!-- Dynamically injected -->
+                        </div>
+                    </div>
+
+                    <!-- Authorization -->
+                    <div class="joinee-subsection">
+                        <div class="joinee-subsection-title">Letter of Authorization</div>
+                        <div class="auth-box">
+                            I hereby declare that I am a Team Member of <strong>[Company Name]</strong> and I hereby authorize
+                            all who may have information relevant to this enquiry to disclose it to <strong>[Company Name]</strong>
+                            and/or its representative. I release all concerned from any liability on account of such disclosures.
+                            I also declare that the information provided by me in my resume/application and interview for
+                            employment to <strong>[Company Name]</strong> and/or its representative is authentic and I am liable
+                            for all inaccuracies and omissions. I promise to extend total co-operation and provide relevant documents.
+                        </div>
+                        <div class="joinee-form-grid mb-4">
+                            <div>
+                                <label class="form-label">Full Name</label>
+                                <input type="text" class="form-control" id="auth_name" placeholder="Your full name">
+                            </div>
+                            <div>
+                                <label class="form-label">Place</label>
+                                <input type="text" class="form-control" id="auth_place" placeholder="City / Location">
+                            </div>
+                            <div>
+                                <label class="form-label">Date</label>
+                                <input type="date" class="form-control" id="auth_date">
+                            </div>
+                        </div>
+                        <div class="form-check mb-4">
+                            <input class="form-check-input" type="checkbox" id="authConfirmCheck">
+                            <label class="form-check-label small fw-semibold" for="authConfirmCheck">
+                                I confirm that all information provided is accurate and I agree to the above declaration.
+                            </label>
+                        </div>
+
+                        <div id="declarationSubmitBanner" class="joinee-success-banner d-none mb-3">
+                            <i class="bi bi-check-circle-fill"></i>
+                            <span>Your declaration has been submitted successfully! HR will review it shortly.</span>
+                        </div>
+
+                        <div class="step-nav">
+                            <div class="auto-save-indicator" id="autoSave6"></div>
+                            <div class="d-flex gap-2">
+                                <button class="btn-nav-prev" data-target="5">Previous</button>
+                                <button class="btn btn-success px-4" id="btnSubmitDeclaration" disabled>
+                                    <i class="bi bi-send-check me-1"></i> Submit Declaration
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- SECTION B: Document Upload -->
+        <div class="joinee-card" id="documentSection">
+            <div class="joinee-section-title">
+                <i class="bi bi-folder2-open"></i>
+                Section B — Document Upload
+            </div>
+            <div class="doc-grid" id="docGrid">
+                <!-- Document cards injected by JS -->
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    window.BASE_URL = "{{ BASE_URL }}";
+    {% if token %}
+    localStorage.setItem('token', '{{ token }}');
+    {% endif %}
+</script>
+<script src="{{ url_for('static', filename='js/joinee/dashboard.js') }}"></script>
+{% endblock %}

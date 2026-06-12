@@ -56,16 +56,22 @@ def login():
                 session['display_name'] = data['user'].get('display_name')
                 session['employee_id'] = data['user'].get('employee_id') or data['user'].get('id', 'N/A')
 
+                is_onboarding = data['user'].get('is_onboarding', False) or str(data['user'].get('role', '')).lower() == 'onboarding_candidate'
                 if request.headers.get("X-Requested-With") == "XMLHttpRequest":
                     return jsonify({
-                        "success": True, 
-                        "password_change_required": data['user'].get("password_change_required", False)
+                        "success": True,
+                        "password_change_required": data['user'].get("password_change_required", False),
+                        "is_onboarding": is_onboarding
                     })
                 
                 if data['user'].get('password_change_required'):
                     flash("Password change required. Please set a new password to continue.", "warning")
                     return redirect(url_for('auth.change_password'))
-                
+
+                is_onboarding = data['user'].get('is_onboarding', False) or str(data['user'].get('role', '')).lower() == 'onboarding_candidate'
+                if is_onboarding:
+                    return redirect(url_for('onboarding.joinee_dashboard'))
+
                 session.pop('_flashes', None)
                 return redirect(url_for('dashboard.dashboard'))
 
