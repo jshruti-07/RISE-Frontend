@@ -68,12 +68,12 @@ def login():
 
             else:
                 if request.headers.get("X-Requested-With") == "XMLHttpRequest":
-                    return jsonify({"success": False, "error": "Authentication failed - no token received"}), 401
+                    return jsonify({"success": False, "error": "Authentication failed - no token received"}), 200
                 flash("Authentication failed - no token received", "danger")
                 return redirect(url_for('auth.login'))
         else:
             if request.headers.get("X-Requested-With") == "XMLHttpRequest":
-                return jsonify({"success": False, "error": data.get("error", "Invalid login")}), 401
+                return jsonify({"success": False, "error": data.get("error", "Invalid login")}), 200
             flash(data.get("error", "Invalid login"), "danger")
 
     return render_template('login.html')
