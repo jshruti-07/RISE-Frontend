@@ -25,6 +25,7 @@ def create_app():
     from app.routes.admin import admin_bp
     from app.routes.user import user_bp
     from app.routes.main import main_bp
+    from app.onboarding_ui import onboarding_bp
 
     # Register blueprints
     app.register_blueprint(auth_bp)
@@ -35,6 +36,7 @@ def create_app():
     app.register_blueprint(admin_bp)
     app.register_blueprint(user_bp)
     app.register_blueprint(main_bp)
+    app.register_blueprint(onboarding_bp)
 
     @app.context_processor
     def inject_user():

@@ -301,6 +301,11 @@
             </a>
             {% endif %}
 
+            {% if session.role == 'hr' %}
+            <a href="{{ url_for('onboarding.dashboard') }}">
+                <i class="bi bi-door-open"></i> <span>Onboarding</span>
+            </a>
+            {% endif %}
 
 
             <!-- REIMBURSEMENT (ALL USERS) -->
