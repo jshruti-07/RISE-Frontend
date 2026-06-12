@@ -1,9 +1,157 @@
 {% extends "base.html" %}
 
-{% block title %}Onboarding - EMS{% endblock %}
+{% block title %}Onboarding Management{% endblock %}
+
+{% block head %}
+<!-- Include the specific CSS for the Onboarding module -->
+<link rel="stylesheet" href="{{ url_for('static', filename='css/onboarding.css') }}">
+{% endblock %}
 
 {% block content %}
-<div class="container-fluid py-4">
-    <h1>Onboarding Page Coming Soon</h1>
+<div class="onboarding-container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="mb-1 fw-bold">Onboarding Management</h2>
+            <p class="text-muted mb-0">Track and manage new team member journeys.</p>
+        </div>
+        <div>
+            <button class="btn btn-primary" id="btnCreateJoinee" data-bs-toggle="modal" data-bs-target="#createJoineeModal">
+                <i class="bi bi-plus-lg"></i> Create New Joinee
+            </button>
+        </div>
+    </div>
+
+    <!-- Stat Cards -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-icon bg-primary-subtle text-primary">
+                    <i class="bi bi-people"></i>
+                </div>
+                <div class="stat-info">
+                    <h3 id="statTotalJoinees">0</h3>
+                    <p>TOTAL JOINEES</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-icon bg-warning-subtle text-warning">
+                    <i class="bi bi-hourglass-split"></i>
+                </div>
+                <div class="stat-info">
+                    <h3 id="statPendingTasks">0</h3>
+                    <p>PENDING TASKS</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-icon bg-info-subtle text-info">
+                    <i class="bi bi-file-earmark-check"></i>
+                </div>
+                <div class="stat-info">
+                    <h3 id="statFormsSubmitted">0</h3>
+                    <p>FORMS SUBMITTED</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-icon bg-success-subtle text-success">
+                    <i class="bi bi-check-circle"></i>
+                </div>
+                <div class="stat-info">
+                    <h3 id="statClearedToStart">0</h3>
+                    <p>CLEARED TO START</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tab Pills -->
+    <div class="mb-4">
+        <ul class="nav nav-pills custom-pills" id="onboardingTabs">
+            <li class="nav-item">
+                <button class="nav-link active" data-status="">New Joinees</button>
+            </li>
+            <li class="nav-item">
+                <button class="nav-link" data-status="pending">Pending Onboarding</button>
+            </li>
+            <li class="nav-item">
+                <button class="nav-link" data-status="documents_submitted">Submitted Forms</button>
+            </li>
+            <li class="nav-item">
+                <button class="nav-link" data-status="verified">Approved</button>
+            </li>
+        </ul>
+    </div>
+
+    <!-- Table Section -->
+    <div class="card shadow-sm border-0 position-relative">
+        <div id="loadingOverlay" class="loading-overlay d-none">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+        </div>
+        
+        <div class="card-body p-0">
+            <div id="errorAlert" class="alert alert-danger m-3 d-none" role="alert"></div>
+            
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0" id="joineesTable">
+                    <thead class="table-light">
+                        <tr>
+                            <th>TEAM MEMBER NAME</th>
+                            <th>ROLE / DEPARTMENT</th>
+                            <th>JOINING DATE</th>
+                            <th>STATUS</th>
+                            <th class="text-end">ACTIONS</th>
+                        </tr>
+                    </thead>
+                    <tbody id="joineesTableBody">
+                        <!-- Populated by JS -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="card-footer bg-white py-3">
+            <div class="d-flex justify-content-between align-items-center">
+                <span class="text-muted" id="paginationInfo">Showing 0 to 0 of 0 entries</span>
+                <div class="btn-group">
+                    <button class="btn btn-outline-secondary btn-sm" id="btnPrevPage" disabled>Previous</button>
+                    <button class="btn btn-outline-secondary btn-sm" id="btnNextPage" disabled>Next</button>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
+
+<!-- Modal Placeholder -->
+<div class="modal fade" id="createJoineeModal" tabindex="-1" aria-labelledby="createJoineeModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="createJoineeModalLabel">Create New Joinee</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <!-- Form elements will go here later -->
+        <p>Modal body content placeholder.</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary">Create Joinee</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+    window.BASE_URL = "{{ BASE_URL }}";
+</script>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/onboarding/dashboard.js') }}"></script>
 {% endblock %}
