@@ -259,6 +259,250 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Initial Load
-    fetchStats();
-    fetchJoinees();
+    // Custom Modal Elements
+    const btnCreateJoinee = document.getElementById('btnCreateJoinee');
+    const customCreateJoineeModal = document.getElementById('customCreateJoineeModal');
+    const btnCloseModal = document.getElementById('btnCloseModal');
+    const btnCancelModal = document.getElementById('btnCancelModal');
+    const btnDoneModal = document.getElementById('btnDoneModal');
+    const modalFormPanel = document.getElementById('modalFormPanel');
+    const modalSuccessPanel = document.getElementById('modalSuccessPanel');
+    const createJoineeForm = document.getElementById('createJoineeForm');
+    const modalAlert = document.getElementById('modalAlert');
+    const btnSubmitJoinee = document.getElementById('btnSubmitJoinee');
+    const submitSpinner = document.getElementById('submitSpinner');
+    const btnSubmitText = document.getElementById('btnSubmitText');
+    const btnTogglePassword = document.getElementById('btnTogglePassword');
+    const joineePassword = document.getElementById('joineePassword');
+    
+    // Form Inputs
+    const joineeFullName = document.getElementById('joineeFullName');
+    const joineePhone = document.getElementById('joineePhone');
+    const joineeEmail = document.getElementById('joineeEmail');
+    const joineeDate = document.getElementById('joineeDate');
+    const joineeRole = document.getElementById('joineeRole');
+    const joineeDept = document.getElementById('joineeDept');
+    
+    // Error elements
+    const errFullName = document.getElementById('errFullName');
+    const errPhone = document.getElementById('errPhone');
+    const errEmail = document.getElementById('errEmail');
+    const errPassword = document.getElementById('errPassword');
+
+    // Success elements
+    const successDetails = document.getElementById('successDetails');
+    const createdPersonId = document.getElementById('createdPersonId');
+    const btnCopyPersonId = document.getElementById('btnCopyPersonId');
+
+    // Password strength
+    const strengthBar1 = document.getElementById('strengthBar1');
+    const strengthBar2 = document.getElementById('strengthBar2');
+    const strengthBar3 = document.getElementById('strengthBar3');
+    const strengthText = document.getElementById('strengthText');
+
+    const openModal = () => {
+        createJoineeForm.reset();
+        modalFormPanel.classList.remove('d-none');
+        modalSuccessPanel.classList.add('d-none');
+        modalAlert.classList.add('d-none');
+        
+        // Reset errors
+        errFullName.classList.add('d-none');
+        errPhone.classList.add('d-none');
+        errEmail.classList.add('d-none');
+        errPassword.classList.add('d-none');
+        joineeFullName.classList.remove('is-invalid');
+        joineePhone.classList.remove('is-invalid');
+        joineeEmail.classList.remove('is-invalid');
+        joineePassword.classList.remove('is-invalid');
+        
+        joineePassword.type = 'password';
+        btnTogglePassword.innerHTML = '<i class="bi bi-eye"></i>';
+        
+        updatePasswordStrength('');
+        
+        customCreateJoineeModal.classList.remove('d-none');
+    };
+
+    const closeModal = () => {
+        customCreateJoineeModal.classList.add('d-none');
+    };
+
+    btnCreateJoinee.addEventListener('click', openModal);
+    btnCloseModal.addEventListener('click', closeModal);
+    btnCancelModal.addEventListener('click', closeModal);
+    
+    // Close on click outside
+    customCreateJoineeModal.addEventListener('click', (e) => {
+        if (e.target === customCreateJoineeModal) {
+            closeModal();
+        }
+    });
+
+    // Password Toggle
+    btnTogglePassword.addEventListener('click', () => {
+        if (joineePassword.type === 'password') {
+            joineePassword.type = 'text';
+            btnTogglePassword.innerHTML = '<i class="bi bi-eye-slash"></i>';
+        } else {
+            joineePassword.type = 'password';
+            btnTogglePassword.innerHTML = '<i class="bi bi-eye"></i>';
+        }
+    });
+
+    // Password Strength
+    const updatePasswordStrength = (val) => {
+        strengthBar1.className = 'strength-bar';
+        strengthBar2.className = 'strength-bar';
+        strengthBar3.className = 'strength-bar';
+        
+        if (!val) {
+            strengthText.textContent = 'Strength: Weak';
+            return;
+        }
+
+        let score = 0;
+        if (val.length > 7) score += 1;
+        if (/[A-Z]/.test(val) && /[a-z]/.test(val)) score += 1;
+        if (/[0-9]/.test(val) && /[^A-Za-z0-9]/.test(val)) score += 1;
+
+        if (score === 0 || score === 1) {
+            strengthBar1.classList.add('bg-danger');
+            strengthText.textContent = 'Strength: Weak';
+        } else if (score === 2) {
+            strengthBar1.classList.add('bg-warning');
+            strengthBar2.classList.add('bg-warning');
+            strengthText.textContent = 'Strength: Medium';
+        } else {
+            strengthBar1.classList.add('bg-success');
+            strengthBar2.classList.add('bg-success');
+            strengthBar3.classList.add('bg-success');
+            strengthText.textContent = 'Strength: Strong';
+        }
+    };
+
+    joineePassword.addEventListener('input', (e) => updatePasswordStrength(e.target.value));
+
+    // Submit Logic
+    btnSubmitJoinee.addEventListener('click', async () => {
+        // Validation
+        let isValid = true;
+        
+        const fullName = joineeFullName.value.trim();
+        if (fullName.length < 2) {
+            errFullName.classList.remove('d-none');
+            joineeFullName.classList.add('is-invalid');
+            isValid = false;
+        } else {
+            errFullName.classList.add('d-none');
+            joineeFullName.classList.remove('is-invalid');
+        }
+
+        const phone = joineePhone.value.trim();
+        if (!phone) {
+            errPhone.classList.remove('d-none');
+            joineePhone.classList.add('is-invalid');
+            isValid = false;
+        } else {
+            errPhone.classList.add('d-none');
+            joineePhone.classList.remove('is-invalid');
+        }
+
+        const email = joineeEmail.value.trim();
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!email || !emailRegex.test(email)) {
+            errEmail.classList.remove('d-none');
+            joineeEmail.classList.add('is-invalid');
+            isValid = false;
+        } else {
+            errEmail.classList.add('d-none');
+            joineeEmail.classList.remove('is-invalid');
+        }
+
+        const pass = joineePassword.value;
+        if (pass.length < 8) {
+            errPassword.classList.remove('d-none');
+            joineePassword.classList.add('is-invalid');
+            isValid = false;
+        } else {
+            errPassword.classList.add('d-none');
+            joineePassword.classList.remove('is-invalid');
+        }
+
+        if (!isValid) return;
+
+        // Build Payload
+        const payload = {
+            full_name: fullName,
+            phone: phone,
+            personal_email: email,
+            temp_password: pass
+        };
+        
+        if (joineeDate.value) payload.joining_date = joineeDate.value;
+        if (joineeRole.value.trim()) payload.assigned_role = joineeRole.value.trim();
+        if (joineeDept.value.trim()) payload.assigned_department = joineeDept.value.trim();
+
+        // Submit
+        btnSubmitJoinee.disabled = true;
+        submitSpinner.classList.remove('d-none');
+        btnSubmitText.textContent = 'Creating...';
+        modalAlert.classList.add('d-none');
+
+        try {
+            const baseUrl = window.BASE_URL || localStorage.getItem('BASE_URL') || '';
+            const url = baseUrl ? `${baseUrl}/onboarding/joinees` : '/onboarding/joinees';
+            
+            const response = await fetch(url, {
+                method: 'POST',
+                headers,
+                body: JSON.stringify(payload)
+            });
+
+            if (response.status === 201) {
+                const result = await response.json();
+                const newId = result.person_id || 'PID-???';
+                
+                // Show success
+                modalFormPanel.classList.add('d-none');
+                modalSuccessPanel.classList.remove('d-none');
+                
+                successDetails.textContent = `${fullName} (${email})`;
+                createdPersonId.textContent = newId;
+            } else if (response.status === 409) {
+                errEmail.textContent = 'This email is already registered.';
+                errEmail.classList.remove('d-none');
+                joineeEmail.classList.add('is-invalid');
+            } else {
+                const errData = await response.json().catch(() => ({}));
+                modalAlert.textContent = errData.error || errData.message || 'Failed to create joinee.';
+                modalAlert.classList.remove('d-none');
+            }
+        } catch (err) {
+            console.error(err);
+            modalAlert.textContent = 'A network error occurred.';
+            modalAlert.classList.remove('d-none');
+        } finally {
+            btnSubmitJoinee.disabled = false;
+            submitSpinner.classList.add('d-none');
+            btnSubmitText.textContent = 'Create Joinee \u2192';
+        }
+    });
+
+    btnCopyPersonId.addEventListener('click', () => {
+        const idText = createdPersonId.textContent;
+        navigator.clipboard.writeText(idText).then(() => {
+            const icon = btnCopyPersonId.querySelector('i');
+            icon.className = 'bi bi-check-lg text-success';
+            setTimeout(() => {
+                icon.className = 'bi bi-clipboard';
+            }, 2000);
+        });
+    });
+
+    btnDoneModal.addEventListener('click', () => {
+        closeModal();
+        fetchStats();
+        fetchJoinees();
+    });
 });

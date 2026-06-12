@@ -15,7 +15,7 @@
             <h4 class="mb-1">Onboarding Management</h4>
             <p class="mb-0">Track and manage new team member journeys.</p>
         </div>
-        <button class="btn btn-primary" id="btnCreateJoinee" data-bs-toggle="modal" data-bs-target="#createJoineeModal">Create New Joinee</button>
+        <button class="btn btn-primary" id="btnCreateJoinee">Create New Joinee</button>
     </div>
 
     <!-- Stats -->
@@ -120,23 +120,97 @@
     </div>
 </div>
 
-<!-- Create Joinee Modal -->
-<div class="modal fade" id="createJoineeModal" tabindex="-1" aria-labelledby="createJoineeModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title mb-0" id="createJoineeModalLabel">
-                    <i class="bi bi-person-plus text-primary me-2"></i>Create New Joinee
-                </h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+<!-- Custom Create Joinee Modal -->
+<div class="modal-overlay d-none" id="customCreateJoineeModal">
+    <div class="custom-modal">
+        <!-- Form Panel -->
+        <div id="modalFormPanel">
+            <div class="custom-modal-header">
+                <h5 class="mb-0 fw-semibold"><i class="bi bi-person-plus text-primary me-2"></i>Create New Joinee</h5>
+                <button type="button" class="btn-close" id="btnCloseModal" aria-label="Close"></button>
             </div>
-            <div class="modal-body modal-body-form">
-                <p class="text-muted mb-0">Form elements will go here later.</p>
+            <div class="custom-modal-body">
+                <div id="modalAlert" class="alert alert-danger d-none mb-3"></div>
+                <form id="createJoineeForm">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label">Full Name <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="joineeFullName" name="full_name" placeholder="John Doe">
+                            <div class="error-text d-none" id="errFullName">Please enter a valid full name (min 2 chars).</div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Phone Number <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="joineePhone" name="phone" placeholder="+1234567890">
+                            <div class="error-text d-none" id="errPhone">Please enter a valid phone number.</div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Personal Email ID <span class="text-danger">*</span></label>
+                            <input type="email" class="form-control" id="joineeEmail" name="personal_email" placeholder="john@example.com">
+                            <div class="error-text d-none" id="errEmail">Please enter a valid email address.</div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Temporary Password <span class="text-danger">*</span></label>
+                            <div class="input-group">
+                                <input type="password" class="form-control" id="joineePassword" name="temp_password" placeholder="Min 8 chars">
+                                <button class="btn btn-outline-secondary" type="button" id="btnTogglePassword">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                            </div>
+                            <div class="password-strength mt-1 d-flex gap-1">
+                                <div class="strength-bar" id="strengthBar1"></div>
+                                <div class="strength-bar" id="strengthBar2"></div>
+                                <div class="strength-bar" id="strengthBar3"></div>
+                            </div>
+                            <div class="strength-text small text-muted" id="strengthText">Strength: Weak</div>
+                            <div class="error-text d-none" id="errPassword">Password must be at least 8 characters.</div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Joining Date</label>
+                            <input type="date" class="form-control" id="joineeDate" name="joining_date">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Designation / Role</label>
+                            <input type="text" class="form-control" id="joineeRole" name="assigned_role" placeholder="e.g. Software Engineer">
+                        </div>
+                        <div class="form-group full-width">
+                            <label class="form-label">Department</label>
+                            <input type="text" class="form-control" id="joineeDept" name="assigned_department" placeholder="e.g. Engineering">
+                        </div>
+                    </div>
+                </form>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary">Create Joinee</button>
+            <div class="custom-modal-footer">
+                <button type="button" class="btn btn-light" id="btnCancelModal">Cancel</button>
+                <button type="button" class="btn btn-primary d-flex align-items-center gap-2" id="btnSubmitJoinee">
+                    <span id="btnSubmitText">Create Joinee &rarr;</span>
+                    <span class="spinner-border spinner-border-sm d-none" id="submitSpinner" role="status" aria-hidden="true"></span>
+                </button>
             </div>
+        </div>
+
+        <!-- Success Panel -->
+        <div id="modalSuccessPanel" class="d-none text-center">
+            <div class="success-icon mb-3">
+                <i class="bi bi-check-circle-fill text-success" style="font-size: 3.5rem;"></i>
+            </div>
+            <h4 class="mb-2">Joinee Created!</h4>
+            <p class="text-muted mb-4" id="successDetails">John Doe (john@example.com)</p>
+            
+            <div class="person-id-box mb-4 text-start">
+                <label class="form-label text-muted small fw-semibold">Generated Person ID</label>
+                <div class="d-flex align-items-center bg-light border rounded p-2 gap-2">
+                    <code class="fs-5 flex-grow-1 text-dark mb-0 bg-transparent p-0" id="createdPersonId"></code>
+                    <button class="btn btn-sm btn-outline-secondary" id="btnCopyPersonId" title="Copy ID">
+                        <i class="bi bi-clipboard"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="alert alert-info small text-start mb-4">
+                <i class="bi bi-info-circle me-1"></i> Please securely share the temporary password with the new joinee. They will be prompted to change it on their first login.
+            </div>
+
+            <button type="button" class="btn btn-primary w-100" id="btnDoneModal">Done</button>
         </div>
     </div>
 </div>
