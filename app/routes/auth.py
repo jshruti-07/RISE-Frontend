@@ -50,7 +50,8 @@ def login():
                 session['token'] = data['token']
                 session['user'] = data['user']['username']
                 session['role'] = data['user']['role']
-                session['employee_name'] = data['user']['employee_name']
+                session['employee_name'] = data['user'].get('employee_name')
+                session['original_name'] = data['user'].get('original_name')
                 session['employee_id'] = data['user'].get('employee_id') or data['user'].get('id', 'N/A')
 
                 if request.headers.get("X-Requested-With") == "XMLHttpRequest":
