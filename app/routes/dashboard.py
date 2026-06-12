@@ -21,6 +21,10 @@ def dashboard():
     if 'token' not in session:
         return redirect(url_for('auth.login'))
 
+    # Joinee candidates must not access the HR/employee dashboard
+    if str(session.get('role', '')).lower().strip() == 'onboarding_candidate':
+        return redirect(url_for('onboarding.joinee_dashboard'))
+
     birthday_data = []
     holidays = []
     stats = {"employees": 0, "timesheets": 0, "leaves": 0}

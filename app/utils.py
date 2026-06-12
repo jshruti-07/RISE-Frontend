@@ -35,11 +35,15 @@ def role_required(allowed_roles):
 
             user_role = str(session.get('role', '')).lower().strip()
             allowed_roles_lower = [r.lower().strip() for r in allowed_roles]
+
             if user_role not in allowed_roles_lower:
                 # Return JSON for API/AJAX calls instead of HTML redirect
                 if request.path.startswith('/api/') or request.is_json:
                     from flask import jsonify
                     return jsonify({"success": False, "error": "Access denied"}), 403
+                # Onboarding candidates always go to their own dashboard
+                if user_role == 'onboarding_candidate':
+                    return redirect(url_for('onboarding.joinee_dashboard'))
                 flash("Access denied", "danger")
                 return redirect(url_for('dashboard.dashboard'))
 

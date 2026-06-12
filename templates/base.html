@@ -101,6 +101,21 @@
 
 <body>
 
+    <!-- Joinee Role Guard: redirect onboarding_candidate before any HR content renders -->
+    <script>
+        (function () {
+            try {
+                var token = localStorage.getItem('token');
+                if (token) {
+                    var b64 = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
+                    var payload = JSON.parse(atob(b64));
+                    if (payload.role === 'onboarding_candidate') {
+                        window.location.replace('/onboarding/joinee-dashboard');
+                    }
+                }
+            } catch (e) { /* silently ignore decode errors */ }
+        })();
+    </script>
 
 
     <!-- SIDEBAR -->
