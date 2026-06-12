@@ -150,8 +150,12 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!joinees || joinees.length === 0) {
             tableBody.innerHTML = `
                 <tr>
-                    <td colspan="5" class="text-center py-4 text-muted">
-                        No joinees found matching the criteria.
+                    <td colspan="5">
+                        <div class="onboarding-empty">
+                            <i class="bi bi-person-lines-fill"></i>
+                            <h6>No joinees found</h6>
+                            <p class="mb-0 small">No team members match the selected filter. Create a new joinee to get started.</p>
+                        </div>
                     </td>
                 </tr>
             `;
@@ -198,7 +202,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <span class="badge-status ${statusInfo.class}">${statusInfo.label}</span>
                 </td>
                 <td class="text-end">
-                    <button class="btn btn-sm btn-light text-primary" data-joinee-id="${joinee.id}" title="Edit / View">
+                    <button class="onboarding-action-btn" data-joinee-id="${joinee.id}" title="Edit / View">
                         <i class="bi bi-pencil-square"></i>
                     </button>
                 </td>

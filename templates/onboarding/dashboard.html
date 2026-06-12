@@ -3,110 +3,110 @@
 {% block title %}Onboarding Management{% endblock %}
 
 {% block head %}
-<!-- Include the specific CSS for the Onboarding module -->
 <link rel="stylesheet" href="{{ url_for('static', filename='css/onboarding.css') }}">
 {% endblock %}
 
 {% block content %}
-<div class="onboarding-container">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h2 class="mb-1 fw-semibold">Onboarding Management</h2>
-            <p class="text-muted mb-0">Track and manage new team member journeys.</p>
-        </div>
-        <div>
-            <button class="btn btn-primary" id="btnCreateJoinee" data-bs-toggle="modal" data-bs-target="#createJoineeModal">
-                <i class="bi bi-plus-lg"></i> Create New Joinee
+<div class="container-fluid onboarding-page py-3 px-3 px-lg-4">
+
+    <!-- Hero -->
+    <div class="onboarding-hero mb-4">
+        <div class="hero-inner d-flex flex-wrap justify-content-between align-items-center gap-3">
+            <div>
+                <h4 class="mb-1">
+                    <i class="bi bi-person-plus-fill me-2"></i>Onboarding Management
+                </h4>
+                <p>Track and manage new team member journeys.</p>
+            </div>
+            <button class="btn btn-create-joinee" id="btnCreateJoinee" data-bs-toggle="modal" data-bs-target="#createJoineeModal">
+                <i class="bi bi-plus-lg me-1"></i>Create New Joinee
             </button>
         </div>
     </div>
 
-    <!-- Stat Cards -->
-    <div class="row g-4 mb-4">
-        <div class="col-md-3">
-            <div class="stat-card">
-                <div class="stat-icon bg-primary-subtle text-primary">
-                    <i class="bi bi-people"></i>
+    <!-- Stats -->
+    <div class="row g-3 mb-4">
+        <div class="col-sm-6 col-xl-3">
+            <div class="onboarding-stat-card">
+                <div class="onboarding-stat-icon stat-total">
+                    <i class="bi bi-people-fill"></i>
                 </div>
-                <div class="stat-info">
-                    <h3 id="statTotalJoinees">0</h3>
-                    <p>TOTAL JOINEES</p>
+                <div>
+                    <p class="onboarding-stat-value" id="statTotalJoinees">0</p>
+                    <p class="onboarding-stat-label">Total Joinees</p>
                 </div>
             </div>
         </div>
-        <div class="col-md-3">
-            <div class="stat-card">
-                <div class="stat-icon bg-warning-subtle text-warning">
+        <div class="col-sm-6 col-xl-3">
+            <div class="onboarding-stat-card">
+                <div class="onboarding-stat-icon stat-pending">
                     <i class="bi bi-hourglass-split"></i>
                 </div>
-                <div class="stat-info">
-                    <h3 id="statPendingTasks">0</h3>
-                    <p>PENDING TASKS</p>
+                <div>
+                    <p class="onboarding-stat-value" id="statPendingTasks">0</p>
+                    <p class="onboarding-stat-label">Pending Tasks</p>
                 </div>
             </div>
         </div>
-        <div class="col-md-3">
-            <div class="stat-card">
-                <div class="stat-icon bg-info-subtle text-info">
-                    <i class="bi bi-file-earmark-check"></i>
+        <div class="col-sm-6 col-xl-3">
+            <div class="onboarding-stat-card">
+                <div class="onboarding-stat-icon stat-forms">
+                    <i class="bi bi-file-earmark-check-fill"></i>
                 </div>
-                <div class="stat-info">
-                    <h3 id="statFormsSubmitted">0</h3>
-                    <p>FORMS SUBMITTED</p>
+                <div>
+                    <p class="onboarding-stat-value" id="statFormsSubmitted">0</p>
+                    <p class="onboarding-stat-label">Forms Submitted</p>
                 </div>
             </div>
         </div>
-        <div class="col-md-3">
-            <div class="stat-card">
-                <div class="stat-icon bg-success-subtle text-success">
-                    <i class="bi bi-check-circle"></i>
+        <div class="col-sm-6 col-xl-3">
+            <div class="onboarding-stat-card">
+                <div class="onboarding-stat-icon stat-cleared">
+                    <i class="bi bi-check-circle-fill"></i>
                 </div>
-                <div class="stat-info">
-                    <h3 id="statClearedToStart">0</h3>
-                    <p>CLEARED TO START</p>
+                <div>
+                    <p class="onboarding-stat-value" id="statClearedToStart">0</p>
+                    <p class="onboarding-stat-label">Cleared to Start</p>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Tab Pills -->
-    <div class="mb-4">
-        <ul class="nav nav-pills custom-pills" id="onboardingTabs">
+    <!-- Table panel -->
+    <div class="onboarding-panel">
+        <ul class="nav onboarding-tabs" id="onboardingTabs">
             <li class="nav-item">
-                <button class="nav-link active" data-status="">New Joinees</button>
+                <button class="nav-link active" type="button" data-status="">New Joinees</button>
             </li>
             <li class="nav-item">
-                <button class="nav-link" data-status="pending">Pending Onboarding</button>
+                <button class="nav-link" type="button" data-status="pending">Pending Onboarding</button>
             </li>
             <li class="nav-item">
-                <button class="nav-link" data-status="documents_submitted">Submitted Forms</button>
+                <button class="nav-link" type="button" data-status="documents_submitted">Submitted Forms</button>
             </li>
             <li class="nav-item">
-                <button class="nav-link" data-status="verified">Approved</button>
+                <button class="nav-link" type="button" data-status="verified">Approved</button>
             </li>
         </ul>
-    </div>
 
-    <!-- Table Section -->
-    <div class="card shadow-sm border-0 position-relative">
-        <div id="loadingOverlay" class="loading-overlay d-none">
-            <div class="spinner-border text-primary" role="status">
-                <span class="visually-hidden">Loading...</span>
+        <div class="onboarding-table-wrap">
+            <div id="loadingOverlay" class="loading-overlay d-none">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
             </div>
-        </div>
-        
-        <div class="card-body p-0">
+
             <div id="errorAlert" class="alert alert-danger m-3 d-none" role="alert"></div>
-            
+
             <div class="table-responsive">
-                <table class="table table-hover align-middle mb-0" id="joineesTable">
-                    <thead class="table-light">
+                <table class="table align-middle" id="joineesTable">
+                    <thead>
                         <tr>
-                            <th>TEAM MEMBER NAME</th>
-                            <th>ROLE / DEPARTMENT</th>
-                            <th>JOINING DATE</th>
-                            <th>STATUS</th>
-                            <th class="text-end">ACTIONS</th>
+                            <th>Team Member</th>
+                            <th>Role / Department</th>
+                            <th>Joining Date</th>
+                            <th>Status</th>
+                            <th class="text-end">Actions</th>
                         </tr>
                     </thead>
                     <tbody id="joineesTableBody">
@@ -115,36 +115,36 @@
                 </table>
             </div>
         </div>
-        <div class="card-footer bg-white py-3">
-            <div class="d-flex justify-content-between align-items-center">
-                <span class="text-muted" id="paginationInfo">Showing 0 to 0 of 0 entries</span>
-                <div class="btn-group">
-                    <button class="btn btn-outline-secondary btn-sm" id="btnPrevPage" disabled>Previous</button>
-                    <button class="btn btn-outline-secondary btn-sm" id="btnNextPage" disabled>Next</button>
-                </div>
+
+        <div class="onboarding-panel-footer d-flex flex-wrap justify-content-between align-items-center gap-2">
+            <span class="text-muted small" id="paginationInfo">Showing 0 to 0 of 0 entries</span>
+            <div class="btn-group">
+                <button class="btn btn-outline-secondary btn-sm" id="btnPrevPage" disabled>Previous</button>
+                <button class="btn btn-outline-secondary btn-sm" id="btnNextPage" disabled>Next</button>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Modal Placeholder -->
+<!-- Create Joinee Modal -->
 <div class="modal fade" id="createJoineeModal" tabindex="-1" aria-labelledby="createJoineeModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="createJoineeModalLabel">Create New Joinee</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <!-- Form elements will go here later -->
-        <p>Modal body content placeholder.</p>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-        <button type="button" class="btn btn-primary">Create Joinee</button>
-      </div>
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title mb-0" id="createJoineeModalLabel">
+                    <i class="bi bi-person-plus text-primary me-2"></i>Create New Joinee
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body modal-body-form">
+                <p class="text-muted mb-0">Form elements will go here later.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary">Create Joinee</button>
+            </div>
+        </div>
     </div>
-  </div>
 </div>
 
 <script>
