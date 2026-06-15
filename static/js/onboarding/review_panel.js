@@ -121,13 +121,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
         try {
             const res = await fetch(`${getBaseUrl()}/onboarding/joinees/${joineeId}/summary`, { headers: getHeaders() });
-            const data = await res.json();
+            const rawData = await res.json();
+            console.log("Summary API response:", rawData);
             
-            if (data.success || data.joinee) {
-                renderPanelData(data);
+            // Handle various response wrappers
+            const data = rawData.data || rawData;
+            
+            if (data.joinee || rawData.success || data.id) {
+                // If the backend returns flat joinee data without a 'joinee' wrapper
+                if (!data.joinee && data.id) {
+                    renderPanelData({ joinee: data, declaration: {}, documents: [], audit_logs: [] });
+                } else {
+                    renderPanelData(data);
+                }
                 reviewContentArea.classList.remove('d-none');
             } else {
-                alert('Failed to load joinee details.');
+                alert('Failed to load joinee details. Check console for response format.');
                 closePanel();
             }
         } catch (err) {
