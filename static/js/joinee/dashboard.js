@@ -499,12 +499,20 @@ document.addEventListener('DOMContentLoaded', () => {
         const references = [];
         for (let i = 1; i <= referenceCount; i++) {
             references.push({
+                // Nested keys for frontend
                 name: getNamedVal(`ref_name_${i}`),
                 designation: getNamedVal(`ref_desig_${i}`),
                 phone: getNamedVal(`ref_phone_${i}`),
                 email: getNamedVal(`ref_email_${i}`),
                 company_name: getNamedVal(`ref_company_${i}`),
-                my_designation: getNamedVal(`ref_mydesig_${i}`)
+                my_designation: getNamedVal(`ref_mydesig_${i}`),
+                // Flat keys for backend HR API
+                ref_name: getNamedVal(`ref_name_${i}`),
+                ref_designation: getNamedVal(`ref_desig_${i}`),
+                ref_phone: getNamedVal(`ref_phone_${i}`),
+                ref_email: getNamedVal(`ref_email_${i}`),
+                ref_company_name: getNamedVal(`ref_company_${i}`),
+                candidate_designation: getNamedVal(`ref_mydesig_${i}`)
             });
         }
 
@@ -518,7 +526,7 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         });
 
-        return {
+        const nestedData = {
             personal_info: {
                 full_name: getVal('pi_full_name'),
                 contact: getVal('pi_contact'),
@@ -573,6 +581,52 @@ document.addEventListener('DOMContentLoaded', () => {
                 place: getVal('auth_place')
             }
         };
+
+        const flatData = {
+            full_name: getVal('pi_full_name'),
+            contact_no: getVal('pi_contact'),
+            email_id: getVal('pi_email'),
+            father_name: getVal('pi_father_name'),
+            gender: getRadio('pi_gender'),
+            actual_dob: getVal('pi_actual_dob'),
+            certificate_dob: getVal('pi_cert_dob'),
+            
+            permanent_address: getVal('perm_address'),
+            permanent_landmark: getVal('perm_landmark'),
+            permanent_landline: getVal('perm_landline'),
+            permanent_mobile: getVal('perm_mobile'),
+            permanent_period_of_stay: getVal('perm_period'),
+            permanent_nature_of_residence: getVal('perm_nature'),
+            
+            current_address: getVal('curr_address'),
+            current_landmark: getVal('curr_landmark'),
+            current_landline: getVal('curr_landline'),
+            current_mobile: getVal('curr_mobile'),
+            current_period_of_stay: getVal('curr_period'),
+            current_nature_of_residence: getVal('curr_nature'),
+            
+            pan_number: getVal('id_pan'),
+            aadhar_number: getVal('id_aadhar'),
+            passport_name: getVal('id_passport_name'),
+            passport_place_of_issue: getVal('id_passport_place'),
+            passport_issue_date: getVal('id_passport_issue'),
+            passport_expiry_date: getVal('id_passport_expiry'),
+            
+            has_criminal_record: getRadio('od_court'),
+            has_criminal_record_details: getVal('od_court_detail'),
+            has_severe_disease: getRadio('od_bond'),
+            has_severe_disease_details: getVal('od_bond_detail'),
+            knows_company_employee: getRadio('od_related'),
+            knows_company_employee_details: getVal('od_related_detail'),
+
+            declaration_full_name: getVal('auth_name'),
+            declaration_date: getVal('auth_date'),
+            declaration_place: getVal('auth_place'),
+            
+            education: academic // backend calls it 'education' instead of 'academic'
+        };
+
+        return { ...nestedData, ...flatData };
     }
 
     function getNamedVal(name) {
