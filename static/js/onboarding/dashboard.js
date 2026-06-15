@@ -128,7 +128,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             const data = await response.json();
-            const joinees = data.joinees || [];
+            const joinees = data.data || data.joinees || [];
             totalItems = data.total || 0;
             
             renderTable(joinees);
@@ -166,20 +166,20 @@ document.addEventListener('DOMContentLoaded', () => {
             const tr = document.createElement('tr');
             
             // Name column
-            const name = joinee.name || 'Unknown Name';
-            const email = joinee.email || 'No email provided';
+            const name = joinee.full_name || joinee.name || 'Unknown Name';
+            const email = joinee.personal_email || joinee.email || 'No email provided';
             const initials = getInitials(name);
             const colorClass = `bg-color-${(index % 4) + 1}`;
             
             // Role
-            const role = joinee.role || 'New Hire';
-            const dept = joinee.department || 'General';
+            const role = joinee.assigned_role || joinee.role || 'New Hire';
+            const dept = joinee.assigned_department || joinee.department || 'General';
             
             // Dates
             const joinDate = formatDate(joinee.joining_date);
             
             // Status
-            const statusInfo = getStatusBadgeInfo(joinee.status);
+            const statusInfo = getStatusBadgeInfo(joinee.onboarding_status || joinee.status);
             
             tr.innerHTML = `
                 <td>
@@ -256,6 +256,19 @@ document.addEventListener('DOMContentLoaded', () => {
             currentPage = 1; // reset page
             fetchJoinees();
         });
+    });
+
+    // Edit Joinee Click Delegation
+    tableBody.addEventListener('click', (e) => {
+        const btn = e.target.closest('.onboarding-action-btn');
+        if (btn && btn.dataset.joineeId) {
+            const joineeId = btn.dataset.joineeId;
+            if (typeof window.openPanel === 'function') {
+                window.openPanel(joineeId);
+            } else {
+                console.warn('openPanel is not defined. Ensure review_panel.js is loaded.');
+            }
+        }
     });
 
     // Initial Load

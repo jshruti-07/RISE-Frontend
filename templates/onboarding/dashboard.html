@@ -215,6 +215,145 @@
     </div>
 </div>
 
+<!-- HR Review Panel (Slide-over) -->
+<div class="slide-over-overlay d-none" id="reviewPanelOverlay"></div>
+<div class="slide-over-panel" id="reviewPanel">
+    <div class="slide-over-header d-flex justify-content-between align-items-center p-3 border-bottom">
+        <h5 class="mb-0">HR Review</h5>
+        <button type="button" class="btn-close" id="btnCloseReviewPanel" aria-label="Close"></button>
+    </div>
+    
+    <!-- Verified Banner -->
+    <div id="verifiedBanner" class="alert alert-success m-3 d-none d-flex align-items-center justify-content-between">
+        <div>
+            <i class="bi bi-check-circle-fill me-2"></i>
+            <strong>Joinee fully verified. Ready for login migration.</strong>
+        </div>
+        <button class="btn btn-sm btn-success" id="btnProceedMigration">Proceed to Login Setup &rarr;</button>
+    </div>
+
+    <!-- Tabs -->
+    <div class="review-tabs d-flex border-bottom px-3 mt-2">
+        <button class="review-tab active" data-target="tabJoineeInfo">Joinee Info</button>
+        <button class="review-tab" data-target="tabDeclaration">Declaration Form</button>
+        <button class="review-tab" data-target="tabDocuments">Documents</button>
+        <button class="review-tab" data-target="tabAuditLog">Audit Log</button>
+    </div>
+
+    <!-- Spinner -->
+    <div id="reviewSpinner" class="text-center my-5 d-none">
+        <div class="spinner-border text-primary" role="status"></div>
+        <div class="mt-2 text-muted">Loading data...</div>
+    </div>
+
+    <!-- Tab Content Container -->
+    <div class="slide-over-body p-4" id="reviewContentArea">
+        
+        <!-- Tab 1: Joinee Info -->
+        <div id="tabJoineeInfo" class="review-tab-content">
+            <h6 class="mb-3 text-primary">Basic Information</h6>
+            <div class="review-grid">
+                <div class="review-item">
+                    <label>Full Name</label>
+                    <div id="reviewFullName" class="fw-medium"></div>
+                </div>
+                <div class="review-item">
+                    <label>Phone</label>
+                    <div id="reviewPhone"></div>
+                </div>
+                <div class="review-item">
+                    <label>Personal Email</label>
+                    <div id="reviewPersonalEmail"></div>
+                </div>
+                <div class="review-item">
+                    <label>Company Email</label>
+                    <div class="input-group input-group-sm">
+                        <input type="email" class="form-control" id="reviewCompanyEmail" placeholder="Assign company email">
+                        <button class="btn btn-outline-primary" id="btnSaveCompanyEmail">Save</button>
+                    </div>
+                </div>
+                <div class="review-item">
+                    <label>Joining Date</label>
+                    <div id="reviewJoiningDate"></div>
+                </div>
+                <div class="review-item">
+                    <label>Role</label>
+                    <div id="reviewRole"></div>
+                </div>
+                <div class="review-item">
+                    <label>Department</label>
+                    <div id="reviewDepartment"></div>
+                </div>
+                <div class="review-item">
+                    <label>Onboarding Status</label>
+                    <div id="reviewStatusBadge"></div>
+                </div>
+                <div class="review-item full-width mt-3">
+                    <label>Person ID</label>
+                    <div class="d-flex align-items-center gap-2 bg-light p-2 rounded border">
+                        <code class="fs-6 text-dark flex-grow-1" id="reviewPersonId"></code>
+                        <button class="btn btn-sm btn-outline-secondary py-0 px-1" id="btnCopyReviewId" title="Copy ID">
+                            <i class="bi bi-clipboard"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab 2: Declaration -->
+        <div id="tabDeclaration" class="review-tab-content d-none">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h6 class="mb-0 text-primary">Declaration Form</h6>
+                <div id="decStatusBadge"></div>
+            </div>
+            
+            <div id="decApprovedBanner" class="alert alert-success d-none py-2 mb-3">
+                <i class="bi bi-check-circle-fill me-1"></i> Declaration Approved
+            </div>
+
+            <div id="decHrNotesBox" class="alert alert-warning d-none py-2 mb-3">
+                <i class="bi bi-exclamation-triangle-fill me-1"></i> <strong>HR Notes:</strong> <span id="decHrNotesText"></span>
+            </div>
+
+            <div id="declarationGrid" class="declaration-grid">
+                <!-- Dynamically populated sections -->
+            </div>
+
+            <div id="decActionButtons" class="d-none mt-4 pt-3 border-top d-flex gap-2 justify-content-end">
+                <div class="input-group d-none me-2" id="decRequestChangesInput" style="max-width: 400px;">
+                    <input type="text" class="form-control" id="decNotesInput" placeholder="Reason for requesting changes...">
+                    <button class="btn btn-warning" id="btnConfirmRequestChanges">Confirm Request</button>
+                    <button class="btn btn-outline-secondary" id="btnCancelRequestChanges">Cancel</button>
+                </div>
+                <div id="decPrimaryButtons" class="d-flex gap-2">
+                    <button class="btn btn-outline-warning" id="btnRequestChanges">Request Changes</button>
+                    <button class="btn btn-success" id="btnApproveDeclaration">Approve Declaration</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab 3: Documents -->
+        <div id="tabDocuments" class="review-tab-content d-none">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h6 class="mb-0 text-primary">Uploaded Documents</h6>
+                <div class="fw-medium text-muted small" id="docSummaryCount">0 of 0 approved</div>
+            </div>
+            <div class="document-cards-container d-flex flex-column gap-3" id="documentsContainer">
+                <!-- Dynamically populated document cards -->
+            </div>
+        </div>
+
+        <!-- Tab 4: Audit Log -->
+        <div id="tabAuditLog" class="review-tab-content d-none">
+            <h6 class="mb-3 text-primary">Activity History</h6>
+            <div class="audit-timeline" id="auditTimelineContainer">
+                <!-- Dynamically populated -->
+            </div>
+        </div>
+
+    </div>
+</div>
+
 <script>
     window.BASE_URL = "{{ BASE_URL }}";
     {% if token %}
@@ -225,4 +364,5 @@
 
 {% block scripts %}
 <script src="{{ url_for('static', filename='js/onboarding/dashboard.js') }}"></script>
+<script src="{{ url_for('static', filename='js/onboarding/review_panel.js') }}"></script>
 {% endblock %}
