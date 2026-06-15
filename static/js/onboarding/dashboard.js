@@ -434,14 +434,36 @@ document.addEventListener('DOMContentLoaded', () => {
         // Build Payload
         const payload = {
             full_name: fullName,
+            name: fullName, // fallback for backend KeyError
             phone: phone,
             personal_email: email,
-            temp_password: pass
+            email: email, // fallback for backend KeyError
+            temp_password: pass,
+            password: pass // fallback
         };
         
-        if (joineeDate.value) payload.joining_date = joineeDate.value;
-        if (joineeRole.value.trim()) payload.assigned_role = joineeRole.value.trim();
-        if (joineeDept.value.trim()) payload.assigned_department = joineeDept.value.trim();
+        if (joineeDate.value) {
+            let dateStr = joineeDate.value;
+            // Fallback for browsers returning MM/DD/YYYY from text inputs
+            if (dateStr.includes('/')) {
+                const parts = dateStr.split('/');
+                if (parts.length === 3) {
+                    dateStr = `${parts[2]}-${parts[0].padStart(2, '0')}-${parts[1].padStart(2, '0')}`;
+                }
+            }
+            payload.joining_date = dateStr;
+            payload.date_of_joining = dateStr; // fallback
+        }
+        
+        if (joineeRole.value.trim()) {
+            payload.assigned_role = joineeRole.value.trim();
+            payload.role = joineeRole.value.trim(); // fallback
+        }
+        
+        if (joineeDept.value.trim()) {
+            payload.assigned_department = joineeDept.value.trim();
+            payload.department = joineeDept.value.trim(); // fallback
+        }
 
         // Submit
         btnSubmitJoinee.disabled = true;
