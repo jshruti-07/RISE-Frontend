@@ -597,3 +597,67 @@
     border-radius: 4px;
     margin-top: 0.5rem;
 }
+
+/* ---- Delete Button ---- */
+.btn-delete {
+    color: #6b7280;
+    transition: color 0.15s, background 0.15s, border-color 0.15s;
+}
+
+.btn-delete:hover:not(:disabled):not(.btn-disabled) {
+    color: #dc2626;
+    background: #fef2f2;
+    border-color: #fecaca;
+}
+
+.btn-delete.btn-disabled,
+.btn-delete:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+/* ---- Danger Button ---- */
+.btn-danger-solid {
+    background: #dc2626;
+    color: #fff;
+    border: 1px solid #dc2626;
+    padding: 0.5rem 1.1rem;
+    border-radius: 8px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s;
+}
+
+.btn-danger-solid:hover:not(:disabled) {
+    background: #b91c1c;
+    border-color: #b91c1c;
+}
+
+.btn-danger-solid:disabled {
+    opacity: 0.65;
+    cursor: not-allowed;
+}
+
+/* ---- Delete Modal Overrides ---- */
+.modal-sm {
+    max-width: 420px;
+}
+
+.warning-icon-block {
+    text-align: center;
+    margin-bottom: 1rem;
+    color: #f59e0b;
+}
+
+.text-sm {
+    font-size: 0.875rem;
+}
+
+.custom-modal-body {
+    padding: 0.25rem 0 0.5rem;
+}

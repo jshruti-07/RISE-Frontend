@@ -215,6 +215,36 @@
     </div>
 </div>
 
+<!-- Delete Joinee Confirmation Modal -->
+<div id="delete-modal" class="modal-overlay d-none">
+    <div class="custom-modal modal-sm">
+        <div class="custom-modal-header">
+            <h5 class="mb-0 fw-semibold">Delete Joinee</h5>
+            <button type="button" class="btn-close" id="delete-modal-close" aria-label="Close"></button>
+        </div>
+        <div class="custom-modal-body">
+            <div class="warning-icon-block">
+                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="currentColor" viewBox="0 0 16 16" aria-hidden="true">
+                    <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/>
+                </svg>
+            </div>
+            <p class="text-center">Are you sure you want to delete <strong id="delete-joinee-name"></strong>?</p>
+            <p class="text-muted text-sm text-center">
+                This will immediately disable their login. All submitted documents and
+                declaration data will be preserved for record-keeping.
+            </p>
+            <div id="delete-error-banner" class="alert alert-danger d-none py-2 mt-2"></div>
+        </div>
+        <div class="custom-modal-footer d-flex justify-content-end gap-2 mt-3">
+            <button type="button" class="btn btn-light" id="delete-cancel-btn">Cancel</button>
+            <button type="button" class="btn btn-danger-solid" id="delete-confirm-btn">
+                <span id="delete-btn-text">Yes, Delete</span>
+                <span class="spinner-border spinner-border-sm ms-1 d-none" id="delete-btn-spinner" role="status" aria-hidden="true"></span>
+            </button>
+        </div>
+    </div>
+</div>
+
 <!-- HR Review Panel (Slide-over) -->
 <div class="slide-over-overlay d-none" id="reviewPanelOverlay"></div>
 <div class="slide-over-panel" id="reviewPanel">

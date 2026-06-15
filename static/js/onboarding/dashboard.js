@@ -199,6 +199,7 @@ document.addEventListener('DOMContentLoaded', () => {
             
             // Status
             const statusInfo = getStatusBadgeInfo(joinee.onboarding_status || joinee.status);
+            const isVerified = (joinee.onboarding_status || joinee.status || '').toLowerCase() === 'verified';
             
             tr.innerHTML = `
                 <td>
@@ -221,9 +222,23 @@ document.addEventListener('DOMContentLoaded', () => {
                     <span class="badge-status ${statusInfo.class}">${statusInfo.label}</span>
                 </td>
                 <td class="text-end">
-                    <button class="onboarding-action-btn" data-joinee-id="${joinee.id}" title="Edit / View">
-                        <i class="bi bi-pencil-square"></i>
-                    </button>
+                    <div class="d-inline-flex align-items-center gap-2">
+                        <button class="onboarding-action-btn" data-joinee-id="${joinee.id}" title="Edit / View">
+                            <i class="bi bi-pencil-square"></i>
+                        </button>
+                        <button
+                            class="onboarding-action-btn btn-delete ${isVerified ? 'btn-disabled' : ''}"
+                            data-joinee-id="${joinee.id}"
+                            data-joinee-name="${name}"
+                            data-joinee-status="${joinee.onboarding_status || joinee.status || ''}"
+                            title="${isVerified ? 'Cannot delete a verified joinee' : 'Delete Joinee'}"
+                            ${isVerified ? 'disabled' : ''}>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" fill="currentColor" viewBox="0 0 16 16">
+                                <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
+                                <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>
+                            </svg>
+                        </button>
+                    </div>
                 </td>
             `;
             tableBody.appendChild(tr);
@@ -277,16 +292,95 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // Edit Joinee Click Delegation
+    // Table Action Click Delegation (Edit + Delete)
     tableBody.addEventListener('click', (e) => {
-        const btn = e.target.closest('.onboarding-action-btn');
-        if (btn && btn.dataset.joineeId) {
-            const joineeId = btn.dataset.joineeId;
+        // Edit button
+        const editBtn = e.target.closest('.onboarding-action-btn:not(.btn-delete)');
+        if (editBtn && editBtn.dataset.joineeId) {
+            const joineeId = editBtn.dataset.joineeId;
             if (typeof window.openPanel === 'function') {
                 window.openPanel(joineeId);
             } else {
                 console.warn('openPanel is not defined. Ensure review_panel.js is loaded.');
             }
+            return;
+        }
+
+        // Delete button
+        const deleteBtn = e.target.closest('.btn-delete:not(.btn-disabled)');
+        if (deleteBtn && deleteBtn.dataset.joineeId) {
+            openDeleteModal(
+                deleteBtn.dataset.joineeId,
+                deleteBtn.dataset.joineeName,
+                deleteBtn.dataset.joineeStatus
+            );
+        }
+    });
+
+    // ---- Delete Modal Logic ----
+    function openDeleteModal(joineeId, joineeName, status) {
+        document.getElementById('delete-joinee-name').textContent = joineeName;
+        document.getElementById('delete-error-banner').classList.add('d-none');
+        document.getElementById('delete-error-banner').textContent = '';
+        document.getElementById('delete-confirm-btn').dataset.joineeId = joineeId;
+        document.getElementById('delete-btn-text').classList.remove('d-none');
+        document.getElementById('delete-btn-spinner').classList.add('d-none');
+        document.getElementById('delete-confirm-btn').disabled = false;
+        // Show modal
+        document.getElementById('delete-modal').classList.remove('d-none');
+    }
+
+    function closeDeleteModal() {
+        document.getElementById('delete-modal').classList.add('d-none');
+        document.getElementById('delete-btn-text').classList.remove('d-none');
+        document.getElementById('delete-btn-spinner').classList.add('d-none');
+        document.getElementById('delete-confirm-btn').disabled = false;
+    }
+
+    document.getElementById('delete-modal-close').addEventListener('click', closeDeleteModal);
+    document.getElementById('delete-cancel-btn').addEventListener('click', closeDeleteModal);
+    document.getElementById('delete-modal').addEventListener('click', function(e) {
+        if (e.target === this) closeDeleteModal();
+    });
+
+    document.getElementById('delete-confirm-btn').addEventListener('click', async function () {
+        const joineeId = this.dataset.joineeId;
+        const token = localStorage.getItem('token');
+        const baseUrl = getBaseUrl ? getBaseUrl() : (window.BASE_URL || '');
+
+        // Show loading
+        document.getElementById('delete-btn-text').classList.add('d-none');
+        document.getElementById('delete-btn-spinner').classList.remove('d-none');
+        this.disabled = true;
+
+        try {
+            const res = await fetch(`${baseUrl}/onboarding/joinees/${joineeId}`, {
+                method: 'DELETE',
+                headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }
+            });
+            const data = await res.json();
+
+            if (res.ok && data.success !== false) {
+                closeDeleteModal();
+                showToast('Joinee deleted successfully.', 'success');
+                currentPage = 1;
+                fetchJoinees();
+                fetchStats();
+            } else {
+                const banner = document.getElementById('delete-error-banner');
+                banner.textContent = data.message || data.error || 'Failed to delete joinee.';
+                banner.classList.remove('d-none');
+                document.getElementById('delete-btn-text').classList.remove('d-none');
+                document.getElementById('delete-btn-spinner').classList.add('d-none');
+                this.disabled = false;
+            }
+        } catch (err) {
+            const banner = document.getElementById('delete-error-banner');
+            banner.textContent = 'Network error. Please try again.';
+            banner.classList.remove('d-none');
+            document.getElementById('delete-btn-text').classList.remove('d-none');
+            document.getElementById('delete-btn-spinner').classList.add('d-none');
+            this.disabled = false;
         }
     });
 
