@@ -1013,6 +1013,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const formData = new FormData();
             formData.append('file', file);
             formData.append('document_type', slotKey);
+            formData.append('document_label', slot.label || slotKey);
 
             try {
                 const res = await fetch(`${BASE_URL}/onboarding/documents/upload`, {
