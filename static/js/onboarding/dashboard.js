@@ -358,7 +358,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('delete-confirm-btn').addEventListener('click', async function () {
         const joineeId = this.dataset.joineeId;
         const token = localStorage.getItem('token');
-        const baseUrl = getBaseUrl ? getBaseUrl() : (window.BASE_URL || '');
+        const baseUrl = window.BASE_URL || '';
 
         // Show loading
         document.getElementById('delete-btn-text').classList.add('d-none');
@@ -374,7 +374,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (res.ok && data.success !== false) {
                 closeDeleteModal();
-                showToast('Joinee deleted successfully.', 'success');
+                // Show brief success message using the existing alert element
+                errorAlert.textContent = 'Joinee deleted successfully.';
+                errorAlert.classList.remove('d-none', 'alert-danger');
+                errorAlert.classList.add('alert-success');
+                setTimeout(() => {
+                    errorAlert.classList.add('d-none');
+                    errorAlert.classList.remove('alert-success');
+                    errorAlert.classList.add('alert-danger');
+                }, 3000);
                 currentPage = 1;
                 fetchJoinees();
                 fetchStats();
@@ -387,6 +395,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 this.disabled = false;
             }
         } catch (err) {
+            console.error('Delete error:', err);
             const banner = document.getElementById('delete-error-banner');
             banner.textContent = 'Network error. Please try again.';
             banner.classList.remove('d-none');
