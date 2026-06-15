@@ -124,6 +124,12 @@ document.addEventListener('DOMContentLoaded', () => {
             const rawData = await res.json();
             console.log("Summary API response:", rawData);
             
+            if (rawData.success === false && rawData.error) {
+                alert(`Error: ${rawData.error}`);
+                closePanel();
+                return;
+            }
+
             // Handle various response wrappers
             const data = rawData.data || rawData;
             
@@ -183,23 +189,55 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         // Render declaration fields dynamically
-        const decData = dec.data || {};
+        let decData = dec.data || dec.form_data || dec.fields || dec.details;
+        
+        // If data is directly on the declaration object, copy it and remove known metadata
+        if (!decData && Object.keys(dec).length > 0) {
+            decData = { ...dec };
+            ['id', 'joinee_id', 'status', 'hr_notes', 'created_at', 'updated_at'].forEach(k => delete decData[k]);
+        }
+        
+        decData = decData || {};
+
+        if (typeof decData === 'string') {
+            try { decData = JSON.parse(decData); } catch (e) { decData = { 'Raw Data': decData }; }
+        }
+
         if (Object.keys(decData).length > 0) {
-            for (const [sectionKey, sectionObj] of Object.entries(decData)) {
-                if (typeof sectionObj === 'object' && sectionObj !== null) {
+            let flatFields = {};
+            
+            for (const [key, value] of Object.entries(decData)) {
+                if (typeof value === 'object' && value !== null) {
                     const sectionHtml = `
-                        <div class="dec-section">
-                            <h6>${sectionKey.replace(/_/g, ' ')}</h6>
-                            ${Object.entries(sectionObj).map(([k, v]) => `
-                                <div class="dec-row">
-                                    <div class="fw-medium text-muted small">${k.replace(/_/g, ' ')}</div>
-                                    <div class="text-dark small">${v || '-'}</div>
+                        <div class="dec-section mb-3">
+                            <h6 class="text-secondary border-bottom pb-1 mb-2">${String(key).replace(/_/g, ' ')}</h6>
+                            ${Object.entries(value).map(([k, v]) => `
+                                <div class="dec-row d-flex justify-content-between mb-1">
+                                    <div class="fw-medium text-muted small">${String(k).replace(/_/g, ' ')}</div>
+                                    <div class="text-dark small text-end">${v || '-'}</div>
                                 </div>
                             `).join('')}
                         </div>
                     `;
                     declarationGrid.insertAdjacentHTML('beforeend', sectionHtml);
+                } else {
+                    flatFields[key] = value;
                 }
+            }
+            
+            if (Object.keys(flatFields).length > 0) {
+                 const sectionHtml = `
+                     <div class="dec-section mb-3">
+                         <h6 class="text-secondary border-bottom pb-1 mb-2">Details</h6>
+                         ${Object.entries(flatFields).map(([k, v]) => `
+                             <div class="dec-row d-flex justify-content-between mb-1">
+                                 <div class="fw-medium text-muted small">${String(k).replace(/_/g, ' ')}</div>
+                                 <div class="text-dark small text-end">${v || '-'}</div>
+                             </div>
+                         `).join('')}
+                     </div>
+                 `;
+                 declarationGrid.insertAdjacentHTML('afterbegin', sectionHtml);
             }
         } else {
             declarationGrid.innerHTML = '<div class="text-muted small">No declaration data submitted yet.</div>';
