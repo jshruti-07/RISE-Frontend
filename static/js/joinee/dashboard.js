@@ -906,16 +906,15 @@ document.addEventListener('DOMContentLoaded', () => {
     // 19. DOCUMENT SLOTS
     // =========================================================
     const DOC_SLOTS = [
-        { key: 'aadhar_card',          label: 'Aadhar Card',                      required: true,  multiple: false },
-        { key: 'pan_card',             label: 'PAN Card',                          required: true,  multiple: false },
-        { key: 'academic_certificates',label: 'Academic Certificates',             required: true,  multiple: true  },
-        { key: 'offer_letter',         label: 'Offer Letter (Latest Employer)',    required: true,  multiple: false },
-        { key: 'relieving_letter',     label: 'Relieving Letter / Exp. Certificate', required: true, multiple: false },
-        { key: 'pay_slips',            label: '3 Months Pay Slips',               required: true,  multiple: true  },
-        { key: 'passport_photo',       label: 'Passport Photo',                   required: true,  multiple: false },
-        { key: 'passport_copy',        label: 'Passport Copy (Visa Pages)',        required: false, multiple: false },
-        { key: 'appraisal_letter',     label: 'Appraisal / Promotion Letter',     required: false, multiple: false },
-        { key: 'driving_voter_id',     label: 'Driving License / Voter ID',       required: false, multiple: false }
+        { key: 'AADHAR',             label: 'Aadhar Card',                      required: true,  multiple: false },
+        { key: 'PAN',                label: 'PAN Card',                         required: true,  multiple: false },
+        { key: 'DEGREE_CERTIFICATE', label: 'Academic Certificates',            required: true,  multiple: true  },
+        { key: 'OFFER_LETTER',       label: 'Offer Letter (Latest Employer)',   required: true,  multiple: false },
+        { key: 'EXPERIENCE_LETTER',  label: 'Relieving Letter / Exp. Cert.',    required: true,  multiple: false },
+        { key: 'BANK_PASSBOOK',      label: 'Bank Passbook / Cancelled Cheque', required: true,  multiple: false },
+        { key: 'PHOTO',              label: 'Passport Photo',                   required: true,  multiple: false },
+        { key: 'PASSPORT',           label: 'Passport Copy (Visa Pages)',       required: false, multiple: false },
+        { key: 'OTHER',              label: 'Other Documents (Pay Slips, etc)', required: false, multiple: true  }
     ];
 
     // Tracks upload state per slot
