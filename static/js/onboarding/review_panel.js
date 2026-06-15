@@ -203,20 +203,39 @@ document.addEventListener('DOMContentLoaded', () => {
             try { decData = JSON.parse(decData); } catch (e) { decData = { 'Raw Data': decData }; }
         }
 
+        const renderValue = (val) => {
+            if (val === null || val === undefined || val === '') return '-';
+            if (typeof val !== 'object') return String(val);
+            
+            // If it's an array
+            if (Array.isArray(val)) {
+                if (val.length === 0) return '-';
+                return `<div class="d-flex flex-column gap-2 mt-1">` + val.map((item, idx) => `
+                    <div class="p-2 bg-light rounded border">
+                        <div class="fw-bold text-secondary mb-1" style="font-size: 0.75rem;">ITEM ${idx + 1}</div>
+                        ${renderValue(item)}
+                    </div>
+                `).join('') + `</div>`;
+            }
+            
+            // If it's an object
+            return `<div class="w-100 mt-1">` + Object.entries(val).map(([k, v]) => `
+                <div class="d-flex justify-content-between border-bottom border-light pb-1 mb-1">
+                    <span class="text-muted small me-3">${String(k).replace(/_/g, ' ')}</span>
+                    <span class="text-dark small text-end text-break">${renderValue(v)}</span>
+                </div>
+            `).join('') + `</div>`;
+        };
+
         if (Object.keys(decData).length > 0) {
             let flatFields = {};
             
             for (const [key, value] of Object.entries(decData)) {
                 if (typeof value === 'object' && value !== null) {
                     const sectionHtml = `
-                        <div class="dec-section mb-3">
-                            <h6 class="text-secondary border-bottom pb-1 mb-2">${String(key).replace(/_/g, ' ')}</h6>
-                            ${Object.entries(value).map(([k, v]) => `
-                                <div class="dec-row d-flex justify-content-between mb-1">
-                                    <div class="fw-medium text-muted small">${String(k).replace(/_/g, ' ')}</div>
-                                    <div class="text-dark small text-end">${v || '-'}</div>
-                                </div>
-                            `).join('')}
+                        <div class="dec-section mb-4">
+                            <h6 class="text-secondary border-bottom pb-2 mb-2 text-uppercase" style="font-size: 0.85rem; font-weight: 600; letter-spacing: 0.5px;">${String(key).replace(/_/g, ' ')}</h6>
+                            ${renderValue(value)}
                         </div>
                     `;
                     declarationGrid.insertAdjacentHTML('beforeend', sectionHtml);
@@ -227,12 +246,12 @@ document.addEventListener('DOMContentLoaded', () => {
             
             if (Object.keys(flatFields).length > 0) {
                  const sectionHtml = `
-                     <div class="dec-section mb-3">
-                         <h6 class="text-secondary border-bottom pb-1 mb-2">Details</h6>
+                     <div class="dec-section mb-4">
+                         <h6 class="text-secondary border-bottom pb-2 mb-2 text-uppercase" style="font-size: 0.85rem; font-weight: 600; letter-spacing: 0.5px;">Details</h6>
                          ${Object.entries(flatFields).map(([k, v]) => `
-                             <div class="dec-row d-flex justify-content-between mb-1">
+                             <div class="dec-row d-flex justify-content-between align-items-center mb-2">
                                  <div class="fw-medium text-muted small">${String(k).replace(/_/g, ' ')}</div>
-                                 <div class="text-dark small text-end">${v || '-'}</div>
+                                 <div class="text-dark small text-end text-break ms-3">${renderValue(v)}</div>
                              </div>
                          `).join('')}
                      </div>
