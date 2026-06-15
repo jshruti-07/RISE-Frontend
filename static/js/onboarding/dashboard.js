@@ -121,12 +121,14 @@ document.addEventListener('DOMContentLoaded', () => {
             const url = new URL(baseUrl ? `${baseUrl}/onboarding/joinees` : '/onboarding/joinees', window.location.origin);
             url.searchParams.append('page', currentPage);
             url.searchParams.append('per_page', perPage);
-            url.searchParams.append('_t', Date.now()); // cache buster
             if (currentStatus) {
                 url.searchParams.append('status', currentStatus);
             }
 
-            const response = await fetch(url.toString(), { headers, cache: 'no-store' });
+            const response = await fetch(url.toString(), {
+                headers: { ...headers, 'Cache-Control': 'no-cache', 'Pragma': 'no-cache' },
+                cache: 'no-store'
+            });
             
             if (!response.ok) {
                 let errMsg = `HTTP ${response.status}`;
