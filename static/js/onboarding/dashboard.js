@@ -115,6 +115,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Fetch Joinees
     const fetchJoinees = async () => {
         toggleLoading(true);
+        errorAlert.classList.add('d-none');
         try {
             const baseUrl = window.BASE_URL || localStorage.getItem('BASE_URL') || '';
             const url = new URL(baseUrl ? `${baseUrl}/onboarding/joinees` : '/onboarding/joinees', window.location.origin);
@@ -126,13 +127,22 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             const response = await fetch(url.toString(), { headers, cache: 'no-store' });
+            
             if (!response.ok) {
-                throw new Error('Failed to load joinees data');
+                let errMsg = `HTTP ${response.status}`;
+                try {
+                    const errData = await response.json();
+                    console.error('Joinees fetch error body:', errData);
+                    errMsg = errData.error || errData.message || errMsg;
+                } catch (_) {}
+                throw new Error(errMsg);
             }
 
             const data = await response.json();
-            currentJoineesList = data.data || data.joinees || [];
-            totalItems = data.total || 0;
+            console.log('Joinees response:', data);
+            
+            currentJoineesList = data.data || data.joinees || data.items || (Array.isArray(data) ? data : []);
+            totalItems = data.total || data.total_items || currentJoineesList.length;
             
             // Fallback stats update
             statTotal.textContent = totalItems;
@@ -154,7 +164,7 @@ document.addEventListener('DOMContentLoaded', () => {
             updatePagination();
             
         } catch (err) {
-            console.error(err);
+            console.error('fetchJoinees error:', err);
             showError(err.message || 'Error loading data.');
             renderTable([]);
         } finally {
