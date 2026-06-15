@@ -103,12 +103,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 statForms.textContent = data.forms_submitted || 0;
                 statCleared.textContent = data.cleared_to_start || 0;
             } else {
-                console.warn('Failed to fetch stats:', await response.text());
+                console.warn('Failed to fetch stats, deriving from current list...');
             }
         } catch (err) {
             console.error('Error fetching stats:', err);
         }
     };
+
+    let currentJoineesList = [];
 
     // Fetch Joinees
     const fetchJoinees = async () => {
@@ -118,20 +120,37 @@ document.addEventListener('DOMContentLoaded', () => {
             const url = new URL(baseUrl ? `${baseUrl}/onboarding/joinees` : '/onboarding/joinees', window.location.origin);
             url.searchParams.append('page', currentPage);
             url.searchParams.append('per_page', perPage);
+            url.searchParams.append('_t', Date.now()); // cache buster
             if (currentStatus) {
                 url.searchParams.append('status', currentStatus);
             }
 
-            const response = await fetch(url.toString(), { headers });
+            const response = await fetch(url.toString(), { headers, cache: 'no-store' });
             if (!response.ok) {
                 throw new Error('Failed to load joinees data');
             }
 
             const data = await response.json();
-            const joinees = data.data || data.joinees || [];
+            currentJoineesList = data.data || data.joinees || [];
             totalItems = data.total || 0;
             
-            renderTable(joinees);
+            // Fallback stats update
+            statTotal.textContent = totalItems;
+            
+            let pendingCount = 0;
+            let formCount = 0;
+            let clearedCount = 0;
+            currentJoineesList.forEach(j => {
+                const s = (j.onboarding_status || j.status || '').toUpperCase();
+                if (s === 'PENDING') pendingCount++;
+                if (s === 'DOCUMENTS_SUBMITTED') formCount++;
+                if (s === 'VERIFIED') clearedCount++;
+            });
+            statPending.textContent = pendingCount;
+            statForms.textContent = formCount;
+            statCleared.textContent = clearedCount;
+
+            renderTable(currentJoineesList);
             updatePagination();
             
         } catch (err) {
