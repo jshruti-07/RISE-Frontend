@@ -661,3 +661,24 @@
 .custom-modal-body {
     padding: 0.25rem 0 0.5rem;
 }
+
+/* ---- Import from Onboarding (Add Team Member Page) ---- */
+.import-from-onboarding {
+    background-color: #f0f7ff;
+    border: 1px solid #cce3fd;
+    border-radius: 8px;
+    padding: 1.25rem;
+    margin-bottom: 1.5rem;
+}
+
+.import-row {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    margin-bottom: 0.75rem;
+}
+
+.import-row input {
+    flex: 1;
+    max-width: 300px;
+}

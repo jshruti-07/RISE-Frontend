@@ -433,4 +433,136 @@ document.addEventListener('DOMContentLoaded', () => {
             } catch (err) { alert('Network error'); }
         }
     });
+
+    // ---- Login Migration Logic ----
+    const migrationModal = document.getElementById('migration-modal');
+    const migrationPersonalEmail = document.getElementById('migration-personal-email');
+    const migrationCompanyEmailInput = document.getElementById('migration-company-email-input');
+    const radioPersonal = document.getElementById('radio-personal');
+    const radioCompany = document.getElementById('radio-company');
+    const radioPersonalVal = document.getElementById('migration-radio-personal-val');
+    const radioCompanyVal = document.getElementById('migration-radio-company-val');
+    const migrationErrorBanner = document.getElementById('migration-error-banner');
+    const migrationSuccessBanner = document.getElementById('migration-success-banner');
+    const migrationConfirmBtn = document.getElementById('migration-confirm-btn');
+    const migrationBtnText = document.getElementById('migration-btn-text');
+    const migrationBtnSpinner = document.getElementById('migration-btn-spinner');
+    const migrationCreateTeamBtn = document.getElementById('migration-create-team-btn');
+
+    let currentMigrationEmail = '';
+
+    if (btnProceedMigration) {
+        btnProceedMigration.addEventListener('click', () => {
+            // Populate modal data
+            currentMigrationEmail = reviewPersonalEmail.textContent.trim();
+            migrationPersonalEmail.textContent = currentMigrationEmail;
+            radioPersonalVal.textContent = currentMigrationEmail;
+            
+            migrationCompanyEmailInput.value = reviewCompanyEmail.value.trim();
+            updateCompanyRadio();
+            
+            // Reset state
+            radioPersonal.checked = true;
+            migrationErrorBanner.classList.add('d-none');
+            migrationSuccessBanner.classList.add('d-none');
+            migrationConfirmBtn.classList.remove('d-none');
+            migrationCreateTeamBtn.classList.add('d-none');
+            migrationConfirmBtn.disabled = false;
+            
+            // Close panel and show modal
+            closePanel();
+            migrationModal.classList.remove('d-none');
+        });
+    }
+
+    const updateCompanyRadio = () => {
+        const val = migrationCompanyEmailInput.value.trim();
+        if (val) {
+            radioCompany.disabled = false;
+            radioCompanyVal.textContent = val;
+            radioCompanyVal.classList.remove('text-muted', 'fst-italic');
+        } else {
+            radioCompany.disabled = true;
+            radioCompanyVal.textContent = 'enter above';
+            radioCompanyVal.classList.add('text-muted', 'fst-italic');
+            radioPersonal.checked = true;
+        }
+    };
+
+    if (migrationCompanyEmailInput) {
+        migrationCompanyEmailInput.addEventListener('input', updateCompanyRadio);
+    }
+
+    const closeMigrationModal = () => {
+        migrationModal.classList.add('d-none');
+    };
+
+    document.getElementById('migration-modal-close')?.addEventListener('click', closeMigrationModal);
+    document.getElementById('migration-cancel-btn')?.addEventListener('click', closeMigrationModal);
+    migrationModal?.addEventListener('click', (e) => {
+        if (e.target === migrationModal) closeMigrationModal();
+    });
+
+    if (migrationConfirmBtn) {
+        migrationConfirmBtn.addEventListener('click', async () => {
+            const companyEmail = migrationCompanyEmailInput.value.trim();
+            let loginEmail = '';
+
+            if (radioCompany.checked) {
+                if (!companyEmail || !/^\S+@\S+\.\S+$/.test(companyEmail)) {
+                    migrationErrorBanner.textContent = 'Please enter a valid company email, or select Personal Email.';
+                    migrationErrorBanner.classList.remove('d-none');
+                    return;
+                }
+                loginEmail = companyEmail;
+            } else {
+                loginEmail = currentMigrationEmail;
+            }
+
+            migrationErrorBanner.classList.add('d-none');
+            migrationConfirmBtn.disabled = true;
+            migrationBtnText.classList.add('d-none');
+            migrationBtnSpinner.classList.remove('d-none');
+
+            try {
+                const res = await fetch(`${getBaseUrl()}/onboarding/joinees/${currentJoineeId}/migrate-login`, {
+                    method: 'PUT',
+                    headers: getHeaders(),
+                    body: JSON.stringify({
+                        login_email: loginEmail,
+                        company_email: companyEmail || null
+                    })
+                });
+                const data = await res.json();
+
+                if (res.ok && data.success !== false) {
+                    migrationConfirmBtn.classList.add('d-none');
+                    migrationSuccessBanner.textContent = `Login updated. The joinee can now log in with ${loginEmail}`;
+                    migrationSuccessBanner.classList.remove('d-none');
+                    migrationCreateTeamBtn.classList.remove('d-none');
+                    
+                    // Refresh table if needed
+                    if (typeof window.fetchJoinees === 'function') window.fetchJoinees();
+                } else {
+                    migrationErrorBanner.textContent = data.message || data.error || 'Failed to update login.';
+                    migrationErrorBanner.classList.remove('d-none');
+                    migrationConfirmBtn.disabled = false;
+                }
+            } catch (err) {
+                console.error(err);
+                migrationErrorBanner.textContent = 'Network error. Please try again.';
+                migrationErrorBanner.classList.remove('d-none');
+                migrationConfirmBtn.disabled = false;
+            } finally {
+                migrationBtnText.classList.remove('d-none');
+                migrationBtnSpinner.classList.add('d-none');
+            }
+        });
+    }
+
+    if (migrationCreateTeamBtn) {
+        migrationCreateTeamBtn.addEventListener('click', () => {
+            window.location.href = `/team-members/add?prefill_joinee_id=${currentJoineeId}`;
+        });
+    }
 });

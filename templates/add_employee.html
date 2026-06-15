@@ -17,6 +17,31 @@
     </div>
 
     <!-- FORM -->
+    <div class="import-from-onboarding mb-4 p-3 border rounded" style="background-color: #f0f7ff; border-color: #cce3fd !important;">
+        <h6 class="mb-3 d-flex align-items-center">
+            Import from Onboarding 
+            <span class="badge bg-secondary ms-2" style="font-size: 0.65rem; font-weight: normal;">Optional</span>
+        </h6>
+        <div class="row g-2 align-items-center mb-2">
+            <div class="col-md-6">
+                <input type="text" id="prefill-joinee-id" class="form-control form-control-sm" placeholder="Enter Person ID or Joinee ID">
+            </div>
+            <div class="col-md-auto">
+                <button type="button" id="prefill-fetch-btn" class="btn btn-sm btn-primary">Fetch Details</button>
+            </div>
+            <div class="col-md-auto">
+                <span id="prefill-spinner" class="spinner-border spinner-border-sm text-primary d-none" role="status"></span>
+            </div>
+        </div>
+        <div id="prefill-success-banner" class="alert alert-success py-1 px-2 mb-0 mt-2 d-none" style="font-size: 0.8rem;">
+            <i class="bi bi-check-circle me-1"></i> Details imported from onboarding. Please verify and complete remaining fields.
+        </div>
+        <div id="prefill-warning-banner" class="alert alert-warning py-1 px-2 mb-0 mt-2 d-none" style="font-size: 0.8rem;">
+            <i class="bi bi-exclamation-triangle me-1"></i> This joinee has not completed onboarding verification.
+        </div>
+        <div id="prefill-error-banner" class="alert alert-danger py-1 px-2 mb-0 mt-2 d-none" style="font-size: 0.8rem;"></div>
+    </div>
+
     <form action="{{ url_for('employees.add_employee') }}" method="POST" enctype="multipart/form-data">
 
         <!-- Personal Info -->
@@ -168,5 +193,8 @@
 
 
 </div>
+
+<!-- Prefill Script -->
+<script src="{{ url_for('static', filename='js/onboarding/prefill.js') }}"></script>
 
 {% endblock %}
