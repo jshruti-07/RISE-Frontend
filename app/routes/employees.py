@@ -138,9 +138,9 @@ def add_employee():
         if res.status_code == 201:
             flash(UI_LABELS['EMPLOYEE_ADDED_SUCCESS'], "success")
         else:
-            flash("Failed to add employee!", "danger")
+            flash(f"Failed to add employee! Error: {res.text}", "danger")
     except Exception as e:
-        flash("Server error occurred!", "danger")
+        flash(f"Server error occurred! {str(e)}", "danger")
 
     return redirect(url_for('employees.employee_list'))
 
