@@ -540,4 +540,8 @@ document.addEventListener('DOMContentLoaded', () => {
         fetchStats();
         fetchJoinees();
     });
+
+    // Initial load
+    fetchStats();
+    fetchJoinees();
 });
