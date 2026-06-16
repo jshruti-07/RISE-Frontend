@@ -426,7 +426,7 @@
 
 <!-- Detail Modal -->
 <div class="modal fade modal-split-detail" id="assetDetailModal" tabindex="-1">
-    <div class="modal-dialog modal-sm modal-dialog-centered modal-dialog-scrollable" style="max-width: 550px;">
+    <div class="modal-dialog modal-dialog-centered" style="max-width: 550px; width: 95vw;">
         <div class="modal-content">
             <div class="modal-header border-0 pb-0 px-4 pt-4">
                 <h4 class="fw-bold m-0" id="detailAssetTag">Asset Details</h4>
@@ -1039,7 +1039,8 @@
         document.getElementById('detailDeviceName').innerText = deviceName;
         document.getElementById('detailModel').innerText   = a.model || a.device_type || a.type || 'N/A';
         document.getElementById('detailSerial').innerText  = a.serial_number || a.serialNumber || a.sn || 'N/A';
-        document.getElementById('detailDeviceId').innerText = a.id || a.device_id || a.asset_id || a.asset_tag || 'N/A';
+        const deviceIdEl = document.getElementById('detailDeviceId');
+        if (deviceIdEl) deviceIdEl.innerText = a.id || a.device_id || a.asset_id || a.asset_tag || 'N/A';
 
         // Specs — cover all known aliases
         document.getElementById('detailProcessor').innerText = a.processor || a.cpu || a.chip || a.processor_info || 'N/A';
