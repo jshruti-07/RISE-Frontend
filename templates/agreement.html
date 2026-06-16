@@ -284,7 +284,7 @@
             return;
         }
 
-        // Check if canvas is empty (simplified check)
+        // Check if canvas is empty
         const blank = document.createElement('canvas');
         blank.width = canvas.width;
         blank.height = canvas.height;
@@ -298,17 +298,20 @@
         btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Signing...';
 
         try {
-            // Convert canvas to blob
-            const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
-            
-            const formData = new FormData();
-            formData.append('signature', blob, 'signature.png');
-            formData.append('assignment_id', assignmentId);
+            // Send signature as base64 string in JSON — avoids binary encoding issues in backend DB
+            const signatureBase64 = canvas.toDataURL('image/png'); // e.g. "data:image/png;base64,..."
 
             const res = await fetch(`/api/assets/${assetId}/accept`, {
                 method: 'POST',
-                headers: { 'Authorization': `Bearer ${document.getElementById('sessionToken').value}` },
-                body: formData
+                headers: {
+                    'Authorization': `Bearer ${document.getElementById('sessionToken').value}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    assignment_id: assignmentId,
+                    signature: signatureBase64,
+                    agreed: true
+                })
             });
 
             const data = await res.json();
@@ -323,7 +326,7 @@
                     window.location.href = '/dashboard';
                 }, 2000);
             } else {
-                throw new Error(data.error);
+                throw new Error(data.error || JSON.stringify(data));
             }
         } catch (err) {
             alert('Error submitting agreement: ' + err.message);
