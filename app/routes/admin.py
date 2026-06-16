@@ -194,6 +194,7 @@ def api_assets():
                 "device_type": payload.get("device_type"),
                 "serial_number": payload.get("serial_number"),
                 "asset_tag": payload.get("asset_tag"),
+                "asset_id": payload.get("asset_id"),
                 "brand": payload.get("brand") or payload.get("device_name"),
                 "model": payload.get("model") or payload.get("device_type"),
                 "status": "Available",

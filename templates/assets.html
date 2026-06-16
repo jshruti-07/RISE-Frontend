@@ -274,6 +274,10 @@
                         <label class="detail-label">Product ID</label>
                         <input type="text" class="form-control" name="serial_number" required placeholder="Unique SN">
                     </div>
+                    <div class="col-md-6">
+                        <label class="detail-label">Asset ID</label>
+                        <input type="text" class="form-control" name="asset_id" placeholder="e.g. LT-2026-VASANTH">
+                    </div>
                     <div class="col-md-4">
                         <label class="detail-label">Processor</label>
                         <input type="text" class="form-control" name="processor" placeholder="e.g. i7, M1, Ryzen 5">
@@ -380,8 +384,15 @@
                                 <div class="fw-bold" id="detailSerial"></div>
                             </div>
                             <div class="col-6">
-                                <label class="detail-label">Device ID</label>
-                                <div class="fw-bold text-primary" id="detailDeviceId"></div>
+                                <label class="detail-label">System ID</label>
+                                <div class="fw-bold text-muted" id="detailDeviceId"></div>
+                            </div>
+                        </div>
+
+                        <div class="row g-3 mb-4">
+                            <div class="col-12">
+                                <label class="detail-label">Asset ID</label>
+                                <div class="fw-bold text-primary fs-5" id="detailCustomAssetId">N/A</div>
                             </div>
                         </div>
 
@@ -753,6 +764,7 @@
         formData.append('device_type', form.device_type.value);
         formData.append('serial_number', form.serial_number.value);
         formData.append('asset_tag', form.asset_tag.value);
+        if (form.asset_id.value) formData.append('asset_id', form.asset_id.value);
         
         // New specification fields
         if (form.processor.value) formData.append('processor', form.processor.value);
@@ -961,6 +973,14 @@
         document.getElementById('detailProcessor').innerText = a.processor || a.cpu || a.chip || a.processor_info || 'N/A';
         document.getElementById('detailRam').innerText       = a.ram || a.memory || a.ram_gb || 'N/A';
         document.getElementById('detailStorage').innerText   = a.storage || a.disk || a.hdd || a.ssd || a.storage_gb || 'N/A';
+
+        // Custom Asset ID
+        const customAssetEl = document.getElementById('detailCustomAssetId');
+        if (customAssetEl) {
+            customAssetEl.innerText = a.asset_id || 'N/A';
+            customAssetEl.classList.toggle('text-muted', !a.asset_id);
+            customAssetEl.classList.toggle('text-primary', !!a.asset_id);
+        }
 
         // Dates
         document.getElementById('detailPurchaseDate').innerText  = a.purchase_date   ? new Date(a.purchase_date).toLocaleDateString()   : 'N/A';
