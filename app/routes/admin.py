@@ -202,7 +202,7 @@ def api_assets():
                 "storage": payload.get("storage"),
                 "purchase_date": payload.get("purchase_date"),
                 "warranty_expiry": payload.get("warranty_expiry"),
-                "notes": payload.get("notes")
+                "condition_notes": payload.get("notes")
             }.items() if v}
 
             # Step 1: Create Device — always send as JSON
