@@ -307,7 +307,81 @@ def api_asset_acceptance(id):
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 500
 
+# --- AGREEMENT PAGE ---
+@admin_bp.route('/assets/agreement/<id>')
+@role_required(['admin', 'hr', 'manager', 'employee', 'team_member'])
+def asset_agreement_page(id):
+    """Render the device usage agreement signing page."""
+    from app.ui_constants import UI_LABELS
+    return render_template('agreement.html', asset_id=id, labels=UI_LABELS, BASE_URL=BASE_URL)
+
+@admin_bp.route('/api/assets/<id>/agreement')
+@role_required(['admin', 'hr', 'manager', 'employee', 'team_member'])
+def api_asset_agreement(id):
+    """Fetch agreement/assignment details for a device."""
+    try:
+        res = requests.get(f"{BASE_URL}/devices/{id}", headers=get_headers(), timeout=10)
+        if res.status_code != 200:
+            return jsonify({"success": False, "error": res.text}), res.status_code
+        data = res.json()
+        # Flatten: backend may nest inside .device
+        device = data.get('device') or data
+        agreement = {
+            "assignment_id": device.get('assignment_id') or device.get('id'),
+            "assigned_date": device.get('assigned_date') or device.get('created_at', ''),
+            "employee_name": device.get('employee_name') or device.get('assigned_to', ''),
+            "employee_id": device.get('employee_id', ''),
+            "device": {
+                "brand": device.get('brand') or device.get('device_name', ''),
+                "model": device.get('model') or device.get('device_type', ''),
+                "serial_number": device.get('serial_number', ''),
+            }
+        }
+        return jsonify({"success": True, "agreement": agreement})
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@admin_bp.route('/api/assets/<id>/accept', methods=['POST'])
+@role_required(['admin', 'hr', 'manager', 'employee', 'team_member'])
+def api_accept_agreement(id):
+    """Submit signed agreement (signature image + acceptance)."""
+    try:
+        files = {}
+        if 'signature' in request.files:
+            sig = request.files['signature']
+            if sig.filename:
+                files['signature'] = (sig.filename, sig.read(), sig.content_type)
+
+        form_data = request.form.to_dict()
+        if files:
+            res = requests.post(
+                f"{BASE_URL}/devices/{id}/accept",
+                data=form_data,
+                files=files,
+                headers=get_headers(exclude_content_type=True),
+                timeout=15
+            )
+        else:
+            res = requests.post(
+                f"{BASE_URL}/devices/{id}/accept",
+                json=form_data,
+                headers=get_headers(),
+                timeout=15
+            )
+        if res.status_code in [200, 201]:
+            try:
+                return jsonify(res.json()), res.status_code
+            except Exception:
+                return jsonify({"success": True}), 200
+        try:
+            return jsonify(res.json()), res.status_code
+        except Exception:
+            return jsonify({"success": False, "error": res.text}), res.status_code
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
 # --- ANNOUNCEMENTS ---
+
 
 @admin_bp.route('/api/announcements', methods=['GET', 'POST'])
 @role_required(['admin', 'employee', 'hr', 'manager'])
