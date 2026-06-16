@@ -181,15 +181,21 @@ def api_assets():
     
     else: # POST
         try:
-            payload = request.form.to_dict() if request.files else (request.get_json(force=True) or {})
-            
-            # Match the backend data structure
-            create_data = {
+            # Always extract text fields into a clean dict regardless of content type
+            # The backend /devices API expects JSON — never send raw form-data to it
+            if request.content_type and 'multipart' in request.content_type:
+                payload = request.form.to_dict()
+            else:
+                payload = request.get_json(force=True) or {}
+
+            # Build clean JSON payload — skip None/empty values
+            create_data = {k: v for k, v in {
                 "device_name": payload.get("device_name"),
                 "device_type": payload.get("device_type"),
                 "serial_number": payload.get("serial_number"),
-                "brand": payload.get("device_name"), 
-                "model": payload.get("device_type"),
+                "asset_tag": payload.get("asset_tag"),
+                "brand": payload.get("brand") or payload.get("device_name"),
+                "model": payload.get("model") or payload.get("device_type"),
                 "status": "Available",
                 "processor": payload.get("processor"),
                 "ram": payload.get("ram"),
@@ -197,40 +203,47 @@ def api_assets():
                 "purchase_date": payload.get("purchase_date"),
                 "warranty_expiry": payload.get("warranty_expiry"),
                 "notes": payload.get("notes")
-            }
-            
-            # Step 1: Create Device (JSON)
+            }.items() if v}
+
+            # Step 1: Create Device — always send as JSON
             res = requests.post(f"{BASE_URL}/devices", json=create_data, headers=get_headers(), timeout=10)
-            
+
             if res.status_code not in [200, 201]:
-                return jsonify({"success": False, "error": f"Creation failed: {res.text}"}), res.status_code
-            
+                try:
+                    err_detail = res.json()
+                except Exception:
+                    err_detail = res.text
+                return jsonify({"success": False, "error": f"Creation failed: {err_detail}"}), res.status_code
+
             data = res.json()
             device_id = data.get("device_id") or data.get("id")
-            
-            # Step 2: Upload Image if present
-            if request.files and device_id:
+
+            # Step 2: Upload images if present (separate request per file)
+            if device_id and request.files:
+                img_headers = get_headers(exclude_content_type=True)
                 for key in request.files:
                     for file in request.files.getlist(key):
-                        # Reset file pointer after reading in potential previous loops
+                        if not file or not file.filename:
+                            continue
                         file.seek(0)
                         f_data = {'image': (file.filename, file.read(), file.content_type)}
-                        requests.post(f"{BASE_URL}/devices/{device_id}/upload-image", 
-                                      files=f_data, 
-                                      headers=get_headers(exclude_content_type=True),
-                                      timeout=15)
-                        # The current backend seems to support one primary image via this endpoint
-                        break 
-            
+                        requests.post(
+                            f"{BASE_URL}/devices/{device_id}/upload-image",
+                            files=f_data,
+                            headers=img_headers,
+                            timeout=15
+                        )
+                        break  # Backend supports one primary image
+
             return jsonify({
-                "success": True, 
+                "success": True,
                 "asset": {
-                    "id": device_id, 
-                    "device_name": create_data["device_name"],
-                    "serial_number": create_data["serial_number"]
+                    "id": device_id,
+                    "device_name": create_data.get("device_name"),
+                    "serial_number": create_data.get("serial_number")
                 }
             })
-            
+
         except Exception as e:
             return jsonify({"success": False, "error": str(e)}), 500
 
@@ -269,13 +282,17 @@ def api_asset_history(id):
 @role_required(['admin', 'hr'])
 def api_assign_asset(id):
     try:
-        data = request.get_json(force=True)
-        headers = get_headers(exclude_content_type=True)
-        headers["Content-Type"] = "application/json"
-        res = requests.post(f"{BASE_URL}/devices/{id}/assign", json=data, headers=headers, timeout=10)
-        if res.status_code == 200:
+        data = request.get_json(force=True) or {}
+        # Only pass non-empty values to the backend
+        assign_payload = {k: v for k, v in data.items() if v not in [None, '', []]}
+        res = requests.post(f"{BASE_URL}/devices/{id}/assign", json=assign_payload, headers=get_headers(), timeout=10)
+        if res.status_code in [200, 201]:
             return jsonify({"success": True})
-        return jsonify({"success": False, "error": res.text}), res.status_code
+        try:
+            err_detail = res.json()
+        except Exception:
+            err_detail = res.text
+        return jsonify({"success": False, "error": err_detail}), res.status_code
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 500
 
