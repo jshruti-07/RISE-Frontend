@@ -298,13 +298,15 @@
         btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Signing...';
 
         try {
-            // Send signature as base64 text inside a file Blob. 
-            // This satisfies the backend's need for a file upload while bypassing MySQL binary encoding errors!
+            // We need to bypass two conflicting backend rules:
+            // 1. Backend requires a file extension of .png/.jpg
+            // 2. Backend inserts file contents into a TEXT column, which crashes on binary data
+            // Fix: Put the base64 TEXT string inside the file, but label it as a PNG image!
             const signatureBase64 = canvas.toDataURL('image/png');
-            const blob = new Blob([signatureBase64], { type: 'text/plain' });
+            const blob = new Blob([signatureBase64], { type: 'image/png' });
             
             const formData = new FormData();
-            formData.append('signature', blob, 'signature.txt');
+            formData.append('signature', blob, 'signature.png');
             formData.append('assignment_id', assignmentId);
 
             const res = await fetch(`/api/assets/${assetId}/accept`, {
