@@ -426,118 +426,116 @@
 
 <!-- Detail Modal -->
 <div class="modal fade modal-split-detail" id="assetDetailModal" tabindex="-1">
-    <div class="modal-dialog modal-xl modal-dialog-centered">
+    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content">
-            <div class="modal-body p-0">
-                <div class="row g-0">
-                    <div class="col-md-5 detail-pane">
-                        <h4 class="fw-bold mb-4" id="detailAssetTag">Asset Details</h4>
-                        <div id="detailImageContainer" class="mb-4 text-center" style="display: none;">
-                            <div id="imageCarousel" class="carousel slide" data-bs-ride="carousel">
-                                <div class="carousel-inner rounded-4 shadow-sm" id="carouselInner"></div>
-                                <button class="carousel-control-prev" type="button" data-bs-target="#imageCarousel"
-                                    data-bs-slide="prev">
-                                    <span class="carousel-control-prev-icon"></span>
-                                </button>
-                                <button class="carousel-control-next" type="button" data-bs-target="#imageCarousel"
-                                    data-bs-slide="next">
-                                    <span class="carousel-control-next-icon"></span>
-                                </button>
-                            </div>
-                        </div>
+            <div class="modal-header border-0 pb-0 px-4 pt-4">
+                <h4 class="fw-bold m-0" id="detailAssetTag">Asset Details</h4>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body px-4 pt-3 pb-4">
+                <div id="detailImageContainer" class="mb-4 text-center" style="display: none;">
+                    <div id="imageCarousel" class="carousel slide" data-bs-ride="carousel">
+                        <div class="carousel-inner rounded-4 shadow-sm" id="carouselInner"></div>
+                        <button class="carousel-control-prev" type="button" data-bs-target="#imageCarousel"
+                            data-bs-slide="prev">
+                            <span class="carousel-control-prev-icon"></span>
+                        </button>
+                        <button class="carousel-control-next" type="button" data-bs-target="#imageCarousel"
+                            data-bs-slide="next">
+                            <span class="carousel-control-next-icon"></span>
+                        </button>
+                    </div>
+                </div>
 
-                        <div id="detailStatus" class="mb-4"></div>
+                <div id="detailStatus" class="mb-3"></div>
 
-                        <div class="detail-card detail-section">
-                            <div class="asset-detail-grid">
-                                <div class="asset-detail-item">
-                                    <label class="detail-label">Device</label>
-                                    <div class="asset-detail-value" id="detailDeviceName"></div>
-                                </div>
-                                <div class="asset-detail-item">
-                                    <label class="detail-label">Model</label>
-                                    <div class="asset-detail-value" id="detailModel"></div>
-                                </div>
-                                <div class="asset-detail-item">
-                                    <label class="detail-label">Serial Number</label>
-                                    <div class="asset-detail-value" id="detailSerial"></div>
-                                </div>
-                                <div class="asset-detail-item">
-                                    <label class="detail-label">System ID</label>
-                                    <div class="asset-detail-value text-muted" id="detailDeviceId"></div>
-                                </div>
-                            </div>
+                <div class="detail-card detail-section">
+                    <div class="asset-detail-grid">
+                        <div class="asset-detail-item">
+                            <label class="detail-label">Device</label>
+                            <div class="asset-detail-value" id="detailDeviceName"></div>
                         </div>
+                        <div class="asset-detail-item">
+                            <label class="detail-label">Model</label>
+                            <div class="asset-detail-value" id="detailModel"></div>
+                        </div>
+                        <div class="asset-detail-item">
+                            <label class="detail-label">Serial Number</label>
+                            <div class="asset-detail-value" id="detailSerial"></div>
+                        </div>
+                        <div class="asset-detail-item">
+                            <label class="detail-label">System ID</label>
+                            <div class="asset-detail-value text-muted" id="detailDeviceId"></div>
+                        </div>
+                    </div>
+                </div>
 
-                        <div class="detail-card detail-section">
-                            <div class="asset-detail-item">
-                                <label class="detail-label">Asset ID</label>
-                                <div class="asset-detail-value text-primary fs-5 fw-bold" id="detailCustomAssetId"></div>
-                            </div>
-                        </div>
+                <div class="detail-card detail-section">
+                    <div class="asset-detail-item">
+                        <label class="detail-label">Asset ID</label>
+                        <div class="asset-detail-value text-primary fs-5 fw-bold" id="detailCustomAssetId"></div>
+                    </div>
+                </div>
 
-                        <div class="detail-card detail-section">
-                            <div class="asset-detail-grid three-up">
-                                <div class="asset-detail-item">
-                                    <label class="detail-label">Processor</label>
-                                    <div class="asset-detail-value" id="detailProcessor"></div>
-                                </div>
-                                <div class="asset-detail-item">
-                                    <label class="detail-label">RAM</label>
-                                    <div class="asset-detail-value" id="detailRam"></div>
-                                </div>
-                                <div class="asset-detail-item">
-                                    <label class="detail-label">Storage</label>
-                                    <div class="asset-detail-value" id="detailStorage"></div>
-                                </div>
-                            </div>
+                <div class="detail-card detail-section">
+                    <div class="asset-detail-grid three-up">
+                        <div class="asset-detail-item">
+                            <label class="detail-label">Processor</label>
+                            <div class="asset-detail-value" id="detailProcessor"></div>
                         </div>
+                        <div class="asset-detail-item">
+                            <label class="detail-label">RAM</label>
+                            <div class="asset-detail-value" id="detailRam"></div>
+                        </div>
+                        <div class="asset-detail-item">
+                            <label class="detail-label">Storage</label>
+                            <div class="asset-detail-value" id="detailStorage"></div>
+                        </div>
+                    </div>
+                </div>
 
-                        <div class="detail-card detail-section">
-                            <div class="asset-detail-grid">
-                                <div class="asset-detail-item">
-                                    <label class="detail-label">Purchase Date</label>
-                                    <div class="asset-detail-value" id="detailPurchaseDate"></div>
-                                </div>
-                                <div class="asset-detail-item">
-                                    <label class="detail-label">Warranty Expiry</label>
-                                    <div class="asset-detail-value" id="detailWarranty"></div>
-                                </div>
-                            </div>
+                <div class="detail-card detail-section">
+                    <div class="asset-detail-grid">
+                        <div class="asset-detail-item">
+                            <label class="detail-label">Purchase Date</label>
+                            <div class="asset-detail-value" id="detailPurchaseDate"></div>
                         </div>
+                        <div class="asset-detail-item">
+                            <label class="detail-label">Warranty Expiry</label>
+                            <div class="asset-detail-value" id="detailWarranty"></div>
+                        </div>
+                    </div>
+                </div>
 
-                        <div class="detail-card detail-section">
-                            <label class="detail-label">Notes</label>
-                            <div class="detail-note" id="detailNotes">No notes available.</div>
-                        </div>
+                <div class="detail-card detail-section">
+                    <label class="detail-label">Notes</label>
+                    <div class="detail-note" id="detailNotes">No notes available.</div>
+                </div>
 
-                        <div class="detail-card mb-4" id="detailOwnerSection">
-                            <label class="detail-label text-primary">Current Owner</label>
-                            <div class="d-flex align-items-center gap-2 mt-1">
-                                <i class="bi bi-person-circle fs-4 text-primary"></i>
-                                <div id="detailEmployee">Unassigned</div>
-                            </div>
-                            <div id="returnAssetContainer" class="mt-3" style="display: none;">
-                                <button type="button" class="btn btn-sm btn-outline-danger rounded-pill fw-bold" onclick="promptReturnAsset()">
-                                    <i class="bi bi-arrow-return-left me-1"></i> Return Asset
-                                </button>
-                            </div>
-                        </div>
+                <div class="detail-card mb-3" id="detailOwnerSection">
+                    <label class="detail-label text-primary">Current Owner</label>
+                    <div class="d-flex align-items-center gap-2 mt-1">
+                        <i class="bi bi-person-circle fs-4 text-primary"></i>
+                        <div id="detailEmployee">Unassigned</div>
+                    </div>
+                    <div id="returnAssetContainer" class="mt-3" style="display: none;">
+                        <button type="button" class="btn btn-sm btn-outline-danger rounded-pill fw-bold" onclick="promptReturnAsset()">
+                            <i class="bi bi-arrow-return-left me-1"></i> Return Asset
+                        </button>
+                    </div>
+                </div>
 
-                        <div class="detail-card mb-4" id="detailAgreementSection"
-                            style="display: none;">
-                            <label class="detail-label text-warning">Device Usage Agreement</label>
-                            <div id="detailAgreementStatus" class="mt-1"></div>
-                            <div id="detailAgreementAction" class="mt-2"></div>
-                        </div>
+                <div class="detail-card mb-3" id="detailAgreementSection" style="display: none;">
+                    <label class="detail-label text-warning">Device Usage Agreement</label>
+                    <div id="detailAgreementStatus" class="mt-1"></div>
+                    <div id="detailAgreementAction" class="mt-2"></div>
+                </div>
 
-                        <div class="mt-4" id="updateOwnerContainer">
-                            <label class="detail-label">Update Owner</label>
-                            <div class="d-flex gap-2">
-                                <select class="form-select" id="reassignSelect"></select>
-                                <button type="button" class="btn btn-primary fw-bold" onclick="reassignAsset()">Update</button>
-                            </div>
-                        </div>
+                <div class="mt-3" id="updateOwnerContainer">
+                    <label class="detail-label">Update Owner</label>
+                    <div class="d-flex gap-2">
+                        <select class="form-select" id="reassignSelect"></select>
+                        <button type="button" class="btn btn-primary fw-bold" onclick="reassignAsset()">Update</button>
                     </div>
                 </div>
             </div>
