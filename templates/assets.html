@@ -901,8 +901,10 @@
         if (detailPane) detailPane.scrollTop = 0;
         if (secondaryPane) secondaryPane.scrollTop = 0;
         document.getElementById('detailDeviceName').innerHTML = '<span class="spinner-border spinner-border-sm text-primary"></span>';
-        document.getElementById('assetHistory').innerHTML = '<div class="text-center py-4"><div class="spinner-border text-primary"></div></div>';
-        document.getElementById('assetTickets').innerHTML = '<p class="text-muted small">Fetching tickets...</p>';
+        const histEl = document.getElementById('assetHistory');
+        if (histEl) histEl.innerHTML = '<div class="text-center py-4"><div class="spinner-border text-primary"></div></div>';
+        const ticketsEl = document.getElementById('assetTickets');
+        if (ticketsEl) ticketsEl.innerHTML = '<p class="text-muted small">Fetching tickets...</p>';
         
         modal.show();
 
@@ -919,48 +921,52 @@
                     console.log('[ASSET DETAIL] Resolved assetData:', assetData);
                     displayAsset(assetData);
 
-                    // Fetch History
-                    fetch(`/api/assets/${id}/history`, { headers: getHeaders() })
-                        .then(r => r.json())
-                        .then(hData => {
-                            const cont = document.getElementById('assetHistory');
-                            const history = hData.history || [];
-                            if (history.length > 0) {
-                                cont.innerHTML = history.map(h => `
-                                    <div class="history-item pb-3 mb-3 border-bottom border-light">
-                                        <div class="d-flex justify-content-between">
-                                            <span class="fw-bold small text-primary">${(h.action || 'update').toUpperCase().replace('_', ' ')}</span>
-                                            <span class="small text-muted">${new Date(h.timestamp).toLocaleString()}</span>
+                    // Fetch History (only if panel exists in DOM)
+                    const historyContainer = document.getElementById('assetHistory');
+                    if (historyContainer) {
+                        fetch(`/api/assets/${id}/history`, { headers: getHeaders() })
+                            .then(r => r.json())
+                            .then(hData => {
+                                const history = hData.history || [];
+                                if (history.length > 0) {
+                                    historyContainer.innerHTML = history.map(h => `
+                                        <div class="history-item pb-3 mb-3 border-bottom border-light">
+                                            <div class="d-flex justify-content-between">
+                                                <span class="fw-bold small text-primary">${(h.action || 'update').toUpperCase().replace('_', ' ')}</span>
+                                                <span class="small text-muted">${new Date(h.timestamp).toLocaleString()}</span>
+                                            </div>
+                                            <div class="small mt-1 text-dark">${h.details || 'No additional details provided.'}</div>
+                                            ${h.performed_by ? `<div class="small text-muted italic">By: ${h.performed_by}</div>` : ''}
                                         </div>
-                                        <div class="small mt-1 text-dark">${h.details || 'No additional details provided.'}</div>
-                                        ${h.performed_by ? `<div class="small text-muted italic">By: ${h.performed_by}</div>` : ''}
-                                    </div>
-                                `).join('');
-                            } else {
-                                cont.innerHTML = '<div class="text-center py-4 text-muted small"><i class="bi bi-clock-history d-block mb-2 fs-4"></i>No history available for this asset.</div>';
-                            }
-                        });
+                                    `).join('');
+                                } else {
+                                    historyContainer.innerHTML = '<div class="text-center py-4 text-muted small"><i class="bi bi-clock-history d-block mb-2 fs-4"></i>No history available for this asset.</div>';
+                                }
+                            });
+                    }
 
-                    // Fetch Related Tickets
-                    fetch(`/api/helpdesk/?search=${id}`, { headers: getHeaders() })
-                        .then(r => r.json())
-                        .then(tData => {
-                            const cont = document.getElementById('assetTickets');
-                            if (tData.success && tData.tickets && tData.tickets.length > 0) {
-                                cont.innerHTML = tData.tickets.map(t => `
-                                    <div class="p-3 bg-white border rounded-4 mb-2 shadow-sm border-start border-4 border-primary">
-                                        <div class="d-flex justify-content-between">
-                                            <span class="fw-bold text-primary small">#${t.ticket_ref}</span>
-                                            <span class="badge rounded-pill bg-light text-dark border small" style="font-size: 0.65rem;">${t.status}</span>
+                    // Fetch Related Tickets (only if panel exists in DOM)
+                    const ticketsContainer = document.getElementById('assetTickets');
+                    if (ticketsContainer) {
+                        fetch(`/api/helpdesk/?search=${id}`, { headers: getHeaders() })
+                            .then(r => r.json())
+                            .then(tData => {
+                                if (tData.success && tData.tickets && tData.tickets.length > 0) {
+                                    ticketsContainer.innerHTML = tData.tickets.map(t => `
+                                        <div class="p-3 bg-white border rounded-4 mb-2 shadow-sm border-start border-4 border-primary">
+                                            <div class="d-flex justify-content-between">
+                                                <span class="fw-bold text-primary small">#${t.ticket_ref}</span>
+                                                <span class="badge rounded-pill bg-light text-dark border small" style="font-size: 0.65rem;">${t.status}</span>
+                                            </div>
+                                            <div class="fw-bold small mt-1">${t.title}</div>
+                                            <div class="text-muted mt-1" style="font-size: 0.7rem;"><i class="bi bi-calendar3 me-1"></i>${new Date(t.created_at).toLocaleDateString()}</div>
                                         </div>
-                                        <div class="fw-bold small mt-1">${t.title}</div>
-                                        <div class="text-muted mt-1" style="font-size: 0.7rem;"><i class="bi bi-calendar3 me-1"></i>${new Date(t.created_at).toLocaleDateString()}</div>
-                                    </div>
-                                `).join('');
-                            } else {
-                                cont.innerHTML = '<div class="text-center py-3 text-muted small">No related helpdesk tickets found.</div>';
-                            }
-                        });
+                                    `).join('');
+                                } else {
+                                    ticketsContainer.innerHTML = '<div class="text-center py-3 text-muted small">No related helpdesk tickets found.</div>';
+                                }
+                            });
+                    }
                 } else {
                     alert('Error loading asset: ' + data.error);
                     modal.hide();
