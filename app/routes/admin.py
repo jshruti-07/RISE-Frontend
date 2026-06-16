@@ -296,6 +296,21 @@ def api_assign_asset(id):
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 500
 
+@admin_bp.route('/api/assets/<id>/return', methods=['POST'])
+@role_required(['admin', 'hr'])
+def api_return_asset(id):
+    try:
+        res = requests.post(f"{BASE_URL}/devices/{id}/return", headers=get_headers(), timeout=10)
+        if res.status_code in [200, 201]:
+            return jsonify({"success": True, "message": "Asset returned successfully", "asset_status": "AVAILABLE"})
+        try:
+            err_detail = res.json()
+        except Exception:
+            err_detail = res.text
+        return jsonify({"success": False, "error": err_detail}), res.status_code
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
 @admin_bp.route('/api/assets/<id>/acceptance-status')
 @role_required(['admin', 'hr'])
 def api_asset_acceptance(id):

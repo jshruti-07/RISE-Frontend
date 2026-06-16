@@ -196,6 +196,7 @@
 </style>
 
 <input type="hidden" id="sessionToken" value="{{ session.get('token', '') }}">
+<input type="hidden" id="userRole" value="{{ session.get('role', '') }}">
 
 <input type="hidden" id="backendBaseUrl" value="{{ BASE_URL }}">
 
@@ -415,11 +416,16 @@
                             <div class="text-muted small" id="detailNotes">No notes available.</div>
                         </div>
 
-                        <div class="detail-card mb-4">
+                        <div class="detail-card mb-4" id="detailOwnerSection">
                             <label class="detail-label text-primary">Current Owner</label>
                             <div class="d-flex align-items-center gap-2 mt-1">
                                 <i class="bi bi-person-circle fs-4 text-primary"></i>
                                 <div id="detailEmployee">Unassigned</div>
+                            </div>
+                            <div id="returnAssetContainer" class="mt-3" style="display: none;">
+                                <button class="btn btn-sm btn-outline-danger rounded-pill fw-bold" onclick="promptReturnAsset()">
+                                    <i class="bi bi-arrow-return-left me-1"></i> Return Asset
+                                </button>
                             </div>
                         </div>
 
@@ -430,7 +436,7 @@
                             <div id="detailAgreementAction" class="mt-2"></div>
                         </div>
 
-                        <div class="mt-4">
+                        <div class="mt-4" id="updateOwnerContainer">
                             <label class="detail-label">Update Owner</label>
                             <div class="d-flex gap-2">
                                 <select class="form-select" id="reassignSelect"></select>
@@ -454,6 +460,35 @@
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Return Asset Confirmation Modal -->
+<div class="modal fade" id="returnAssetModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title fw-bold text-danger"><i class="bi bi-exclamation-triangle me-2"></i>Return Asset</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to return this asset?</p>
+                <p class="text-muted small">The current owner assignment will be removed and the asset will become available for future allocation.</p>
+                
+                <div class="form-check mt-4 p-3 bg-light rounded-3 border">
+                    <input class="form-check-input ms-1" type="checkbox" id="confirmReturnCheck" onchange="toggleReturnButton()">
+                    <label class="form-check-label ms-2 fw-medium text-dark" for="confirmReturnCheck">
+                        I confirm this asset has been physically returned.
+                    </label>
+                </div>
+            </div>
+            <div class="modal-footer border-0 pt-0">
+                <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-danger rounded-pill px-4 fw-bold" id="btnConfirmReturn" disabled onclick="confirmReturnAsset()">
+                    Return Asset
+                </button>
             </div>
         </div>
     </div>
@@ -940,15 +975,52 @@
 
         // ---- 5. Employee Display ----
         const empEl = document.getElementById('detailEmployee');
+        const ownerSection = document.getElementById('detailOwnerSection');
+        const updateSection = document.getElementById('updateOwnerContainer');
+        
         if (assignedName || assignedId) {
             const formattedName = cleanNameJS(assignedName) || String(assignedId);
-            empEl.innerText = assignedId ? `${formattedName} (ID: ${assignedId})` : formattedName;
+            // Restore original HTML structure for owner if it was overwritten
+            ownerSection.innerHTML = `
+                <label class="detail-label text-primary">Current Owner</label>
+                <div class="d-flex align-items-center gap-2 mt-1">
+                    <i class="bi bi-person-circle fs-4 text-primary"></i>
+                    <div id="detailEmployee">${assignedId ? `${formattedName} <span class="text-muted small ms-2">(ID: ${assignedId})</span>` : formattedName}</div>
+                </div>
+                <div id="returnAssetContainer" class="mt-3" style="display: none;">
+                    <button class="btn btn-sm btn-outline-danger rounded-pill fw-bold" onclick="promptReturnAsset()">
+                        <i class="bi bi-arrow-return-left me-1"></i> Return Asset
+                    </button>
+                </div>
+            `;
+            ownerSection.style.display = 'block';
+            if (updateSection) updateSection.style.display = 'block';
         } else {
-            empEl.innerText = 'Unassigned';
+            // Asset is returned / available
+            ownerSection.innerHTML = `
+                <label class="detail-label text-success">Status</label>
+                <div class="d-flex align-items-center gap-2 mt-1">
+                    <span class="badge bg-success rounded-pill px-3 py-2 fw-bold">AVAILABLE</span>
+                    <span class="text-muted small">Available for Assignment</span>
+                </div>
+            `;
+            ownerSection.style.display = 'block';
+            if (updateSection) updateSection.style.display = 'none';
         }
 
         const isAssigned = !!assignedId;
         document.getElementById('reassignSelect').value = assignedId || '';
+
+        // Handle Return Asset button visibility
+        const role = document.getElementById('userRole').value.toLowerCase();
+        const returnBtnContainer = document.getElementById('returnAssetContainer');
+        if (returnBtnContainer) {
+            if (isAssigned && (role === 'admin' || role === 'hr')) {
+                returnBtnContainer.style.display = 'block';
+            } else {
+                returnBtnContainer.style.display = 'none';
+            }
+        }
 
         // --- AGREEMENT STATUS ---
         const agSection = document.getElementById('detailAgreementSection');
@@ -1054,6 +1126,60 @@
                 console.error('Delete Error:', err);
                 alert('Failed to delete device.');
             });
+    }
+
+    // --- RETURN ASSET LOGIC ---
+    function toggleReturnButton() {
+        const checkbox = document.getElementById('confirmReturnCheck');
+        const btn = document.getElementById('btnConfirmReturn');
+        if (checkbox && btn) {
+            btn.disabled = !checkbox.checked;
+        }
+    }
+
+    function promptReturnAsset() {
+        const checkbox = document.getElementById('confirmReturnCheck');
+        if (checkbox) checkbox.checked = false;
+        toggleReturnButton();
+        const modal = new bootstrap.Modal(document.getElementById('returnAssetModal'));
+        modal.show();
+    }
+
+    function confirmReturnAsset() {
+        const btn = document.getElementById('btnConfirmReturn');
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Returning...';
+
+        fetch(`/api/assets/${currentAssetId}/return`, {
+            method: 'POST',
+            headers: getHeaders()
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                // Hide modal
+                const modalEl = document.getElementById('returnAssetModal');
+                const modal = bootstrap.Modal.getInstance(modalEl);
+                if (modal) modal.hide();
+
+                // Show success toast or alert
+                alert(data.message || 'Asset returned successfully.');
+                
+                // Refresh data
+                viewAsset(currentAssetId);
+                loadAssets();
+            } else {
+                throw new Error(data.error || 'Failed to return asset.');
+            }
+        })
+        .catch(err => {
+            console.error('Return Error:', err);
+            alert(err.message || 'Unable to return asset. Please try again.');
+        })
+        .finally(() => {
+            btn.innerHTML = 'Return Asset';
+            toggleReturnButton(); // Reset disabled state based on checkbox
+        });
     }
 </script>
 {% endblock %}
