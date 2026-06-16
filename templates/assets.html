@@ -675,16 +675,20 @@
 
         const filtered = employees.filter(emp => {
             if (!emp.name) return false;
-            const fullName = emp.name.toLowerCase();
-            return fullName.includes(val);
+            const searchStr = [
+                emp.name,
+                emp.display_name,
+                emp.original_name
+            ].filter(Boolean).join(' ').toLowerCase();
+            return searchStr.includes(val);
         });
 
         if (filtered.length > 0) {
             resultsDiv.innerHTML = filtered.map(emp => {
-                const displayName = cleanNameJS(emp.name);
+                const displayName = emp.display_name || emp.original_name || cleanNameJS(emp.name);
                 const roleDisplay = emp.role ? `<span class="badge bg-secondary me-1" style="font-size: 0.6rem;">${emp.role.toUpperCase()}</span>` : '';
                 return `
-                    <div class="autocomplete-item" onclick="selectEmployee('${emp.name}', '${emp.id}', '${displayName}')">
+                    <div class="autocomplete-item" onclick="selectEmployee('${emp.name}', '${emp.id}', '${displayName.replace(/'/g, "\\'")}')">
                         <div class="fw-bold text-dark">${displayName}</div>
                         <div class="small text-muted">${roleDisplay}ID: ${emp.id}</div>
                     </div>
