@@ -344,15 +344,32 @@ def api_asset_agreement(id):
 @admin_bp.route('/api/assets/<id>/accept', methods=['POST'])
 @role_required(['admin', 'hr', 'manager', 'employee', 'team_member'])
 def api_accept_agreement(id):
-    """Submit signed agreement (base64 signature as JSON)."""
+    """Submit signed agreement."""
     try:
-        payload = request.get_json(force=True) or {}
-        res = requests.post(
-            f"{BASE_URL}/devices/{id}/accept",
-            json=payload,
-            headers=get_headers(),
-            timeout=15
-        )
+        files = {}
+        if 'signature' in request.files:
+            sig = request.files['signature']
+            if sig.filename:
+                files['signature'] = (sig.filename, sig.read(), sig.content_type)
+
+        form_data = request.form.to_dict()
+        
+        if files:
+            res = requests.post(
+                f"{BASE_URL}/devices/{id}/accept",
+                data=form_data,
+                files=files,
+                headers=get_headers(exclude_content_type=True),
+                timeout=15
+            )
+        else:
+            res = requests.post(
+                f"{BASE_URL}/devices/{id}/accept",
+                data=form_data,
+                headers=get_headers(exclude_content_type=True),
+                timeout=15
+            )
+            
         try:
             body = res.json()
         except Exception:

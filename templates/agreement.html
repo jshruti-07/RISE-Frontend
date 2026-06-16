@@ -298,20 +298,21 @@
         btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Signing...';
 
         try {
-            // Send signature as base64 string in JSON — avoids binary encoding issues in backend DB
-            const signatureBase64 = canvas.toDataURL('image/png'); // e.g. "data:image/png;base64,..."
+            // Send signature as base64 text inside a file Blob. 
+            // This satisfies the backend's need for a file upload while bypassing MySQL binary encoding errors!
+            const signatureBase64 = canvas.toDataURL('image/png');
+            const blob = new Blob([signatureBase64], { type: 'text/plain' });
+            
+            const formData = new FormData();
+            formData.append('signature', blob, 'signature.txt');
+            formData.append('assignment_id', assignmentId);
 
             const res = await fetch(`/api/assets/${assetId}/accept`, {
                 method: 'POST',
                 headers: {
-                    'Authorization': `Bearer ${document.getElementById('sessionToken').value}`,
-                    'Content-Type': 'application/json'
+                    'Authorization': `Bearer ${document.getElementById('sessionToken').value}`
                 },
-                body: JSON.stringify({
-                    assignment_id: assignmentId,
-                    signature: signatureBase64,
-                    agreed: true
-                })
+                body: formData
             });
 
             const data = await res.json();
