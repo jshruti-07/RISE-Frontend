@@ -193,6 +193,91 @@
     .history-item:last-child {
         border-left-color: transparent;
     }
+
+    .modal-split-detail .modal-dialog {
+        max-width: 1480px;
+        width: min(96vw, 1480px);
+    }
+
+    .modal-split-detail .modal-content {
+        border: 0;
+        border-radius: 24px;
+        overflow: hidden;
+    }
+
+    .modal-split-detail .detail-pane,
+    .modal-split-detail .split-pane-secondary {
+        height: min(82vh, 820px);
+        max-height: min(82vh, 820px);
+    }
+
+    .modal-split-detail .detail-pane {
+        scrollbar-gutter: stable;
+    }
+
+    .modal-split-detail .detail-section {
+        margin-bottom: 1rem;
+    }
+
+    .modal-split-detail .detail-card {
+        background: #fff;
+        border: 1px solid #e2e8f0;
+        border-radius: 18px;
+        padding: 1rem;
+    }
+
+    .modal-split-detail .detail-card + .detail-card {
+        margin-top: 1rem;
+    }
+
+    .modal-split-detail .asset-detail-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 1rem;
+    }
+
+    .modal-split-detail .asset-detail-grid.three-up {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .modal-split-detail .asset-detail-item {
+        min-width: 0;
+    }
+
+    .modal-split-detail .asset-detail-value {
+        display: block;
+        font-size: 0.98rem;
+        font-weight: 600;
+        color: #0f172a;
+        line-height: 1.45;
+        word-break: break-word;
+        overflow-wrap: anywhere;
+        min-width: 0;
+    }
+
+    .modal-split-detail .asset-detail-value.text-muted {
+        font-weight: 500;
+        color: #64748b !important;
+    }
+
+    .modal-split-detail .detail-note {
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 14px;
+        padding: 0.85rem 1rem;
+        font-size: 0.9rem;
+        color: #475569;
+        margin: 0;
+        word-break: break-word;
+        overflow-wrap: anywhere;
+    }
+
+    @media (max-width: 1199.98px) {
+        .modal-split-detail .asset-detail-grid,
+        .modal-split-detail .asset-detail-grid.three-up {
+            grid-template-columns: 1fr;
+        }
+    }
 </style>
 
 <input type="hidden" id="sessionToken" value="{{ session.get('token', '') }}">
@@ -363,64 +448,67 @@
 
                         <div id="detailStatus" class="mb-4"></div>
 
-                        <div class="row g-3 mb-4">
-                            <div class="col-6">
-                                <label class="detail-label">Device</label>
-                                <div class="fw-bold" id="detailDeviceName"></div>
-                            </div>
-                            <div class="col-6">
-                                <label class="detail-label">Model</label>
-                                <div class="fw-bold" id="detailModel"></div>
+                        <div class="detail-card detail-section">
+                            <div class="asset-detail-grid">
+                                <div class="asset-detail-item">
+                                    <label class="detail-label">Device</label>
+                                    <div class="asset-detail-value" id="detailDeviceName"></div>
+                                </div>
+                                <div class="asset-detail-item">
+                                    <label class="detail-label">Model</label>
+                                    <div class="asset-detail-value" id="detailModel"></div>
+                                </div>
+                                <div class="asset-detail-item">
+                                    <label class="detail-label">Serial Number</label>
+                                    <div class="asset-detail-value" id="detailSerial"></div>
+                                </div>
+                                <div class="asset-detail-item">
+                                    <label class="detail-label">System ID</label>
+                                    <div class="asset-detail-value text-muted" id="detailDeviceId"></div>
+                                </div>
                             </div>
                         </div>
 
-                        <div class="row g-3 mb-4">
-                            <div class="col-6">
-                                <label class="detail-label">Serial Number</label>
-                                <div class="fw-bold" id="detailSerial"></div>
-                            </div>
-                            <div class="col-6">
-                                <label class="detail-label">System ID</label>
-                                <div class="fw-bold text-muted" id="detailDeviceId"></div>
-                            </div>
-                        </div>
-
-                        <div class="row g-3 mb-4">
-                            <div class="col-12">
+                        <div class="detail-card detail-section">
+                            <div class="asset-detail-item">
                                 <label class="detail-label">Asset ID</label>
-                                <div class="fw-bold text-primary fs-5" id="detailCustomAssetId">N/A</div>
+                                <div class="asset-detail-value text-primary fs-5 fw-bold" id="detailCustomAssetId"></div>
                             </div>
                         </div>
 
-                        <div class="row g-3 mb-4">
-                            <div class="col-4">
-                                <label class="detail-label">Processor</label>
-                                <div class="fw-bold" id="detailProcessor">N/A</div>
-                            </div>
-                            <div class="col-4">
-                                <label class="detail-label">RAM</label>
-                                <div class="fw-bold" id="detailRam">N/A</div>
-                            </div>
-                            <div class="col-4">
-                                <label class="detail-label">Storage</label>
-                                <div class="fw-bold" id="detailStorage">N/A</div>
-                            </div>
-                        </div>
-
-                        <div class="row g-3 mb-4">
-                            <div class="col-6">
-                                <label class="detail-label">Purchase Date</label>
-                                <div class="fw-bold" id="detailPurchaseDate">N/A</div>
-                            </div>
-                            <div class="col-6">
-                                <label class="detail-label">Warranty Expiry</label>
-                                <div class="fw-bold" id="detailWarranty">N/A</div>
+                        <div class="detail-card detail-section">
+                            <div class="asset-detail-grid three-up">
+                                <div class="asset-detail-item">
+                                    <label class="detail-label">Processor</label>
+                                    <div class="asset-detail-value" id="detailProcessor"></div>
+                                </div>
+                                <div class="asset-detail-item">
+                                    <label class="detail-label">RAM</label>
+                                    <div class="asset-detail-value" id="detailRam"></div>
+                                </div>
+                                <div class="asset-detail-item">
+                                    <label class="detail-label">Storage</label>
+                                    <div class="asset-detail-value" id="detailStorage"></div>
+                                </div>
                             </div>
                         </div>
 
-                        <div class="mb-4">
+                        <div class="detail-card detail-section">
+                            <div class="asset-detail-grid">
+                                <div class="asset-detail-item">
+                                    <label class="detail-label">Purchase Date</label>
+                                    <div class="asset-detail-value" id="detailPurchaseDate"></div>
+                                </div>
+                                <div class="asset-detail-item">
+                                    <label class="detail-label">Warranty Expiry</label>
+                                    <div class="asset-detail-value" id="detailWarranty"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="detail-card detail-section">
                             <label class="detail-label">Notes</label>
-                            <div class="text-muted small" id="detailNotes">No notes available.</div>
+                            <div class="detail-note" id="detailNotes">No notes available.</div>
                         </div>
 
                         <div class="detail-card mb-4" id="detailOwnerSection">
@@ -430,7 +518,7 @@
                                 <div id="detailEmployee">Unassigned</div>
                             </div>
                             <div id="returnAssetContainer" class="mt-3" style="display: none;">
-                                <button class="btn btn-sm btn-outline-danger rounded-pill fw-bold" onclick="promptReturnAsset()">
+                                <button type="button" class="btn btn-sm btn-outline-danger rounded-pill fw-bold" onclick="promptReturnAsset()">
                                     <i class="bi bi-arrow-return-left me-1"></i> Return Asset
                                 </button>
                             </div>
@@ -447,7 +535,7 @@
                             <label class="detail-label">Update Owner</label>
                             <div class="d-flex gap-2">
                                 <select class="form-select" id="reassignSelect"></select>
-                                <button class="btn btn-primary fw-bold" onclick="reassignAsset()">Update</button>
+                                <button type="button" class="btn btn-primary fw-bold" onclick="reassignAsset()">Update</button>
                             </div>
                         </div>
                     </div>
@@ -821,8 +909,12 @@
         // Show modal immediately with loading state
         const modalEl = document.getElementById('assetDetailModal');
         const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+        const detailPane = modalEl.querySelector('.detail-pane');
+        const secondaryPane = modalEl.querySelector('.split-pane-secondary');
         
         // Reset modal to loading state
+        if (detailPane) detailPane.scrollTop = 0;
+        if (secondaryPane) secondaryPane.scrollTop = 0;
         document.getElementById('detailDeviceName').innerHTML = '<span class="spinner-border spinner-border-sm text-primary"></span>';
         document.getElementById('assetHistory').innerHTML = '<div class="text-center py-4"><div class="spinner-border text-primary"></div></div>';
         document.getElementById('assetTickets').innerHTML = '<p class="text-muted small">Fetching tickets...</p>';
