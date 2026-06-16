@@ -790,8 +790,13 @@
             .then(res => res.json())
             .then(data => {
                 if (data.success) {
-                    // Normalize the asset data (some backends nest it)
-                    const assetData = data.asset.device || data.asset.asset || data.asset;
+                    // Log raw response so we can see exact field names from the backend
+                    console.log('[ASSET DETAIL] Raw API response:', JSON.stringify(data, null, 2));
+
+                    // Flatten: some backends nest inside .device, .asset, or .data
+                    let raw = data.asset || data.data || data;
+                    const assetData = raw.device || raw.asset || raw;
+                    console.log('[ASSET DETAIL] Resolved assetData:', assetData);
                     displayAsset(assetData);
 
                     // Fetch History
@@ -848,69 +853,95 @@
     }
 
     function displayAsset(a) {
-        // 1. Identify the Employee ID (Comprehensive scan)
-        let assignedId = a.employee_id || a.employeeId || a.emp_id || a.empId ||
+        console.log('[displayAsset] Keys received:', Object.keys(a));
+
+        // ---- 1. Flatten any nested sub-objects ----
+        // Some backends return { device: {...}, employee: {...} } at top level
+        if (a.device && typeof a.device === 'object') Object.assign(a, a.device);
+        if (a.asset && typeof a.asset === 'object' && !a.device_name) Object.assign(a, a.asset);
+
+        // ---- 2. Resolve Employee Assignment ----
+        // Collect all candidate IDs from every known field name
+        let assignedId =
+            a.employee_id || a.employeeId || a.emp_id || a.empId ||
             a.assigned_employee_id || a.assignedEmployeeId ||
-            a.user_id || a.userId || a.owner_id ||
             a.allotted_to || a.allotted_id || a.allottedTo ||
+            a.user_id || a.userId || a.owner_id ||
             a.assigned_to || a.assignedTo;
 
-        // Deep scan fallback
+        // If assigned_to is an object, pull its id
+        if (!assignedId && a.assigned_to && typeof a.assigned_to === 'object') assignedId = a.assigned_to.id;
+        if (!assignedId && a.employee && typeof a.employee === 'object') assignedId = a.employee.id;
+
+        // Numeric deep-scan fallback
         if (!assignedId) {
             for (let key in a) {
                 const k = key.toLowerCase();
-                if ((k.includes('emp') || k.includes('user') || k.includes('allot') || k.includes('assign') || k.includes('holder')) && !k.includes('asset') && !k.includes('device') && k !== 'id') {
+                if ((k.includes('emp') || k.includes('allot') || k.includes('assign') || k.includes('holder'))
+                    && !k.includes('asset') && !k.includes('device') && k !== 'id') {
                     const val = a[key];
-                    if (val && (typeof val === 'number' || (typeof val === 'string' && !isNaN(val)))) {
+                    if (val && (typeof val === 'number' || (typeof val === 'string' && val && !isNaN(val)))) {
                         assignedId = val;
+                        console.log('[displayAsset] Assignment found via deep scan — key:', key, 'val:', val);
                         break;
                     }
                 }
             }
         }
-        if (!assignedId && a.assigned_to && typeof a.assigned_to === 'object') assignedId = a.assigned_to.id;
-        if (!assignedId && a.employee && typeof a.employee === 'object') assignedId = a.employee.id;
 
-        // 2. Resolve the Name
-        let assignedName = a.employee_name || a.assigned_employee || a.assigned_to_name || a.holder_name || a.allotted_employee ||
-            (a.employee && a.employee.name ? a.employee.name : '') ||
-            (typeof a.assigned_to === 'string' && isNaN(a.assigned_to) ? a.assigned_to : (a.assigned_to && a.assigned_to.name ? a.assigned_to.name : ''));
+        // ---- 3. Resolve Employee Display Name ----
+        let assignedName =
+            a.employee_name || a.employeeName ||
+            a.assigned_employee || a.assigned_employee_name ||
+            a.assigned_to_name || a.assignedToName ||
+            a.holder_name || a.allotted_employee || a.allottedEmployee;
 
-        // Lookup fallback
+        if (!assignedName && a.employee && typeof a.employee === 'object') {
+            assignedName = a.employee.original_name || a.employee.name || a.employee.display_name;
+        }
+        if (!assignedName && typeof a.assigned_to === 'string' && isNaN(a.assigned_to)) {
+            assignedName = a.assigned_to;
+        }
+        if (!assignedName && a.assigned_to && typeof a.assigned_to === 'object') {
+            assignedName = a.assigned_to.original_name || a.assigned_to.name;
+        }
+        // Lookup by ID in the already-loaded employees array
         if (!assignedName && assignedId && typeof employees !== 'undefined') {
             const emp = employees.find(e => String(e.id) === String(assignedId));
-            if (emp) assignedName = emp.name;
+            if (emp) assignedName = emp.display_name || emp.original_name || emp.name;
         }
 
-        // --- POPULATE FIELDS ---
+        console.log('[displayAsset] Resolved assignedId:', assignedId, '| assignedName:', assignedName);
+
+        // ---- 4. Populate Fields ----
         const deviceName = a.device_name || a.brand || a.name || 'Unknown Device';
         document.getElementById('detailAssetTag').innerText = deviceName;
         document.getElementById('detailDeviceName').innerText = deviceName;
-        document.getElementById('detailModel').innerText = a.model || a.device_type || a.type || 'N/A';
-        document.getElementById('detailSerial').innerText = a.serial_number || a.serialNumber || a.sn || 'N/A';
-        document.getElementById('detailDeviceId').innerText = a.id || a.device_id || a.asset_tag || 'N/A';
-        
-        // Specs
-        document.getElementById('detailProcessor').innerText = a.processor || a.cpu || a.chip || 'N/A';
-        document.getElementById('detailRam').innerText = a.ram || a.memory || 'N/A';
-        document.getElementById('detailStorage').innerText = a.storage || a.disk || a.hdd || a.ssd || 'N/A';
-        
+        document.getElementById('detailModel').innerText   = a.model || a.device_type || a.type || 'N/A';
+        document.getElementById('detailSerial').innerText  = a.serial_number || a.serialNumber || a.sn || 'N/A';
+        document.getElementById('detailDeviceId').innerText = a.id || a.device_id || a.asset_id || a.asset_tag || 'N/A';
+
+        // Specs — cover all known aliases
+        document.getElementById('detailProcessor').innerText = a.processor || a.cpu || a.chip || a.processor_info || 'N/A';
+        document.getElementById('detailRam').innerText       = a.ram || a.memory || a.ram_gb || 'N/A';
+        document.getElementById('detailStorage').innerText   = a.storage || a.disk || a.hdd || a.ssd || a.storage_gb || 'N/A';
+
         // Dates
-        document.getElementById('detailPurchaseDate').innerText = a.purchase_date ? new Date(a.purchase_date).toLocaleDateString() : 'N/A';
-        document.getElementById('detailWarranty').innerText = a.warranty_expiry || a.warranty_end ? new Date(a.warranty_expiry || a.warranty_end).toLocaleDateString() : 'N/A';
+        document.getElementById('detailPurchaseDate').innerText  = a.purchase_date   ? new Date(a.purchase_date).toLocaleDateString()   : 'N/A';
+        document.getElementById('detailWarranty').innerText       = (a.warranty_expiry || a.warranty_end) ? new Date(a.warranty_expiry || a.warranty_end).toLocaleDateString() : 'N/A';
 
         // Notes
         const notesCont = document.getElementById('detailNotes');
         if (notesCont) {
             notesCont.innerText = a.notes || a.description || a.remarks || 'No notes available.';
-            notesCont.classList.toggle('text-muted', !a.notes && !a.description && !a.remarks);
+            notesCont.classList.toggle('text-muted', !(a.notes || a.description || a.remarks));
         }
 
-        // Employee
+        // ---- 5. Employee Display ----
         const empEl = document.getElementById('detailEmployee');
-        if (assignedName) {
-            const formattedName = cleanNameJS(assignedName);
-            empEl.innerText = `${formattedName} (ID: ${assignedId})`;
+        if (assignedName || assignedId) {
+            const formattedName = cleanNameJS(assignedName) || String(assignedId);
+            empEl.innerText = assignedId ? `${formattedName} (ID: ${assignedId})` : formattedName;
         } else {
             empEl.innerText = 'Unassigned';
         }
