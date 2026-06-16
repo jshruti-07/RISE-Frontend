@@ -105,20 +105,22 @@ def add_employee():
         return render_template('add_employee.html')
     
     form = request.form
-    payload = {
-        "name": form['name'],
-        "email": form['email'],
-        "date_of_joining": form['date_of_joining'],
-        "role": form.get('role', 'employee'),
-        "date_of_birth": form.get('date_of_birth', ''),
-        "phone": form.get('phone', ''),
-        "designation": form.get('designation', ''),
-        "department": form.get('department', ''),
-        "gender":form.get("gender",''),
-        "employment_type":form.get("employment_type",''),
-        "reporting_manager":form.get("reporting_manager",''),
-        "address":form.get("address",''),
+    raw_payload = {
+        "name": form.get('name', '').strip(),
+        "email": form.get('email', '').strip(),
+        "date_of_joining": form.get('date_of_joining', '').strip(),
+        "role": form.get('role', 'employee').strip(),
+        "date_of_birth": form.get('date_of_birth', '').strip(),
+        "phone": form.get('phone', '').strip(),
+        "designation": form.get('designation', '').strip(),
+        "department": form.get('department', '').strip(),
+        "gender": form.get("gender", '').strip(),
+        "employment_type": form.get("employment_type", '').strip(),
+        "reporting_manager": form.get("reporting_manager", '').strip(),
+        "address": form.get("address", '').strip(),
     }
+    # Only send non-empty fields to avoid parsing errors in backend
+    payload = {k: v for k, v in raw_payload.items() if v}
     files = {}
     if 'pdf_file' in request.files:
         pdf = request.files['pdf_file']
