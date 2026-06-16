@@ -255,11 +255,7 @@
                         <input type="text" class="form-control" name="device_name" required
                             placeholder="e.g. MacBook Pro">
                     </div>
-                    <div class="col-md-6">
-                        <label class="detail-label">Device ID</label>
-                        <input type="text" class="form-control" name="asset_tag" required
-                            placeholder="e.g. LAP-2024-001">
-                    </div>
+                    <!-- Removed auto-incrementing Device ID field -->
                     <div class="col-md-6">
                         <label class="detail-label">Device Type</label>
                         <select class="form-select" name="device_type" required>
@@ -763,7 +759,6 @@
         formData.append('device_name', form.device_name.value);
         formData.append('device_type', form.device_type.value);
         formData.append('serial_number', form.serial_number.value);
-        formData.append('asset_tag', form.asset_tag.value);
         if (form.asset_id.value) formData.append('asset_id', form.asset_id.value);
         
         // New specification fields
