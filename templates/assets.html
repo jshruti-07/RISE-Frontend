@@ -497,6 +497,12 @@
         });
     });
 
+    // Shared utility: strip role prefixes like T_, M_, H_, A_ from system names
+    function cleanNameJS(name) {
+        if (!name) return name;
+        return String(name).trim().replace(/^[HMTA]_/, '');
+    }
+
     // --- INVENTORY LOGIC ---
     function loadAssets() {
         fetch('/api/assets', { headers: getHeaders() })
@@ -524,11 +530,6 @@
             const isAssigned = (a.status && (a.status.toLowerCase() === 'assigned' || a.status.toLowerCase() === 'allotted')) || !!empId;
 
             let allottedDisplay = '<span class="text-muted small">Available</span>';
-
-            function cleanNameJS(name) {
-                if (!name) return name;
-                return String(name).trim().replace(/^[HMTA]_/, '');
-            }
 
             if (isAssigned) {
                 const emp = (empId && typeof employees !== 'undefined') ? employees.find(e => String(e.id) === String(empId)) : null;
