@@ -34,165 +34,163 @@
             </li>
         </ul>
 
-        <div class="onboarding-table-wrap">
-            <!-- Inventory Section -->
-            <section id="sectionInventory" class="p-3">
-                <div id="inventoryLoadingOverlay" class="loading-overlay d-none">
-                    <div class="spinner-border text-primary" role="status">
-                        <span class="visually-hidden">Loading...</span>
+        <!-- Inventory Section -->
+        <section id="sectionInventory" class="p-3" style="position: relative;">
+            <div id="inventoryLoadingOverlay" class="loading-overlay d-none">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+            </div>
+            <div class="table-responsive">
+                <table class="table align-middle">
+                    <thead>
+                        <tr>
+                            <th>Device Name</th>
+                            <th>Device ID</th>
+                            <th>Device Type</th>
+                            <th>Product ID</th>
+                            <th>Alloted To</th>
+                            <th>Agreement</th>
+                            <th class="text-end">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="assetsTableBody">
+                        <!-- Data loaded via JS -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Add Asset Section -->
+        <section id="sectionAddAsset" class="p-3 d-none">
+            <form id="assetForm">
+                <!-- Asset Details -->
+                <div class="mb-4">
+                    <h5 class="fw-semibold mb-3"><i class="bi bi-box-seam me-2 text-primary"></i>Device Specification</h5>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label">Device Name <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" name="device_name" required
+                                placeholder="e.g. MacBook Pro">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Device Type <span class="text-danger">*</span></label>
+                            <select class="form-select" name="device_type" required>
+                                <option value="Laptop">Laptop</option>
+                                <option value="Desktop">Desktop</option>
+                                <option value="Mobile">Mobile</option>
+                                <option value="Tablet">Tablet</option>
+                                <option value="Peripherals">Peripherals</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Product ID <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" name="serial_number" required placeholder="Unique SN">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Asset ID</label>
+                            <input type="text" class="form-control" name="asset_id" placeholder="e.g. LT-2026-VASANTH">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Processor</label>
+                            <input type="text" class="form-control" name="processor" placeholder="e.g. i7, M1, Ryzen 5">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">RAM</label>
+                            <input type="text" class="form-control" name="ram" placeholder="e.g. 16GB, 32GB">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">System Type</label>
+                            <input type="text" class="form-control" name="storage" placeholder="e.g. 512GB SSD">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Purchase Date</label>
+                            <input type="date" class="form-control" name="purchase_date">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Warranty Expiry</label>
+                            <input type="date" class="form-control" name="warranty_expiry">
+                        </div>
+                        <div class="form-group full-width">
+                            <label class="form-label">Notes</label>
+                            <textarea class="form-control" name="notes" rows="2" placeholder="Additional details..."></textarea>
+                        </div>
+                        <div class="form-group full-width">
+                            <label class="form-label">Asset Images</label>
+                            <input type="file" class="form-control" id="assetImage" accept="image/*" multiple>
+                            <small class="text-muted">Optional: Upload one or more photos of the device.</small>
+                        </div>
                     </div>
                 </div>
-                <div class="table-responsive">
-                    <table class="table align-middle">
-                        <thead>
-                            <tr>
-                                <th>Device Name</th>
-                                <th>Device ID</th>
-                                <th>Device Type</th>
-                                <th>Product ID</th>
-                                <th>Alloted To</th>
-                                <th>Agreement</th>
-                                <th class="text-end">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="assetsTableBody">
-                            <!-- Data loaded via JS -->
-                        </tbody>
-                    </table>
+
+                <!-- Ownership / Rental Details -->
+                <div class="mb-4">
+                    <h5 class="fw-semibold mb-3"><i class="bi bi-receipt me-2 text-primary"></i>Ownership Details</h5>
+                    <div class="mb-3">
+                        <label class="form-label">Ownership Type</label>
+                        <div class="btn-group" role="group">
+                            <input type="radio" class="btn-check" name="ownership_type" id="ownershipPurchased"
+                                value="Purchased" checked onchange="toggleVendorFields()">
+                            <label class="btn btn-outline-primary" for="ownershipPurchased">
+                                <i class="bi bi-bag-check me-1"></i> Purchased
+                            </label>
+                            <input type="radio" class="btn-check" name="ownership_type" id="ownershipRented"
+                                value="Rented" onchange="toggleVendorFields()">
+                            <label class="btn btn-outline-primary" for="ownershipRented">
+                                <i class="bi bi-arrow-repeat me-1"></i> Rented
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="form-grid d-none" id="vendorDetailsSection">
+                        <div class="form-group">
+                            <label class="form-label">Vendor Name <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" name="vendor_name"
+                                placeholder="e.g. Rentomojo, CloudLease Pvt Ltd">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Vendor Contact</label>
+                            <input type="text" class="form-control" name="vendor_contact"
+                                placeholder="Phone or email">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Rental Start Date</label>
+                            <input type="date" class="form-control" name="rental_start_date">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Rental End Date</label>
+                            <input type="date" class="form-control" name="rental_end_date">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Rental Cost</label>
+                            <div class="input-group">
+                                <span class="input-group-text">₹</span>
+                                <input type="number" min="0" step="0.01" class="form-control" name="rental_cost"
+                                    placeholder="0.00">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Billing Frequency</label>
+                            <select class="form-select" name="rental_cost_frequency">
+                                <option value="Monthly">Monthly</option>
+                                <option value="Quarterly">Quarterly</option>
+                                <option value="Yearly">Yearly</option>
+                                <option value="One-time">One-time</option>
+                            </select>
+                        </div>
+                    </div>
                 </div>
-            </section>
 
-            <!-- Add Asset Section -->
-            <section id="sectionAddAsset" class="p-3 d-none">
-                <form id="assetForm">
-                    <!-- Asset Details -->
-                    <div class="mb-4">
-                        <h5 class="fw-semibold mb-3"><i class="bi bi-box-seam me-2 text-primary"></i>Device Specification</h5>
-                        <div class="form-grid">
-                            <div class="form-group">
-                                <label class="form-label">Device Name <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control" name="device_name" required
-                                    placeholder="e.g. MacBook Pro">
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">Device Type <span class="text-danger">*</span></label>
-                                <select class="form-select" name="device_type" required>
-                                    <option value="Laptop">Laptop</option>
-                                    <option value="Desktop">Desktop</option>
-                                    <option value="Mobile">Mobile</option>
-                                    <option value="Tablet">Tablet</option>
-                                    <option value="Peripherals">Peripherals</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">Product ID <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control" name="serial_number" required placeholder="Unique SN">
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">Asset ID</label>
-                                <input type="text" class="form-control" name="asset_id" placeholder="e.g. LT-2026-VASANTH">
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">Processor</label>
-                                <input type="text" class="form-control" name="processor" placeholder="e.g. i7, M1, Ryzen 5">
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">RAM</label>
-                                <input type="text" class="form-control" name="ram" placeholder="e.g. 16GB, 32GB">
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">System Type</label>
-                                <input type="text" class="form-control" name="storage" placeholder="e.g. 512GB SSD">
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">Purchase Date</label>
-                                <input type="date" class="form-control" name="purchase_date">
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">Warranty Expiry</label>
-                                <input type="date" class="form-control" name="warranty_expiry">
-                            </div>
-                            <div class="form-group full-width">
-                                <label class="form-label">Notes</label>
-                                <textarea class="form-control" name="notes" rows="2" placeholder="Additional details..."></textarea>
-                            </div>
-                            <div class="form-group full-width">
-                                <label class="form-label">Asset Images</label>
-                                <input type="file" class="form-control" id="assetImage" accept="image/*" multiple>
-                                <small class="text-muted">Optional: Upload one or more photos of the device.</small>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Ownership / Rental Details -->
-                    <div class="mb-4">
-                        <h5 class="fw-semibold mb-3"><i class="bi bi-receipt me-2 text-primary"></i>Ownership Details</h5>
-                        <div class="mb-3">
-                            <label class="form-label">Ownership Type</label>
-                            <div class="btn-group" role="group">
-                                <input type="radio" class="btn-check" name="ownership_type" id="ownershipPurchased"
-                                    value="Purchased" checked onchange="toggleVendorFields()">
-                                <label class="btn btn-outline-primary" for="ownershipPurchased">
-                                    <i class="bi bi-bag-check me-1"></i> Purchased
-                                </label>
-                                <input type="radio" class="btn-check" name="ownership_type" id="ownershipRented"
-                                    value="Rented" onchange="toggleVendorFields()">
-                                <label class="btn btn-outline-primary" for="ownershipRented">
-                                    <i class="bi bi-arrow-repeat me-1"></i> Rented
-                                </label>
-                            </div>
-                        </div>
-
-                        <div class="form-grid d-none" id="vendorDetailsSection">
-                            <div class="form-group">
-                                <label class="form-label">Vendor Name <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control" name="vendor_name"
-                                    placeholder="e.g. Rentomojo, CloudLease Pvt Ltd">
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">Vendor Contact</label>
-                                <input type="text" class="form-control" name="vendor_contact"
-                                    placeholder="Phone or email">
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">Rental Start Date</label>
-                                <input type="date" class="form-control" name="rental_start_date">
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">Rental End Date</label>
-                                <input type="date" class="form-control" name="rental_end_date">
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">Rental Cost</label>
-                                <div class="input-group">
-                                    <span class="input-group-text">₹</span>
-                                    <input type="number" min="0" step="0.01" class="form-control" name="rental_cost"
-                                        placeholder="0.00">
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">Billing Frequency</label>
-                                <select class="form-select" name="rental_cost_frequency">
-                                    <option value="Monthly">Monthly</option>
-                                    <option value="Quarterly">Quarterly</option>
-                                    <option value="Yearly">Yearly</option>
-                                    <option value="One-time">One-time</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="d-flex justify-content-end gap-2 mt-4">
-                        <button type="button" class="btn btn-light" onclick="switchTab('inventory')">Cancel</button>
-                        <button type="button" class="btn btn-primary d-flex align-items-center gap-2" id="submitBtn"
-                            onclick="handleCreateAsset()">
-                            <span id="submitBtnText">Create Asset</span>
-                            <span class="spinner-border spinner-border-sm d-none" id="submitBtnSpinner" role="status" aria-hidden="true"></span>
-                        </button>
-                    </div>
-                </form>
-            </section>
-        </div>
+                <div class="d-flex justify-content-end gap-2 mt-4">
+                    <button type="button" class="btn btn-light" onclick="switchTab('inventory')">Cancel</button>
+                    <button type="button" class="btn btn-primary d-flex align-items-center gap-2" id="submitBtn"
+                        onclick="handleCreateAsset()">
+                        <span id="submitBtnText">Create Asset</span>
+                        <span class="spinner-border spinner-border-sm d-none" id="submitBtnSpinner" role="status" aria-hidden="true"></span>
+                    </button>
+                </div>
+            </form>
+        </section>
     </div>
 </div>
 
