@@ -3,127 +3,276 @@
 
 {% block content %}
 <style>
-    .asset-container {
-        max-width: 1200px;
-        margin: 0 auto;
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+    /* ── Base ── */
+    .asset-page {
+        font-family: 'Inter', sans-serif;
+        font-size: 0.92rem;
     }
 
-    .glass-card {
-        background: #ffffff;
+    /* ── Hero Banner (matches onboarding-hero) ── */
+    .asset-hero {
+        background: linear-gradient(135deg, #4f46e5 0%, #6366f1 50%, #818cf8 100%);
         border-radius: 20px;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
-        border: 1px solid #f1f5f9;
+        color: #fff;
+        padding: 1.5rem 1.75rem;
+        position: relative;
+        overflow: hidden;
+        z-index: 0;
+        margin-bottom: 1.5rem;
+    }
+
+    .asset-hero::after {
+        content: '';
+        position: absolute;
+        width: 260px;
+        height: 260px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.08);
+        top: -80px;
+        right: -60px;
+        pointer-events: none;
+    }
+
+    .asset-hero::before {
+        content: '';
+        position: absolute;
+        width: 140px;
+        height: 140px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.06);
+        bottom: -40px;
+        left: 120px;
+        pointer-events: none;
+    }
+
+    .asset-hero .hero-inner {
+        position: relative;
+        z-index: 1;
+    }
+
+    .asset-hero h4 {
+        font-weight: 700;
+        margin-bottom: 0.25rem;
+        font-size: 1.35rem;
+    }
+
+    .asset-hero p {
+        opacity: 0.88;
+        margin: 0;
+        font-size: 0.875rem;
+    }
+
+    .asset-hero .hero-stat {
+        background: rgba(255, 255, 255, 0.15);
+        backdrop-filter: blur(8px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 14px;
+        padding: 0.75rem 1.25rem;
+        text-align: center;
+        min-width: 90px;
+    }
+
+    .asset-hero .hero-stat-value {
+        font-size: 1.4rem;
+        font-weight: 700;
+        line-height: 1;
+        display: block;
+    }
+
+    .asset-hero .hero-stat-label {
+        font-size: 0.7rem;
+        opacity: 0.85;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-top: 0.2rem;
+        display: block;
+    }
+
+    .btn-hero-action {
+        background: #fff;
+        color: #4f46e5;
+        border: none;
+        font-weight: 600;
+        padding: 0.5rem 1.25rem;
+        border-radius: 10px;
+        font-size: 0.875rem;
+        box-shadow: 0 4px 14px rgba(15, 23, 42, 0.15);
+        transition: transform 0.2s, box-shadow 0.2s;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        cursor: pointer;
+    }
+
+    .btn-hero-action:hover {
+        background: #f8fafc;
+        color: #4338ca;
+        transform: translateY(-1px);
+        box-shadow: 0 6px 20px rgba(15, 23, 42, 0.2);
+    }
+
+    /* ── Main Panel ── */
+    .asset-panel {
+        background: #fff;
+        border: 1px solid #e5e7eb;
+        border-radius: 20px;
+        box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
         overflow: hidden;
     }
 
-    /* Tab Styling */
-    .asset-tabs {
+    /* ── Tabs (onboarding pill style) ── */
+    .asset-tabs-bar {
         display: flex;
-        background: #f8fafc;
-        padding: 8px;
-        gap: 8px;
-        border-bottom: 1px solid #e2e8f0;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        padding: 1rem 1.25rem 0;
+        border-bottom: 1px solid #f1f5f9;
+        background: #fafbfc;
     }
 
-    .asset-tab {
-        flex: 1;
-        padding: 12px;
-        text-align: center;
-        cursor: pointer;
-        border-radius: 12px;
-        font-weight: 700;
+    .asset-tab-pill {
         color: #64748b;
-        transition: all 0.2s;
-        border: none;
+        font-weight: 600;
+        font-size: 0.875rem;
+        padding: 0.5rem 1.1rem;
+        border-radius: 999px;
+        border: 1px solid transparent;
         background: transparent;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
     }
 
-    .asset-tab.active {
-        background: white;
-        color: #4f46e5;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    .asset-tab-pill:hover {
+        background: #fff;
+        color: #334155;
+        border-color: #e2e8f0;
     }
 
-    .asset-tab:hover:not(.active) {
-        background: #f1f5f9;
-        color: #1e293b;
+    .asset-tab-pill.active {
+        background: #4f46e5;
+        color: #fff;
+        border-color: #4f46e5;
+        box-shadow: 0 4px 12px rgba(79, 70, 229, 0.28);
     }
 
-    /* Section Styling */
+    /* ── Section ── */
     .view-section {
         display: none;
-        padding: 32px;
+        padding: 1.5rem 1.25rem;
     }
 
     .view-section.active {
         display: block;
-        animation: fadeIn 0.3s ease-out;
+        animation: fadeUp 0.3s ease-out;
     }
 
-    @keyframes fadeIn {
-        from {
-            opacity: 0;
-            transform: translateY(10px);
-        }
-
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
+    @keyframes fadeUp {
+        from { opacity: 0; transform: translateY(8px); }
+        to   { opacity: 1; transform: translateY(0); }
     }
 
-    /* Form Specific Styles */
-    .section-header {
+    /* ── Table (matches onboarding-panel table) ── */
+    .asset-table-wrap {
+        position: relative;
+        padding: 0;
+    }
+
+    .asset-table-wrap .table {
+        margin-bottom: 0;
+    }
+
+    .asset-table-wrap .table thead th {
+        font-size: 0.7rem;
+        font-weight: 600;
+        color: #64748b;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        padding: 0.9rem 1.25rem;
+        background: #f8fafc;
+        border-bottom: 1px solid #e2e8f0;
+        white-space: nowrap;
+        border-top: none;
+    }
+
+    .asset-table-wrap .table tbody td {
+        padding: 1rem 1.25rem;
+        vertical-align: middle;
+        border-bottom: 1px solid #f1f5f9;
+        color: #334155;
+    }
+
+    .asset-table-wrap .table tbody tr:last-child td {
+        border-bottom: none;
+    }
+
+    .asset-table-wrap .table tbody tr:hover {
+        background: #fafbfc;
+    }
+
+    /* ── Form Section Headers ── */
+    .form-section-header {
         display: flex;
         align-items: center;
         gap: 12px;
-        margin-bottom: 24px;
-        padding-bottom: 12px;
-        border-bottom: 2px solid #f8fafc;
+        margin-bottom: 1.25rem;
+        padding-bottom: 0.75rem;
+        border-bottom: 2px solid #f1f5f9;
     }
 
-    .section-icon {
-        width: 32px;
-        height: 32px;
-        border-radius: 8px;
+    .form-section-icon {
+        width: 36px;
+        height: 36px;
+        border-radius: 10px;
         display: flex;
         align-items: center;
         justify-content: center;
-        background: #e0f2fe;
-        color: #0369a1;
-        font-size: 1.1rem;
+        background: #eef2ff;
+        color: #4f46e5;
+        font-size: 1.05rem;
+        flex-shrink: 0;
     }
 
-    .section-title {
-        font-size: 1.1rem;
+    .form-section-title {
+        font-size: 1rem;
         font-weight: 700;
-        color: #1e293b;
+        color: #0f172a;
         margin: 0;
     }
 
+    /* ── Labels ── */
     .detail-label {
-        font-size: 0.75rem;
-        font-weight: 700;
+        font-size: 0.72rem;
+        font-weight: 600;
         color: #64748b;
         text-transform: uppercase;
         letter-spacing: 0.05em;
-        margin-bottom: 8px;
+        margin-bottom: 6px;
         display: block;
     }
 
+    /* ── Inputs ── */
     .form-control,
     .form-select {
-        border-radius: 12px;
-        padding: 12px 16px;
+        border-radius: 10px;
+        padding: 0.6rem 0.9rem;
         border: 1px solid #e2e8f0;
         background-color: #f8fafc;
+        font-size: 0.875rem;
         transition: all 0.2s;
+        color: #0f172a;
     }
 
-    .form-control:focus {
+    .form-control:focus,
+    .form-select:focus {
         background-color: #fff;
         border-color: #6366f1;
-        box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.12);
+        outline: none;
     }
 
     .form-control:read-only {
@@ -131,7 +280,90 @@
         cursor: not-allowed;
     }
 
-    /* Autocomplete */
+    .input-group-text {
+        border-radius: 10px 0 0 10px;
+        border-color: #e2e8f0;
+        background: #f8fafc;
+        color: #64748b;
+    }
+
+    .input-group .form-control {
+        border-radius: 0 10px 10px 0;
+    }
+
+    /* ── Ownership Toggles ── */
+    .btn-check + .btn-outline-primary {
+        border-radius: 999px;
+        font-weight: 600;
+        font-size: 0.85rem;
+        border-color: #e2e8f0;
+        color: #64748b;
+        background: #f8fafc;
+        transition: all 0.2s;
+    }
+
+    .btn-check:checked + .btn-outline-primary {
+        background: #4f46e5;
+        border-color: #4f46e5;
+        color: #fff;
+        box-shadow: 0 4px 12px rgba(79, 70, 229, 0.25);
+    }
+
+    /* ── Action Buttons ── */
+    .btn-asset-assign {
+        background: #dcfce7;
+        color: #166534;
+        border: 1px solid #bbf7d0;
+        font-weight: 600;
+        font-size: 0.78rem;
+        padding: 0.3rem 0.8rem;
+        border-radius: 999px;
+        transition: all 0.2s;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.3rem;
+    }
+
+    .btn-asset-assign:hover {
+        background: #16a34a;
+        color: #fff;
+        border-color: #16a34a;
+    }
+
+    .btn-asset-details {
+        background: #eef2ff;
+        color: #4338ca;
+        border: 1px solid #c7d2fe;
+        font-weight: 600;
+        font-size: 0.78rem;
+        padding: 0.3rem 0.8rem;
+        border-radius: 999px;
+        transition: all 0.2s;
+    }
+
+    .btn-asset-details:hover {
+        background: #4f46e5;
+        color: #fff;
+        border-color: #4f46e5;
+    }
+
+    .btn-asset-delete {
+        background: #fff;
+        color: #94a3b8;
+        border: 1px solid #e2e8f0;
+        font-size: 0.78rem;
+        padding: 0.3rem 0.6rem;
+        border-radius: 8px;
+        transition: all 0.2s;
+    }
+
+    .btn-asset-delete:hover {
+        background: #fef2f2;
+        color: #dc2626;
+        border-color: #fecaca;
+    }
+
+    /* ── Autocomplete ── */
     .autocomplete-results {
         position: absolute;
         z-index: 1000;
@@ -139,7 +371,7 @@
         background: white;
         border: 1px solid #e2e8f0;
         border-radius: 12px;
-        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
         max-height: 200px;
         overflow-y: auto;
         display: none;
@@ -148,29 +380,17 @@
     .autocomplete-item {
         padding: 10px 16px;
         cursor: pointer;
+        font-size: 0.875rem;
     }
 
-    .autocomplete-item:hover {
-        background: #f1f5f9;
-    }
+    .autocomplete-item:hover { background: #f8fafc; }
 
-    /* Badge Styles */
-    .status-available {
-        background: #dcfce7;
-        color: #166534;
-    }
+    /* ── Status Badges ── */
+    .status-available { background: #dcfce7; color: #166534; }
+    .status-assigned   { background: #e0f2fe; color: #0369a1; }
+    .status-maintenance{ background: #fee2e2; color: #b91c1c; }
 
-    .status-assigned {
-        background: #e0f2fe;
-        color: #0369a1;
-    }
-
-    .status-maintenance {
-        background: #fee2e2;
-        color: #b91c1c;
-    }
-
-    /* History Timeline */
+    /* ── History Timeline ── */
     .history-item {
         position: relative;
         padding-left: 24px;
@@ -181,19 +401,16 @@
     .history-item::before {
         content: '';
         position: absolute;
-        left: -7px;
-        top: 0;
-        width: 12px;
-        height: 12px;
+        left: -7px; top: 0;
+        width: 12px; height: 12px;
         border-radius: 50%;
         background: white;
         border: 2px solid #6366f1;
     }
 
-    .history-item:last-child {
-        border-left-color: transparent;
-    }
+    .history-item:last-child { border-left-color: transparent; }
 
+    /* ── Detail Modal ── */
     .modal-split-detail .modal-dialog {
         max-width: 1480px;
         width: min(96vw, 1480px);
@@ -201,8 +418,9 @@
 
     .modal-split-detail .modal-content {
         border: 0;
-        border-radius: 24px;
+        border-radius: 20px;
         overflow: hidden;
+        box-shadow: 0 25px 50px rgba(0,0,0,0.15);
     }
 
     .modal-split-detail .detail-pane,
@@ -211,24 +429,18 @@
         max-height: min(82vh, 820px);
     }
 
-    .modal-split-detail .detail-pane {
-        scrollbar-gutter: stable;
-    }
+    .modal-split-detail .detail-pane { scrollbar-gutter: stable; }
 
-    .modal-split-detail .detail-section {
-        margin-bottom: 1rem;
-    }
+    .modal-split-detail .detail-section { margin-bottom: 1rem; }
 
     .modal-split-detail .detail-card {
         background: #fff;
         border: 1px solid #e2e8f0;
-        border-radius: 18px;
+        border-radius: 14px;
         padding: 1rem;
     }
 
-    .modal-split-detail .detail-card + .detail-card {
-        margin-top: 1rem;
-    }
+    .modal-split-detail .detail-card + .detail-card { margin-top: 1rem; }
 
     .modal-split-detail .asset-detail-grid {
         display: grid;
@@ -240,13 +452,11 @@
         grid-template-columns: repeat(3, minmax(0, 1fr));
     }
 
-    .modal-split-detail .asset-detail-item {
-        min-width: 0;
-    }
+    .modal-split-detail .asset-detail-item { min-width: 0; }
 
     .modal-split-detail .asset-detail-value {
         display: block;
-        font-size: 0.98rem;
+        font-size: 0.95rem;
         font-weight: 600;
         color: #0f172a;
         line-height: 1.45;
@@ -263,9 +473,9 @@
     .modal-split-detail .detail-note {
         background: #f8fafc;
         border: 1px solid #e2e8f0;
-        border-radius: 14px;
+        border-radius: 12px;
         padding: 0.85rem 1rem;
-        font-size: 0.9rem;
+        font-size: 0.875rem;
         color: #475569;
         margin: 0;
         word-break: break-word;
@@ -278,69 +488,379 @@
             grid-template-columns: 1fr;
         }
     }
+
+    /* ── Return Modal ── */
+    #returnAssetModal .modal-content {
+        border-radius: 18px;
+        border: 0;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.12);
+    }
+
+    /* ── Custom Toast Notification ── */
+    .toast-container-custom {
+        position: fixed;
+        top: 1.25rem;
+        right: 1.25rem;
+        z-index: 9999;
+        display: flex;
+        flex-direction: column;
+        gap: 0.6rem;
+        pointer-events: none;
+    }
+
+    .custom-toast {
+        background: #fff;
+        border-radius: 14px;
+        padding: 0.9rem 1.1rem;
+        box-shadow: 0 8px 30px rgba(15, 23, 42, 0.14);
+        display: flex;
+        align-items: flex-start;
+        gap: 0.75rem;
+        min-width: 300px;
+        max-width: 400px;
+        pointer-events: all;
+        animation: toastIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        border-left: 4px solid #4f46e5;
+    }
+
+    .custom-toast.toast-success { border-left-color: #16a34a; }
+    .custom-toast.toast-error   { border-left-color: #dc2626; }
+    .custom-toast.toast-warning { border-left-color: #d97706; }
+    .custom-toast.toast-info    { border-left-color: #4f46e5; }
+
+    .custom-toast.toast-out {
+        animation: toastOut 0.3s ease forwards;
+    }
+
+    @keyframes toastIn {
+        from { opacity: 0; transform: translateX(24px); }
+        to   { opacity: 1; transform: translateX(0); }
+    }
+
+    @keyframes toastOut {
+        from { opacity: 1; transform: translateX(0); }
+        to   { opacity: 0; transform: translateX(24px); }
+    }
+
+    .toast-icon {
+        width: 32px;
+        height: 32px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        font-size: 0.95rem;
+    }
+
+    .toast-success .toast-icon { background: #dcfce7; color: #16a34a; }
+    .toast-error   .toast-icon { background: #fee2e2; color: #dc2626; }
+    .toast-warning .toast-icon { background: #fef9c3; color: #d97706; }
+    .toast-info    .toast-icon { background: #eef2ff; color: #4f46e5; }
+
+    .toast-body-text {
+        flex: 1;
+        font-size: 0.85rem;
+        color: #0f172a;
+        font-weight: 500;
+        line-height: 1.45;
+        padding-top: 0.05rem;
+    }
+
+    .toast-close {
+        background: none;
+        border: none;
+        color: #94a3b8;
+        cursor: pointer;
+        padding: 0;
+        line-height: 1;
+        font-size: 0.85rem;
+        flex-shrink: 0;
+        margin-top: 2px;
+        transition: color 0.15s;
+    }
+
+    .toast-close:hover { color: #475569; }
+
+    /* ── Custom Confirm Dialog ── */
+    .confirm-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(15, 23, 42, 0.55);
+        backdrop-filter: blur(4px);
+        z-index: 9998;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.2s, visibility 0.2s;
+    }
+
+    .confirm-overlay.visible {
+        opacity: 1;
+        visibility: visible;
+    }
+
+    .confirm-box {
+        background: #fff;
+        border-radius: 20px;
+        width: 100%;
+        max-width: 420px;
+        padding: 2rem;
+        box-shadow: 0 25px 50px rgba(0,0,0,0.15);
+        transform: translateY(16px) scale(0.98);
+        transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .confirm-overlay.visible .confirm-box {
+        transform: translateY(0) scale(1);
+    }
+
+    .confirm-icon-wrap {
+        width: 52px;
+        height: 52px;
+        border-radius: 14px;
+        background: #fef2f2;
+        color: #dc2626;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.4rem;
+        margin-bottom: 1rem;
+    }
+
+    .confirm-title {
+        font-size: 1rem;
+        font-weight: 700;
+        color: #0f172a;
+        margin-bottom: 0.4rem;
+    }
+
+    .confirm-message {
+        font-size: 0.875rem;
+        color: #475569;
+        margin-bottom: 1.5rem;
+        line-height: 1.6;
+    }
+
+    .confirm-actions {
+        display: flex;
+        gap: 0.75rem;
+        justify-content: flex-end;
+    }
+
+    .btn-confirm-cancel {
+        padding: 0.55rem 1.25rem;
+        border-radius: 10px;
+        border: 1px solid #e2e8f0;
+        background: #f8fafc;
+        color: #475569;
+        font-weight: 600;
+        font-size: 0.875rem;
+        cursor: pointer;
+        transition: all 0.15s;
+    }
+
+    .btn-confirm-cancel:hover { background: #f1f5f9; border-color: #cbd5e1; }
+
+    .btn-confirm-ok {
+        padding: 0.55rem 1.25rem;
+        border-radius: 10px;
+        border: 1px solid #dc2626;
+        background: #dc2626;
+        color: #fff;
+        font-weight: 600;
+        font-size: 0.875rem;
+        cursor: pointer;
+        transition: all 0.15s;
+    }
+
+    .btn-confirm-ok:hover { background: #b91c1c; border-color: #b91c1c; }
+
+    /* ── Return Confirm Modal styled ── */
+    #returnAssetModal .modal-header { padding: 1.5rem 1.5rem 0.5rem; }
+    #returnAssetModal .modal-body   { padding: 1rem 1.5rem; }
+    #returnAssetModal .modal-footer { padding: 0.5rem 1.5rem 1.5rem; }
+
+    .return-icon-wrap {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        background: #fef2f2;
+        color: #dc2626;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.3rem;
+    }
+
+    .return-confirm-check {
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 0.9rem 1rem;
+        margin-top: 1rem;
+    }
+
+    /* ── Form submit button ── */
+    .btn-primary-indigo {
+        background: linear-gradient(135deg, #4f46e5, #6366f1);
+        color: #fff;
+        border: none;
+        font-weight: 600;
+        padding: 0.6rem 1.5rem;
+        border-radius: 10px;
+        font-size: 0.875rem;
+        transition: transform 0.2s, box-shadow 0.2s;
+        box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+    }
+
+    .btn-primary-indigo:hover:not(:disabled) {
+        transform: translateY(-1px);
+        box-shadow: 0 6px 18px rgba(79, 70, 229, 0.4);
+        color: #fff;
+    }
+
+    .btn-primary-indigo:disabled { opacity: 0.65; cursor: not-allowed; }
+
+    .btn-light-cancel {
+        background: #f1f5f9;
+        color: #475569;
+        border: 1px solid #e2e8f0;
+        font-weight: 600;
+        padding: 0.6rem 1.25rem;
+        border-radius: 10px;
+        font-size: 0.875rem;
+        transition: all 0.15s;
+    }
+
+    .btn-light-cancel:hover { background: #e2e8f0; color: #334155; }
+
+    /* Empty state */
+    .empty-state {
+        text-align: center;
+        padding: 3.5rem 1.5rem;
+        color: #64748b;
+    }
+
+    .empty-state i {
+        font-size: 2.5rem;
+        color: #cbd5e1;
+        display: block;
+        margin-bottom: 0.75rem;
+    }
+
+    .empty-state h6 {
+        color: #475569;
+        font-weight: 600;
+        margin-bottom: 0.35rem;
+    }
+
+    @media (max-width: 768px) {
+        .asset-hero { padding: 1.25rem; }
+        .asset-hero .d-flex { flex-direction: column; align-items: flex-start !important; gap: 1rem; }
+        .asset-tabs-bar { padding: 0.75rem 0.75rem 0; }
+        .view-section { padding: 1rem 0.75rem; }
+        .confirm-box { margin: 1rem; }
+    }
 </style>
 
 <input type="hidden" id="sessionToken" value="{{ session.get('token', '') }}">
 <input type="hidden" id="userRole" value="{{ session.get('role', '') }}">
-
 <input type="hidden" id="backendBaseUrl" value="{{ BASE_URL }}">
 
-<div class="asset-container">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h3 class="fw-bold text-dark mb-1">Asset Management</h3>
-            <p class="text-muted">Track and allocate company hardware</p>
+<!-- ── Custom Toast Container ── -->
+<div class="toast-container-custom" id="toastContainer"></div>
+
+<!-- ── Custom Confirm Overlay ── -->
+<div class="confirm-overlay" id="confirmOverlay">
+    <div class="confirm-box">
+        <div class="confirm-icon-wrap" id="confirmIcon">
+            <i class="bi bi-exclamation-triangle-fill"></i>
+        </div>
+        <div class="confirm-title" id="confirmTitle">Are you sure?</div>
+        <div class="confirm-message" id="confirmMessage"></div>
+        <div class="confirm-actions">
+            <button class="btn-confirm-cancel" id="confirmCancelBtn" onclick="closeConfirm()">Cancel</button>
+            <button class="btn-confirm-ok" id="confirmOkBtn">Confirm</button>
+        </div>
+    </div>
+</div>
+
+<div class="asset-page">
+    <!-- ── Hero Banner ── -->
+    <div class="asset-hero">
+        <div class="hero-inner d-flex align-items-center justify-content-between flex-wrap gap-3">
+            <div>
+                <h4><i class="bi bi-box-seam me-2"></i>Asset Management</h4>
+                <p>Track, allocate and manage company hardware assets</p>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+                <div class="hero-stat">
+                    <span class="hero-stat-value" id="heroStatTotal">—</span>
+                    <span class="hero-stat-label">Total</span>
+                </div>
+                <div class="hero-stat">
+                    <span class="hero-stat-value" id="heroStatAssigned">—</span>
+                    <span class="hero-stat-label">Assigned</span>
+                </div>
+                <div class="hero-stat">
+                    <span class="hero-stat-value" id="heroStatFree">—</span>
+                    <span class="hero-stat-label">Available</span>
+                </div>
+                <button class="btn-hero-action ms-2" onclick="switchTab('add')">
+                    <i class="bi bi-plus-lg"></i> Add Asset
+                </button>
+            </div>
         </div>
     </div>
 
-    <div class="glass-card">
+    <!-- ── Main Panel ── -->
+    <div class="asset-panel">
         <!-- Tabs -->
-        <div class="asset-tabs">
-            <button class="asset-tab active" id="tabInventory" onclick="switchTab('inventory')">
-                <i class="bi bi-list-ul me-2"></i> Asset Inventory
+        <div class="asset-tabs-bar">
+            <button class="asset-tab-pill active" id="tabInventory" onclick="switchTab('inventory')">
+                <i class="bi bi-list-ul"></i> Asset Inventory
             </button>
-            <button class="asset-tab" id="tabAddAsset" onclick="switchTab('add')">
-                <i class="bi bi-plus-circle me-2"></i> Add New Asset
+            <button class="asset-tab-pill" id="tabAddAsset" onclick="switchTab('add')">
+                <i class="bi bi-plus-circle"></i> Add New Asset
             </button>
         </div>
 
-        <!-- Section 1: Inventory List -->
+        <!-- Section 1: Inventory -->
         <section id="sectionInventory" class="view-section active">
-            <div class="table-responsive">
+            <div class="asset-table-wrap">
                 <table class="table table-hover align-middle">
-                    <thead class="bg-light">
+                    <thead>
                         <tr>
-                            <th class="border-0 rounded-start-3">Device Name</th>
+                            <th class="border-0">Device Name</th>
                             <th class="border-0">Device ID</th>
                             <th class="border-0">Device Type</th>
                             <th class="border-0">Product ID</th>
-                            <th class="border-0">Alloted To</th>
+                            <th class="border-0">Allotted To</th>
                             <th class="border-0">Agreement</th>
-                            <th class="border-0 text-end rounded-end-3">Actions</th>
+                            <th class="border-0 text-end">Actions</th>
                         </tr>
                     </thead>
-                    <tbody id="assetsTableBody">
-                        <!-- Data loaded via JS -->
-                    </tbody>
+                    <tbody id="assetsTableBody"></tbody>
                 </table>
             </div>
         </section>
 
-        <!-- Section 2: Create Asset Form (no employee assignment here) -->
+        <!-- Section 2: Add Asset Form -->
         <section id="sectionAddAsset" class="view-section">
             <form id="assetForm">
-                <!-- Asset Details -->
-                <div class="section-header">
-                    <div class="section-icon"><i class="bi bi-box-seam"></i></div>
-                    <h5 class="section-title">Device Specification</h5>
+                <!-- Device Specification -->
+                <div class="form-section-header">
+                    <div class="form-section-icon"><i class="bi bi-box-seam"></i></div>
+                    <h5 class="form-section-title">Device Specification</h5>
                 </div>
-                <div class="row g-4 mb-5">
+                <div class="row g-3 mb-5">
                     <div class="col-md-6">
                         <label class="detail-label">Device Name</label>
-                        <input type="text" class="form-control" name="device_name" required
-                            placeholder="e.g. MacBook Pro">
+                        <input type="text" class="form-control" name="device_name" required placeholder="e.g. MacBook Pro">
                     </div>
-                    <!-- Removed auto-incrementing Device ID field -->
                     <div class="col-md-6">
                         <label class="detail-label">Device Type</label>
                         <select class="form-select" name="device_type" required>
@@ -385,18 +905,17 @@
                     </div>
                     <div class="col-md-12">
                         <label class="detail-label">Asset Images</label>
-                        <input type="file" class="form-control" id="assetImage" accept="image/*"
-                            style="padding: 8px 16px;" multiple>
-                        <small class="text-muted">Optional: Upload one or more photos of the device.</small>
+                        <input type="file" class="form-control" id="assetImage" accept="image/*" style="padding: 8px 16px;" multiple>
+                        <small class="text-muted mt-1 d-block">Optional: Upload one or more photos of the device.</small>
                     </div>
                 </div>
 
-                <!-- Ownership / Rental Details -->
-                <div class="section-header">
-                    <div class="section-icon"><i class="bi bi-receipt"></i></div>
-                    <h5 class="section-title">Ownership Details</h5>
+                <!-- Ownership Details -->
+                <div class="form-section-header">
+                    <div class="form-section-icon"><i class="bi bi-receipt"></i></div>
+                    <h5 class="form-section-title">Ownership Details</h5>
                 </div>
-                <div class="row g-4 mb-4">
+                <div class="row g-3 mb-4">
                     <div class="col-md-12">
                         <label class="detail-label d-block mb-2">Ownership Type</label>
                         <div class="btn-group" role="group" aria-label="Ownership Type">
@@ -415,16 +934,14 @@
                     </div>
                 </div>
 
-                <div class="row g-4 mb-5 d-none" id="vendorDetailsSection">
+                <div class="row g-3 mb-5 d-none" id="vendorDetailsSection">
                     <div class="col-md-6">
                         <label class="detail-label">Vendor Name <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" name="vendor_name"
-                            placeholder="e.g. Rentomojo, CloudLease Pvt Ltd">
+                        <input type="text" class="form-control" name="vendor_name" placeholder="e.g. Rentomojo, CloudLease Pvt Ltd">
                     </div>
                     <div class="col-md-6">
                         <label class="detail-label">Vendor Contact</label>
-                        <input type="text" class="form-control" name="vendor_contact"
-                            placeholder="Phone or email">
+                        <input type="text" class="form-control" name="vendor_contact" placeholder="Phone or email">
                     </div>
                     <div class="col-md-4">
                         <label class="detail-label">Rental Start Date</label>
@@ -438,8 +955,7 @@
                         <label class="detail-label">Rental Cost</label>
                         <div class="input-group">
                             <span class="input-group-text">₹</span>
-                            <input type="number" min="0" step="0.01" class="form-control" name="rental_cost"
-                                placeholder="0.00">
+                            <input type="number" min="0" step="0.01" class="form-control" name="rental_cost" placeholder="0.00">
                         </div>
                     </div>
                     <div class="col-md-6">
@@ -453,12 +969,10 @@
                     </div>
                 </div>
 
-                <div class="d-flex justify-content-end gap-3">
-                    <button type="button" class="btn btn-light rounded-pill px-4"
-                        onclick="switchTab('inventory')">Cancel</button>
-                    <button type="button" class="btn btn-primary rounded-pill px-4 fw-bold" id="submitBtn"
-                        onclick="handleCreateAsset()">
-                        Create Asset
+                <div class="d-flex justify-content-end gap-2 pt-2 border-top border-light">
+                    <button type="button" class="btn-light-cancel" onclick="switchTab('inventory')">Cancel</button>
+                    <button type="button" class="btn-primary-indigo" id="submitBtn" onclick="handleCreateAsset()">
+                        <i class="bi bi-plus-circle me-1"></i> Create Asset
                     </button>
                 </div>
             </form>
@@ -466,7 +980,7 @@
     </div>
 </div>
 
-<!-- Detail Modal -->
+<!-- ── Detail Modal ── -->
 <div class="modal fade modal-split-detail" id="assetDetailModal" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered" style="max-width: 550px; width: 95vw;">
         <div class="modal-content">
@@ -478,12 +992,10 @@
                 <div id="detailImageContainer" class="mb-4 text-center" style="display: none;">
                     <div id="imageCarousel" class="carousel slide" data-bs-ride="carousel">
                         <div class="carousel-inner rounded-4 shadow-sm" id="carouselInner"></div>
-                        <button class="carousel-control-prev" type="button" data-bs-target="#imageCarousel"
-                            data-bs-slide="prev">
+                        <button class="carousel-control-prev" type="button" data-bs-target="#imageCarousel" data-bs-slide="prev">
                             <span class="carousel-control-prev-icon"></span>
                         </button>
-                        <button class="carousel-control-next" type="button" data-bs-target="#imageCarousel"
-                            data-bs-slide="next">
+                        <button class="carousel-control-next" type="button" data-bs-target="#imageCarousel" data-bs-slide="next">
                             <span class="carousel-control-next-icon"></span>
                         </button>
                     </div>
@@ -573,7 +1085,7 @@
                     <label class="detail-label">Update Owner</label>
                     <div class="d-flex gap-2">
                         <select class="form-select" id="reassignSelect"></select>
-                        <button type="button" class="btn btn-primary fw-bold" onclick="reassignAsset()">Update</button>
+                        <button type="button" class="btn-primary-indigo" onclick="reassignAsset()">Update</button>
                     </div>
                 </div>
             </div>
@@ -581,29 +1093,37 @@
     </div>
 </div>
 
-<!-- Return Asset Confirmation Modal -->
+<!-- ── Return Asset Modal ── -->
 <div class="modal fade" id="returnAssetModal" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-dialog modal-dialog-centered" style="max-width: 440px;">
         <div class="modal-content">
-            <div class="modal-header border-0 pb-0">
-                <h5 class="modal-title fw-bold text-danger"><i class="bi bi-exclamation-triangle me-2"></i>Return Asset</h5>
+            <div class="modal-header border-0 pb-2">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="return-icon-wrap">
+                        <i class="bi bi-arrow-return-left"></i>
+                    </div>
+                    <div>
+                        <h5 class="modal-title fw-bold text-dark mb-0">Return Asset</h5>
+                        <p class="text-muted small mb-0">This action will free the asset for reallocation</p>
+                    </div>
+                </div>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <div class="modal-body">
-                <p>Are you sure you want to return this asset?</p>
-                <p class="text-muted small">The current owner assignment will be removed and the asset will become available for future allocation.</p>
-                
-                <div class="form-check mt-4 p-3 bg-light rounded-3 border">
-                    <input class="form-check-input ms-1" type="checkbox" id="confirmReturnCheck" onchange="toggleReturnButton()">
-                    <label class="form-check-label ms-2 fw-medium text-dark" for="confirmReturnCheck">
-                        I confirm this asset has been physically returned.
-                    </label>
+            <div class="modal-body pt-1">
+                <p class="text-muted small">Are you sure you want to return this asset? The current owner assignment will be removed and the asset will become available for future allocation.</p>
+                <div class="return-confirm-check">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="confirmReturnCheck" onchange="toggleReturnButton()">
+                        <label class="form-check-label fw-medium text-dark small" for="confirmReturnCheck">
+                            I confirm this asset has been physically returned.
+                        </label>
+                    </div>
                 </div>
             </div>
-            <div class="modal-footer border-0 pt-0">
-                <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Cancel</button>
+            <div class="modal-footer border-0 pt-2">
+                <button type="button" class="btn-light-cancel" data-bs-dismiss="modal">Cancel</button>
                 <button type="button" class="btn btn-danger rounded-pill px-4 fw-bold" id="btnConfirmReturn" disabled onclick="confirmReturnAsset()">
-                    Return Asset
+                    <i class="bi bi-arrow-return-left me-1"></i> Return Asset
                 </button>
             </div>
         </div>
@@ -614,6 +1134,65 @@
     let employees = [];
     let currentAssetId = null;
 
+    /* ════════════════════════════════════════
+       Custom Toast System
+    ════════════════════════════════════════ */
+    function showToast(message, type = 'info', duration = 4000) {
+        const icons = {
+            success: 'bi-check-circle-fill',
+            error:   'bi-x-circle-fill',
+            warning: 'bi-exclamation-triangle-fill',
+            info:    'bi-info-circle-fill'
+        };
+
+        const container = document.getElementById('toastContainer');
+        const toast = document.createElement('div');
+        toast.className = `custom-toast toast-${type}`;
+        toast.innerHTML = `
+            <div class="toast-icon"><i class="bi ${icons[type] || icons.info}"></i></div>
+            <div class="toast-body-text">${message}</div>
+            <button class="toast-close" onclick="this.closest('.custom-toast').remove()">
+                <i class="bi bi-x"></i>
+            </button>
+        `;
+        container.appendChild(toast);
+
+        setTimeout(() => {
+            toast.classList.add('toast-out');
+            setTimeout(() => toast.remove(), 320);
+        }, duration);
+    }
+
+    /* ════════════════════════════════════════
+       Custom Confirm Dialog
+    ════════════════════════════════════════ */
+    let _confirmCallback = null;
+
+    function showConfirm(message, onConfirm, title = 'Are you sure?') {
+        _confirmCallback = onConfirm;
+        document.getElementById('confirmTitle').textContent = title;
+        document.getElementById('confirmMessage').textContent = message;
+        document.getElementById('confirmOkBtn').onclick = () => {
+            closeConfirm();
+            if (_confirmCallback) _confirmCallback();
+        };
+        const overlay = document.getElementById('confirmOverlay');
+        overlay.classList.add('visible');
+    }
+
+    function closeConfirm() {
+        document.getElementById('confirmOverlay').classList.remove('visible');
+        _confirmCallback = null;
+    }
+
+    // Close confirm on overlay click
+    document.getElementById('confirmOverlay').addEventListener('click', function(e) {
+        if (e.target === this) closeConfirm();
+    });
+
+    /* ════════════════════════════════════════
+       Utilities
+    ════════════════════════════════════════ */
     function getHeaders() {
         return {
             'Authorization': `Bearer ${document.getElementById('sessionToken').value}`,
@@ -622,7 +1201,7 @@
     }
 
     function switchTab(tab) {
-        document.querySelectorAll('.asset-tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.asset-tab-pill').forEach(t => t.classList.remove('active'));
         document.querySelectorAll('.view-section').forEach(s => s.classList.remove('active'));
 
         if (tab === 'inventory') {
@@ -645,8 +1224,6 @@
 
     document.addEventListener('DOMContentLoaded', () => {
         const urlParams = new URLSearchParams(window.location.search);
-
-        // Load employees first, THEN load assets to ensure name lookup works
         loadEmployees().then(() => {
             if (urlParams.get('action') === 'add' || urlParams.get('action') === 'assign') {
                 switchTab('add');
@@ -662,7 +1239,9 @@
         return String(name).trim().replace(/^[HMTA]_/, '');
     }
 
-    // --- INVENTORY LOGIC ---
+    /* ════════════════════════════════════════
+       INVENTORY LOGIC
+    ════════════════════════════════════════ */
     function loadAssets() {
         fetch('/api/assets', { headers: getHeaders() })
             .then(res => res.json())
@@ -673,39 +1252,53 @@
 
     function renderAssets(assets) {
         const tbody = document.getElementById('assetsTableBody');
+
+        // Update hero stats
+        const total    = assets ? assets.length : 0;
+        const assigned = assets ? assets.filter(a => {
+            const empId = a.employee_id || a.assigned_to || a.user_id || a.emp_id || a.allotted_to || a.allotted_id;
+            return (a.status && (a.status.toLowerCase() === 'assigned' || a.status.toLowerCase() === 'allotted')) || !!empId;
+        }).length : 0;
+        document.getElementById('heroStatTotal').textContent    = total;
+        document.getElementById('heroStatAssigned').textContent = assigned;
+        document.getElementById('heroStatFree').textContent     = total - assigned;
+
         if (!assets || assets.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="6" class="text-center py-5 text-muted">No assets registered.</td></tr>';
+            tbody.innerHTML = `
+                <tr><td colspan="7">
+                    <div class="empty-state">
+                        <i class="bi bi-inbox"></i>
+                        <h6>No assets registered</h6>
+                        <p class="small text-muted mb-0">Click "Add Asset" to register your first device.</p>
+                    </div>
+                </td></tr>`;
             return;
         }
 
         tbody.innerHTML = assets.map(a => {
-            const deviceName = a.device_name || a.brand || 'Unknown';
-            const deviceId = a.id || 'N/A';
-            const deviceType = a.device_type || 'N/A';
+            const deviceName   = a.device_name || a.brand || 'Unknown';
+            const deviceId     = a.id || 'N/A';
+            const deviceType   = a.device_type || 'N/A';
             const serialNumber = a.serial_number || 'N/A';
 
-            // Identify ID from common variations
             const empId = a.employee_id || a.assigned_to || a.user_id || a.emp_id || a.allotted_to || a.allotted_id;
             const isAssigned = (a.status && (a.status.toLowerCase() === 'assigned' || a.status.toLowerCase() === 'allotted')) || !!empId;
 
-            let allottedDisplay = '<span class="text-muted small">Available</span>';
+            let allottedDisplay = '<span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-2 py-1" style="font-size:0.72rem;">Available</span>';
 
             if (isAssigned) {
                 const emp = (empId && typeof employees !== 'undefined') ? employees.find(e => String(e.id) === String(empId)) : null;
                 let empName = emp ? emp.name : 'Assigned';
-
-                // Display name
                 const formattedName = cleanNameJS(empName);
-
                 const displayId = empId || (emp ? emp.id : 'N/A');
                 let roleDisplay = (emp && emp.role) ? `<span class="text-muted me-2">${emp.role.toUpperCase()}</span>` : '';
-                allottedDisplay = `<div><strong>${formattedName}</strong></div><div class="small text-muted">${roleDisplay}ID: ${displayId}</div>`;
+                allottedDisplay = `<div><strong class="text-dark">${formattedName}</strong></div><div class="small text-muted">${roleDisplay}ID: ${displayId}</div>`;
             }
 
             return `
                 <tr>
                     <td><span class="fw-bold text-dark">${deviceName}</span></td>
-                    <td><code class="small text-primary fw-bold">${deviceId}</code></td>
+                    <td><code class="small fw-bold" style="color:#4f46e5;">${deviceId}</code></td>
                     <td><span class="text-muted small">${deviceType}</span></td>
                     <td><span class="text-muted small font-monospace">${serialNumber}</span></td>
                     <td>${allottedDisplay}</td>
@@ -714,9 +1307,9 @@
                     </td>
                     <td class="text-end">
                         <div class="d-flex justify-content-end gap-1">
-                            ${!isAssigned ? `<button class="btn btn-sm btn-success rounded-pill px-3 fw-bold" onclick="viewAsset('${deviceId}')" title="Assign to an employee"><i class="bi bi-person-plus me-1"></i>Assign</button>` : ''}
-                            <button class="btn btn-sm btn-outline-primary rounded-pill px-3 fw-bold" onclick="viewAsset('${deviceId}')">Details</button>
-                            <button class="btn btn-sm btn-outline-danger rounded-pill px-2" onclick="deleteAsset('${deviceId}')" title="Delete Device">
+                            ${!isAssigned ? `<button class="btn-asset-assign" onclick="viewAsset('${deviceId}')" title="Assign to an employee"><i class="bi bi-person-plus"></i> Assign</button>` : ''}
+                            <button class="btn-asset-details" onclick="viewAsset('${deviceId}')">Details</button>
+                            <button class="btn-asset-delete" onclick="deleteAsset('${deviceId}')" title="Delete Device">
                                 <i class="bi bi-trash"></i>
                             </button>
                         </div>
@@ -758,14 +1351,16 @@
         });
     }
 
-    // --- EMPLOYEE DATA (shared — used by the Detail Modal's assign/update control) ---
+    /* ════════════════════════════════════════
+       EMPLOYEE DATA
+    ════════════════════════════════════════ */
     let isLoadingEmployees = false;
     let employeeLoadAttempted = false;
 
     function loadEmployees() {
         if (isLoadingEmployees) return Promise.resolve();
         isLoadingEmployees = true;
-        
+
         console.log('Fetching employees...');
         return fetch('/api/employees', { headers: getHeaders() })
             .then(res => res.json())
@@ -791,17 +1386,18 @@
             });
     }
 
+    /* ════════════════════════════════════════
+       CREATE ASSET
+    ════════════════════════════════════════ */
     async function handleCreateAsset() {
         const form = document.getElementById('assetForm');
         const formData = new FormData();
 
-        // Manual collection to handle all fields correctly for saving
         formData.append('device_name', form.device_name.value);
         formData.append('device_type', form.device_type.value);
         formData.append('serial_number', form.serial_number.value);
         if (form.asset_id.value) formData.append('asset_id', form.asset_id.value);
-        
-        // Specification fields
+
         if (form.processor.value) formData.append('processor', form.processor.value);
         if (form.ram.value) formData.append('ram', form.ram.value);
         if (form.storage.value) formData.append('storage', form.storage.value);
@@ -809,12 +1405,11 @@
         if (form.warranty_expiry.value) formData.append('warranty_expiry', form.warranty_expiry.value);
         if (form.notes.value) formData.append('notes', form.notes.value);
 
-        // Ownership / rental fields
-        const ownershipType = form.ownership_type.value; // 'Purchased' or 'Rented'
+        const ownershipType = form.ownership_type.value;
         formData.append('ownership_type', ownershipType);
         if (ownershipType === 'Rented') {
             if (!form.vendor_name.value.trim()) {
-                alert('Vendor Name is required for a Rented asset.');
+                showToast('Vendor Name is required for a Rented asset.', 'warning');
                 return;
             }
             formData.append('vendor_name', form.vendor_name.value);
@@ -832,7 +1427,7 @@
 
         const btn = document.getElementById('submitBtn');
         btn.disabled = true;
-        btn.innerHTML = 'Creating...';
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Creating...';
 
         try {
             const createRes = await fetch('/api/assets', {
@@ -843,29 +1438,29 @@
             const createData = await createRes.json();
             if (!createData.success) throw new Error(createData.error);
 
-            alert('Asset created! You can now assign it to an employee from the Asset Inventory tab.');
+            showToast('Asset created successfully! You can now assign it to an employee from the Asset Inventory tab.', 'success', 5000);
             form.reset();
             document.getElementById('vendorDetailsSection').classList.add('d-none');
             switchTab('inventory');
         } catch (err) {
-            alert('Error: ' + err.message);
+            showToast('Error: ' + err.message, 'error');
         } finally {
             btn.disabled = false;
-            btn.innerHTML = 'Create Asset';
+            btn.innerHTML = '<i class="bi bi-plus-circle me-1"></i> Create Asset';
         }
     }
 
-    // --- DETAIL LOGIC ---
+    /* ════════════════════════════════════════
+       DETAIL LOGIC
+    ════════════════════════════════════════ */
     function viewAsset(id) {
         currentAssetId = id;
-        
-        // Show modal immediately with loading state
+
         const modalEl = document.getElementById('assetDetailModal');
         const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
         const detailPane = modalEl.querySelector('.detail-pane');
         const secondaryPane = modalEl.querySelector('.split-pane-secondary');
-        
-        // Reset modal to loading state
+
         if (detailPane) detailPane.scrollTop = 0;
         if (secondaryPane) secondaryPane.scrollTop = 0;
         document.getElementById('detailDeviceName').innerHTML = '<span class="spinner-border spinner-border-sm text-primary"></span>';
@@ -873,23 +1468,20 @@
         if (histEl) histEl.innerHTML = '<div class="text-center py-4"><div class="spinner-border text-primary"></div></div>';
         const ticketsEl = document.getElementById('assetTickets');
         if (ticketsEl) ticketsEl.innerHTML = '<p class="text-muted small">Fetching tickets...</p>';
-        
+
         modal.show();
 
         fetch(`/api/assets/${id}`, { headers: getHeaders() })
             .then(res => res.json())
             .then(data => {
                 if (data.success) {
-                    // Log raw response so we can see exact field names from the backend
                     console.log('[ASSET DETAIL] Raw API response:', JSON.stringify(data, null, 2));
 
-                    // Flatten: some backends nest inside .device, .asset, or .data
                     let raw = data.asset || data.data || data;
                     const assetData = raw.device || raw.asset || raw;
                     console.log('[ASSET DETAIL] Resolved assetData:', assetData);
                     displayAsset(assetData);
 
-                    // Fetch History (only if panel exists in DOM)
                     const historyContainer = document.getElementById('assetHistory');
                     if (historyContainer) {
                         fetch(`/api/assets/${id}/history`, { headers: getHeaders() })
@@ -913,7 +1505,6 @@
                             });
                     }
 
-                    // Fetch Related Tickets (only if panel exists in DOM)
                     const ticketsContainer = document.getElementById('assetTickets');
                     if (ticketsContainer) {
                         fetch(`/api/helpdesk/?search=${id}`, { headers: getHeaders() })
@@ -936,7 +1527,7 @@
                             });
                     }
                 } else {
-                    alert('Error loading asset: ' + data.error);
+                    showToast('Error loading asset: ' + data.error, 'error');
                     modal.hide();
                 }
             })
@@ -950,12 +1541,10 @@
         console.log('[displayAsset] Keys received:', Object.keys(a));
 
         // ---- 1. Flatten any nested sub-objects ----
-        // Some backends return { device: {...}, employee: {...} } at top level
         if (a.device && typeof a.device === 'object') Object.assign(a, a.device);
         if (a.asset && typeof a.asset === 'object' && !a.device_name) Object.assign(a, a.asset);
 
         // ---- 2. Resolve Employee Assignment ----
-        // Collect all candidate IDs from every known field name
         let assignedId =
             a.employee_id || a.employeeId || a.emp_id || a.empId ||
             a.assigned_employee_id || a.assignedEmployeeId ||
@@ -963,11 +1552,9 @@
             a.user_id || a.userId || a.owner_id ||
             a.assigned_to || a.assignedTo;
 
-        // If assigned_to is an object, pull its id
         if (!assignedId && a.assigned_to && typeof a.assigned_to === 'object') assignedId = a.assigned_to.id;
         if (!assignedId && a.employee && typeof a.employee === 'object') assignedId = a.employee.id;
 
-        // Numeric deep-scan fallback
         if (!assignedId) {
             for (let key in a) {
                 const k = key.toLowerCase();
@@ -999,7 +1586,6 @@
         if (!assignedName && a.assigned_to && typeof a.assigned_to === 'object') {
             assignedName = a.assigned_to.original_name || a.assigned_to.name;
         }
-        // Lookup by ID in the already-loaded employees array
         if (!assignedName && assignedId && typeof employees !== 'undefined') {
             const emp = employees.find(e => String(e.id) === String(assignedId));
             if (emp) assignedName = emp.display_name || emp.original_name || emp.name;
@@ -1016,12 +1602,10 @@
         const deviceIdEl = document.getElementById('detailDeviceId');
         if (deviceIdEl) deviceIdEl.innerText = a.id || a.device_id || a.asset_id || a.asset_tag || 'N/A';
 
-        // Specs — cover all known aliases
         document.getElementById('detailProcessor').innerText = a.processor || a.cpu || a.chip || a.processor_info || 'N/A';
         document.getElementById('detailRam').innerText       = a.ram || a.memory || a.ram_gb || 'N/A';
         document.getElementById('detailStorage').innerText   = a.storage || a.disk || a.hdd || a.ssd || a.storage_gb || 'N/A';
 
-        // Custom Asset ID
         const customAssetEl = document.getElementById('detailCustomAssetId');
         if (customAssetEl) {
             customAssetEl.innerText = a.asset_id || 'N/A';
@@ -1029,11 +1613,9 @@
             customAssetEl.classList.toggle('text-primary', !!a.asset_id);
         }
 
-        // Dates
         document.getElementById('detailPurchaseDate').innerText  = a.purchase_date   ? new Date(a.purchase_date).toLocaleDateString()   : 'N/A';
         document.getElementById('detailWarranty').innerText       = (a.warranty_expiry || a.warranty_end) ? new Date(a.warranty_expiry || a.warranty_end).toLocaleDateString() : 'N/A';
 
-        // Notes
         const notesCont = document.getElementById('detailNotes');
         if (notesCont) {
             notesCont.innerText = a.notes || a.description || a.remarks || 'No notes available.';
@@ -1041,13 +1623,11 @@
         }
 
         // ---- 5. Employee Display ----
-        const empEl = document.getElementById('detailEmployee');
         const ownerSection = document.getElementById('detailOwnerSection');
         const updateSection = document.getElementById('updateOwnerContainer');
-        
+
         if (assignedName || assignedId) {
             const formattedName = cleanNameJS(assignedName) || String(assignedId);
-            // Restore original HTML structure for owner if it was overwritten
             ownerSection.innerHTML = `
                 <label class="detail-label text-primary">Current Owner</label>
                 <div class="d-flex align-items-center gap-2 mt-1">
@@ -1063,7 +1643,6 @@
             ownerSection.style.display = 'block';
             if (updateSection) updateSection.style.display = 'block';
         } else {
-            // Asset is returned / available
             ownerSection.innerHTML = `
                 <label class="detail-label text-success">Status</label>
                 <div class="d-flex align-items-center gap-2 mt-1">
@@ -1075,7 +1654,6 @@
             if (updateSection) updateSection.style.display = 'block';
         }
 
-        // Toggle the assign/update control's label + button text based on state
         if (updateSection) {
             const updateLabelEl = updateSection.querySelector('.detail-label');
             const updateBtnEl = updateSection.querySelector('button');
@@ -1090,7 +1668,6 @@
             reassignSelectEl.options[0].text = isAssigned ? '-- Unassign --' : '-- Select Employee --';
         }
 
-        // Handle Return Asset button visibility
         const role = document.getElementById('userRole').value.toLowerCase();
         const returnBtnContainer = document.getElementById('returnAssetContainer');
         if (returnBtnContainer) {
@@ -1103,8 +1680,8 @@
 
         // --- AGREEMENT STATUS ---
         const agSection = document.getElementById('detailAgreementSection');
-        const agStatus = document.getElementById('detailAgreementStatus');
-        const agAction = document.getElementById('detailAgreementAction');
+        const agStatus  = document.getElementById('detailAgreementStatus');
+        const agAction  = document.getElementById('detailAgreementAction');
 
         if (isAssigned && (a.id || a.device_id)) {
             agSection.style.display = 'block';
@@ -1121,7 +1698,7 @@
                             agAction.innerHTML = `<button class="btn btn-sm btn-outline-primary rounded-pill w-100 mt-2" onclick="window.open('/assets/agreement/${a.id || a.device_id}')">View Signed Agreement</button>`;
                         } else {
                             agStatus.innerHTML = '<span class="badge bg-warning-subtle text-warning border border-warning-subtle rounded-pill px-3"><i class="bi bi-clock-fill me-1"></i>PENDING SIGNATURE</span>';
-                            agAction.innerHTML = `<button class="btn btn-sm btn-warning rounded-pill w-100 mt-2" onclick="alert('Reminder Sent to Employee')">Send Reminder</button>`;
+                            agAction.innerHTML = `<button class="btn btn-sm btn-warning rounded-pill w-100 mt-2" onclick="showToast('Reminder sent to employee.', 'info')">Send Reminder</button>`;
                         }
                     } else {
                         agStatus.innerHTML = '<span class="text-muted small">Not initiated</span>';
@@ -1133,10 +1710,9 @@
         }
 
         const imgCont = document.getElementById('detailImageContainer');
-        const inner = document.getElementById('carouselInner');
+        const inner   = document.getElementById('carouselInner');
         const backendBase = document.getElementById('backendBaseUrl').value;
 
-        // Collect all possible image fields
         const imagesRaw = a.image_urls || a.images || a.photos || a.image_url || a.image || a.picture;
         const images = (Array.isArray(imagesRaw) ? imagesRaw : (imagesRaw ? [imagesRaw] : [])).filter(i => i && typeof i === 'string');
 
@@ -1144,7 +1720,6 @@
             inner.innerHTML = images.map((url, i) => {
                 let fullUrl = url;
                 if (!url.startsWith('http')) {
-                    // Ensure backendBase ends with slash or url starts with slash
                     const base = backendBase.endsWith('/') ? backendBase.slice(0, -1) : backendBase;
                     const path = url.startsWith('/') ? url : '/' + url;
                     fullUrl = base + path;
@@ -1156,8 +1731,6 @@
                 `;
             }).join('');
             imgCont.style.display = 'block';
-
-            // Hide controls if only one image
             document.querySelectorAll('.carousel-control-prev, .carousel-control-next').forEach(btn => {
                 btn.style.display = images.length > 1 ? 'flex' : 'none';
             });
@@ -1172,47 +1745,50 @@
         const empName = empId ? select.options[select.selectedIndex].text : '';
 
         if (!empId) {
-            alert('Please select an employee to assign this asset to.');
+            showToast('Please select an employee to assign this asset to.', 'warning');
             return;
         }
 
         fetch(`/api/assets/${currentAssetId}/assign`, {
             method: 'POST',
             headers: getHeaders(),
-            body: JSON.stringify({
-                employee_id: empId,
-                employee_name: empName
-            })
+            body: JSON.stringify({ employee_id: empId, employee_name: empName })
         }).then(() => {
-            alert('Updated!');
+            showToast('Asset owner updated successfully!', 'success');
             viewAsset(currentAssetId);
             loadAssets();
         });
     }
 
     function deleteAsset(id) {
-        if (!confirm('Are you sure you want to delete this device permanently?')) return;
-
-        fetch(`/api/assets/${id}`, {
-            method: 'DELETE',
-            headers: getHeaders()
-        })
-            .then(res => res.json())
-            .then(data => {
-                if (data.success) {
-                    alert('Device deleted successfully');
-                    loadAssets();
-                } else {
-                    alert('Error deleting device: ' + data.error);
-                }
-            })
-            .catch(err => {
-                console.error('Delete Error:', err);
-                alert('Failed to delete device.');
-            });
+        showConfirm(
+            'Are you sure you want to delete this device permanently? This action cannot be undone.',
+            () => {
+                fetch(`/api/assets/${id}`, {
+                    method: 'DELETE',
+                    headers: getHeaders()
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        showToast('Device deleted successfully.', 'success');
+                        loadAssets();
+                    } else {
+                        showToast('Error deleting device: ' + data.error, 'error');
+                    }
+                })
+                .catch(err => {
+                    console.error('Delete Error:', err);
+                    showToast('Failed to delete device.', 'error');
+                });
+            },
+            'Delete Device'
+        );
     }
 
-    // --- RETURN ASSET LOGIC ---
+    /* ════════════════════════════════════════
+       RETURN ASSET LOGIC
+    ════════════════════════════════════════ */
     function toggleReturnButton() {
         const checkbox = document.getElementById('confirmReturnCheck');
         const btn = document.getElementById('btnConfirmReturn');
@@ -1241,15 +1817,12 @@
         .then(res => res.json())
         .then(data => {
             if (data.success) {
-                // Hide modal
                 const modalEl = document.getElementById('returnAssetModal');
                 const modal = bootstrap.Modal.getInstance(modalEl);
                 if (modal) modal.hide();
 
-                // Show success toast or alert
-                alert(data.message || 'Asset returned successfully.');
-                
-                // Refresh data
+                showToast(data.message || 'Asset returned successfully.', 'success');
+
                 viewAsset(currentAssetId);
                 loadAssets();
             } else {
@@ -1258,11 +1831,11 @@
         })
         .catch(err => {
             console.error('Return Error:', err);
-            alert(err.message || 'Unable to return asset. Please try again.');
+            showToast(err.message || 'Unable to return asset. Please try again.', 'error');
         })
         .finally(() => {
-            btn.innerHTML = 'Return Asset';
-            toggleReturnButton(); // Reset disabled state based on checkbox
+            btn.innerHTML = '<i class="bi bi-arrow-return-left me-1"></i> Return Asset';
+            toggleReturnButton();
         });
     }
 </script>
