@@ -1,6 +1,6 @@
 # Altzor — HR Management System
 
-A full-featured Human Resource Management System built with **Flask**, designed around a two-tier architecture where a frontend Flask application proxies requests to a separate backend API server. The system supports role-based access for **HR**, **Managers**, and **Employees**, covering core HR workflows including employee onboarding, leave management, timesheets, project tracking, payslips, attendance, reimbursements, help desk, assets, policies, announcements, and more.
+A full-featured Human Resource Management System built with **Flask**, designed around a two-tier architecture where a frontend Flask application proxies requests to a separate backend API server. The system supports role-based access for **HR**, **Managers**, **Employees**, and **Onboarding Candidates**, covering core HR workflows including employee onboarding, leave management, timesheets, project tracking, payslips, attendance, reimbursements, help desk, assets, policies, announcements, and more.
 
 ---
 
@@ -61,6 +61,7 @@ A full-featured Human Resource Management System built with **Flask**, designed 
 | **Announcements**    | HR posts announcements with optional attachments; dashboard widget shows active announcements                            |
 | **Notifications**    | System-wide notification feed for all roles                                                                              |
 | **Profile**          | Personal info, profile photo upload, document upload progress (PAN, Aadhaar, etc.), leave balance summary               |
+| **Onboarding**       | HR onboarding dashboard, joinee onboarding dashboard, document proxy for onboarding files                                |
 
 ---
 
@@ -109,9 +110,13 @@ Altzor3/
 │   ├── __init__.py               # Application factory (create_app), Blueprint registration, context processor
 │   ├── utils.py                  # Shared helpers: BASE_URL, get_headers, role_required, token_required,
 │   │                             #   fetch_leave_balance_helper (with dynamic fallback calculation)
+│   ├── api_helpers.py            # API response normalizers: prefix stripping, name matching, person/project data parsing
 │   ├── ui_constants.py           # Centralized branding: UI_LABELS, UI_CONFIG (injected globally via context processor)
+│   ├── onboarding_ui/            # Onboarding module routes and templates
+│   │   ├── __init__.py           # Onboarding Blueprint registration
+│   │   └── routes.py             # Onboarding dashboard (HR) and joinee dashboard routes
 │   └── routes/                   # Modular route definitions (Flask Blueprints)
-│       ├── auth.py               # Login, Logout, Forgot/Reset Password, Change Password
+│       ├── auth.py               # Login, Logout, Forgot/Reset Password, Change Password, onboarding candidate redirect
 │       ├── dashboard.py          # Role-aware dashboard: stats, birthdays, holidays, announcements,
 │       │                         #   team leaves, pending timesheets, pending agreements
 │       ├── employees.py          # Employee CRUD: add, edit, delete, view all employees
@@ -160,7 +165,12 @@ Altzor3/
 │   ├── notifications.html        # Notifications feed
 │   ├── change_password.html      # Change password
 │   ├── forgot_password.html      # Forgot password
-│   └── reset_password.html       # Reset password
+│   ├── reset_password.html       # Reset password
+│   ├── onboarding/               # Onboarding module templates
+│   │   └── dashboard.html        # HR onboarding dashboard
+│   └── joinee/                   # Onboarding candidate templates
+│       ├── base.html             # Joinee base layout
+│       └── dashboard.html        # Joinee onboarding dashboard
 ├── static/                       # Global CSS, JS, and images
 │   └── css/
 │       └── style.css             # Application styles
@@ -251,11 +261,12 @@ To access the Altzor HR system from any device (Mobile, Tablet, Laptop) on your 
 
 ## User Roles & Permissions
 
-| Role         | Prefix | Key Permissions                                                                          |
-|--------------|--------|------------------------------------------------------------------------------------------|
-| **HR**       | `H_`   | Full access — manage employees, projects, verify bank info, manage assets, helpdesk, policies, announcements |
-| **Manager**  | `M_`   | Manage teams, approve/reject timesheets & leaves, view reimbursements, access project details |
-| **Employee** | `T_`   | Submit timesheets/leaves, view own profile & attendance, raise helpdesk tickets, sign agreements, submit reimbursement claims |
+| Role                 | Prefix | Key Permissions                                                                          |
+|----------------------|--------|------------------------------------------------------------------------------------------|
+| **HR**               | `H_`   | Full access — manage employees, projects, verify bank info, manage assets, helpdesk, policies, announcements, onboarding dashboard |
+| **Manager**          | `M_`   | Manage teams, approve/reject timesheets & leaves, view reimbursements, access project details |
+| **Employee**         | `T_`   | Submit timesheets/leaves, view own profile & attendance, raise helpdesk tickets, sign agreements, submit reimbursement claims |
+| **Onboarding Candidate** | — | Access joinee onboarding dashboard, view and complete onboarding documents |
 
 > Role is enforced on every route via the `@role_required([...])` decorator in `app/utils.py`. API/AJAX calls receive JSON `403` responses instead of redirects.
 
@@ -267,6 +278,12 @@ To access the Altzor HR system from any device (Mobile, Tablet, Laptop) on your 
 - **Login / Logout** — JWT token stored in session; session cleared on logout.
 - **Password Management** — Forgot password → email OTP → reset. First-login enforcement (redirect to change password).
 - **Change Password** — Available to all logged-in users.
+- **Onboarding Candidate Redirect** — Logged-in onboarding candidates are automatically redirected to joinee dashboard.
+
+### Onboarding
+- **HR Onboarding Dashboard** — Accessible to HR/Admin at `/onboarding/` to manage onboarding process.
+- **Joinee Dashboard** — Accessible to onboarding candidates at `/onboarding/joinee-dashboard` to complete onboarding tasks.
+- **Document Proxy** — Securely proxies onboarding document files from backend API at `/onboarding/documents/<id>/view`.
 
 ### Dashboard
 - **Role-Aware Stats** — Cards for total employees, pending timesheets (current month), and pending leaves.
@@ -406,6 +423,9 @@ The frontend acts as a transparent proxy for the backend API. Key proxy routes:
 | `/uploads/<path:filename>`                        | GET                | user       | Stream backend-hosted uploaded files             |
 | `/upload-photo`                                   | POST               | user       | Upload / update profile photo                    |
 | `/notifications`                                  | GET                | main       | Notifications feed page                          |
+| `/onboarding/`                                    | GET                | onboarding | HR onboarding dashboard (HR/Admin only)          |
+| `/onboarding/joinee-dashboard`                    | GET                | onboarding | Joinee onboarding dashboard (onboarding candidate only) |
+| `/onboarding/documents/<int:document_id>/view`    | GET                | onboarding | Proxy for onboarding document file from backend  |
 
 ---
 
