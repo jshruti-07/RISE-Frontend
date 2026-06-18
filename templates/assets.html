@@ -1,57 +1,322 @@
 {% extends "base.html" %}
 {% block title %}Asset Management{% endblock %}
 
-{% block head %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/onboarding.css') }}">
-{% endblock %}
-
 {% block content %}
+<style>
+    .asset-container {
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    .glass-card {
+        background: #ffffff;
+        border-radius: 20px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+        border: 1px solid #f1f5f9;
+        overflow: hidden;
+    }
+
+    /* Tab Styling */
+    .asset-tabs {
+        display: flex;
+        background: #f8fafc;
+        padding: 8px;
+        gap: 8px;
+        border-bottom: 1px solid #e2e8f0;
+    }
+
+    .asset-tab {
+        flex: 1;
+        padding: 12px;
+        text-align: center;
+        cursor: pointer;
+        border-radius: 12px;
+        font-weight: 700;
+        color: #64748b;
+        transition: all 0.2s;
+        border: none;
+        background: transparent;
+    }
+
+    .asset-tab.active {
+        background: white;
+        color: #4f46e5;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    }
+
+    .asset-tab:hover:not(.active) {
+        background: #f1f5f9;
+        color: #1e293b;
+    }
+
+    /* Section Styling */
+    .view-section {
+        display: none;
+        padding: 32px;
+    }
+
+    .view-section.active {
+        display: block;
+        animation: fadeIn 0.3s ease-out;
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* Form Specific Styles */
+    .section-header {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 24px;
+        padding-bottom: 12px;
+        border-bottom: 2px solid #f8fafc;
+    }
+
+    .section-icon {
+        width: 32px;
+        height: 32px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #e0f2fe;
+        color: #0369a1;
+        font-size: 1.1rem;
+    }
+
+    .section-title {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #1e293b;
+        margin: 0;
+    }
+
+    .detail-label {
+        font-size: 0.75rem;
+        font-weight: 700;
+        color: #64748b;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-bottom: 8px;
+        display: block;
+    }
+
+    .form-control,
+    .form-select {
+        border-radius: 12px;
+        padding: 12px 16px;
+        border: 1px solid #e2e8f0;
+        background-color: #f8fafc;
+        transition: all 0.2s;
+    }
+
+    .form-control:focus {
+        background-color: #fff;
+        border-color: #6366f1;
+        box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+    }
+
+    .form-control:read-only {
+        background-color: #f1f5f9;
+        cursor: not-allowed;
+    }
+
+    /* Autocomplete */
+    .autocomplete-results {
+        position: absolute;
+        z-index: 1000;
+        width: 100%;
+        background: white;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        max-height: 200px;
+        overflow-y: auto;
+        display: none;
+    }
+
+    .autocomplete-item {
+        padding: 10px 16px;
+        cursor: pointer;
+    }
+
+    .autocomplete-item:hover {
+        background: #f1f5f9;
+    }
+
+    /* Badge Styles */
+    .status-available {
+        background: #dcfce7;
+        color: #166534;
+    }
+
+    .status-assigned {
+        background: #e0f2fe;
+        color: #0369a1;
+    }
+
+    .status-maintenance {
+        background: #fee2e2;
+        color: #b91c1c;
+    }
+
+    /* History Timeline */
+    .history-item {
+        position: relative;
+        padding-left: 24px;
+        padding-bottom: 20px;
+        border-left: 2px solid #e2e8f0;
+    }
+
+    .history-item::before {
+        content: '';
+        position: absolute;
+        left: -7px;
+        top: 0;
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: white;
+        border: 2px solid #6366f1;
+    }
+
+    .history-item:last-child {
+        border-left-color: transparent;
+    }
+
+    .modal-split-detail .modal-dialog {
+        max-width: 1480px;
+        width: min(96vw, 1480px);
+    }
+
+    .modal-split-detail .modal-content {
+        border: 0;
+        border-radius: 24px;
+        overflow: hidden;
+    }
+
+    .modal-split-detail .detail-pane,
+    .modal-split-detail .split-pane-secondary {
+        height: min(82vh, 820px);
+        max-height: min(82vh, 820px);
+    }
+
+    .modal-split-detail .detail-pane {
+        scrollbar-gutter: stable;
+    }
+
+    .modal-split-detail .detail-section {
+        margin-bottom: 1rem;
+    }
+
+    .modal-split-detail .detail-card {
+        background: #fff;
+        border: 1px solid #e2e8f0;
+        border-radius: 18px;
+        padding: 1rem;
+    }
+
+    .modal-split-detail .detail-card + .detail-card {
+        margin-top: 1rem;
+    }
+
+    .modal-split-detail .asset-detail-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 1rem;
+    }
+
+    .modal-split-detail .asset-detail-grid.three-up {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .modal-split-detail .asset-detail-item {
+        min-width: 0;
+    }
+
+    .modal-split-detail .asset-detail-value {
+        display: block;
+        font-size: 0.98rem;
+        font-weight: 600;
+        color: #0f172a;
+        line-height: 1.45;
+        word-break: break-word;
+        overflow-wrap: anywhere;
+        min-width: 0;
+    }
+
+    .modal-split-detail .asset-detail-value.text-muted {
+        font-weight: 500;
+        color: #64748b !important;
+    }
+
+    .modal-split-detail .detail-note {
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 14px;
+        padding: 0.85rem 1rem;
+        font-size: 0.9rem;
+        color: #475569;
+        margin: 0;
+        word-break: break-word;
+        overflow-wrap: anywhere;
+    }
+
+    @media (max-width: 1199.98px) {
+        .modal-split-detail .asset-detail-grid,
+        .modal-split-detail .asset-detail-grid.three-up {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
 <input type="hidden" id="sessionToken" value="{{ session.get('token', '') }}">
 <input type="hidden" id="userRole" value="{{ session.get('role', '') }}">
+
 <input type="hidden" id="backendBaseUrl" value="{{ BASE_URL }}">
 
-<div class="container-fluid onboarding-page py-3 px-3 px-lg-4">
-    <!-- Header -->
-    <div class="mb-4 d-flex flex-wrap justify-content-between align-items-center gap-3">
+<div class="asset-container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
-            <h4 class="mb-1">Asset Management</h4>
-            <p class="mb-0">Track and allocate company hardware</p>
+            <h3 class="fw-bold text-dark mb-1">Asset Management</h3>
+            <p class="text-muted">Track and allocate company hardware</p>
         </div>
     </div>
 
-    <!-- Panel -->
-    <div class="onboarding-panel">
-        <ul class="nav onboarding-tabs" id="assetTabs">
-            <li class="nav-item">
-                <button class="nav-link active" type="button" onclick="switchTab('inventory')">
-                    <i class="bi bi-list-ul me-2"></i> Asset Inventory
-                </button>
-            </li>
-            <li class="nav-item">
-                <button class="nav-link" type="button" onclick="switchTab('add')">
-                    <i class="bi bi-plus-circle me-2"></i> Add New Asset
-                </button>
-            </li>
-        </ul>
+    <div class="glass-card">
+        <!-- Tabs -->
+        <div class="asset-tabs">
+            <button class="asset-tab active" id="tabInventory" onclick="switchTab('inventory')">
+                <i class="bi bi-list-ul me-2"></i> Asset Inventory
+            </button>
+            <button class="asset-tab" id="tabAddAsset" onclick="switchTab('add')">
+                <i class="bi bi-plus-circle me-2"></i> Add New Asset
+            </button>
+        </div>
 
-        <!-- Inventory Section -->
-        <section id="sectionInventory" class="p-3" style="position: relative;">
-            <div id="inventoryLoadingOverlay" class="loading-overlay d-none">
-                <div class="spinner-border text-primary" role="status">
-                    <span class="visually-hidden">Loading...</span>
-                </div>
-            </div>
+        <!-- Section 1: Inventory List -->
+        <section id="sectionInventory" class="view-section active">
             <div class="table-responsive">
-                <table class="table align-middle">
-                    <thead>
+                <table class="table table-hover align-middle">
+                    <thead class="bg-light">
                         <tr>
-                            <th>Device Name</th>
-                            <th>Device ID</th>
-                            <th>Device Type</th>
-                            <th>Product ID</th>
-                            <th>Alloted To</th>
-                            <th>Agreement</th>
-                            <th class="text-end">Actions</th>
+                            <th class="border-0 rounded-start-3">Device Name</th>
+                            <th class="border-0">Device ID</th>
+                            <th class="border-0">Device Type</th>
+                            <th class="border-0">Product ID</th>
+                            <th class="border-0">Alloted To</th>
+                            <th class="border-0">Agreement</th>
+                            <th class="border-0 text-end rounded-end-3">Actions</th>
                         </tr>
                     </thead>
                     <tbody id="assetsTableBody">
@@ -61,132 +326,139 @@
             </div>
         </section>
 
-        <!-- Add Asset Section -->
-        <section id="sectionAddAsset" class="p-3 d-none">
+        <!-- Section 2: Create Asset Form (no employee assignment here) -->
+        <section id="sectionAddAsset" class="view-section">
             <form id="assetForm">
                 <!-- Asset Details -->
-                <div class="mb-4">
-                    <h5 class="fw-semibold mb-3"><i class="bi bi-box-seam me-2 text-primary"></i>Device Specification</h5>
-                    <div class="form-grid">
-                        <div class="form-group">
-                            <label class="form-label">Device Name <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control" name="device_name" required
-                                placeholder="e.g. MacBook Pro">
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Device Type <span class="text-danger">*</span></label>
-                            <select class="form-select" name="device_type" required>
-                                <option value="Laptop">Laptop</option>
-                                <option value="Desktop">Desktop</option>
-                                <option value="Mobile">Mobile</option>
-                                <option value="Tablet">Tablet</option>
-                                <option value="Peripherals">Peripherals</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Product ID <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control" name="serial_number" required placeholder="Unique SN">
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Asset ID</label>
-                            <input type="text" class="form-control" name="asset_id" placeholder="e.g. LT-2026-VASANTH">
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Processor</label>
-                            <input type="text" class="form-control" name="processor" placeholder="e.g. i7, M1, Ryzen 5">
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">RAM</label>
-                            <input type="text" class="form-control" name="ram" placeholder="e.g. 16GB, 32GB">
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">System Type</label>
-                            <input type="text" class="form-control" name="storage" placeholder="e.g. 512GB SSD">
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Purchase Date</label>
-                            <input type="date" class="form-control" name="purchase_date">
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Warranty Expiry</label>
-                            <input type="date" class="form-control" name="warranty_expiry">
-                        </div>
-                        <div class="form-group full-width">
-                            <label class="form-label">Notes</label>
-                            <textarea class="form-control" name="notes" rows="2" placeholder="Additional details..."></textarea>
-                        </div>
-                        <div class="form-group full-width">
-                            <label class="form-label">Asset Images</label>
-                            <input type="file" class="form-control" id="assetImage" accept="image/*" multiple>
-                            <small class="text-muted">Optional: Upload one or more photos of the device.</small>
-                        </div>
+                <div class="section-header">
+                    <div class="section-icon"><i class="bi bi-box-seam"></i></div>
+                    <h5 class="section-title">Device Specification</h5>
+                </div>
+                <div class="row g-4 mb-5">
+                    <div class="col-md-6">
+                        <label class="detail-label">Device Name</label>
+                        <input type="text" class="form-control" name="device_name" required
+                            placeholder="e.g. MacBook Pro">
+                    </div>
+                    <!-- Removed auto-incrementing Device ID field -->
+                    <div class="col-md-6">
+                        <label class="detail-label">Device Type</label>
+                        <select class="form-select" name="device_type" required>
+                            <option value="Laptop">Laptop</option>
+                            <option value="Desktop">Desktop</option>
+                            <option value="Mobile">Mobile</option>
+                            <option value="Tablet">Tablet</option>
+                            <option value="Peripherals">Peripherals</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="detail-label">Product ID</label>
+                        <input type="text" class="form-control" name="serial_number" required placeholder="Unique SN">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="detail-label">Asset ID</label>
+                        <input type="text" class="form-control" name="asset_id" placeholder="e.g. LT-2026-VASANTH">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="detail-label">Processor</label>
+                        <input type="text" class="form-control" name="processor" placeholder="e.g. i7, M1, Ryzen 5">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="detail-label">RAM</label>
+                        <input type="text" class="form-control" name="ram" placeholder="e.g. 16GB, 32GB">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="detail-label">System Type</label>
+                        <input type="text" class="form-control" name="storage" placeholder="e.g. 512GB SSD">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="detail-label">Purchase Date</label>
+                        <input type="date" class="form-control" name="purchase_date">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="detail-label">Warranty Expiry</label>
+                        <input type="date" class="form-control" name="warranty_expiry">
+                    </div>
+                    <div class="col-md-12">
+                        <label class="detail-label">Notes</label>
+                        <textarea class="form-control" name="notes" rows="2" placeholder="Additional details..."></textarea>
+                    </div>
+                    <div class="col-md-12">
+                        <label class="detail-label">Asset Images</label>
+                        <input type="file" class="form-control" id="assetImage" accept="image/*"
+                            style="padding: 8px 16px;" multiple>
+                        <small class="text-muted">Optional: Upload one or more photos of the device.</small>
                     </div>
                 </div>
 
                 <!-- Ownership / Rental Details -->
-                <div class="mb-4">
-                    <h5 class="fw-semibold mb-3"><i class="bi bi-receipt me-2 text-primary"></i>Ownership Details</h5>
-                    <div class="mb-3">
-                        <label class="form-label">Ownership Type</label>
-                        <div class="btn-group" role="group">
+                <div class="section-header">
+                    <div class="section-icon"><i class="bi bi-receipt"></i></div>
+                    <h5 class="section-title">Ownership Details</h5>
+                </div>
+                <div class="row g-4 mb-4">
+                    <div class="col-md-12">
+                        <label class="detail-label d-block mb-2">Ownership Type</label>
+                        <div class="btn-group" role="group" aria-label="Ownership Type">
                             <input type="radio" class="btn-check" name="ownership_type" id="ownershipPurchased"
                                 value="Purchased" checked onchange="toggleVendorFields()">
-                            <label class="btn btn-outline-primary" for="ownershipPurchased">
+                            <label class="btn btn-outline-primary rounded-pill px-4 me-2" for="ownershipPurchased">
                                 <i class="bi bi-bag-check me-1"></i> Purchased
                             </label>
+
                             <input type="radio" class="btn-check" name="ownership_type" id="ownershipRented"
                                 value="Rented" onchange="toggleVendorFields()">
-                            <label class="btn btn-outline-primary" for="ownershipRented">
+                            <label class="btn btn-outline-primary rounded-pill px-4" for="ownershipRented">
                                 <i class="bi bi-arrow-repeat me-1"></i> Rented
                             </label>
                         </div>
                     </div>
+                </div>
 
-                    <div class="form-grid d-none" id="vendorDetailsSection">
-                        <div class="form-group">
-                            <label class="form-label">Vendor Name <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control" name="vendor_name"
-                                placeholder="e.g. Rentomojo, CloudLease Pvt Ltd">
+                <div class="row g-4 mb-5 d-none" id="vendorDetailsSection">
+                    <div class="col-md-6">
+                        <label class="detail-label">Vendor Name <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" name="vendor_name"
+                            placeholder="e.g. Rentomojo, CloudLease Pvt Ltd">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="detail-label">Vendor Contact</label>
+                        <input type="text" class="form-control" name="vendor_contact"
+                            placeholder="Phone or email">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="detail-label">Rental Start Date</label>
+                        <input type="date" class="form-control" name="rental_start_date">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="detail-label">Rental End Date</label>
+                        <input type="date" class="form-control" name="rental_end_date">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="detail-label">Rental Cost</label>
+                        <div class="input-group">
+                            <span class="input-group-text">₹</span>
+                            <input type="number" min="0" step="0.01" class="form-control" name="rental_cost"
+                                placeholder="0.00">
                         </div>
-                        <div class="form-group">
-                            <label class="form-label">Vendor Contact</label>
-                            <input type="text" class="form-control" name="vendor_contact"
-                                placeholder="Phone or email">
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Rental Start Date</label>
-                            <input type="date" class="form-control" name="rental_start_date">
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Rental End Date</label>
-                            <input type="date" class="form-control" name="rental_end_date">
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Rental Cost</label>
-                            <div class="input-group">
-                                <span class="input-group-text">₹</span>
-                                <input type="number" min="0" step="0.01" class="form-control" name="rental_cost"
-                                    placeholder="0.00">
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Billing Frequency</label>
-                            <select class="form-select" name="rental_cost_frequency">
-                                <option value="Monthly">Monthly</option>
-                                <option value="Quarterly">Quarterly</option>
-                                <option value="Yearly">Yearly</option>
-                                <option value="One-time">One-time</option>
-                            </select>
-                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="detail-label">Billing Frequency</label>
+                        <select class="form-select" name="rental_cost_frequency">
+                            <option value="Monthly">Monthly</option>
+                            <option value="Quarterly">Quarterly</option>
+                            <option value="Yearly">Yearly</option>
+                            <option value="One-time">One-time</option>
+                        </select>
                     </div>
                 </div>
 
-                <div class="d-flex justify-content-end gap-2 mt-4">
-                    <button type="button" class="btn btn-light" onclick="switchTab('inventory')">Cancel</button>
-                    <button type="button" class="btn btn-primary d-flex align-items-center gap-2" id="submitBtn"
+                <div class="d-flex justify-content-end gap-3">
+                    <button type="button" class="btn btn-light rounded-pill px-4"
+                        onclick="switchTab('inventory')">Cancel</button>
+                    <button type="button" class="btn btn-primary rounded-pill px-4 fw-bold" id="submitBtn"
                         onclick="handleCreateAsset()">
-                        <span id="submitBtnText">Create Asset</span>
-                        <span class="spinner-border spinner-border-sm d-none" id="submitBtnSpinner" role="status" aria-hidden="true"></span>
+                        Create Asset
                     </button>
                 </div>
             </form>
@@ -194,57 +466,16 @@
     </div>
 </div>
 
-<!-- Notification Modal -->
-<div class="modal-overlay d-none" id="notificationModal">
-    <div class="custom-modal">
-        <div class="custom-modal-header">
-            <h5 class="mb-0 fw-semibold" id="notificationTitle">Notification</h5>
-            <button type="button" class="btn-close" id="notificationModalClose" aria-label="Close"></button>
-        </div>
-        <div class="custom-modal-body" id="notificationBody">
-            <p id="notificationMessage"></p>
-        </div>
-        <div class="custom-modal-footer d-flex justify-content-end mt-3">
-            <button type="button" class="btn btn-primary" id="notificationModalOkBtn">OK</button>
-        </div>
-    </div>
-</div>
-
-<!-- Confirmation Modal -->
-<div class="modal-overlay d-none" id="confirmationModal">
-    <div class="custom-modal modal-sm">
-        <div class="custom-modal-header">
-            <h5 class="mb-0 fw-semibold" id="confirmationTitle">Confirm</h5>
-            <button type="button" class="btn-close" id="confirmationModalClose" aria-label="Close"></button>
-        </div>
-        <div class="custom-modal-body">
-            <div class="warning-icon-block text-center mb-3">
-                <i class="bi bi-exclamation-triangle text-warning fs-1"></i>
-            </div>
-            <p id="confirmationMessage" class="text-center mb-3"></p>
-            <p id="confirmationSubtext" class="text-muted text-sm text-center mb-3"></p>
-            <div id="confirmationExtra" class="d-none"></div>
-        </div>
-        <div class="custom-modal-footer d-flex justify-content-end gap-2">
-            <button type="button" class="btn btn-light" id="confirmationCancelBtn">Cancel</button>
-            <button type="button" class="btn btn-danger-solid" id="confirmationConfirmBtn" onclick="handleConfirmationAction()">
-                <span id="confirmationConfirmText">Confirm</span>
-                <span class="spinner-border spinner-border-sm ms-1 d-none" id="confirmationConfirmSpinner" role="status" aria-hidden="true"></span>
-            </button>
-        </div>
-    </div>
-</div>
-
 <!-- Detail Modal -->
-<div class="modal fade" id="assetDetailModal" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered modal-lg">
+<div class="modal fade modal-split-detail" id="assetDetailModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered" style="max-width: 550px; width: 95vw;">
         <div class="modal-content">
-            <div class="modal-header border-bottom-0">
-                <h5 class="fw-bold mb-0" id="detailAssetTag">Asset Details</h5>
+            <div class="modal-header border-0 pb-0 px-4 pt-4">
+                <h4 class="fw-bold m-0" id="detailAssetTag">Asset Details</h4>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <div class="modal-body">
-                <div id="detailImageContainer" class="mb-4 text-center d-none">
+            <div class="modal-body px-4 pt-3 pb-4">
+                <div id="detailImageContainer" class="mb-4 text-center" style="display: none;">
                     <div id="imageCarousel" class="carousel slide" data-bs-ride="carousel">
                         <div class="carousel-inner rounded-4 shadow-sm" id="carouselInner"></div>
                         <button class="carousel-control-prev" type="button" data-bs-target="#imageCarousel"
@@ -260,89 +491,120 @@
 
                 <div id="detailStatus" class="mb-3"></div>
 
-                <div class="mb-3">
-                    <div class="row g-3">
-                        <div class="col-md-4">
-                            <label class="form-label text-muted small text-uppercase fw-bold">Device</label>
-                            <div class="fw-semibold" id="detailDeviceName"></div>
+                <div class="detail-card detail-section">
+                    <div class="asset-detail-grid">
+                        <div class="asset-detail-item">
+                            <label class="detail-label">Device</label>
+                            <div class="asset-detail-value" id="detailDeviceName"></div>
                         </div>
-                        <div class="col-md-4">
-                            <label class="form-label text-muted small text-uppercase fw-bold">Model</label>
-                            <div class="fw-semibold" id="detailModel"></div>
+                        <div class="asset-detail-item">
+                            <label class="detail-label">Model</label>
+                            <div class="asset-detail-value" id="detailModel"></div>
                         </div>
-                        <div class="col-md-4">
-                            <label class="form-label text-muted small text-uppercase fw-bold">Serial Number</label>
-                            <div class="fw-semibold" id="detailSerial"></div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="mb-3">
-                    <label class="form-label text-muted small text-uppercase fw-bold">Asset ID</label>
-                    <div class="fw-bold text-primary fs-5" id="detailCustomAssetId"></div>
-                </div>
-
-                <div class="mb-3">
-                    <div class="row g-3">
-                        <div class="col-md-4">
-                            <label class="form-label text-muted small text-uppercase fw-bold">Processor</label>
-                            <div class="fw-semibold" id="detailProcessor"></div>
-                        </div>
-                        <div class="col-md-4">
-                            <label class="form-label text-muted small text-uppercase fw-bold">RAM</label>
-                            <div class="fw-semibold" id="detailRam"></div>
-                        </div>
-                        <div class="col-md-4">
-                            <label class="form-label text-muted small text-uppercase fw-bold">Storage</label>
-                            <div class="fw-semibold" id="detailStorage"></div>
+                        <div class="asset-detail-item">
+                            <label class="detail-label">Serial Number</label>
+                            <div class="asset-detail-value" id="detailSerial"></div>
                         </div>
                     </div>
                 </div>
 
-                <div class="mb-3">
-                    <div class="row g-3">
-                        <div class="col-md-6">
-                            <label class="form-label text-muted small text-uppercase fw-bold">Purchase Date</label>
-                            <div class="fw-semibold" id="detailPurchaseDate"></div>
+                <div class="detail-card detail-section">
+                    <div class="asset-detail-item">
+                        <label class="detail-label">Asset ID</label>
+                        <div class="asset-detail-value text-primary fs-5 fw-bold" id="detailCustomAssetId"></div>
+                    </div>
+                </div>
+
+                <div class="detail-card detail-section">
+                    <div class="asset-detail-grid three-up">
+                        <div class="asset-detail-item">
+                            <label class="detail-label">Processor</label>
+                            <div class="asset-detail-value" id="detailProcessor"></div>
                         </div>
-                        <div class="col-md-6">
-                            <label class="form-label text-muted small text-uppercase fw-bold">Warranty Expiry</label>
-                            <div class="fw-semibold" id="detailWarranty"></div>
+                        <div class="asset-detail-item">
+                            <label class="detail-label">RAM</label>
+                            <div class="asset-detail-value" id="detailRam"></div>
+                        </div>
+                        <div class="asset-detail-item">
+                            <label class="detail-label">Storage</label>
+                            <div class="asset-detail-value" id="detailStorage"></div>
                         </div>
                     </div>
                 </div>
 
-                <div class="mb-3">
-                    <label class="form-label text-muted small text-uppercase fw-bold">Notes</label>
-                    <div class="p-3 bg-light border rounded" id="detailNotes">No notes available.</div>
+                <div class="detail-card detail-section">
+                    <div class="asset-detail-grid">
+                        <div class="asset-detail-item">
+                            <label class="detail-label">Purchase Date</label>
+                            <div class="asset-detail-value" id="detailPurchaseDate"></div>
+                        </div>
+                        <div class="asset-detail-item">
+                            <label class="detail-label">Warranty Expiry</label>
+                            <div class="asset-detail-value" id="detailWarranty"></div>
+                        </div>
+                    </div>
                 </div>
 
-                <div class="mb-3" id="detailOwnerSection">
-                    <label class="form-label text-muted small text-uppercase fw-bold text-primary">Current Owner</label>
+                <div class="detail-card detail-section">
+                    <label class="detail-label">Notes</label>
+                    <div class="detail-note" id="detailNotes">No notes available.</div>
+                </div>
+
+                <div class="detail-card mb-3" id="detailOwnerSection">
+                    <label class="detail-label text-primary">Current Owner</label>
                     <div class="d-flex align-items-center gap-2 mt-1">
                         <i class="bi bi-person-circle fs-4 text-primary"></i>
-                        <div class="fw-semibold" id="detailEmployee">Unassigned</div>
+                        <div id="detailEmployee">Unassigned</div>
                     </div>
-                    <div id="returnAssetContainer" class="mt-3 d-none">
-                        <button type="button" class="btn btn-outline-danger btn-sm" onclick="promptReturnAsset()">
+                    <div id="returnAssetContainer" class="mt-3" style="display: none;">
+                        <button type="button" class="btn btn-sm btn-outline-danger rounded-pill fw-bold" onclick="promptReturnAsset()">
                             <i class="bi bi-arrow-return-left me-1"></i> Return Asset
                         </button>
                     </div>
                 </div>
 
-                <div class="mb-3" id="detailAgreementSection" style="display: none;">
-                    <label class="form-label text-muted small text-uppercase fw-bold text-warning">Device Usage Agreement</label>
+                <div class="detail-card mb-3" id="detailAgreementSection" style="display: none;">
+                    <label class="detail-label text-warning">Device Usage Agreement</label>
                     <div id="detailAgreementStatus" class="mt-1"></div>
                     <div id="detailAgreementAction" class="mt-2"></div>
                 </div>
 
-                <div id="updateOwnerContainer">
-                    <label class="form-label text-muted small text-uppercase fw-bold">Update Owner</label>
+                <div class="mt-3" id="updateOwnerContainer">
+                    <label class="detail-label">Update Owner</label>
                     <div class="d-flex gap-2">
                         <select class="form-select" id="reassignSelect"></select>
-                        <button type="button" class="btn btn-primary" onclick="reassignAsset()">Update</button>
+                        <button type="button" class="btn btn-primary fw-bold" onclick="reassignAsset()">Update</button>
                     </div>
                 </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Return Asset Confirmation Modal -->
+<div class="modal fade" id="returnAssetModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title fw-bold text-danger"><i class="bi bi-exclamation-triangle me-2"></i>Return Asset</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to return this asset?</p>
+                <p class="text-muted small">The current owner assignment will be removed and the asset will become available for future allocation.</p>
+                
+                <div class="form-check mt-4 p-3 bg-light rounded-3 border">
+                    <input class="form-check-input ms-1" type="checkbox" id="confirmReturnCheck" onchange="toggleReturnButton()">
+                    <label class="form-check-label ms-2 fw-medium text-dark" for="confirmReturnCheck">
+                        I confirm this asset has been physically returned.
+                    </label>
+                </div>
+            </div>
+            <div class="modal-footer border-0 pt-0">
+                <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-danger rounded-pill px-4 fw-bold" id="btnConfirmReturn" disabled onclick="confirmReturnAsset()">
+                    Return Asset
+                </button>
             </div>
         </div>
     </div>
@@ -351,7 +613,6 @@
 <script>
     let employees = [];
     let currentAssetId = null;
-    let pendingConfirmation = null;
 
     function getHeaders() {
         return {
@@ -361,17 +622,16 @@
     }
 
     function switchTab(tab) {
-        document.querySelectorAll('#assetTabs .nav-link').forEach(t => t.classList.remove('active'));
-        document.getElementById('sectionInventory').classList.add('d-none');
-        document.getElementById('sectionAddAsset').classList.add('d-none');
+        document.querySelectorAll('.asset-tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.view-section').forEach(s => s.classList.remove('active'));
 
         if (tab === 'inventory') {
-            document.querySelector('#assetTabs .nav-link:nth-child(1)').classList.add('active');
-            document.getElementById('sectionInventory').classList.remove('d-none');
+            document.getElementById('tabInventory').classList.add('active');
+            document.getElementById('sectionInventory').classList.add('active');
             loadAssets();
         } else {
-            document.querySelector('#assetTabs .nav-link:nth-child(2)').classList.add('active');
-            document.getElementById('sectionAddAsset').classList.remove('d-none');
+            document.getElementById('tabAddAsset').classList.add('active');
+            document.getElementById('sectionAddAsset').classList.add('active');
         }
     }
 
@@ -383,67 +643,10 @@
         if (vendorNameInput) vendorNameInput.required = isRented;
     }
 
-    function showNotification(title, message, callback) {
-        const modal = document.getElementById('notificationModal');
-        document.getElementById('notificationTitle').textContent = title;
-        document.getElementById('notificationMessage').textContent = message;
-        modal.classList.remove('d-none');
-
-        document.getElementById('notificationModalClose').onclick = () => {
-            modal.classList.add('d-none');
-            if (callback) callback();
-        };
-        document.getElementById('notificationModalOkBtn').onclick = () => {
-            modal.classList.add('d-none');
-            if (callback) callback();
-        };
-    }
-
-    function showConfirmation(title, message, subtext, confirmText, confirmAction, extraHtml = null) {
-        const modal = document.getElementById('confirmationModal');
-        document.getElementById('confirmationTitle').textContent = title;
-        document.getElementById('confirmationMessage').textContent = message;
-        document.getElementById('confirmationSubtext').textContent = subtext || '';
-        document.getElementById('confirmationConfirmText').textContent = confirmText;
-        document.getElementById('confirmationConfirmSpinner').classList.add('d-none');
-        document.getElementById('confirmationConfirmBtn').disabled = false;
-        const extraDiv = document.getElementById('confirmationExtra');
-        if (extraHtml) {
-            extraDiv.innerHTML = extraHtml;
-            extraDiv.classList.remove('d-none');
-        } else {
-            extraDiv.classList.add('d-none');
-        }
-        pendingConfirmation = confirmAction;
-        modal.classList.remove('d-none');
-
-        document.getElementById('confirmationModalClose').onclick = () => {
-            modal.classList.add('d-none');
-            pendingConfirmation = null;
-        };
-        document.getElementById('confirmationCancelBtn').onclick = () => {
-            modal.classList.add('d-none');
-            pendingConfirmation = null;
-        };
-    }
-
-    function handleConfirmationAction() {
-        if (pendingConfirmation) {
-            const spinner = document.getElementById('confirmationConfirmSpinner');
-            const btn = document.getElementById('confirmationConfirmBtn');
-            spinner.classList.remove('d-none');
-            btn.disabled = true;
-            pendingConfirmation().finally(() => {
-                spinner.classList.add('d-none');
-                btn.disabled = false;
-                document.getElementById('confirmationModal').classList.add('d-none');
-                pendingConfirmation = null;
-            });
-        }
-    }
-
     document.addEventListener('DOMContentLoaded', () => {
         const urlParams = new URLSearchParams(window.location.search);
+
+        // Load employees first, THEN load assets to ensure name lookup works
         loadEmployees().then(() => {
             if (urlParams.get('action') === 'add' || urlParams.get('action') === 'assign') {
                 switchTab('add');
@@ -453,30 +656,25 @@
         });
     });
 
-    // Shared utility: strip role prefixes
+    // Shared utility: strip role prefixes like T_, M_, H_, A_ from system names
     function cleanNameJS(name) {
         if (!name) return name;
         return String(name).trim().replace(/^[HMTA]_/, '');
     }
 
+    // --- INVENTORY LOGIC ---
     function loadAssets() {
-        const overlay = document.getElementById('inventoryLoadingOverlay');
-        overlay.classList.remove('d-none');
         fetch('/api/assets', { headers: getHeaders() })
             .then(res => res.json())
             .then(data => {
-                overlay.classList.add('d-none');
                 if (data.success) renderAssets(data.assets);
-            })
-            .catch(() => {
-                overlay.classList.add('d-none');
             });
     }
 
     function renderAssets(assets) {
         const tbody = document.getElementById('assetsTableBody');
         if (!assets || assets.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="7" class="text-center py-5 text-muted">No assets registered.</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="6" class="text-center py-5 text-muted">No assets registered.</td></tr>';
             return;
         }
 
@@ -486,6 +684,7 @@
             const deviceType = a.device_type || 'N/A';
             const serialNumber = a.serial_number || 'N/A';
 
+            // Identify ID from common variations
             const empId = a.employee_id || a.assigned_to || a.user_id || a.emp_id || a.allotted_to || a.allotted_id;
             const isAssigned = (a.status && (a.status.toLowerCase() === 'assigned' || a.status.toLowerCase() === 'allotted')) || !!empId;
 
@@ -494,7 +693,10 @@
             if (isAssigned) {
                 const emp = (empId && typeof employees !== 'undefined') ? employees.find(e => String(e.id) === String(empId)) : null;
                 let empName = emp ? emp.name : 'Assigned';
+
+                // Display name
                 const formattedName = cleanNameJS(empName);
+
                 const displayId = empId || (emp ? emp.id : 'N/A');
                 let roleDisplay = (emp && emp.role) ? `<span class="text-muted me-2">${emp.role.toUpperCase()}</span>` : '';
                 allottedDisplay = `<div><strong>${formattedName}</strong></div><div class="small text-muted">${roleDisplay}ID: ${displayId}</div>`;
@@ -502,7 +704,7 @@
 
             return `
                 <tr>
-                    <td><span class="fw-bold">${deviceName}</span></td>
+                    <td><span class="fw-bold text-dark">${deviceName}</span></td>
                     <td><code class="small text-primary fw-bold">${deviceId}</code></td>
                     <td><span class="text-muted small">${deviceType}</span></td>
                     <td><span class="text-muted small font-monospace">${serialNumber}</span></td>
@@ -512,9 +714,9 @@
                     </td>
                     <td class="text-end">
                         <div class="d-flex justify-content-end gap-1">
-                            ${!isAssigned ? `<button class="btn btn-sm btn-success" onclick="viewAsset('${deviceId}')" title="Assign to an employee"><i class="bi bi-person-plus me-1"></i>Assign</button>` : ''}
-                            <button class="btn btn-sm btn-outline-primary" onclick="viewAsset('${deviceId}')">Details</button>
-                            <button class="btn btn-sm btn-outline-danger" onclick="deleteAsset('${deviceId}')" title="Delete Device">
+                            ${!isAssigned ? `<button class="btn btn-sm btn-success rounded-pill px-3 fw-bold" onclick="viewAsset('${deviceId}')" title="Assign to an employee"><i class="bi bi-person-plus me-1"></i>Assign</button>` : ''}
+                            <button class="btn btn-sm btn-outline-primary rounded-pill px-3 fw-bold" onclick="viewAsset('${deviceId}')">Details</button>
+                            <button class="btn btn-sm btn-outline-danger rounded-pill px-2" onclick="deleteAsset('${deviceId}')" title="Delete Device">
                                 <i class="bi bi-trash"></i>
                             </button>
                         </div>
@@ -523,16 +725,19 @@
             `;
         }).join('');
 
+        // Fetch Agreement Status for all assigned assets
         assets.forEach(a => {
             const deviceId = a.id || a.device_id;
             const empId = a.employee_id || a.assigned_to || a.user_id || a.emp_id || a.allotted_to || a.allotted_id;
             const isAssigned = (a.status && (a.status.toLowerCase() === 'assigned' || a.status.toLowerCase() === 'allotted')) || !!empId;
+
             if (isAssigned && deviceId) {
                 fetch(`/api/assets/${deviceId}/acceptance-status`, { headers: getHeaders() })
                     .then(r => r.json())
                     .then(data => {
                         const cell = document.getElementById(`ag-status-${deviceId}`);
                         if (!cell) return;
+
                         if (data.success && data.status) {
                             if (data.status.acceptance_status === 'accepted') {
                                 cell.innerHTML = '<span class="badge bg-success-subtle text-success rounded-pill border border-success-subtle"><i class="bi bi-check-circle-fill me-1"></i>Signed</span>';
@@ -553,12 +758,15 @@
         });
     }
 
+    // --- EMPLOYEE DATA (shared — used by the Detail Modal's assign/update control) ---
     let isLoadingEmployees = false;
     let employeeLoadAttempted = false;
 
     function loadEmployees() {
         if (isLoadingEmployees) return Promise.resolve();
         isLoadingEmployees = true;
+        
+        console.log('Fetching employees...');
         return fetch('/api/employees', { headers: getHeaders() })
             .then(res => res.json())
             .then(data => {
@@ -566,16 +774,20 @@
                 employeeLoadAttempted = true;
                 if (data.success) {
                     employees = data.employees || [];
+                    console.log(`Loaded ${employees.length} employees`);
                     const select = document.getElementById('reassignSelect');
                     if (select) {
                         select.innerHTML = '<option value="">-- Select Employee --</option>' +
                             employees.map(e => `<option value="${e.id}">${e.name}</option>`).join('');
                     }
+                } else {
+                    console.error('Failed to load employees:', data.error);
                 }
             })
             .catch(err => {
                 isLoadingEmployees = false;
                 employeeLoadAttempted = true;
+                console.error('Employee Fetch Error:', err);
             });
     }
 
@@ -583,11 +795,13 @@
         const form = document.getElementById('assetForm');
         const formData = new FormData();
 
+        // Manual collection to handle all fields correctly for saving
         formData.append('device_name', form.device_name.value);
         formData.append('device_type', form.device_type.value);
         formData.append('serial_number', form.serial_number.value);
         if (form.asset_id.value) formData.append('asset_id', form.asset_id.value);
         
+        // Specification fields
         if (form.processor.value) formData.append('processor', form.processor.value);
         if (form.ram.value) formData.append('ram', form.ram.value);
         if (form.storage.value) formData.append('storage', form.storage.value);
@@ -595,11 +809,12 @@
         if (form.warranty_expiry.value) formData.append('warranty_expiry', form.warranty_expiry.value);
         if (form.notes.value) formData.append('notes', form.notes.value);
 
-        const ownershipType = form.ownership_type.value;
+        // Ownership / rental fields
+        const ownershipType = form.ownership_type.value; // 'Purchased' or 'Rented'
         formData.append('ownership_type', ownershipType);
         if (ownershipType === 'Rented') {
             if (!form.vendor_name.value.trim()) {
-                showNotification('Validation Error', 'Vendor Name is required for a Rented asset.');
+                alert('Vendor Name is required for a Rented asset.');
                 return;
             }
             formData.append('vendor_name', form.vendor_name.value);
@@ -616,11 +831,8 @@
         }
 
         const btn = document.getElementById('submitBtn');
-        const btnText = document.getElementById('submitBtnText');
-        const btnSpinner = document.getElementById('submitBtnSpinner');
         btn.disabled = true;
-        btnText.textContent = 'Creating...';
-        btnSpinner.classList.remove('d-none');
+        btn.innerHTML = 'Creating...';
 
         try {
             const createRes = await fetch('/api/assets', {
@@ -631,26 +843,36 @@
             const createData = await createRes.json();
             if (!createData.success) throw new Error(createData.error);
 
-            showNotification('Success', 'Asset created! You can now assign it to an employee from the Asset Inventory tab.', () => {
-                form.reset();
-                document.getElementById('vendorDetailsSection').classList.add('d-none');
-                switchTab('inventory');
-            });
+            alert('Asset created! You can now assign it to an employee from the Asset Inventory tab.');
+            form.reset();
+            document.getElementById('vendorDetailsSection').classList.add('d-none');
+            switchTab('inventory');
         } catch (err) {
-            showNotification('Error', err.message);
+            alert('Error: ' + err.message);
         } finally {
             btn.disabled = false;
-            btnText.textContent = 'Create Asset';
-            btnSpinner.classList.add('d-none');
+            btn.innerHTML = 'Create Asset';
         }
     }
 
+    // --- DETAIL LOGIC ---
     function viewAsset(id) {
         currentAssetId = id;
+        
+        // Show modal immediately with loading state
         const modalEl = document.getElementById('assetDetailModal');
         const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+        const detailPane = modalEl.querySelector('.detail-pane');
+        const secondaryPane = modalEl.querySelector('.split-pane-secondary');
         
+        // Reset modal to loading state
+        if (detailPane) detailPane.scrollTop = 0;
+        if (secondaryPane) secondaryPane.scrollTop = 0;
         document.getElementById('detailDeviceName').innerHTML = '<span class="spinner-border spinner-border-sm text-primary"></span>';
+        const histEl = document.getElementById('assetHistory');
+        if (histEl) histEl.innerHTML = '<div class="text-center py-4"><div class="spinner-border text-primary"></div></div>';
+        const ticketsEl = document.getElementById('assetTickets');
+        if (ticketsEl) ticketsEl.innerHTML = '<p class="text-muted small">Fetching tickets...</p>';
         
         modal.show();
 
@@ -658,110 +880,390 @@
             .then(res => res.json())
             .then(data => {
                 if (data.success) {
+                    // Log raw response so we can see exact field names from the backend
+                    console.log('[ASSET DETAIL] Raw API response:', JSON.stringify(data, null, 2));
+
+                    // Flatten: some backends nest inside .device, .asset, or .data
                     let raw = data.asset || data.data || data;
                     const assetData = raw.device || raw.asset || raw;
+                    console.log('[ASSET DETAIL] Resolved assetData:', assetData);
                     displayAsset(assetData);
+
+                    // Fetch History (only if panel exists in DOM)
+                    const historyContainer = document.getElementById('assetHistory');
+                    if (historyContainer) {
+                        fetch(`/api/assets/${id}/history`, { headers: getHeaders() })
+                            .then(r => r.json())
+                            .then(hData => {
+                                const history = hData.history || [];
+                                if (history.length > 0) {
+                                    historyContainer.innerHTML = history.map(h => `
+                                        <div class="history-item pb-3 mb-3 border-bottom border-light">
+                                            <div class="d-flex justify-content-between">
+                                                <span class="fw-bold small text-primary">${(h.action || 'update').toUpperCase().replace('_', ' ')}</span>
+                                                <span class="small text-muted">${new Date(h.timestamp).toLocaleString()}</span>
+                                            </div>
+                                            <div class="small mt-1 text-dark">${h.details || 'No additional details provided.'}</div>
+                                            ${h.performed_by ? `<div class="small text-muted italic">By: ${h.performed_by}</div>` : ''}
+                                        </div>
+                                    `).join('');
+                                } else {
+                                    historyContainer.innerHTML = '<div class="text-center py-4 text-muted small"><i class="bi bi-clock-history d-block mb-2 fs-4"></i>No history available for this asset.</div>';
+                                }
+                            });
+                    }
+
+                    // Fetch Related Tickets (only if panel exists in DOM)
+                    const ticketsContainer = document.getElementById('assetTickets');
+                    if (ticketsContainer) {
+                        fetch(`/api/helpdesk/?search=${id}`, { headers: getHeaders() })
+                            .then(r => r.json())
+                            .then(tData => {
+                                if (tData.success && tData.tickets && tData.tickets.length > 0) {
+                                    ticketsContainer.innerHTML = tData.tickets.map(t => `
+                                        <div class="p-3 bg-white border rounded-4 mb-2 shadow-sm border-start border-4 border-primary">
+                                            <div class="d-flex justify-content-between">
+                                                <span class="fw-bold text-primary small">#${t.ticket_ref}</span>
+                                                <span class="badge rounded-pill bg-light text-dark border small" style="font-size: 0.65rem;">${t.status}</span>
+                                            </div>
+                                            <div class="fw-bold small mt-1">${t.title}</div>
+                                            <div class="text-muted mt-1" style="font-size: 0.7rem;"><i class="bi bi-calendar3 me-1"></i>${new Date(t.created_at).toLocaleDateString()}</div>
+                                        </div>
+                                    `).join('');
+                                } else {
+                                    ticketsContainer.innerHTML = '<div class="text-center py-3 text-muted small">No related helpdesk tickets found.</div>';
+                                }
+                            });
+                    }
+                } else {
+                    alert('Error loading asset: ' + data.error);
+                    modal.hide();
                 }
+            })
+            .catch(err => {
+                console.error('Fetch Error:', err);
+                modal.hide();
             });
     }
 
-    function displayAsset(assetData) {
-        document.getElementById('detailDeviceName').textContent = assetData.device_name || assetData.brand || 'Unknown';
-        document.getElementById('detailModel').textContent = assetData.model || 'N/A';
-        document.getElementById('detailSerial').textContent = assetData.serial_number || 'N/A';
-        document.getElementById('detailCustomAssetId').textContent = assetData.asset_id || 'N/A';
-        document.getElementById('detailProcessor').textContent = assetData.processor || 'N/A';
-        document.getElementById('detailRam').textContent = assetData.ram || 'N/A';
-        document.getElementById('detailStorage').textContent = assetData.storage || 'N/A';
-        document.getElementById('detailPurchaseDate').textContent = assetData.purchase_date || 'N/A';
-        document.getElementById('detailWarranty').textContent = assetData.warranty_expiry || 'N/A';
-        document.getElementById('detailNotes').textContent = assetData.notes || 'No notes available.';
+    function displayAsset(a) {
+        console.log('[displayAsset] Keys received:', Object.keys(a));
 
-        const empId = assetData.employee_id || assetData.assigned_to;
-        if (empId) {
-            const emp = employees.find(e => String(e.id) === String(empId));
-            document.getElementById('detailEmployee').textContent = emp ? cleanNameJS(emp.name) : 'Assigned';
-            document.getElementById('returnAssetContainer').classList.remove('d-none');
+        // ---- 1. Flatten any nested sub-objects ----
+        // Some backends return { device: {...}, employee: {...} } at top level
+        if (a.device && typeof a.device === 'object') Object.assign(a, a.device);
+        if (a.asset && typeof a.asset === 'object' && !a.device_name) Object.assign(a, a.asset);
+
+        // ---- 2. Resolve Employee Assignment ----
+        // Collect all candidate IDs from every known field name
+        let assignedId =
+            a.employee_id || a.employeeId || a.emp_id || a.empId ||
+            a.assigned_employee_id || a.assignedEmployeeId ||
+            a.allotted_to || a.allotted_id || a.allottedTo ||
+            a.user_id || a.userId || a.owner_id ||
+            a.assigned_to || a.assignedTo;
+
+        // If assigned_to is an object, pull its id
+        if (!assignedId && a.assigned_to && typeof a.assigned_to === 'object') assignedId = a.assigned_to.id;
+        if (!assignedId && a.employee && typeof a.employee === 'object') assignedId = a.employee.id;
+
+        // Numeric deep-scan fallback
+        if (!assignedId) {
+            for (let key in a) {
+                const k = key.toLowerCase();
+                if ((k.includes('emp') || k.includes('allot') || k.includes('assign') || k.includes('holder'))
+                    && !k.includes('asset') && !k.includes('device') && k !== 'id') {
+                    const val = a[key];
+                    if (val && (typeof val === 'number' || (typeof val === 'string' && val && !isNaN(val)))) {
+                        assignedId = val;
+                        console.log('[displayAsset] Assignment found via deep scan — key:', key, 'val:', val);
+                        break;
+                    }
+                }
+            }
+        }
+
+        // ---- 3. Resolve Employee Display Name ----
+        let assignedName =
+            a.employee_name || a.employeeName ||
+            a.assigned_employee || a.assigned_employee_name ||
+            a.assigned_to_name || a.assignedToName ||
+            a.holder_name || a.allotted_employee || a.allottedEmployee;
+
+        if (!assignedName && a.employee && typeof a.employee === 'object') {
+            assignedName = a.employee.original_name || a.employee.name || a.employee.display_name;
+        }
+        if (!assignedName && typeof a.assigned_to === 'string' && isNaN(a.assigned_to)) {
+            assignedName = a.assigned_to;
+        }
+        if (!assignedName && a.assigned_to && typeof a.assigned_to === 'object') {
+            assignedName = a.assigned_to.original_name || a.assigned_to.name;
+        }
+        // Lookup by ID in the already-loaded employees array
+        if (!assignedName && assignedId && typeof employees !== 'undefined') {
+            const emp = employees.find(e => String(e.id) === String(assignedId));
+            if (emp) assignedName = emp.display_name || emp.original_name || emp.name;
+        }
+
+        console.log('[displayAsset] Resolved assignedId:', assignedId, '| assignedName:', assignedName);
+
+        // ---- 4. Populate Fields ----
+        const deviceName = a.device_name || a.brand || a.name || 'Unknown Device';
+        document.getElementById('detailAssetTag').innerText = deviceName;
+        document.getElementById('detailDeviceName').innerText = deviceName;
+        document.getElementById('detailModel').innerText   = a.model || a.device_type || a.type || 'N/A';
+        document.getElementById('detailSerial').innerText  = a.serial_number || a.serialNumber || a.sn || 'N/A';
+        const deviceIdEl = document.getElementById('detailDeviceId');
+        if (deviceIdEl) deviceIdEl.innerText = a.id || a.device_id || a.asset_id || a.asset_tag || 'N/A';
+
+        // Specs — cover all known aliases
+        document.getElementById('detailProcessor').innerText = a.processor || a.cpu || a.chip || a.processor_info || 'N/A';
+        document.getElementById('detailRam').innerText       = a.ram || a.memory || a.ram_gb || 'N/A';
+        document.getElementById('detailStorage').innerText   = a.storage || a.disk || a.hdd || a.ssd || a.storage_gb || 'N/A';
+
+        // Custom Asset ID
+        const customAssetEl = document.getElementById('detailCustomAssetId');
+        if (customAssetEl) {
+            customAssetEl.innerText = a.asset_id || 'N/A';
+            customAssetEl.classList.toggle('text-muted', !a.asset_id);
+            customAssetEl.classList.toggle('text-primary', !!a.asset_id);
+        }
+
+        // Dates
+        document.getElementById('detailPurchaseDate').innerText  = a.purchase_date   ? new Date(a.purchase_date).toLocaleDateString()   : 'N/A';
+        document.getElementById('detailWarranty').innerText       = (a.warranty_expiry || a.warranty_end) ? new Date(a.warranty_expiry || a.warranty_end).toLocaleDateString() : 'N/A';
+
+        // Notes
+        const notesCont = document.getElementById('detailNotes');
+        if (notesCont) {
+            notesCont.innerText = a.notes || a.description || a.remarks || 'No notes available.';
+            notesCont.classList.toggle('text-muted', !(a.notes || a.description || a.remarks));
+        }
+
+        // ---- 5. Employee Display ----
+        const empEl = document.getElementById('detailEmployee');
+        const ownerSection = document.getElementById('detailOwnerSection');
+        const updateSection = document.getElementById('updateOwnerContainer');
+        
+        if (assignedName || assignedId) {
+            const formattedName = cleanNameJS(assignedName) || String(assignedId);
+            // Restore original HTML structure for owner if it was overwritten
+            ownerSection.innerHTML = `
+                <label class="detail-label text-primary">Current Owner</label>
+                <div class="d-flex align-items-center gap-2 mt-1">
+                    <i class="bi bi-person-circle fs-4 text-primary"></i>
+                    <div id="detailEmployee">${assignedId ? `${formattedName} <span class="text-muted small ms-2">(ID: ${assignedId})</span>` : formattedName}</div>
+                </div>
+                <div id="returnAssetContainer" class="mt-3" style="display: none;">
+                    <button class="btn btn-sm btn-outline-danger rounded-pill fw-bold" onclick="promptReturnAsset()">
+                        <i class="bi bi-arrow-return-left me-1"></i> Return Asset
+                    </button>
+                </div>
+            `;
+            ownerSection.style.display = 'block';
+            if (updateSection) updateSection.style.display = 'block';
         } else {
-            document.getElementById('detailEmployee').textContent = 'Unassigned';
-            document.getElementById('returnAssetContainer').classList.add('d-none');
+            // Asset is returned / available
+            ownerSection.innerHTML = `
+                <label class="detail-label text-success">Status</label>
+                <div class="d-flex align-items-center gap-2 mt-1">
+                    <span class="badge bg-success rounded-pill px-3 py-2 fw-bold">AVAILABLE</span>
+                    <span class="text-muted small">Available for Assignment</span>
+                </div>
+            `;
+            ownerSection.style.display = 'block';
+            if (updateSection) updateSection.style.display = 'block';
+        }
+
+        // Toggle the assign/update control's label + button text based on state
+        if (updateSection) {
+            const updateLabelEl = updateSection.querySelector('.detail-label');
+            const updateBtnEl = updateSection.querySelector('button');
+            if (updateLabelEl) updateLabelEl.innerText = (assignedName || assignedId) ? 'Update Owner' : 'Assign to Employee';
+            if (updateBtnEl) updateBtnEl.innerText = (assignedName || assignedId) ? 'Update' : 'Assign';
+        }
+
+        const isAssigned = !!assignedId;
+        document.getElementById('reassignSelect').value = assignedId || '';
+        const reassignSelectEl = document.getElementById('reassignSelect');
+        if (reassignSelectEl && reassignSelectEl.options.length > 0) {
+            reassignSelectEl.options[0].text = isAssigned ? '-- Unassign --' : '-- Select Employee --';
+        }
+
+        // Handle Return Asset button visibility
+        const role = document.getElementById('userRole').value.toLowerCase();
+        const returnBtnContainer = document.getElementById('returnAssetContainer');
+        if (returnBtnContainer) {
+            if (isAssigned && (role === 'admin' || role === 'hr')) {
+                returnBtnContainer.style.display = 'block';
+            } else {
+                returnBtnContainer.style.display = 'none';
+            }
+        }
+
+        // --- AGREEMENT STATUS ---
+        const agSection = document.getElementById('detailAgreementSection');
+        const agStatus = document.getElementById('detailAgreementStatus');
+        const agAction = document.getElementById('detailAgreementAction');
+
+        if (isAssigned && (a.id || a.device_id)) {
+            agSection.style.display = 'block';
+            agStatus.innerHTML = '<span class="spinner-border spinner-border-sm text-warning"></span>';
+            agAction.innerHTML = '';
+
+            fetch(`/api/assets/${a.id || a.device_id}/acceptance-status`, { headers: getHeaders() })
+                .then(r => r.json())
+                .then(data => {
+                    if (data.success && data.status) {
+                        const status = data.status.acceptance_status;
+                        if (status === 'accepted') {
+                            agStatus.innerHTML = '<span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-3"><i class="bi bi-check-circle-fill me-1"></i>SIGNED</span>';
+                            agAction.innerHTML = `<button class="btn btn-sm btn-outline-primary rounded-pill w-100 mt-2" onclick="window.open('/assets/agreement/${a.id || a.device_id}')">View Signed Agreement</button>`;
+                        } else {
+                            agStatus.innerHTML = '<span class="badge bg-warning-subtle text-warning border border-warning-subtle rounded-pill px-3"><i class="bi bi-clock-fill me-1"></i>PENDING SIGNATURE</span>';
+                            agAction.innerHTML = `<button class="btn btn-sm btn-warning rounded-pill w-100 mt-2" onclick="alert('Reminder Sent to Employee')">Send Reminder</button>`;
+                        }
+                    } else {
+                        agStatus.innerHTML = '<span class="text-muted small">Not initiated</span>';
+                    }
+                })
+                .catch(() => { agStatus.innerHTML = '<span class="text-danger small">Error loading status</span>'; });
+        } else {
+            agSection.style.display = 'none';
+        }
+
+        const imgCont = document.getElementById('detailImageContainer');
+        const inner = document.getElementById('carouselInner');
+        const backendBase = document.getElementById('backendBaseUrl').value;
+
+        // Collect all possible image fields
+        const imagesRaw = a.image_urls || a.images || a.photos || a.image_url || a.image || a.picture;
+        const images = (Array.isArray(imagesRaw) ? imagesRaw : (imagesRaw ? [imagesRaw] : [])).filter(i => i && typeof i === 'string');
+
+        if (images.length > 0) {
+            inner.innerHTML = images.map((url, i) => {
+                let fullUrl = url;
+                if (!url.startsWith('http')) {
+                    // Ensure backendBase ends with slash or url starts with slash
+                    const base = backendBase.endsWith('/') ? backendBase.slice(0, -1) : backendBase;
+                    const path = url.startsWith('/') ? url : '/' + url;
+                    fullUrl = base + path;
+                }
+                return `
+                    <div class="carousel-item ${i === 0 ? 'active' : ''}">
+                        <img src="${fullUrl}" class="d-block w-100 rounded-4" style="max-height: 250px; object-fit: cover;" onerror="this.src='/static/images/device-placeholder.png'; this.onerror=null;">
+                    </div>
+                `;
+            }).join('');
+            imgCont.style.display = 'block';
+
+            // Hide controls if only one image
+            document.querySelectorAll('.carousel-control-prev, .carousel-control-next').forEach(btn => {
+                btn.style.display = images.length > 1 ? 'flex' : 'none';
+            });
+        } else {
+            imgCont.style.display = 'none';
         }
     }
 
-    function deleteAsset(deviceId) {
-        showConfirmation(
-            'Delete Asset',
-            'Are you sure you want to delete this asset?',
-            'This action cannot be undone.',
-            'Delete Asset',
-            async () => {
-                try {
-                    const res = await fetch(`/api/assets/${deviceId}`, {
-                        method: 'DELETE',
-                        headers: getHeaders()
-                    });
-                    const data = await res.json();
-                    if (!data.success) throw new Error(data.error);
-                    showNotification('Success', 'Asset deleted successfully.', () => loadAssets());
-                } catch (err) {
-                    showNotification('Error', err.message);
+    function reassignAsset() {
+        const select = document.getElementById('reassignSelect');
+        const empId = select.value;
+        const empName = empId ? select.options[select.selectedIndex].text : '';
+
+        if (!empId) {
+            alert('Please select an employee to assign this asset to.');
+            return;
+        }
+
+        fetch(`/api/assets/${currentAssetId}/assign`, {
+            method: 'POST',
+            headers: getHeaders(),
+            body: JSON.stringify({
+                employee_id: empId,
+                employee_name: empName
+            })
+        }).then(() => {
+            alert('Updated!');
+            viewAsset(currentAssetId);
+            loadAssets();
+        });
+    }
+
+    function deleteAsset(id) {
+        if (!confirm('Are you sure you want to delete this device permanently?')) return;
+
+        fetch(`/api/assets/${id}`, {
+            method: 'DELETE',
+            headers: getHeaders()
+        })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Device deleted successfully');
+                    loadAssets();
+                } else {
+                    alert('Error deleting device: ' + data.error);
                 }
-            }
-        );
+            })
+            .catch(err => {
+                console.error('Delete Error:', err);
+                alert('Failed to delete device.');
+            });
+    }
+
+    // --- RETURN ASSET LOGIC ---
+    function toggleReturnButton() {
+        const checkbox = document.getElementById('confirmReturnCheck');
+        const btn = document.getElementById('btnConfirmReturn');
+        if (checkbox && btn) {
+            btn.disabled = !checkbox.checked;
+        }
     }
 
     function promptReturnAsset() {
-        showConfirmation(
-            'Return Asset',
-            'Are you sure you want to return this asset?',
-            'The current owner assignment will be removed and the asset will become available for future allocation.',
-            'Return Asset',
-            async () => {
-                try {
-                    const res = await fetch(`/api/assets/${currentAssetId}/return`, {
-                        method: 'POST',
-                        headers: getHeaders()
-                    });
-                    const data = await res.json();
-                    if (!data.success) throw new Error(data.error);
-                    const modalEl = document.getElementById('assetDetailModal');
-                    const modal = bootstrap.Modal.getInstance(modalEl);
-                    if (modal) modal.hide();
-                    showNotification('Success', 'Asset returned successfully.', () => loadAssets());
-                } catch (err) {
-                    showNotification('Error', err.message);
-                }
-            },
-            `<div class="form-check p-3 bg-light rounded border">
-                <input class="form-check-input ms-1" type="checkbox" id="returnConfirmCheck">
-                <label class="form-check-label ms-2 fw-medium" for="returnConfirmCheck">
-                    I confirm this asset has been physically returned.
-                </label>
-            </div>`
-        );
+        const checkbox = document.getElementById('confirmReturnCheck');
+        if (checkbox) checkbox.checked = false;
+        toggleReturnButton();
+        const modal = new bootstrap.Modal(document.getElementById('returnAssetModal'));
+        modal.show();
     }
 
-    async function reassignAsset() {
-        const select = document.getElementById('reassignSelect');
-        if (!select.value) {
-            showNotification('Validation Error', 'Please select an employee.');
-            return;
-        }
-        try {
-            const res = await fetch(`/api/assets/${currentAssetId}/assign`, {
-                method: 'POST',
-                headers: getHeaders(),
-                body: JSON.stringify({ employee_id: select.value })
-            });
-            const data = await res.json();
-            if (!data.success) throw new Error(data.error);
-            const modalEl = document.getElementById('assetDetailModal');
-            const modal = bootstrap.Modal.getInstance(modalEl);
-            if (modal) modal.hide();
-            showNotification('Success', 'Asset assigned successfully.', () => loadAssets());
-        } catch (err) {
-            showNotification('Error', err.message);
-        }
+    function confirmReturnAsset() {
+        const btn = document.getElementById('btnConfirmReturn');
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Returning...';
+
+        fetch(`/api/assets/${currentAssetId}/return`, {
+            method: 'POST',
+            headers: getHeaders()
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                // Hide modal
+                const modalEl = document.getElementById('returnAssetModal');
+                const modal = bootstrap.Modal.getInstance(modalEl);
+                if (modal) modal.hide();
+
+                // Show success toast or alert
+                alert(data.message || 'Asset returned successfully.');
+                
+                // Refresh data
+                viewAsset(currentAssetId);
+                loadAssets();
+            } else {
+                throw new Error(data.error || 'Failed to return asset.');
+            }
+        })
+        .catch(err => {
+            console.error('Return Error:', err);
+            alert(err.message || 'Unable to return asset. Please try again.');
+        })
+        .finally(() => {
+            btn.innerHTML = 'Return Asset';
+            toggleReturnButton(); // Reset disabled state based on checkbox
+        });
     }
 </script>
 {% endblock %}
