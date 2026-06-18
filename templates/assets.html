@@ -299,8 +299,8 @@
             <button class="asset-tab active" id="tabInventory" onclick="switchTab('inventory')">
                 <i class="bi bi-list-ul me-2"></i> Asset Inventory
             </button>
-            <button class="asset-tab" id="tabAssign" onclick="switchTab('assign')">
-                <i class="bi bi-plus-circle me-2"></i> Assign New Asset
+            <button class="asset-tab" id="tabAddAsset" onclick="switchTab('add')">
+                <i class="bi bi-plus-circle me-2"></i> Add New Asset
             </button>
         </div>
 
@@ -326,8 +326,8 @@
             </div>
         </section>
 
-        <!-- Section 2: Assignment Form -->
-        <section id="sectionAssign" class="view-section">
+        <!-- Section 2: Create Asset Form (no employee assignment here) -->
+        <section id="sectionAddAsset" class="view-section">
             <form id="assetForm">
                 <!-- Asset Details -->
                 <div class="section-header">
@@ -391,23 +391,65 @@
                     </div>
                 </div>
 
-                <!-- Employee Details -->
+                <!-- Ownership / Rental Details -->
                 <div class="section-header">
-                    <div class="section-icon"><i class="bi bi-person-badge"></i></div>
-                    <h5 class="section-title">Assignment Allocation</h5>
+                    <div class="section-icon"><i class="bi bi-receipt"></i></div>
+                    <h5 class="section-title">Ownership Details</h5>
                 </div>
-                <div class="row g-4 mb-5">
-                    <div class="col-md-8 position-relative">
-                        <label class="detail-label">Employee Name</label>
-                        <input type="text" class="form-control" id="employeeSearch" autocomplete="off"
-                            placeholder="Search by name...">
-                        <div id="searchResults" class="autocomplete-results"></div>
-                        <input type="hidden" name="employee_name" id="selectedEmployeeName">
+                <div class="row g-4 mb-4">
+                    <div class="col-md-12">
+                        <label class="detail-label d-block mb-2">Ownership Type</label>
+                        <div class="btn-group" role="group" aria-label="Ownership Type">
+                            <input type="radio" class="btn-check" name="ownership_type" id="ownershipPurchased"
+                                value="Purchased" checked onchange="toggleVendorFields()">
+                            <label class="btn btn-outline-primary rounded-pill px-4 me-2" for="ownershipPurchased">
+                                <i class="bi bi-bag-check me-1"></i> Purchased
+                            </label>
+
+                            <input type="radio" class="btn-check" name="ownership_type" id="ownershipRented"
+                                value="Rented" onchange="toggleVendorFields()">
+                            <label class="btn btn-outline-primary rounded-pill px-4" for="ownershipRented">
+                                <i class="bi bi-arrow-repeat me-1"></i> Rented
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row g-4 mb-5 d-none" id="vendorDetailsSection">
+                    <div class="col-md-6">
+                        <label class="detail-label">Vendor Name <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" name="vendor_name"
+                            placeholder="e.g. Rentomojo, CloudLease Pvt Ltd">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="detail-label">Vendor Contact</label>
+                        <input type="text" class="form-control" name="vendor_contact"
+                            placeholder="Phone or email">
                     </div>
                     <div class="col-md-4">
-                        <label class="detail-label">Employee ID</label>
-                        <input type="text" class="form-control" id="displayEmployeeId" readonly
-                            placeholder="Auto-filled">
+                        <label class="detail-label">Rental Start Date</label>
+                        <input type="date" class="form-control" name="rental_start_date">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="detail-label">Rental End Date</label>
+                        <input type="date" class="form-control" name="rental_end_date">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="detail-label">Rental Cost</label>
+                        <div class="input-group">
+                            <span class="input-group-text">₹</span>
+                            <input type="number" min="0" step="0.01" class="form-control" name="rental_cost"
+                                placeholder="0.00">
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="detail-label">Billing Frequency</label>
+                        <select class="form-select" name="rental_cost_frequency">
+                            <option value="Monthly">Monthly</option>
+                            <option value="Quarterly">Quarterly</option>
+                            <option value="Yearly">Yearly</option>
+                            <option value="One-time">One-time</option>
+                        </select>
                     </div>
                 </div>
 
@@ -415,8 +457,8 @@
                     <button type="button" class="btn btn-light rounded-pill px-4"
                         onclick="switchTab('inventory')">Cancel</button>
                     <button type="button" class="btn btn-primary rounded-pill px-4 fw-bold" id="submitBtn"
-                        onclick="handleAssignment()">
-                        Confirm & Assign Asset
+                        onclick="handleCreateAsset()">
+                        Create Asset
                     </button>
                 </div>
             </form>
@@ -588,9 +630,17 @@
             document.getElementById('sectionInventory').classList.add('active');
             loadAssets();
         } else {
-            document.getElementById('tabAssign').classList.add('active');
-            document.getElementById('sectionAssign').classList.add('active');
+            document.getElementById('tabAddAsset').classList.add('active');
+            document.getElementById('sectionAddAsset').classList.add('active');
         }
+    }
+
+    function toggleVendorFields() {
+        const isRented = document.getElementById('ownershipRented').checked;
+        const section = document.getElementById('vendorDetailsSection');
+        section.classList.toggle('d-none', !isRented);
+        const vendorNameInput = section.querySelector('[name="vendor_name"]');
+        if (vendorNameInput) vendorNameInput.required = isRented;
     }
 
     document.addEventListener('DOMContentLoaded', () => {
@@ -598,8 +648,8 @@
 
         // Load employees first, THEN load assets to ensure name lookup works
         loadEmployees().then(() => {
-            if (urlParams.get('action') === 'assign') {
-                switchTab('assign');
+            if (urlParams.get('action') === 'add' || urlParams.get('action') === 'assign') {
+                switchTab('add');
             } else {
                 loadAssets();
             }
@@ -664,6 +714,7 @@
                     </td>
                     <td class="text-end">
                         <div class="d-flex justify-content-end gap-1">
+                            ${!isAssigned ? `<button class="btn btn-sm btn-success rounded-pill px-3 fw-bold" onclick="viewAsset('${deviceId}')" title="Assign to an employee"><i class="bi bi-person-plus me-1"></i>Assign</button>` : ''}
                             <button class="btn btn-sm btn-outline-primary rounded-pill px-3 fw-bold" onclick="viewAsset('${deviceId}')">Details</button>
                             <button class="btn btn-sm btn-outline-danger rounded-pill px-2" onclick="deleteAsset('${deviceId}')" title="Delete Device">
                                 <i class="bi bi-trash"></i>
@@ -707,12 +758,7 @@
         });
     }
 
-    // --- ASSIGNMENT LOGIC ---
-    const searchInput = document.getElementById('employeeSearch');
-    const resultsDiv = document.getElementById('searchResults');
-    const nameHidden = document.getElementById('selectedEmployeeName');
-    const idField = document.getElementById('displayEmployeeId');
-
+    // --- EMPLOYEE DATA (shared — used by the Detail Modal's assign/update control) ---
     let isLoadingEmployees = false;
     let employeeLoadAttempted = false;
 
@@ -731,7 +777,7 @@
                     console.log(`Loaded ${employees.length} employees`);
                     const select = document.getElementById('reassignSelect');
                     if (select) {
-                        select.innerHTML = '<option value="">-- Unassign --</option>' +
+                        select.innerHTML = '<option value="">-- Select Employee --</option>' +
                             employees.map(e => `<option value="${e.id}">${e.name}</option>`).join('');
                     }
                 } else {
@@ -745,80 +791,7 @@
             });
     }
 
-    searchInput.addEventListener('focus', () => {
-        if (!employeeLoadAttempted) {
-            loadEmployees();
-        }
-    });
-
-    searchInput.addEventListener('input', (e) => {
-        const val = e.target.value.toLowerCase().trim();
-        resultsDiv.innerHTML = '';
-        
-        if (!val) { 
-            resultsDiv.style.display = 'none'; 
-            return; 
-        }
-
-        // If loading is in progress, show that
-        if (isLoadingEmployees) {
-            resultsDiv.innerHTML = '<div class="autocomplete-item text-muted"><span class="spinner-border spinner-border-sm me-2"></span>Loading employees...</div>';
-            resultsDiv.style.display = 'block';
-            return;
-        }
-
-        // If not loaded yet, or load failed/empty, try once
-        if (!employeeLoadAttempted || (employees.length === 0 && !employeeLoadAttempted)) {
-            resultsDiv.innerHTML = '<div class="autocomplete-item text-muted">Starting search...</div>';
-            resultsDiv.style.display = 'block';
-            loadEmployees().then(() => {
-                searchInput.dispatchEvent(new Event('input'));
-            });
-            return;
-        }
-
-        if (employees.length === 0) {
-            resultsDiv.innerHTML = '<div class="autocomplete-item text-danger">No employees found in database.</div>';
-            resultsDiv.style.display = 'block';
-            return;
-        }
-
-        const filtered = employees.filter(emp => {
-            if (!emp.name) return false;
-            const searchStr = [
-                emp.name,
-                emp.display_name,
-                emp.original_name
-            ].filter(Boolean).join(' ').toLowerCase();
-            return searchStr.includes(val);
-        });
-
-        if (filtered.length > 0) {
-            resultsDiv.innerHTML = filtered.map(emp => {
-                const displayName = emp.display_name || emp.original_name || cleanNameJS(emp.name);
-                const roleDisplay = emp.role ? `<span class="badge bg-secondary me-1" style="font-size: 0.6rem;">${emp.role.toUpperCase()}</span>` : '';
-                return `
-                    <div class="autocomplete-item" onclick="selectEmployee('${emp.name}', '${emp.id}', '${displayName.replace(/'/g, "\\'")}')">
-                        <div class="fw-bold text-dark">${displayName}</div>
-                        <div class="small text-muted">${roleDisplay}ID: ${emp.id}</div>
-                    </div>
-                `;
-            }).join('');
-            resultsDiv.style.display = 'block';
-        } else {
-            resultsDiv.innerHTML = '<div class="autocomplete-item text-muted">No matching employees found</div>';
-            resultsDiv.style.display = 'block';
-        }
-    });
-
-    function selectEmployee(rawName, id, displayName) {
-        searchInput.value = displayName || rawName;
-        nameHidden.value = rawName;
-        idField.value = id;
-        resultsDiv.style.display = 'none';
-    }
-
-    async function handleAssignment() {
+    async function handleCreateAsset() {
         const form = document.getElementById('assetForm');
         const formData = new FormData();
 
@@ -828,7 +801,7 @@
         formData.append('serial_number', form.serial_number.value);
         if (form.asset_id.value) formData.append('asset_id', form.asset_id.value);
         
-        // New specification fields
+        // Specification fields
         if (form.processor.value) formData.append('processor', form.processor.value);
         if (form.ram.value) formData.append('ram', form.ram.value);
         if (form.storage.value) formData.append('storage', form.storage.value);
@@ -836,20 +809,32 @@
         if (form.warranty_expiry.value) formData.append('warranty_expiry', form.warranty_expiry.value);
         if (form.notes.value) formData.append('notes', form.notes.value);
 
+        // Ownership / rental fields
+        const ownershipType = form.ownership_type.value; // 'Purchased' or 'Rented'
+        formData.append('ownership_type', ownershipType);
+        if (ownershipType === 'Rented') {
+            if (!form.vendor_name.value.trim()) {
+                alert('Vendor Name is required for a Rented asset.');
+                return;
+            }
+            formData.append('vendor_name', form.vendor_name.value);
+            if (form.vendor_contact.value) formData.append('vendor_contact', form.vendor_contact.value);
+            if (form.rental_start_date.value) formData.append('rental_start_date', form.rental_start_date.value);
+            if (form.rental_end_date.value) formData.append('rental_end_date', form.rental_end_date.value);
+            if (form.rental_cost.value) formData.append('rental_cost', form.rental_cost.value);
+            if (form.rental_cost_frequency.value) formData.append('rental_cost_frequency', form.rental_cost_frequency.value);
+        }
+
         const imageFiles = document.getElementById('assetImage').files;
         for (let i = 0; i < imageFiles.length; i++) {
             formData.append('images', imageFiles[i]);
         }
 
-        const employeeId = document.getElementById('displayEmployeeId').value;
-        const employeeName = document.getElementById('selectedEmployeeName').value;
-
         const btn = document.getElementById('submitBtn');
         btn.disabled = true;
-        btn.innerHTML = 'Processing...';
+        btn.innerHTML = 'Creating...';
 
         try {
-            // Step 1: Create Asset
             const createRes = await fetch('/api/assets', {
                 method: 'POST',
                 headers: { 'Authorization': `Bearer ${document.getElementById('sessionToken').value}` },
@@ -858,26 +843,15 @@
             const createData = await createRes.json();
             if (!createData.success) throw new Error(createData.error);
 
-            // Step 2: Assign Asset (Backend stores ID)
-            const assignRes = await fetch(`/api/assets/${createData.asset.id}/assign`, {
-                method: 'POST',
-                headers: getHeaders(),
-                body: JSON.stringify({
-                    employee_id: employeeId,
-                    employee_name: employeeName // Still sending for good measure
-                })
-            });
-            const assignData = await assignRes.json();
-            if (!assignData.success) throw new Error(assignData.error);
-
-            alert('Success!');
+            alert('Asset created! You can now assign it to an employee from the Asset Inventory tab.');
             form.reset();
+            document.getElementById('vendorDetailsSection').classList.add('d-none');
             switchTab('inventory');
         } catch (err) {
             alert('Error: ' + err.message);
         } finally {
             btn.disabled = false;
-            btn.innerHTML = 'Confirm & Assign Asset';
+            btn.innerHTML = 'Create Asset';
         }
     }
 
@@ -1098,11 +1072,23 @@
                 </div>
             `;
             ownerSection.style.display = 'block';
-            if (updateSection) updateSection.style.display = 'none';
+            if (updateSection) updateSection.style.display = 'block';
+        }
+
+        // Toggle the assign/update control's label + button text based on state
+        if (updateSection) {
+            const updateLabelEl = updateSection.querySelector('.detail-label');
+            const updateBtnEl = updateSection.querySelector('button');
+            if (updateLabelEl) updateLabelEl.innerText = (assignedName || assignedId) ? 'Update Owner' : 'Assign to Employee';
+            if (updateBtnEl) updateBtnEl.innerText = (assignedName || assignedId) ? 'Update' : 'Assign';
         }
 
         const isAssigned = !!assignedId;
         document.getElementById('reassignSelect').value = assignedId || '';
+        const reassignSelectEl = document.getElementById('reassignSelect');
+        if (reassignSelectEl && reassignSelectEl.options.length > 0) {
+            reassignSelectEl.options[0].text = isAssigned ? '-- Unassign --' : '-- Select Employee --';
+        }
 
         // Handle Return Asset button visibility
         const role = document.getElementById('userRole').value.toLowerCase();
@@ -1184,6 +1170,11 @@
         const select = document.getElementById('reassignSelect');
         const empId = select.value;
         const empName = empId ? select.options[select.selectedIndex].text : '';
+
+        if (!empId) {
+            alert('Please select an employee to assign this asset to.');
+            return;
+        }
 
         fetch(`/api/assets/${currentAssetId}/assign`, {
             method: 'POST',

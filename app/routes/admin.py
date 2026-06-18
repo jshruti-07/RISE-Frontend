@@ -202,7 +202,15 @@ def api_assets():
                 "storage": payload.get("storage"),
                 "purchase_date": payload.get("purchase_date"),
                 "warranty_expiry": payload.get("warranty_expiry"),
-                "condition_notes": payload.get("notes")
+                "condition_notes": payload.get("notes"),
+                # Ownership / rental details
+                "ownership_type": payload.get("ownership_type", "Purchased"),
+                "vendor_name": payload.get("vendor_name"),
+                "vendor_contact": payload.get("vendor_contact"),
+                "rental_start_date": payload.get("rental_start_date"),
+                "rental_end_date": payload.get("rental_end_date"),
+                "rental_cost": payload.get("rental_cost"),
+                "rental_cost_frequency": payload.get("rental_cost_frequency"),
             }.items() if v}
 
             # Step 1: Create Device — always send as JSON
