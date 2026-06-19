@@ -36,18 +36,9 @@
                     {% for project in projects %}
                     <tr class="hover-row">
                         <td class="ps-4 py-3 border-bottom">
-                            <a href="javascript:void(0)" class="text-decoration-none fw-bold project-link" data-id="{{ project.id }}" style="color: #4f46e5;">
+                            <a href="javascript:void(0)" class="text-decoration-none fw-bold project-link" data-id="{{ project.id }}" style="color: #030303;">
                                 <i class="bi bi-folder-fill me-2 fs-5 align-middle"></i>{{ project.name }}
                             </a>
-                            <div class="mt-1 ms-4">
-                                <span class="badge bg-info bg-opacity-10 text-primary border border-info border-opacity-25 rounded-pill px-2" style="font-size: 0.65rem;">
-                                    {% if project.project_type == 'tm' %}
-                                    <i class="bi bi-clock-history me-1"></i> T&M
-                                    {% else %}
-                                    <i class="bi bi-cash-stack me-1"></i> Fixed Cost
-                                    {% endif %}
-                                </span>
-                            </div>
                         </td>
                         <td class="py-3 border-bottom">
                             <span class="fw-semibold text-dark">{{ project.assigned_manager_name or project.manager_name or project.assigned_manager or project.manager or 'Not Set' }}</span>
