@@ -133,25 +133,23 @@
             <!-- Sidebar avatar: starts with SVG placeholder, replaced by real photo via JS -->
             <img id="sidebarAvatar"
                 src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'%3E%3Ccircle cx='40' cy='40' r='40' fill='%23475569'/%3E%3Ccircle cx='40' cy='30' r='14' fill='%23cbd5e1'/%3E%3Cellipse cx='40' cy='68' rx='22' ry='16' fill='%23cbd5e1'/%3E%3C/svg%3E"
-                class="user-img" alt="Profile Photo">
+                class="user-img border border-warning border-3" alt="Profile Photo">
 
             <h6>{{ session.display_name or session.full_name or session.original_name or (session.employee_name | clean_name if session.employee_name else None) or 'User' }}</h6>
 
-            <span class="badge bg-info">{{ labels.EMPLOYEE.upper() if session.role == 'employee' else (session.role or 'User').upper() }}</span>
+            <span class="badge rounded-pill bg-primary bg-opacity-25 text-primary border border-primary px-3 py-1 mt-1" style="font-size: 0.7rem;">{{ labels.EMPLOYEE.upper() if session.role == 'employee' else (session.role or 'User').upper() }}</span>
 
             <div class="sidebar-quick-links mt-2">
 
-                <div style="display: flex; justify-content: space-between; gap: 10px; ">
-                    <a href="{{ url_for('work.add_leave') }}" title="Apply Leave">
-
-                        <i class="bi bi-calendar-plus"></i> Apply Leave
-
+                <div style="display: flex; justify-content: space-around; gap: 10px; width: 100%;">
+                    <a href="{{ url_for('work.add_leave') }}" title="Apply Leave" class="text-center d-flex flex-column align-items-center text-decoration-none">
+                        <i class="bi bi-calendar-plus fs-5 mb-1 text-light"></i>
+                        <span class="text-light" style="font-size: 0.75rem;">Apply Leave</span>
                     </a>
 
-                    <a href="{{ url_for('work.add_timesheet') }}" title="Add Timesheet">
-
-                        <i class="bi bi-clock-history"></i>Add Timesheet
-
+                    <a href="{{ url_for('work.add_timesheet') }}" title="Add Timesheet" class="text-center d-flex flex-column align-items-center text-decoration-none">
+                        <i class="bi bi-clock-history fs-5 mb-1 text-light"></i>
+                        <span class="text-light" style="font-size: 0.75rem;">Add Timesheet</span>
                     </a>
                 </div>
 
@@ -300,7 +298,7 @@
 
             <a href="{{ url_for('work.attendance_view') }}">
 
-                <i class="bi bi-clock-history"></i> <span>Attendance</span>
+                <i class="bi bi-person-check"></i> <span>Attendance</span>
 
             </a>
 
@@ -309,7 +307,7 @@
             <!-- HELP DESK (ALL USERS) -->
 
             <a href="{{ url_for('admin.helpdesk') }}">
-                <i class="bi bi-life-preserver"></i> <span>Help Desk</span>
+                <i class="bi bi-headset"></i> <span>Help Desk</span>
             </a>
 
             {% if session.role in ['hr', 'admin'] %}
@@ -329,7 +327,7 @@
 
             <a href="{{ url_for('admin.reimbursement') }}">
 
-                <i class="bi bi-cash-coin"></i> <span>Reimbursement</span>
+                <i class="bi bi-receipt"></i> <span>Reimbursement</span>
 
             </a>
 
@@ -385,9 +383,19 @@
                     <i class="bi bi-list" style="font-size: 1.25rem;"></i>
                 </button>
 
-                <button onclick="history.back()" class="btn btn-sm btn-light border-0 shadow-sm px-3" style="border-radius: 8px; font-weight: 500; height: 32px; display: flex; align-items: center; background-color: #f8f9fa;">
+                <button onclick="history.back()" class="btn btn-sm btn-outline-secondary rounded-pill shadow-sm px-3" style="font-weight: 500; height: 32px; display: flex; align-items: center; background-color: #ffffff;">
                     <i class="bi bi-chevron-left me-1"></i> Back
                 </button>
+            </div>
+            
+            <!-- CENTER SEARCH -->
+            <div class="topbar-center mx-auto" style="width: 40%;">
+                <div class="input-group">
+                    <span class="input-group-text bg-white border-end-0 rounded-start-pill text-muted">
+                        <i class="bi bi-search"></i>
+                    </span>
+                    <input type="text" class="form-control border-start-0 rounded-end-pill shadow-sm" placeholder="Search tasks, projects, or team members..." style="background-color: #ffffff;">
+                </div>
             </div>
 
 
@@ -403,11 +411,11 @@
                 <div class="me-3">
                     <a href="#" onclick="loadNotificationsPage(); return false;"
                         class="topbar-action position-relative text-decoration-none">
-                        <i class="bi bi-bell" style="font-size: 1rem;"></i>
+                        <i class="bi bi-bell fs-5 text-secondary"></i>
                         <span id="notificationBadge"
-                            class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
-                            style="display: none; font-size: 0.65rem;">
-                            0
+                            class="position-absolute top-0 start-100 translate-middle p-1 bg-danger border border-light rounded-circle"
+                            style="display: none;">
+                            <span class="visually-hidden">New alerts</span>
                         </span>
                     </a>
                 </div>
@@ -421,7 +429,7 @@
 
                     <button class="topbar-action d-flex align-items-center " type="button" data-bs-toggle="dropdown">
 
-                        <div class="avatar">
+                        <div class="avatar bg-warning text-dark border border-2 border-white shadow-sm fs-6">
                             {{ (session.employee_name or 'User')[0]|upper }}
                         </div>
 

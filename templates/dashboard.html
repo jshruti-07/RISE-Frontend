@@ -17,10 +17,10 @@
     }
 
     .dashboard-hero {
-        background: linear-gradient(135deg, #f67113 0%, #f6b383 45%, #fb812a 100%);
+        background: linear-gradient(135deg, #1e3a8a 0%, #312e81 100%);
         border-radius: 20px;
         color: #fff;
-        padding: 1.25rem 1.5rem;
+        padding: 2.5rem 2.5rem;
         position: relative;
         overflow: hidden;
     }
@@ -28,12 +28,12 @@
     .dashboard-hero::after {
         content: '';
         position: absolute;
-        width: 220px;
-        height: 220px;
+        width: 350px;
+        height: 350px;
         border-radius: 50%;
-        background: rgba(255, 255, 255, 0.08);
-        top: -70px;
-        right: -40px;
+        background: rgba(255, 255, 255, 0.05);
+        top: -80px;
+        right: -80px;
         pointer-events: none;
     }
 
@@ -107,10 +107,11 @@
 
     <div class="dashboard-hero mb-4">
         <div class="position-relative" style="z-index: 1;">
-            <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
+            <div class="d-flex flex-column gap-2">
                 <div>
                     {% set dashboard_name = session.get('display_name') or session.get('full_name') or session.get('original_name') or (session.get('employee_name') | clean_name if session.get('employee_name') else None) or session.get('user') or 'there' %}
-                    <h4 class="mb-1 fw-semibold">Good Day, {{ dashboard_name }}!</h4>
+                    <h3 class="mb-1 fw-bold">Good Day, {{ dashboard_name }}!</h3>
+                    <p class="mb-0 text-white-50 mt-2" style="font-size: 0.95rem;">Here's what is happening with your projects and team today.</p>
                 </div>
             </div>
         </div>
@@ -200,25 +201,27 @@
         {% elif session.role == 'employee' %}
         <!-- EMPLOYEE: Pending timesheets + projects in same row -->
         <div class="col-lg-4">
-            <a href="{{ url_for('work.timesheets_list') }}" class="text-decoration-none">
-                <div class="card-ui h-100 hover-card dashboard-stat-card">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h6>Pending Timesheets</h6>
-                            <div class="dashboard-stat-subtext">
-                                {% if pending_timesheets_count and pending_timesheets_count|int > 0 %}
-                                    You have pending timesheets to submit.
-                                {% else %}
-                                    You have no pending timesheets right now.
-                                {% endif %}
-                            </div>
-                        </div>
-                        <div class="profile-info-icon">
-                            <i class="bi bi-clock-history"></i>
-                        </div>
-                    </div>
+            <div class="card-ui h-100 dashboard-stat-card d-flex flex-column">
+                <div class="d-flex justify-content-between align-items-start mb-4">
+                    <h6 class="fw-bold mb-0"><i class="bi bi-clock-history text-warning me-2 fs-5"></i>Pending Timesheets</h6>
+                    <i class="bi bi-clock text-muted"></i>
                 </div>
-            </a>
+                <div class="flex-grow-1 d-flex flex-column justify-content-center align-items-center text-center">
+                    <div class="bg-light rounded-circle d-flex align-items-center justify-content-center mb-3" style="width: 70px; height: 70px;">
+                        <i class="bi bi-file-earmark-text text-secondary fs-1"></i>
+                    </div>
+                    {% if pending_timesheets_count and pending_timesheets_count|int > 0 %}
+                        <p class="text-dark fw-bold mb-1" style="font-size: 0.9rem;">You have {{ pending_timesheets_count }} pending timesheets.</p>
+                        <p class="text-muted small mb-4">Please submit them as soon as possible.</p>
+                    {% else %}
+                        <p class="text-muted small mb-1">No pending timesheets to submit.</p>
+                        <p class="text-muted small mb-4">You're all caught up!</p>
+                    {% endif %}
+                    <a href="{{ url_for('work.add_timesheet') }}" class="btn btn-primary rounded-pill px-4 py-2 w-100 mt-auto shadow-sm text-white fw-semibold" style="background-color: #3b82f6; border-color: #3b82f6;">
+                        <i class="bi bi-plus"></i> Add New Timesheet
+                    </a>
+                </div>
+            </div>
         </div>
 
         <div class="col-lg-8">
@@ -243,6 +246,7 @@
                         <thead class="bg-light">
                             <tr>
                                 <th class="border-0 px-3">Project Name</th>
+                                <th class="border-0 px-3 text-center">Status</th>
                                 <th class="border-0 px-2 text-end">Details</th>
                             </tr>
                         </thead>
@@ -250,15 +254,17 @@
                             {% for proj in my_projects %}
                             <tr class="hover-row">
                                 <td class="px-3 border-0 fw-semibold text-dark">
-                                    <i class="bi bi-folder-fill text-primary me-1" style="font-size:0.75rem;"></i>
+                                    <i class="bi bi-folder-fill text-primary me-2 fs-5 align-middle"></i>
                                     {{ proj.name }}
                                 </td>
+                                <td class="px-3 border-0 text-center">
+                                    <span class="badge bg-success bg-opacity-25 text-success rounded-pill px-3">Active</span>
+                                </td>
                                 <td class="px-2 border-0 text-end">
-                                    <button class="btn btn-sm btn-outline-primary py-0 btn-view-project"
+                                    <button class="btn btn-sm text-primary py-0 btn-view-project"
                                         data-id="{{ proj.id }}"
-                                        title="View Project Details"
-                                        style="font-size: 0.7rem; border-radius: 6px;">
-                                        <i class="bi bi-eye"></i>
+                                        title="View Project Details">
+                                        <i class="bi bi-eye fs-5"></i>
                                     </button>
                                 </td>
                             </tr>
@@ -583,8 +589,8 @@
                                         {% for ann in announcements %}
                                             <div class="list-group-item px-1 py-2 border-0 bg-transparent rounded-3 hover-row-bg" style="cursor: pointer;" onclick="viewDashboardAnnouncement({{ ann.id }})">
                                                 <div class="d-flex align-items-center gap-2">
-                                                    <div class="flex-shrink-0 bg-primary bg-opacity-10 text-primary rounded-circle d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">
-                                                        <i class="bi bi-megaphone-fill"></i>
+                                                    <div class="flex-shrink-0 bg-info bg-opacity-10 text-info rounded-circle d-flex align-items-center justify-content-center" style="width: 36px; height: 36px;">
+                                                        <i class="bi bi-info-lg fs-5"></i>
                                                     </div>
                                                     <div class="flex-grow-1" style="min-width: 0;">
                                                         <div class="d-flex justify-content-between align-items-baseline mb-0">
@@ -669,8 +675,11 @@
                             </div>
                             {% endfor %}
                             {% else %}
-                            <div class="text-muted text-center py-3">
-                                No upcoming birthdays
+                            <div class="text-muted text-center py-4 d-flex flex-column align-items-center">
+                                <div class="bg-danger bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center mb-2" style="width: 50px; height: 50px;">
+                                    <i class="bi bi-calendar-event text-danger fs-3"></i>
+                                </div>
+                                <p class="mb-0 small">No birthdays in the next 7 days</p>
                             </div>
                             {% endif %}
                         </div>
@@ -701,9 +710,9 @@
 
                                 <!-- RIGHT DATE -->
 
-                                <div style="width:120px; text-align:center; flex-shrink:0;">
+                                <div class="text-end" style="width:120px; flex-shrink:0;">
 
-                                    <small class="text-muted fw-semibold" style="font-size: 0.80rem;">
+                                    <small class="text-muted fw-semibold" style="font-size: 0.75rem;">
 
                                         {{ h.formatted_date[:16] }}
 

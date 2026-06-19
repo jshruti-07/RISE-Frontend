@@ -24,11 +24,7 @@ body {
 
     position: fixed;
 
-    background: linear-gradient(135deg, #0f172a 0%, #1e293b 20%, #1e3a8a 40%, #1e1b4b 60%, #0f172a 80%, #1e293b 100%);
-
-    background-size: 400% 400%;
-
-    animation: aiGradient 18s ease infinite;
+    background: #1f2937;
 
     color: white;
 
@@ -192,11 +188,9 @@ body {
 
     justify-content: center;
 
-    flex-wrap: wrap;
+    gap: 16px;
 
-    gap: 12px;
-
-    margin-top: 10px;
+    margin-top: 15px;
 
 }
 
@@ -312,9 +306,11 @@ body {
 
 .menu a.active {
 
-    background: #EF6704;
+    background: #f97316;
 
     color: white;
+
+    border-radius: 20px;
 
 }
 
@@ -481,7 +477,7 @@ body {
 
     align-items: center;
 
-    gap: 12px;
+    gap: 16px;
 
 }
 
@@ -491,13 +487,15 @@ body {
 
 .search-input {
 
-    padding: 8px 12px;
+    padding: 8px 16px;
 
-    border-radius: 8px;
+    border-radius: 20px;
 
-    border: none;
+    border: 1px solid #e2e8f0;
 
-    background: #f1f5f9;
+    background: #ffffff;
+
+    min-width: 300px;
 
 }
 
@@ -506,16 +504,16 @@ body {
 /* ===== PROFILE ===== */
 
 .avatar {
-    width: 30px;
-    height: 30px;
-    background: #EF6704;
+    width: 35px;
+    height: 35px;
+    background: #fdbdf8;
+    color: #9d174d;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: white;
     font-weight: bold;
-    font-size: 0.8rem;
+    font-size: 1rem;
 }
 
 
@@ -613,23 +611,21 @@ select.form-control {
 
 .card-ui {
 
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.9) 100%);
+    background: #ffffff;
 
-    border-radius: 16px;
+    border-radius: 12px;
 
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1), 0 4px 16px rgba(0, 0, 0, 0.08);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
 
-    backdrop-filter: blur(10px);
-
-    border: 1px solid rgba(255, 255, 255, 0.2);
-
-    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 1px solid #f1f5f9;
 
     position: relative;
 
     overflow: hidden;
 
-    padding: 10px;
+    padding: 15px;
+
+    height: 100%;
 
 }
 
@@ -655,11 +651,7 @@ select.form-control {
 
 .card-ui:hover {
 
-    transform: translateY(-4px) scale(1.02);
-
-    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.15), 0 8px 24px rgba(0, 0, 0, 0.12);
-
-    border-color: rgba(99, 102, 241, 0.3);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.04);
 
 }
 
