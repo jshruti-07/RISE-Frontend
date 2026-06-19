@@ -24,7 +24,7 @@ body {
 
     position: fixed;
 
-    background: #1f2937;
+    background: #080872;
 
     color: white;
 
@@ -98,16 +98,16 @@ body {
 }
 
 /* Add padding only to specific sidebar elements */
-.sidebar-header {
+/* .sidebar-header {
     padding: 16px 16px 0px 16px;
-}
+} */
 
 .sidebar-user {
     padding: 0px 16px 16px 16px;
 }
 
 .menu {
-    padding: 16px;
+    padding: 5px;
 }
 
 
@@ -168,7 +168,7 @@ body {
 
     text-align: center;
 
-    margin-bottom: 16px;
+    margin-bottom: 5px;
 
 }
 
@@ -425,7 +425,7 @@ body {
 /* TOPBAR BUTTONS */
 .menu-btn,
 .topbar-action {
-    background: rgba(255, 255, 255, 0.6);
+    background: rgb(243, 243, 243, 0.6);
     border: 1px solid rgba(255, 255, 255, 0.4);
     border-radius: 8px;
     /* Reduced from 12px */
@@ -477,7 +477,7 @@ body {
 
     align-items: center;
 
-    gap: 16px;
+    /*gap: 16px;*/
 
 }
 
@@ -1466,7 +1466,7 @@ select.form-control {
 
     align-items: center;
 
-    padding: 12px;
+    padding: 8px;
 
     cursor: pointer;
 

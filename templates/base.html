@@ -159,7 +159,7 @@
 
 
 
-        <hr>
+        <hr style="margin-top: 5px; margin-bottom: 5px;">
 
 
 
@@ -169,7 +169,7 @@
 
             <!-- DASHBOARD -->
 
-            <a href="{{ url_for('dashboard.dashboard') }}">
+            <a style="margin-bottom: 0px;" href="{{ url_for('dashboard.dashboard') }}">
 
                 <i class="bi bi-house"></i> <span>Dashboard</span>
 
@@ -195,14 +195,14 @@
 
                 <div class="submenu" id="empMenu">
 
-                    <a href="{{ url_for('employees.employee_list') }}">{{ labels.EMPLOYEES }}</a>
+                    <a style="margin-bottom: 0px;" href="{{ url_for('employees.employee_list') }}">{{ labels.EMPLOYEES }}</a>
 
 
 
                     {% if session.role in ['hr','admin'] %}
 
-                    <a href="{{ url_for('employees.add_employee') }}">{{ labels.ADD_EMPLOYEE }}</a>
-                    <a href="{{ url_for('user.bank_verification') }}">Bank Verification</a>
+                    <a style="margin-bottom: 0px;" href="{{ url_for('employees.add_employee') }}">{{ labels.ADD_EMPLOYEE }}</a>
+                    <a style="margin-bottom: 0px;" href="{{ url_for('user.bank_verification') }}">Bank Verification</a>
                     {% endif %}
 
                 </div>
@@ -219,7 +219,7 @@
 
             <div class="menu-item">
 
-                <a href="{{ url_for('projects.projects_list') }}">
+                <a style="margin-bottom: 0px;" href="{{ url_for('projects.projects_list') }}">
 
                     <span><i class="bi bi-folder"></i> Projects</span>
 
@@ -249,13 +249,13 @@
 
                 <div class="submenu" id="timeMenu">
 
-                    <a href="{{ url_for('work.timesheets_list') }}">All Timesheets</a>
+                    <a style="margin-bottom: 0px;" href="{{ url_for('work.timesheets_list') }}">All Timesheets</a>
 
 
 
                     {% if session.role in ['employee','hr','admin'] %}
 
-                    <a href="{{ url_for('work.add_timesheet') }}">Add Timesheet</a>
+                    <a style="margin-bottom: 0px;" href="{{ url_for('work.add_timesheet') }}">Add Timesheet</a>
 
                     {% endif %}
 
@@ -275,9 +275,9 @@
                     <span class="arrow">+</span>
                 </div>
                 <div class="submenu" id="leaveMenu">
-                    <a href="{{ url_for('work.leaves_list') }}">All Leaves</a>
+                    <a style="margin-bottom: 0px;" href="{{ url_for('work.leaves_list') }}">All Leaves</a>
                     {% if session.role == 'employee' %}
-                    <a href="{{ url_for('work.add_leave') }}">Apply Leave</a>
+                    <a style="margin-bottom: 0px;" href="{{ url_for('work.add_leave') }}">Apply Leave</a>
                     {% endif %}
                 </div>
             </div>
@@ -285,7 +285,7 @@
             <!-- PROJECTS (HR + MANAGER + ADMIN) -->
             {% if session.role in ['hr','manager','admin'] %}
 
-            <a href="{{ url_for('projects.projects_list') }}">
+            <a style="margin-bottom: 0px;" href="{{ url_for('projects.projects_list') }}">
 
                 <i class="bi bi-folder"></i> <span>Projects</span>
 
@@ -296,7 +296,7 @@
 
             <!-- ATTENDANCE -->
 
-            <a href="{{ url_for('work.attendance_view') }}">
+            <a style="margin-bottom: 0px;" href="{{ url_for('work.attendance_view') }}">
 
                 <i class="bi bi-person-check"></i> <span>Attendance</span>
 
@@ -306,18 +306,18 @@
 
             <!-- HELP DESK (ALL USERS) -->
 
-            <a href="{{ url_for('admin.helpdesk') }}">
+            <a style="margin-bottom: 0px;" href="{{ url_for('admin.helpdesk') }}">
                 <i class="bi bi-headset"></i> <span>Help Desk</span>
             </a>
 
             {% if session.role in ['hr', 'admin'] %}
-            <a href="{{ url_for('admin.assets') }}">
+            <a style="margin-bottom: 0px;" href="{{ url_for('admin.assets') }}">
                 <i class="bi bi-laptop"></i> <span>Assets</span>
             </a>
             {% endif %}
 
             {% if session.role == 'hr' %}
-            <a href="{{ url_for('onboarding.dashboard') }}">
+            <a style="margin-bottom: 0px;" href="{{ url_for('onboarding.dashboard') }}">
                 <i class="bi bi-door-open"></i> <span>Onboarding</span>
             </a>
             {% endif %}
@@ -325,7 +325,7 @@
 
             <!-- REIMBURSEMENT (ALL USERS) -->
 
-            <a href="{{ url_for('admin.reimbursement') }}">
+            <a style="margin-bottom: 0px;" href="{{ url_for('admin.reimbursement') }}">
 
                 <i class="bi bi-receipt"></i> <span>Reimbursement</span>
 
@@ -334,7 +334,7 @@
 
             <!-- POLICIES (ALL USERS) -->
 
-            <a href="{{ url_for('admin.policies') }}">
+            <a style="margin-bottom: 0px;" href="{{ url_for('admin.policies') }}">
 
                 <i class="bi bi-file-text"></i> <span>Policies</span>
 
@@ -348,7 +348,7 @@
 
             {% if session.role in ['manager','employee'] %}
 
-            <a href="{{ url_for('user.payslips') }}">
+            <a style="margin-bottom: 0px;" href="{{ url_for('user.payslips') }}">
 
                 <i class="bi bi-file-earmark-text"></i> <span>Payslips</span>
 
@@ -390,7 +390,7 @@
             
             <!-- CENTER SEARCH -->
             <div class="topbar-center mx-auto" style="width: 40%;">
-                <div class="input-group shadow-sm" style="border-radius: 50px; overflow: hidden; border: 1px solid #e2e8f0; background: #fff;">
+                <div class="input-group shadow-sm" style="border-radius: 20px; overflow: hidden; border: 1px solid #e2e8f0; background: #fff;">
                     <span class="input-group-text bg-transparent border-0 text-muted ps-3 pe-2">
                         <i class="bi bi-search"></i>
                     </span>
@@ -429,7 +429,7 @@
 
                     <button class="btn p-0 border-0 shadow-none bg-transparent d-flex align-items-center" type="button" data-bs-toggle="dropdown">
 
-                        <div class="avatar bg-warning text-dark border border-2 border-white shadow-sm fs-6">
+                        <div class="avatar text-dark border border-2 border-white shadow-sm fs-6">
                             {{ (session.employee_name or 'User')[0]|upper }}
                         </div>
 
