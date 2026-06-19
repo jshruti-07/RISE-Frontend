@@ -1,118 +1,20 @@
 {% extends "base.html" %}
 
-
-
 {% block title %}Dashboard{% endblock %}
 
-
-
-
-
-
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/onboarding.css') }}">
+{% endblock %}
 
 {% block content %}
-<style>
-    .dashboard-page {
-        font-size: 0.92rem;
-    }
-
-    .dashboard-hero {
-        background: linear-gradient(135deg, #f67113 0%, #ef7722 45%, #fb812a 100%);
-        border-radius: 20px;
-        color: #fff;
-        padding: 1.25rem 1.5rem;
-        position: relative;
-        overflow: hidden;
-    }
-
-    .dashboard-hero::after {
-        content: '';
-        position: absolute;
-        width: 220px;
-        height: 220px;
-        border-radius: 50%;
-        background: rgba(255, 255, 255, 0.08);
-        top: -70px;
-        right: -40px;
-        pointer-events: none;
-    }
-
-    .dashboard-page .card-ui {
-        background: #fff;
-        border: 1px solid #e5e7eb;
-        border-radius: 16px;
-        box-shadow: 0 8px 24px rgba(15, 23, 42, 0.07);
-        backdrop-filter: none;
-        overflow: hidden;
-    }
-
-    .dashboard-page .card-ui::before {
-        display: none;
-    }
-
-    .dashboard-page .card-ui:hover {
-        transform: none;
-        border-color: #d1d5db;
-        box-shadow: 0 10px 28px rgba(15, 23, 42, 0.09);
-    }
-
-    .dashboard-stat-card {
-        padding: 1rem 1.2rem;
-    }
-
-    .dashboard-stat-label {
-        color: #6b7280;
-        font-size: 0.82rem;
-        text-transform: uppercase;
-        letter-spacing: 0.03em;
-        margin-bottom: 0.2rem;
-    }
-
-    .dashboard-stat-value {
-        color: #111827;
-        font-size: 1.5rem;
-        font-weight: 700;
-        line-height: 1.1;
-    }
-
-    .dashboard-stat-subtext {
-        color: #6b7280;
-        font-size: 0.82rem;
-        line-height: 1.35;
-        margin-top: 0.2rem;
-    }
-
-    .hover-card {
-        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-
-    .hover-card:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 12px 22px rgba(15, 23, 42, 0.12) !important;
-    }
-
-    .no-scrollbar::-webkit-scrollbar {
-        display: none;
-    }
-
-    .no-scrollbar {
-        -ms-overflow-style: none;
-        scrollbar-width: none;
-    }
-</style>
-
-
-
-<div class="container-fluid mt-3 dashboard-page">
-
-    <div class="dashboard-hero mb-4">
-        <div class="position-relative" style="z-index: 1;">
-            <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
-                <div>
-                    {% set dashboard_name = session.get('display_name') or session.get('full_name') or session.get('original_name') or (session.get('employee_name') | clean_name if session.get('employee_name') else None) or session.get('user') or 'there' %}
-                    <h4 class="mb-1 fw-semibold">Good Day, {{ dashboard_name }}!</h4>
-                </div>
-            </div>
+<div class="container-fluid onboarding-page py-3 px-3 px-lg-4">
+    <!-- Hero Section -->
+    <div class="mb-4" style="background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%); border-radius: 16px; padding: 24px; color: white; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); position: relative; overflow: hidden;">
+        <div style="position: absolute; right: -50px; top: -50px; width: 200px; height: 200px; background: rgba(255,255,255,0.1); border-radius: 50%;"></div>
+        <div style="position: absolute; right: 80px; top: 20px; width: 150px; height: 150px; background: rgba(255,255,255,0.08); border-radius: 50%;"></div>
+        <div style="position: relative; z-index: 1;">
+            <h2 class="mb-2" style="font-weight: 700; font-size: 1.75rem;">Good Day, {{ (session.display_name or session.full_name or session.original_name or (session.employee_name | clean_name if session.employee_name else None) or 'User') }}!</h2>
+            <p class="mb-0" style="opacity: 0.9;">Here's what is happening with your projects and team today.</p>
         </div>
     </div>
 
@@ -121,19 +23,17 @@
     <div class="row mb-4 animate__animated animate__pulse animate__infinite animate__slow">
         <div class="col-12">
             {% for ag in pending_agreements %}
-            <div class="alert alert-warning border-0 shadow-sm rounded-4 p-4 d-flex align-items-center justify-content-between mb-2"
-                style="background: linear-gradient(135deg, #fff3cd 0%, #fff 100%);">
+            <div class="alert alert-warning border-0 shadow-sm rounded-3 p-4 d-flex align-items-center justify-content-between mb-2" style="background: linear-gradient(135deg, #fff3cd 0%, #fff 100%);">
                 <div class="d-flex align-items-center">
-                    <div class="icon-box bg-warning bg-opacity-25 text-warning me-3">
-                        <i class="bi bi-file-earmark-lock-fill"></i>
+                    <div class="icon-box bg-warning bg-opacity-25 text-warning me-3" style="width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                        <i class="bi bi-file-earmark-lock-fill fs-4"></i>
                     </div>
                     <div>
-                        <h5 class="alert-heading fw-bold mb-1">Action Required: Device Usage Agreement</h5>
-                        <p class="mb-0 text-muted">A <strong>{{ ag.brand }} {{ ag.model }}</strong> has been assigned to
-                            you. Please review and sign the usage agreement.</p>
+                        <h6 class="alert-heading fw-bold mb-1">Action Required: Device Usage Agreement</h6>
+                        <p class="mb-0 text-muted">A <strong>{{ ag.brand }} {{ ag.model }}</strong> has been assigned to you. Please review and sign the usage agreement.</p>
                     </div>
                 </div>
-                <a href="/assets/agreement/{{ ag.id }}" class="btn btn-warning rounded-pill px-4 fw-bold shadow-sm">
+                <a href="/assets/agreement/{{ ag.id }}" class="btn btn-warning rounded-pill px-4 fw-bold shadow-sm" style="background: #f59e0b; border: none;">
                     Review & Sign <i class="bi bi-arrow-right ms-2"></i>
                 </a>
             </div>
@@ -142,122 +42,97 @@
     </div>
     {% endif %}
 
-    <!--  STATS ROW -->
-
-
-
+    <!-- Cards Grid -->
     <div class="row g-4">
-
-
-
-
-
-
-
         {% if session.role in ['hr', 'admin'] %}
-        <!-- EMPLOYEES -->
-        <div class="col-md-4">
-            <a href="{{ url_for('employees.employee_list') }}" class="text-decoration-none">
-                <div class="card-ui h-100 hover-card dashboard-stat-card">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <div class="dashboard-stat-label">{{ labels.TOTAL_EMPLOYEES }}</div>
-                            <div class="dashboard-stat-value">{{ stats.employees }}</div>
-                        </div>
-                        <div class="profile-info-icon"><i class="bi bi-people"></i></div>
+        <!-- HR Stats Cards -->
+        <div class="col-lg-4 col-md-6">
+            <div class="card-ui p-4 hover-card" style="border-radius: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.06);">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h6 class="mb-0 fw-bold" style="color: #1f2937;">{{ labels.TOTAL_EMPLOYEES }}</h6>
+                    <div style="width: 40px; height: 40px; background: rgba(37, 99, 235, 0.1); border-radius: 10px; display: flex; align-items: center; justify-content: center;">
+                        <i class="bi bi-people fs-5" style="color: #3b82f6;"></i>
                     </div>
                 </div>
-            </a>
+                <div class="dashboard-stat-value mb-1" style="font-size: 2rem;">{{ stats.employees }}</div>
+            </div>
         </div>
-        <!-- TIMESHEETS -->
-        <div class="col-md-4">
-            <a href="{{ url_for('work.timesheets_list') }}" class="text-decoration-none">
-                <div class="card-ui h-100 hover-card dashboard-stat-card">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <div class="dashboard-stat-label">Pending Timesheets</div>
-                            <div class="dashboard-stat-value">{{ stats.timesheets }}</div>
-                        </div>
-                        <div class="profile-info-icon"><i class="bi bi-clock-history"></i></div>
+        <div class="col-lg-4 col-md-6">
+            <div class="card-ui p-4 hover-card" style="border-radius: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.06);">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h6 class="mb-0 fw-bold" style="color: #1f2937;">Pending Timesheets</h6>
+                    <div style="width: 40px; height: 40px; background: rgba(249, 115, 22, 0.1); border-radius: 10px; display: flex; align-items: center; justify-content: center;">
+                        <i class="bi bi-clock-history fs-5" style="color: #f97316;"></i>
                     </div>
                 </div>
-            </a>
+                <div class="dashboard-stat-value mb-1" style="font-size: 2rem;">{{ stats.timesheets }}</div>
+            </div>
         </div>
-        <!-- LEAVES -->
-        <div class="col-md-4">
-            <a href="{{ url_for('work.leaves_list') }}" class="text-decoration-none">
-                <div class="card-ui h-100 hover-card dashboard-stat-card">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <div class="dashboard-stat-label">Pending Leaves</div>
-                            <div class="dashboard-stat-value">{{ stats.leaves }}</div>
-                        </div>
-                        <div class="profile-info-icon"><i class="bi bi-calendar-check"></i></div>
+        <div class="col-lg-4 col-md-6">
+            <div class="card-ui p-4 hover-card" style="border-radius: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.06);">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h6 class="mb-0 fw-bold" style="color: #1f2937;">Pending Leaves</h6>
+                    <div style="width: 40px; height: 40px; background: rgba(16, 185, 129, 0.1); border-radius: 10px; display: flex; align-items: center; justify-content: center;">
+                        <i class="bi bi-calendar-check fs-5" style="color: #10b981;"></i>
                     </div>
                 </div>
-            </a>
+                <div class="dashboard-stat-value mb-1" style="font-size: 2rem;">{{ stats.leaves }}</div>
+            </div>
         </div>
         {% elif session.role == 'employee' %}
-        <!-- EMPLOYEE: Pending timesheets + projects in same row -->
-        <div class="col-lg-4">
-            <a href="{{ url_for('work.timesheets_list') }}" class="text-decoration-none">
-                <div class="card-ui h-100 hover-card dashboard-stat-card">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h6>Pending Timesheets</h6>
-                            <div class="dashboard-stat-subtext">
-                                {% if pending_timesheets_count and pending_timesheets_count|int > 0 %}
-                                    You have pending timesheets to submit.
-                                {% else %}
-                                    You have no pending timesheets right now.
-                                {% endif %}
-                            </div>
-                        </div>
-                        <div class="profile-info-icon">
-                            <i class="bi bi-clock-history"></i>
-                        </div>
+        <!-- Employee Cards -->
+        <div class="col-lg-4 col-md-6">
+            <div class="card-ui p-4 hover-card" style="border-radius: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.06);">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h6 class="mb-0 fw-bold" style="color: #1f2937; font-size: 1.1rem;">Pending Timesheets</h6>
+                    <div style="width: 40px; height: 40px; background: rgba(249, 115, 22, 0.1); border-radius: 10px; display: flex; align-items: center; justify-content: center;">
+                        <i class="bi bi-clock-history fs-5" style="color: #f97316;"></i>
                     </div>
                 </div>
-            </a>
+                <div class="text-center mb-4">
+                    <div style="width: 80px; height: 80px; margin: 0 auto; background: rgba(243, 244, 246, 0.8); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 16px;">
+                        <i class="bi bi-file-text fs-2" style="color: #9ca3af;"></i>
+                    </div>
+                    <p class="text-muted mb-1" style="font-size: 0.85rem;">{% if pending_timesheets_count and pending_timesheets_count|int > 0 %}You have pending timesheets to submit.{% else %}No pending timesheets to submit.{% endif %}</p>
+                    <p class="text-muted" style="font-size: 0.85rem;">{% if pending_timesheets_count and pending_timesheets_count|int > 0 %}{% else %}You're all caught up!{% endif %}</p>
+                </div>
+                <a href="{{ url_for('work.add_timesheet') }}" class="btn btn-primary w-100 d-flex align-items-center justify-content-center gap-2" style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); border: none; border-radius: 12px; padding: 10px 16px; font-weight: 600;">
+                    <i class="bi bi-plus"></i> Add New Timesheet
+                </a>
+            </div>
         </div>
-
-        <div class="col-lg-8">
-            <div class="card-ui p-3 h-100">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h6 class="mb-0 fw-bold text-dark">
-                        <i class="bi bi-folder2-open me-2 text-primary"></i>My Projects
+        <div class="col-lg-8 col-md-6">
+            <div class="card-ui p-4" style="border-radius: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.06);">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h6 class="mb-0 fw-bold" style="color: #1f2937; font-size: 1.1rem;">
+                        <i class="bi bi-diagram-3 me-2" style="color: #3b82f6;"></i> My Projects
                     </h6>
                     <div class="d-flex align-items-center gap-2">
-                        <span class="badge bg-primary bg-opacity-25 text-primary rounded-pill px-3">
-                            {{ my_projects|length }} Active
-                        </span>
-                        <a href="{{ url_for('projects.projects_list') }}" class="btn btn-sm btn-outline-primary rounded-pill px-3" style="font-size: 0.75rem;">
-                            View All <i class="bi bi-arrow-right small ms-1"></i>
-                        </a>
+                        <span class="badge bg-primary bg-opacity-10 text-primary rounded-pill px-3" style="font-size: 0.75rem; font-weight: 600;">{{ my_projects|length }} ACTIVE</span>
+                        <a href="{{ url_for('projects.projects_list') }}" style="color: #3b82f6; font-size: 0.85rem; font-weight: 600; text-decoration: none;">View All <i class="bi bi-arrow-right ms-1"></i></a>
                     </div>
                 </div>
-
                 {% if my_projects %}
-                <div class="table-responsive">
-                    <table class="table table-sm table-hover align-middle mb-0" style="font-size: 0.82rem;">
-                        <thead class="bg-light">
+                <div class="table-responsive" style="border: 1px solid #e5e7eb; border-radius: 12px; overflow: hidden;">
+                    <table class="table align-middle mb-0" style="font-size: 0.85rem;">
+                        <thead class="bg-gray-50" style="background-color: #f9fafb;">
                             <tr>
-                                <th class="border-0 px-3">Project Name</th>
-                                <th class="border-0 px-2 text-end">Details</th>
+                                <th class="border-0 px-4 py-3" style="color: #6b7280; font-weight: 600;">Project Name</th>
+                                <th class="border-0 px-4 py-3" style="color: #6b7280; font-weight: 600;">Status</th>
+                                <th class="border-0 px-4 py-3 text-end" style="color: #6b7280; font-weight: 600;">Details</th>
                             </tr>
                         </thead>
                         <tbody>
                             {% for proj in my_projects %}
-                            <tr class="hover-row">
-                                <td class="px-3 border-0 fw-semibold text-dark">
-                                    <i class="bi bi-folder-fill text-primary me-1" style="font-size:0.75rem;"></i>
-                                    {{ proj.name }}
+                            <tr class="hover-row" style="cursor: pointer;">
+                                <td class="px-4 py-3 border-0 fw-semibold text-dark">
+                                    <i class="bi bi-folder-fill me-2" style="color: #3b82f6;"></i> {{ proj.name }}
                                 </td>
-                                <td class="px-2 border-0 text-end">
-                                    <button class="btn btn-sm btn-outline-primary py-0 btn-view-project"
-                                        data-id="{{ proj.id }}"
-                                        title="View Project Details"
-                                        style="font-size: 0.7rem; border-radius: 6px;">
+                                <td class="px-4 py-3 border-0">
+                                    <span class="badge" style="background: rgba(16, 185, 129, 0.1); color: #10b981; border-radius: 999px; padding: 4px 12px; font-size: 0.75rem; font-weight: 600;">Active</span>
+                                </td>
+                                <td class="px-4 py-3 border-0 text-end">
+                                    <button class="btn btn-sm" onclick="viewProject('{{ proj.id }}')" style="color: #3b82f6; padding: 4px 8px; border-radius: 8px;">
                                         <i class="bi bi-eye"></i>
                                     </button>
                                 </td>
@@ -277,503 +152,365 @@
         {% endif %}
     </div>
 
-    <!-- SECOND ROW (FIXED LAYOUT) -->
-    <div class="row mt-2">
-        <!-- LEFT SIDE (PROJECTS + BIRTHDAYS + HOLIDAYS) -->
-        <div class="col-md-12">
-            {% if session.role == 'manager' %}
-            <div class="row mb-4">
-                <div class="col-xl-4">
-                    <div class="card-ui p-3 mb-3 h-100">
-                        <div class="d-flex justify-content-between align-items-center mb-3">
-                            <h6 class="mb-0 fw-bold text-dark">Active Projects</h6>
-                            <span class="badge bg-primary bg-opacity-25 text-primary rounded-pill px-3">{{
-                                projects|length if projects else 0 }} Projects</span>
-                        </div>
-                        <div class="no-scrollbar"
-                            style="max-height:120px; overflow-y:auto; overflow-x:hidden; font-size: 0.75rem;">
-                            {% if projects %}
-                            <div class="table-responsive">
-                                <table class="table table-sm table-hover align-middle mb-0">
-                                    <thead class="bg-light">
-                                        <tr>
-                                            <th class="border-0 px-2">Project Name</th>
-                                            <th class="border-0 px-2 text-end">Action</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {% for project in projects %}
-                                        <tr class="hover-row">
-                                            <td class="px-2 border-0 fw-semibold text-dark">{{ project.name }}</td>
-                                            <td class="px-2 border-0 text-end">
-                                                <button class="btn btn-sm btn-outline-primary py-0 btn-view-project"
-                                                    data-id="{{ project.id }}"
-                                                    title="View Project Details"
-                                                    style="font-size: 0.7rem; border-radius: 6px;">
-                                                    <i class="bi bi-eye"></i>
-                                                </button>
-                                            </td>
-                                        </tr>
-                                        {% endfor %}
-                                    </tbody>
-                                </table>
-                            </div>
-                            {% else %}
-                            <div class="text-muted text-center py-4">
-                                <i class="bi bi-folder-x fs-3 d-block mb-2"></i> No active projects
-                            </div>
-                            {% endif %}
-                        </div>
-                    </div>
+    <!-- Manager Specific Cards -->
+    {% if session.role == 'manager' %}
+    <div class="row g-4 mt-4">
+        <div class="col-lg-4">
+            <div class="card-ui p-4" style="border-radius: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.06);">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h6 class="mb-0 fw-bold" style="color: #1f2937; font-size: 1.1rem;">Active Projects</h6>
+                    <span class="badge bg-primary bg-opacity-10 text-primary rounded-pill px-3" style="font-size: 0.75rem; font-weight: 600;">{{ projects|length if projects else 0 }} Projects</span>
                 </div>
-
-                <div class="col-xl-4">
-                    <!-- Team Member Pending Timesheets Card (Manager Only) -->
-                    <div class="card-ui p-3 mb-3 h-100">
-                        <div class="d-flex justify-content-between align-items-center mb-3">
-                            <h6 class="mb-0 fw-bold text-dark">{{ labels.TEAM_PENDING_TIMESHEETS }}</h6>
-                            <span class="badge bg-warning bg-opacity-25 text-warning rounded-pill px-3">{{
-                                team_pending_timesheets|length }} Pending</span>
-                        </div>
-                        <div class="no-scrollbar" style="max-height: 120px; overflow-y: auto; font-size: 0.75rem;">
-                            {% if team_pending_timesheets %}
-                            <div class="table-responsive">
-                                <table class="table table-sm table-hover align-middle mb-0">
-                                    <thead class="bg-light">
-                                        <tr>
-                                            <th class="border-0 px-2">{{ labels.EMPLOYEE }}</th>
-                                            <th class="border-0 px-2 text-end">Date</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {% for t in team_pending_timesheets %}
-                                        <tr class="hover-row">
-                                            <td class="px-2 border-0 fw-semibold text-dark">{{ t.employee_name }}</td>
-                                            <td class="px-2 border-0 text-end text-muted">{{ t.start_date[:10] }}</td>
-                                        </tr>
-                                        {% endfor %}
-                                    </tbody>
-                                </table>
-                            </div>
-                            {% else %}
-                            <div class="text-center py-4 text-muted">
-                                <i class="bi bi-check-all fs-3 d-block mb-2 text-success"></i>
-                                All team timesheets submitted
-                            </div>
-                            {% endif %}
-                        </div>
-                    </div>
+                {% if projects %}
+                <div class="table-responsive" style="border: 1px solid #e5e7eb; border-radius: 12px; overflow: hidden;">
+                    <table class="table table-sm table-hover align-middle mb-0" style="font-size: 0.82rem;">
+                        <thead class="bg-gray-50" style="background-color: #f9fafb;">
+                            <tr>
+                                <th class="border-0 px-4 py-3" style="color: #6b7280; font-weight: 600;">Project Name</th>
+                                <th class="border-0 px-4 py-3 text-end" style="color: #6b7280; font-weight: 600;">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for project in projects %}
+                            <tr class="hover-row">
+                                <td class="px-4 py-2 border-0 fw-semibold text-dark">{{ project.name }}</td>
+                                <td class="px-4 py-2 border-0 text-end">
+                                    <button class="btn btn-sm" onclick="viewProject('{{ project.id }}')" style="color: #3b82f6; padding: 4px 8px; border-radius: 8px;">
+                                        <i class="bi bi-eye"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
                 </div>
-
-                <div class="col-xl-4">
-                    <!-- Team Leaves Card (Manager Only) -->
-                    <a href="{{ url_for('work.leaves_list') }}" class="text-decoration-none">
-                        <div class="card-ui p-3 mb-3 h-100 hover-card">
-                            <div class="d-flex justify-content-between align-items-center mb-3">
-                                <h6 class="mb-0 fw-bold text-dark">{{ labels.TEAM_LEAVES }}</h6>
-                                <span class="badge bg-info bg-opacity-25 text-info rounded-pill px-3">{{
-                                    team_leaves|length }} Recent</span>
-                            </div>
-                            <div class="no-scrollbar" style="max-height: 120px; overflow-y: auto; font-size: 0.75rem;">
-                                {% if team_leaves %}
-                                <div class="list-group list-group-flush">
-                                    {% for l in team_leaves %}
-                                    <div class="list-group-item px-0 py-2 bg-transparent border-bottom hover-row-bg">
-                                        <div class="d-flex justify-content-between align-items-center">
-                                            <div>
-                                                <div class="fw-semibold text-dark">{{ l.employee_name }}</div>
-                                                <div class="text-muted small" style="font-size: 0.65rem;">
-                                                    {{ l.start_date[:10] }} <i class="bi bi-arrow-right mx-1"></i> {{
-                                                    l.end_date[:10] }}
-                                                </div>
-                                            </div>
-                                            <div>
-                                                {% if l.status|lower == 'pending' %}
-                                                <span class="badge bg-warning bg-opacity-25 text-warning rounded-pill"
-                                                    style="font-size: 0.6rem;">Pending</span>
-                                                {% elif l.status|lower == 'approved' %}
-                                                <span class="badge bg-success bg-opacity-25 text-success rounded-pill"
-                                                    style="font-size: 0.6rem;">Approved</span>
-                                                {% else %}
-                                                <span
-                                                    class="badge bg-secondary bg-opacity-25 text-secondary rounded-pill"
-                                                    style="font-size: 0.6rem;">{{ l.status }}</span>
-                                                {% endif %}
-                                            </div>
-                                        </div>
-                                    </div>
-                                    {% endfor %}
-                                </div>
-                                {% else %}
-                                <div class="text-center py-4 text-muted">
-                                    <i class="bi bi-calendar-x fs-3 d-block mb-2"></i> No recent team leaves
-                                </div>
-                                {% endif %}
-                            </div>
-                        </div>
-                    </a>
+                {% else %}
+                <div class="text-muted text-center py-4">
+                    <i class="bi bi-folder-x fs-3 d-block mb-2"></i> No active projects
                 </div>
+                {% endif %}
             </div>
-            {% endif %}
-
-            <!-- Help Desk & Reimbursement Summary Row (HR/Admin only) -->
-            {% if session.role in ['hr', 'admin'] %}
-            <div class="row mb-4">
-                <div class="col-xl-6">
-                    <!-- Help Desk Summary Card -->
-                    <div class="card-ui p-3 mb-3 h-100">
-                        <div class="d-flex justify-content-between align-items-center mb-3">
-                            <h6 class="mb-0 fw-bold">Help Desk Summary</h6>
-                            <a href="{{ url_for('admin.helpdesk') }}"
-                                class="btn btn-sm btn-outline-primary rounded-pill px-2 py-0"
-                                style="font-size: 0.75rem;">
-                                View All <i class="bi bi-arrow-right small ms-1"></i>
-                            </a>
-                        </div>
-                        <div class="row g-2">
-                            <div class="col-sm-4">
-                                <a href="{{ url_for('admin.helpdesk') }}?status=open" class="text-decoration-none">
-                                    <div
-                                        class="p-2 rounded-3 bg-light border-start border-4 border-warning shadow-sm h-100 hover-card">
-                                        <div class="d-flex justify-content-between align-items-center">
-                                            <div>
-                                                <h6 class="text-muted small fw-bold text-uppercase mb-0"
-                                                    style="font-size: 0.6rem;">Open</h6>
-                                                <h6 class="fw-bold mb-0 text-dark" style="font-size: 1.1rem;">{{
-                                                    hd_stats.by_status.get('open', 0) if hd_stats.by_status else 0 }}
-                                                </h6>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </a>
-                            </div>
-                            <div class="col-sm-4">
-                                <a href="{{ url_for('admin.helpdesk') }}?status=in_progress"
-                                    class="text-decoration-none">
-                                    <div
-                                        class="p-2 rounded-3 bg-light border-start border-4 border-info shadow-sm h-100 hover-card">
-                                        <div class="d-flex justify-content-between align-items-center">
-                                            <div>
-                                                <h6 class="text-muted small fw-bold text-uppercase mb-0"
-                                                    style="font-size: 0.6rem;">In Progress</h6>
-                                                <h6 class="fw-bold mb-0 text-dark" style="font-size: 1.1rem;">{{
-                                                    hd_stats.by_status.get('in_progress', 0) if hd_stats.by_status else
-                                                    0 }}</h6>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </a>
-                            </div>
-                            <div class="col-sm-4">
-                                <a href="{{ url_for('admin.helpdesk') }}?status=closed" class="text-decoration-none">
-                                    <div
-                                        class="p-2 rounded-3 bg-light border-start border-4 border-success shadow-sm h-100 hover-card">
-                                        <div class="d-flex justify-content-between align-items-center">
-                                            <div>
-                                                <h6 class="text-muted small fw-bold text-uppercase mb-0"
-                                                    style="font-size: 0.6rem;">Closed</h6>
-                                                <h6 class="fw-bold mb-0 text-dark" style="font-size: 1.1rem;">
-                                                    {% if hd_stats.by_status %}
-                                                    {{ hd_stats.by_status.get('closed', 0) }}
-                                                    {% endif %}
-                                                </h6>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </a>
-                            </div>
-                        </div>
-                    </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="card-ui p-4" style="border-radius: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.06);">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h6 class="mb-0 fw-bold" style="color: #1f2937; font-size: 1.1rem;">{{ labels.TEAM_PENDING_TIMESHEETS }}</h6>
+                    <span class="badge bg-warning bg-opacity-10 text-warning rounded-pill px-3" style="font-size: 0.75rem; font-weight: 600;">{{ team_pending_timesheets|length }} Pending</span>
                 </div>
-
-                <div class="col-xl-6">
-                    <!-- Reimbursement Summary Card -->
-                    <div class="card-ui p-3 mb-3 h-100">
-                        <div class="d-flex justify-content-between align-items-center mb-3">
-                            <h6 class="mb-0 fw-bold">Reimbursement Summary</h6>
-                            <a href="{{ url_for('admin.reimbursement') }}"
-                                class="btn btn-sm btn-outline-primary rounded-pill px-2 py-0"
-                                style="font-size: 0.75rem;">
-                                View All <i class="bi bi-arrow-right small ms-1"></i>
-                            </a>
-                        </div>
-                        <div class="row g-2">
-                            <div class="col-sm-4">
-                                <a href="{{ url_for('admin.reimbursement') }}?status=pending"
-                                    class="text-decoration-none">
-                                    <div
-                                        class="p-2 rounded-3 bg-light border-start border-4 border-warning shadow-sm h-100 hover-card">
-                                        <div class="d-flex justify-content-between align-items-center">
-                                            <div>
-                                                <h6 class="text-muted small fw-bold text-uppercase mb-0"
-                                                    style="font-size: 0.6rem;">Pending</h6>
-                                                <h6 class="fw-bold mb-0 text-dark" style="font-size: 1.1rem;">
-                                                    {{ reimbursement_stats.pending_approval.count if
-                                                    reimbursement_stats.pending_approval else 0 }}
-                                                </h6>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </a>
-                            </div>
-                            <div class="col-sm-4">
-                                <a href="{{ url_for('admin.reimbursement') }}?status=approved"
-                                    class="text-decoration-none">
-                                    <div
-                                        class="p-2 rounded-3 bg-light border-start border-4 border-success shadow-sm h-100 hover-card">
-                                        <div class="d-flex justify-content-between align-items-center">
-                                            <div>
-                                                <h6 class="text-muted small fw-bold text-uppercase mb-0"
-                                                    style="font-size: 0.6rem;">Approved</h6>
-                                                <h6 class="fw-bold mb-0 text-dark" style="font-size: 1.1rem;">
-                                                    {{ reimbursement_stats.by_status.approved.count if
-                                                    reimbursement_stats.by_status and
-                                                    reimbursement_stats.by_status.approved else 0 }}
-                                                </h6>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </a>
-                            </div>
-                            <div class="col-sm-4">
-                                <a href="{{ url_for('admin.reimbursement') }}?status=rejected"
-                                    class="text-decoration-none">
-                                    <div
-                                        class="p-2 rounded-3 bg-light border-start border-4 border-danger shadow-sm h-100 hover-card">
-                                        <div class="d-flex justify-content-between align-items-center">
-                                            <div>
-                                                <h6 class="text-muted small fw-bold text-uppercase mb-0"
-                                                    style="font-size: 0.6rem;">Rejected</h6>
-                                                <h6 class="fw-bold mb-0 text-dark" style="font-size: 1.1rem;">
-                                                    {{ reimbursement_stats.by_status.rejected.count if
-                                                    reimbursement_stats.by_status and
-                                                    reimbursement_stats.by_status.rejected else 0 }}
-                                                </h6>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </a>
-                            </div>
-                        </div>
-                    </div>
+                {% if team_pending_timesheets %}
+                <div class="table-responsive" style="border: 1px solid #e5e7eb; border-radius: 12px; overflow: hidden;">
+                    <table class="table table-sm table-hover align-middle mb-0" style="font-size: 0.82rem;">
+                        <thead class="bg-gray-50" style="background-color: #f9fafb;">
+                            <tr>
+                                <th class="border-0 px-4 py-3" style="color: #6b7280; font-weight: 600;">{{ labels.EMPLOYEE }}</th>
+                                <th class="border-0 px-4 py-3 text-end" style="color: #6b7280; font-weight: 600;">Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for t in team_pending_timesheets %}
+                            <tr class="hover-row">
+                                <td class="px-4 py-2 border-0 fw-semibold text-dark">{{ t.employee_name }}</td>
+                                <td class="px-4 py-2 border-0 text-end text-muted">{{ t.start_date[:10] }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
                 </div>
+                {% else %}
+                <div class="text-center py-4 text-muted">
+                    <i class="bi bi-check-all fs-3 d-block mb-2" style="color: #10b981;"></i> All team timesheets submitted
+                </div>
+                {% endif %}
             </div>
-            {% endif %}
-
-            <!-- Announcements, Birthdays and Holidays Row -->
-            <div class="row g-3">
-                <div class="col-md-4">
-                    <div class="card-ui p-2 h-100">
-                        <div class="d-flex justify-content-between align-items-center mb-3">
-                            <h6 class="mb-0">Announcements 📢</h6>
-                            {% if session.role == 'hr' %}
-                            <button class="btn btn-sm btn-outline-primary rounded-pill px-2 py-0"
-                                    style="font-size: 0.75rem;"
-                                    data-bs-toggle="modal"
-                                    data-bs-target="#dashboardAnnouncementModal"
-                                    onclick="prepareDashboardCreate()">
-                                <i class="bi bi-plus-lg me-1"></i>Create
-                            </button>
-                            {% endif %}
-                        </div>
-                        <div class="no-scrollbar" style="max-height:230px; overflow-y:auto; font-size: 0.80rem;">
-                            <div id="dashboardAnnouncementsListContainer">
-                                {% if announcements %}
-                                    <div class="list-group list-group-flush gap-2">
-                                        {% for ann in announcements %}
-                                            <div class="list-group-item px-1 py-2 border-0 bg-transparent rounded-3 hover-row-bg" style="cursor: pointer;" onclick="viewDashboardAnnouncement({{ ann.id }})">
-                                                <div class="d-flex align-items-center gap-2">
-                                                    <div class="flex-shrink-0 bg-primary bg-opacity-10 text-primary rounded-circle d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">
-                                                        <i class="bi bi-megaphone-fill"></i>
-                                                    </div>
-                                                    <div class="flex-grow-1" style="min-width: 0;">
-                                                        <div class="d-flex justify-content-between align-items-baseline mb-0">
-                                                            <h6 class="text-dark fw-bold mb-0 text-truncate" style="font-size: 0.85rem;">{{ ann.title | safe }}</h6>
-                                                            <small class="text-muted flex-shrink-0" style="font-size: 0.65rem;">
-                                                                {% if '-' in ann.created_at %}
-                                                                    {% set c_parts = ann.created_at[:10].split('-') %}
-                                                                    {% set months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'] %}
-                                                                    {{ c_parts[2] }} {{ months[c_parts[1]|int - 1] }}
-                                                                {% else %}
-                                                                    {{ ann.created_at[:10] }}
-                                                                {% endif %}
-                                                            </small>
-                                                        </div>
-                                                        <p class="text-muted mb-0 text-truncate-2" style="font-size: 0.75rem; line-height: 1.3;">{{ ann.short_description }}</p>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        {% endfor %}
-                                    </div>
-                                {% else %}
-                                    <div class="text-muted text-center py-4">
-                                        <i class="bi bi-megaphone fs-3 d-block mb-2"></i>
-                                        No new announcements
-                                    </div>
-                                {% endif %}
-                            </div>
-                        </div>
+        </div>
+        <div class="col-lg-4">
+            <a href="{{ url_for('work.leaves_list') }}" class="text-decoration-none">
+                <div class="card-ui p-4 hover-card" style="border-radius: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.06);">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h6 class="mb-0 fw-bold" style="color: #1f2937; font-size: 1.1rem;">{{ labels.TEAM_LEAVES }}</h6>
+                        <span class="badge bg-info bg-opacity-10 text-info rounded-pill px-3" style="font-size: 0.75rem; font-weight: 600;">{{ team_leaves|length }} Recent</span>
                     </div>
-                </div>
-
-                <div class="col-md-4">
-                    <div class="card-ui p-2 h-100">
-                        <div class="d-flex justify-content-between align-items-center mb-3">
-                            <h6 class="mb-0">Upcoming Birthdays 🎂</h6>
-                            <small class="text-muted">Next 7 Days</small>
-                        </div>
-                        <div class="no-scrollbar" style="max-height:230px; overflow-y:auto; font-size: 0.80rem;">
-                            {% if birthdays %}
-                            {% for b in birthdays %}
-                            <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
-                                <div class="d-flex align-items-center gap-2">
-                                    <img src="{% if b.photo_url %}{% if b.photo_url.startswith('http') %}{{ b.photo_url }}{% else %}{{ BASE_URL }}{{ b.photo_url }}{% endif %}{% else %}data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 80 80'%3E%3Ccircle cx='40' cy='40' r='40' fill='%23475569'/%3E%3Ccircle cx='40' cy='30' r='14' fill='%23cbd5e1'/%3E%3Cellipse cx='40' cy='68' rx='22' ry='16' fill='%23cbd5e1'/%3E%3C/svg%3E{% endif %}" 
-                                         class="rounded-circle shadow-sm" 
-                                         style="width: 32px; height: 32px; object-fit: cover;" 
-                                         alt="{{ b.name | clean_name if b.name else 'User' }}">
-                                    <div style="line-height: 1.2;">
-                                        <div class="fw-bold text-dark" style="font-size: 0.85rem;">{{ b.name | clean_name if b.name else 'Unknown' }}</div>
-                                        {% if b.is_today %}
-                                        <span class="badge bg-success bg-opacity-10 text-success p-0" style="font-size: 0.65rem;">Today! 🎂</span>
-                                        {% else %}
-                                        <span class="text-muted" style="font-size: 0.65rem;">Upcoming</span>
-                                        {% endif %}
+                    {% if team_leaves %}
+                    <div class="list-group list-group-flush">
+                        {% for l in team_leaves %}
+                        <div class="list-group-item px-0 py-2 bg-transparent border-bottom hover-row-bg" style="border-color: #e5e7eb;">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <div class="fw-semibold text-dark" style="font-size: 0.85rem;">{{ l.employee_name }}</div>
+                                    <div class="text-muted" style="font-size: 0.75rem;">
+                                        {{ l.start_date[:10] }} <i class="bi bi-arrow-right mx-1"></i> {{ l.end_date[:10] }}
                                     </div>
                                 </div>
-                                <div class="text-end" style="line-height: 1.2;">
-                                    <div class="fw-bold text-primary" style="font-size: 0.8rem;">
-                                        {% if b.date_of_birth %}
-                                            {% if '-' in b.date_of_birth and b.date_of_birth|length >= 10 %}
-                                                {% set dob_parts = b.date_of_birth[:10].split('-') %}
-                                                {% set months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'] %}
-                                                {{ dob_parts[2] }} {{ months[dob_parts[1]|int - 1] }}
-                                            {% elif ' ' in b.date_of_birth %}
-                                                {% set dob_parts = b.date_of_birth.split(' ') %}
-                                                {% if dob_parts|length >= 3 %}
-                                                    {# Handles "Tue, 16 May 1995..." format #}
-                                                    {{ dob_parts[1] }} {{ dob_parts[2] }}
-                                                {% else %}
-                                                    {{ b.date_of_birth }}
-                                                {% endif %}
-                                            {% else %}
-                                                {{ b.date_of_birth }}
-                                            {% endif %}
-                                        {% else %}
-                                            -
-                                        {% endif %}
-                                    </div>
-                                    {% if b.days_until_birthday and not b.is_today %}
-                                    <small class="text-muted" style="font-size: 0.6rem;">In {{ b.days_until_birthday }} days</small>
+                                <div>
+                                    {% if l.status|lower == 'pending' %}
+                                    <span class="badge" style="background: rgba(245, 158, 11, 0.1); color: #f59e0b; border-radius: 999px; padding: 4px 12px; font-size: 0.7rem;">Pending</span>
+                                    {% elif l.status|lower == 'approved' %}
+                                    <span class="badge" style="background: rgba(16, 185, 129, 0.1); color: #10b981; border-radius: 999px; padding: 4px 12px; font-size: 0.7rem;">Approved</span>
+                                    {% else %}
+                                    <span class="badge" style="background: rgba(107, 114, 128, 0.1); color: #6b7280; border-radius: 999px; padding: 4px 12px; font-size: 0.7rem;">{{ l.status }}</span>
                                     {% endif %}
                                 </div>
                             </div>
-                            {% endfor %}
-                            {% else %}
-                            <div class="text-muted text-center py-3">
-                                No upcoming birthdays
-                            </div>
-                            {% endif %}
                         </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="text-center py-4 text-muted">
+                        <i class="bi bi-calendar-x fs-3 d-block mb-2"></i> No recent team leaves
+                    </div>
+                    {% endif %}
+                </div>
+            </a>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Bottom Cards -->
+    <div class="row g-4 mt-4">
+        <!-- Announcements -->
+        <div class="col-lg-4">
+            <div class="card-ui p-4" style="border-radius: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.06);">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h6 class="mb-0 fw-bold" style="color: #1f2937; font-size: 1.1rem;">
+                        <i class="bi bi-megaphone me-2" style="color: #8b5cf6;"></i> Announcements
+                    </h6>
+                    {% if session.role == 'hr' %}
+                    <button class="btn btn-sm btn-primary rounded-pill px-3 py-1" data-bs-toggle="modal" data-bs-target="#dashboardAnnouncementModal" onclick="prepareDashboardCreate()">
+                        <i class="bi bi-plus-lg me-1"></i> Create
+                    </button>
+                    {% endif %}
+                </div>
+                <div class="no-scrollbar" style="max-height: 300px; overflow-y: auto;">
+                    <div id="dashboardAnnouncementsListContainer">
+                        {% if announcements %}
+                        <div class="list-group list-group-flush gap-3">
+                            {% for ann in announcements %}
+                            <div class="list-group-item px-3 py-3 border-0 bg-transparent rounded-3 hover-row-bg" style="cursor: pointer; border-radius: 12px;" onclick="viewDashboardAnnouncement('{{ ann.id }}')">
+                                <div class="d-flex align-items-start gap-3">
+                                    <div class="flex-shrink-0" style="width: 40px; height: 40px; background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                                        <i class="bi bi-info-circle text-white"></i>
+                                    </div>
+                                    <div class="flex-grow-1" style="min-width: 0;">
+                                        <div class="d-flex justify-content-between align-items-baseline mb-1">
+                                            <h6 class="text-dark fw-bold mb-0 text-truncate" style="font-size: 0.9rem;">{{ ann.title | safe }}</h6>
+                                            <small class="text-muted flex-shrink-0 ms-2" style="font-size: 0.7rem;">
+                                                {% if '-' in ann.created_at %}
+                                                    {% set c_parts = ann.created_at[:10].split('-') %}
+                                                    {% set months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'] %}
+                                                    {{ c_parts[2] }} {{ months[c_parts[1]|int - 1] }}
+                                                {% else %}
+                                                    {{ ann.created_at[:10] }}
+                                                {% endif %}
+                                            </small>
+                                        </div>
+                                        <p class="text-muted mb-0 text-truncate" style="font-size: 0.8rem; line-height: 1.4;">{{ ann.short_description }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        <div class="text-muted text-center py-5">
+                            <i class="bi bi-megaphone fs-3 d-block mb-2"></i> No new announcements
+                        </div>
+                        {% endif %}
                     </div>
                 </div>
-
-                <div class="col-md-4">
-                    <div class="card-ui p-2 h-100">
-                        <div class="d-flex justify-content-between align-items-center mb-3">
-                            <h6 class="mb-0"> Holidays 🎉</h6>
-                            <small class="text-muted">2026</small>
-                        </div>
-                        <div class="no-scrollbar" style="max-height:230px; overflow-y:auto;">
-
-                            {% for h in holidays %}
-
-                            <div class="d-flex py-1 border-bottom">
-
-                                <!-- LEFT -->
-
-                                <div style="flex:1; overflow:hidden; font-size: 0.80rem;">
-
-                                    <div class="fw-semibold text-truncate">{{ h.name }}</div>
-
-                                    <small class="text-muted text-capitalize">{{ h.type }}</small>
-
-                                </div>
-
-                                <!-- RIGHT DATE -->
-
-                                <div style="width:120px; text-align:center; flex-shrink:0;">
-
-                                    <small class="text-muted fw-semibold" style="font-size: 0.80rem;">
-
-                                        {{ h.formatted_date[:16] }}
-
-                                    </small>
-
-                                </div>
-
-                            </div>
-
-                            {% endfor %}
-
-                        </div>
-
-                    </div>
-
-                </div>
-
             </div>
-
-
-
         </div>
 
+        <!-- Birthdays -->
+        <div class="col-lg-4">
+            <div class="card-ui p-4" style="border-radius: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.06);">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h6 class="mb-0 fw-bold" style="color: #1f2937; font-size: 1.1rem;">
+                        <i class="bi bi-cake2 me-2" style="color: #ec4899;"></i> Upcoming Birthdays
+                    </h6>
+                    <small class="text-muted" style="font-size: 0.75rem; color: #9ca3af;">Next 7 Days</small>
+                </div>
+                <div class="no-scrollbar" style="max-height: 300px; overflow-y: auto;">
+                    {% if birthdays %}
+                    <div class="d-flex flex-column gap-2">
+                        {% for b in birthdays %}
+                        <div class="d-flex align-items-center gap-3 px-2 py-2 rounded-3 hover-row-bg">
+                            <img src="{% if b.photo_url %}{% if b.photo_url.startswith('http') %}{{ b.photo_url }}{% else %}{{ BASE_URL }}{{ b.photo_url }}{% endif %}{% else %}data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='48' height='48' viewBox='0 0 80 80'%3E%3Ccircle cx='40' cy='40' r='40' fill='%23475569'/%3E%3Ccircle cx='40' cy='30' r='14' fill='%23cbd5e1'/%3E%3Cellipse cx='40' cy='68' rx='22' ry='16' fill='%23cbd5e1'/%3E%3C/svg%3E{% endif %}"
+                                 class="rounded-circle shadow-sm"
+                                 style="width: 48px; height: 48px; object-fit: cover;"
+                                 alt="{{ b.name | clean_name if b.name else 'User' }}">
+                            <div class="flex-grow-1" style="min-width: 0;">
+                                <div class="fw-bold text-dark" style="font-size: 0.9rem;">{{ b.name | clean_name if b.name else 'Unknown' }}</div>
+                                {% if b.is_today %}
+                                <span class="badge" style="background: rgba(16, 185, 129, 0.1); color: #10b981; border-radius: 999px; padding: 4px 12px; font-size: 0.7rem;">Today! 🎂</span>
+                                {% else %}
+                                <span class="text-muted" style="font-size: 0.8rem;">Upcoming</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="text-center py-5">
+                        <div style="width: 80px; height: 80px; margin: 0 auto; background: rgba(236, 72, 153, 0.08); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 16px;">
+                            <i class="bi bi-calendar-x fs-2" style="color: #9ca3af;"></i>
+                        </div>
+                        <p class="text-muted mb-0" style="font-size: 0.85rem;">No birthdays in the next 7 days</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
 
-
-
-
-
-
+        <!-- Holidays -->
+        <div class="col-lg-4">
+            <div class="card-ui p-4" style="border-radius: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.06);">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h6 class="mb-0 fw-bold" style="color: #1f2937; font-size: 1.1rem;">
+                        <i class="bi bi-umbrella-beach me-2" style="color: #f59e0b;"></i> Holidays 2026
+                    </h6>
+                </div>
+                <div class="no-scrollbar" style="max-height: 300px; overflow-y: auto;">
+                    {% if holidays %}
+                    <div class="d-flex flex-column gap-2">
+                        {% for h in holidays %}
+                        <div class="d-flex justify-content-between align-items-center px-2 py-2 rounded-3 hover-row-bg">
+                            <div>
+                                <div class="fw-semibold text-dark" style="font-size: 0.9rem;">{{ h.name }}</div>
+                                <div class="text-muted" style="font-size: 0.75rem;">{{ h.type | capitalize }}</div>
+                            </div>
+                            <div class="text-end">
+                                <div class="text-muted fw-semibold" style="font-size: 0.75rem; background: #f3f4f6; padding: 4px 8px; border-radius: 6px;">
+                                    {{ h.formatted_date[:10] }}
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="text-muted text-center py-5">
+                        <i class="bi bi-calendar-x fs-3 d-block mb-2"></i> No holidays listed
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
     </div>
 
-
-
-
-
-
-
+    <!-- HR/Admin Help Desk & Reimbursement Summary -->
+    {% if session.role in ['hr', 'admin'] %}
+    <div class="row g-4 mt-4">
+        <div class="col-lg-6">
+            <div class="card-ui p-4" style="border-radius: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.06);">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h6 class="mb-0 fw-bold" style="color: #1f2937; font-size: 1.1rem;">Help Desk Summary</h6>
+                    <a href="{{ url_for('admin.helpdesk') }}" class="btn btn-sm btn-outline-primary rounded-pill px-3 py-1" style="font-size: 0.75rem; font-weight: 600;">
+                        View All <i class="bi bi-arrow-right ms-1"></i>
+                    </a>
+                </div>
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <a href="{{ url_for('admin.helpdesk') }}?status=open" class="text-decoration-none">
+                            <div class="p-3 rounded-3 bg-light border-start border-4 border-warning shadow-sm h-100 hover-card" style="border-radius: 12px !important;">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="text-muted small fw-bold text-uppercase mb-0" style="font-size: 0.7rem;">Open</h6>
+                                        <h6 class="fw-bold mb-0 text-dark mt-1" style="font-size: 1.5rem;">
+                                            {{ hd_stats.by_status.get('open', 0) if hd_stats.by_status else 0 }}
+                                        </h6>
+                                    </div>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="col-md-4">
+                        <a href="{{ url_for('admin.helpdesk') }}?status=in_progress" class="text-decoration-none">
+                            <div class="p-3 rounded-3 bg-light border-start border-4 border-info shadow-sm h-100 hover-card" style="border-radius: 12px !important;">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="text-muted small fw-bold text-uppercase mb-0" style="font-size: 0.7rem;">In Progress</h6>
+                                        <h6 class="fw-bold mb-0 text-dark mt-1" style="font-size: 1.5rem;">
+                                            {{ hd_stats.by_status.get('in_progress', 0) if hd_stats.by_status else 0 }}
+                                        </h6>
+                                    </div>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="col-md-4">
+                        <a href="{{ url_for('admin.helpdesk') }}?status=closed" class="text-decoration-none">
+                            <div class="p-3 rounded-3 bg-light border-start border-4 border-success shadow-sm h-100 hover-card" style="border-radius: 12px !important;">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="text-muted small fw-bold text-uppercase mb-0" style="font-size: 0.7rem;">Closed</h6>
+                                        <h6 class="fw-bold mb-0 text-dark mt-1" style="font-size: 1.5rem;">
+                                            {% if hd_stats.by_status %}
+                                                {{ hd_stats.by_status.get('closed', 0) }}
+                                            {% endif %}
+                                        </h6>
+                                    </div>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="card-ui p-4" style="border-radius: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.06);">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h6 class="mb-0 fw-bold" style="color: #1f2937; font-size: 1.1rem;">Reimbursement Summary</h6>
+                    <a href="{{ url_for('admin.reimbursement') }}" class="btn btn-sm btn-outline-primary rounded-pill px-3 py-1" style="font-size: 0.75rem; font-weight: 600;">
+                        View All <i class="bi bi-arrow-right ms-1"></i>
+                    </a>
+                </div>
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <a href="{{ url_for('admin.reimbursement') }}?status=pending" class="text-decoration-none">
+                            <div class="p-3 rounded-3 bg-light border-start border-4 border-warning shadow-sm h-100 hover-card" style="border-radius: 12px !important;">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="text-muted small fw-bold text-uppercase mb-0" style="font-size: 0.7rem;">Pending</h6>
+                                        <h6 class="fw-bold mb-0 text-dark mt-1" style="font-size: 1.5rem;">
+                                            {{ reimbursement_stats.pending_approval.count if reimbursement_stats.pending_approval else 0 }}
+                                        </h6>
+                                    </div>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="col-md-4">
+                        <a href="{{ url_for('admin.reimbursement') }}?status=approved" class="text-decoration-none">
+                            <div class="p-3 rounded-3 bg-light border-start border-4 border-success shadow-sm h-100 hover-card" style="border-radius: 12px !important;">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="text-muted small fw-bold text-uppercase mb-0" style="font-size: 0.7rem;">Approved</h6>
+                                        <h6 class="fw-bold mb-0 text-dark mt-1" style="font-size: 1.5rem;">
+                                            {{ reimbursement_stats.by_status.approved.count if reimbursement_stats.by_status and reimbursement_stats.by_status.approved else 0 }}
+                                        </h6>
+                                    </div>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="col-md-4">
+                        <a href="{{ url_for('admin.reimbursement') }}?status=rejected" class="text-decoration-none">
+                            <div class="p-3 rounded-3 bg-light border-start border-4 border-danger shadow-sm h-100 hover-card" style="border-radius: 12px !important;">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="text-muted small fw-bold text-uppercase mb-0" style="font-size: 0.7rem;">Rejected</h6>
+                                        <h6 class="fw-bold mb-0 text-dark mt-1" style="font-size: 1.5rem;">
+                                            {{ reimbursement_stats.by_status.rejected.count if reimbursement_stats.by_status and reimbursement_stats.by_status.rejected else 0 }}
+                                        </h6>
+                                    </div>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
 </div>
-
-
-
-
-
-
-
-</div>
-
-
-
-<!-- Announcements Style Overrides -->
-<style>
-    .badge-draft {
-        background-color: rgba(245, 158, 11, 0.15) !important;
-        color: #d97706 !important;
-    }
-    .badge-published {
-        background-color: rgba(16, 185, 129, 0.15) !important;
-        color: #059669 !important;
-    }
-    .badge-expired {
-        background-color: rgba(239, 68, 68, 0.15) !important;
-        color: #dc2626 !important;
-    }
-    .text-truncate-2 {
-        display: -webkit-box;
-        -webkit-line-clamp: 2;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
-    }
-</style>
 
 <!-- Announcement Details Modal -->
 <div class="modal fade" id="dashboardAnnouncementDetailModal" tabindex="-1" aria-hidden="true">
@@ -786,1125 +523,96 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body modal-body-detail">
-                <div class="detail-view">
-                <div class="detail-hero">
-                <div class="d-flex justify-content-between align-items-start gap-2 mb-2">
-                <h3 id="dashDetailTitle" class="detail-hero-title mb-0">Loading Title...</h3>
-                <span id="dashDetailBadge" class="badge rounded-pill flex-shrink-0">Active</span>
-                </div>
-                <div class="d-flex align-items-center gap-3 text-muted mb-3 flex-wrap small">
-                    <span class="d-flex align-items-center gap-1">
-                        <i class="bi bi-person-circle"></i> Posted by: <strong id="dashDetailCreatedBy" class="text-dark">Admin</strong>
-                    </span>
-                    <span class="d-flex align-items-center gap-1">
-                        <i class="bi bi-calendar3"></i> Posted: <strong id="dashDetailCreatedAt" class="text-dark">Date</strong>
-                    </span>
-                    <span class="d-flex align-items-center gap-1">
-                        <i class="bi bi-calendar-x"></i> Expires: <strong id="dashDetailExpiresAt" class="text-dark">Date</strong>
-                    </span>
-                </div>
-                
-                </div>
-
-                <div class="detail-card mb-3">
-                <div class="detail-card-title"><i class="bi bi-card-text"></i> Description</div>
-                <div class="announcement-content detail-note border-0" id="dashDetailDescription" style="line-height: 1.6; font-size: 0.95rem;">
-                    Loading description...
-                </div>
-                </div>
-
-                <div id="dashDetailAttachmentBox" class="detail-card d-flex align-items-center justify-content-between mb-2" style="display: none !important;">
-                    <div class="d-flex align-items-center gap-2 overflow-hidden">
-                        <div class="bg-primary bg-opacity-10 text-primary rounded p-2 flex-shrink-0">
-                            <i class="bi bi-file-earmark-arrow-down-fill fs-5"></i>
-                        </div>
-                        <div class="overflow-hidden">
-                            <h6 class="mb-0 fw-semibold text-dark text-truncate" id="dashDetailAttachmentName" style="font-size: 0.85rem;">filename.pdf</h6>
-                            <span class="text-muted small" style="font-size: 0.7rem;">Click to download attachment</span>
-                        </div>
-                    </div>
-                    <button class="btn btn-sm btn-primary rounded-pill px-3 shadow-sm" id="dashDetailDownloadBtn">
-                        <i class="bi bi-download me-1"></i> Download
-                    </button>
-                </div>
-
-                </div>
+                <!-- Content loaded dynamically -->
             </div>
-            {% if session.role == 'hr' %}
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <button class="btn btn-outline-secondary" id="dashDetailEditBtn">
-                    <i class="bi bi-pencil-fill me-1"></i> Edit
-                </button>
-                <button class="btn btn-outline-danger" id="dashDetailDeleteBtn">
-                    <i class="bi bi-trash-fill me-1"></i> Delete
-                </button>
-            </div>
-            {% else %}
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-            </div>
-            {% endif %}
         </div>
     </div>
 </div>
 
-<!-- Create / Edit Announcement Modal (HR Only) -->
-{% if session.role == 'hr' %}
+<!-- Create Announcement Modal -->
 <div class="modal fade" id="dashboardAnnouncementModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title fw-bold mb-0 d-flex align-items-center gap-2" id="dashAnnModalTitle">
-                    <i class="bi bi-pencil-square text-primary"></i> Create Announcement
+                <h5 class="modal-title mb-0">
+                    <i class="bi bi-plus-circle text-primary me-2"></i>Create Announcement
                 </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body modal-body-form">
-                <form id="dashAnnForm" enctype="multipart/form-data" novalidate>
-                    <input type="hidden" id="dashAnnId" name="id">
-                    
+            <div class="modal-body">
+                <form id="createAnnouncementForm">
                     <div class="mb-3">
-                        <label class="form-label small fw-bold text-dark">Title *</label>
-                        <input type="text" class="form-control rounded-3" id="dashAnnTitle" name="title" required placeholder="Enter announcement title...">
-                        <div class="invalid-feedback">Please enter a valid title.</div>
+                        <label class="form-label fw-semibold">Title</label>
+                        <input type="text" class="form-control" name="title" required>
                     </div>
-
                     <div class="mb-3">
-                        <label class="form-label small fw-bold text-dark">Description *</label>
-                        <textarea class="form-control rounded-3" id="dashAnnDescription" name="description" rows="5" required placeholder="Write detailed content..."></textarea>
-                        <div class="invalid-feedback">Please enter a description.</div>
+                        <label class="form-label fw-semibold">Short Description</label>
+                        <textarea class="form-control" name="short_description" rows="2" required></textarea>
                     </div>
-
-                    <div class="row g-3 mb-3">
-                        <div class="col-md-6">
-                            <label class="form-label small fw-bold text-dark">Expiry Date *</label>
-                            <input type="datetime-local" class="form-control rounded-3" id="dashAnnExpiresAt" name="expires_at" required>
-                            <div class="invalid-feedback">Please select a valid future expiration date.</div>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label small fw-bold text-dark">Status</label>
-                            <select class="form-select rounded-3" id="dashAnnStatus" name="status">
-                                <option value="published" selected>Published (visible to all)</option>
-                                <option value="draft">Draft (hidden from employees)</option>
-                            </select>
-                        </div>
-                    </div>
-
                     <div class="mb-3">
-                        <label class="form-label small fw-bold text-dark">Attachment (File, max 10MB)</label>
-                        <div class="input-group">
-                            <input type="file" class="form-control rounded-3" id="dashAnnAttachment" name="attachment" accept=".jpg,.jpeg,.png,.pdf">
-                        </div>
-                        <div id="dashAnnCurrentAttachmentInfo" class="mt-2 small text-primary" style="display: none;">
-                            <i class="bi bi-paperclip"></i> Currently attached: <span id="dashAnnCurrentAttachmentName"></span>
-                        </div>
+                        <label class="form-label fw-semibold">Content</label>
+                        <textarea class="form-control" name="content" rows="5" required></textarea>
                     </div>
-
                 </form>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <button type="submit" form="dashAnnForm" class="btn btn-primary fw-bold" id="dashAnnSubmitBtn">Save Announcement</button>
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="submitAnnouncement()">Create</button>
             </div>
         </div>
     </div>
 </div>
-{% endif %}
-
-<!-- Project Details Modal -->
-
-<div class="modal fade" id="projectDetailsModal" tabindex="-1" aria-hidden="true">
-
-    <div class="modal-dialog modal-lg modal-dialog-centered">
-
-        <div class="modal-content">
-
-            <div class="modal-header">
-
-                <h5 class="modal-title">
-
-                    <i class="bi bi-folder-fill me-2"></i>
-
-                    <span id="modalProjectName">Project Details</span>
-
-                </h5>
-
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-
-            </div>
-
-            <div class="modal-body modal-body-detail">
-
-                <div id="projectDetailsContent">
-
-                    <!-- Project details will be loaded here -->
-
-                </div>
-
-            </div>
-
-            <div class="modal-footer">
-
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-
-            </div>
-
-        </div>
-
-    </div>
-
-</div>
-
-
-
-<!-- Employee Selection Modal -->
-<div class="modal fade" id="employeeSelectionModal" tabindex="-1" aria-labelledby="employeeSelectionModalLabel"
-    aria-hidden="true">
-    <div class="modal-dialog modal-lg modal-dialog-scrollable">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title mb-0" id="employeeSelectionModalLabel">
-                    <i class="bi bi-people-fill text-primary me-2"></i>
-                    {{ labels.SELECT_TEAM_MEMBERS }} for <span id="modalProjectName"></span>
-                </h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body modal-body-detail">
-                <div class="mb-3">
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                        <h6 class="mb-0">{{ labels.AVAILABLE_EMPLOYEES }}</h6>
-                        <div>
-                            <button type="button" class="btn btn-sm btn-outline-primary" onclick="selectAllEmployees()">
-                                <i class="bi bi-check-all me-1"></i>Select All
-                            </button>
-                            <button type="button" class="btn btn-sm btn-outline-secondary"
-                                onclick="clearAllEmployees()">
-                                <i class="bi bi-x-square me-1"></i>Clear All
-                            </button>
-                        </div>
-                    </div>
-                    <div class="border rounded p-3" style="max-height: 400px; overflow-y: auto;">
-                        <div id="availableEmployeesList">
-                            <!-- Employees will be loaded here -->
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="modal-footer d-flex justify-content-between align-items-center">
-                <div id="allocationTracker" class="badge bg-secondary p-2">
-                    Selected Allocation: <span id="totalAllocValue">0</span>%
-                </div>
-                <div>
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-primary" onclick="assignSelectedEmployees()">
-                        <i class="bi bi-person-plus me-2"></i>
-                        {{ labels.ASSIGN_TEAM_MEMBERS }}
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-
-
-{% endblock %}
-
-
-
-{% block scripts %}
-
-<script id="projects-data" type="application/json">
-    {{ projects | tojson | safe }}
-</script>
-<script id="my-projects-data" type="application/json">
-    {{ my_projects | tojson | safe }}
-</script>
-<script id="config-data" type="application/json">
-    {
-        "userRole": {{ session.role | tojson }},
-        "employeeName": {{ session.employee_name | tojson }}
-    }
-</script>
 
 <script>
-    // Helper to safely load data from JSON blocks
-    const getProjectsData = () => {
-        const managerProjects = JSON.parse(document.getElementById('projects-data').textContent || '[]');
-        const myProjects = JSON.parse((document.getElementById('my-projects-data') || {}).textContent || '[]');
-        // Merge both so employee's view modal can look up project by id
-        const allById = {};
-        managerProjects.forEach(p => { if (p.id) allById[p.id] = p; });
-        myProjects.forEach(p => { if (p.id) allById[p.id] = p; });
-        return Object.values(allById).length ? Object.values(allById) : managerProjects;
-    };
-    const getConfigData = () => JSON.parse(document.getElementById('config-data').textContent || '{}');
-
-    document.addEventListener('DOMContentLoaded', function() {
-        // Event delegation for project actions (Active Projects table & My Projects table)
-        document.querySelectorAll('.table-hover').forEach(function(table) {
-            table.addEventListener('click', function(e) {
-                const viewBtn = e.target.closest('.btn-view-project');
-                if (viewBtn) viewProjectDetails(viewBtn.dataset.id);
-            });
-        });
-    });
-
-    // Load notifications page function (needed for "View All Notifications" link)
-
-    function loadNotificationsPage() {
-
-        window.location.href = '/notifications';
-
-    }
-
-
-
-    // View project details function
-
-    function viewProjectDetails(projectId) {
-
-        console.log('Viewing project details for ID:', projectId);
-
-
-
-        // Fetch project details from API
-
-        fetch('/get_project_details/' + projectId)
-
-            .then(function (response) {
-
-                if (response.ok) {
-
-                    return response.json();
-
-                } else {
-
-                    throw new Error('Failed to fetch project details');
-
-                }
-
-            })
-
-            .then(function (data) {
-
-                if (data.success) {
-
-                    displayProjectDetails(data.project);
-
-                } else {
-
-                    alert('Error: ' + data.error);
-
-                }
-
-            })
-
-            .catch(function (error) {
-
-                alert('Error loading project details. Please try again.');
-
-            });
-
-    }
-
-
-
-    // Display project details in modal
-    function displayProjectDetails(project) {
-        const config = getConfigData();
-        var userRole = (config.userRole || '').toLowerCase();
-        var employeeName = config.employeeName;
-
-        var detailsHtml = '<div class="row">' +
-            '<div class="col-md-6">' +
-            '<h6 class="text-muted">Project Information</h6>' +
-            '<table class="table table-sm">' +
-            '<tr><td><strong>Project Name:</strong></td><td>' + (project.name || project.project_name || 'N/A') + '</td></tr>' +
-            '<tr><td><strong>Status:</strong></td><td><span class="badge bg-success">' + (project.status || 'Active') + '</span></td></tr>' +
-            '<tr><td><strong>Assigned Manager:</strong></td><td>' + (project.assigned_manager || project.assigned_manager_name || project.manager_name || project.manager || 'N/A') + '</td></tr>' +
-            '<tr><td><strong>Created By:</strong></td><td>' + (project.created_by || 'N/A') + '</td></tr>' +
-            '<tr><td><strong>Created At:</strong></td><td>' + (project.created_at || project.createdAt || 'N/A') + '</td></tr>' +
-            '</table>' +
-            '</div>';
-
-        // Add customer information only for managers and HR (not for employees)
-        if (userRole !== 'employee') {
-            detailsHtml += '<div class="col-md-6">' +
-                '<h6 class="text-muted">Customer Information</h6>' +
-                '<table class="table table-sm">' +
-                '<tr><td><strong>Customer Name:</strong></td><td>' + (project.customer_name || 'N/A') + '</td></tr>' +
-                '<tr><td><strong>Contact Person:</strong></td><td>' + (project.customer_contact || project.contact_person || project.contact || 'N/A') + '</td></tr>' +
-                '<tr><td><strong>Phone:</strong></td><td>' + (project.customer_phone || project.phone || 'N/A') + '</td></tr>' +
-                '<tr><td><strong>Email:</strong></td><td>' + (project.customer_email || project.email || 'N/A') + '</td></tr>' +
-                '</table>' +
-                '</div>';
-        }
-
-        detailsHtml += '</div>' +
-            '<div class="row mt-3">' +
-            '<div class="col-12">' +
-            '<h6 class="text-muted">Project Timeline</h6>' +
-            '<table class="table table-sm">' +
-            '<tr><td><strong>Start Date:</strong></td><td>' + (project.start_date || project.startDate || 'N/A') + '</td></tr>' +
-            '<tr><td><strong>End Date:</strong></td><td>' + (project.end_date || project.endDate || 'N/A') + '</td></tr>' +
-            '</table>' +
-            '</div>' +
-            '</div>';
-
-        // Standardize manager name
-        var projectManager = project.assigned_manager || project.manager_name || project.manager || project.assigned_manager_name;
-
-        // Merge all possible keys and prioritize objects over strings
-        var rawTeamLists = [
-            project.team_members,
-            project.team,
-            project.assignments,
-            project.project_team,
-            project.team_list,
-            project.members,
-            project.employees,
-            project.member_list
-        ];
-
-        var teamMap = {};
-
-        rawTeamLists.forEach(function (list) {
-            if (!list) return;
-            var arr = Array.isArray(list) ? list : [list];
-
-            arr.forEach(function (member) {
-                var mName = typeof member === 'string' ? member : (member.name || member.employee_name || member.employee || member.employeeName || member.member_name || member.m_name);
-                if (mName) {
-                    if (!teamMap[mName] || (typeof teamMap[mName] === 'string' && typeof member === 'object')) {
-                        teamMap[mName] = member;
-                    }
-                }
-            });
-        });
-
-        var teamList = Object.values(teamMap);
-
-        if (teamList.length > 0) {
-            detailsHtml += '<div class="row mt-3">' +
-                '<div class="col-12">' +
-                '<div class="d-flex justify-content-between align-items-center mb-1">' +
-                '<h6 class="text-muted mb-0">' + (userRole === 'employee' ? 'Your Allocation' : 'Team Members & Workload') + '</h6>' +
-                '<small class="text-muted">' + teamList.length + ' Members</small>' +
-                '</div>' +
-                '<div class="list-group list-group-flush border rounded" style="max-height: 250px; overflow-y: auto;">';
-
-            for (var i = 0; i < teamList.length; i++) {
-                var member = teamList[i];
-                var mName = typeof member === 'string' ? member : (member.name || member.employee_name || member.employee || member.employeeName || member.member_name || member.m_name);
-
-                if (userRole === 'employee' && mName !== employeeName) continue;
-
-                var allocation = '100';
-                if (typeof member !== 'string') {
-                    var val = (member.allocation !== undefined) ? member.allocation :
-                        (member.allocation_percentage !== undefined ? member.allocation_percentage :
-                            (member.billable_percentage !== undefined ? member.billable_percentage :
-                                (member.billable_pct !== undefined ? member.billable_pct :
-                                    (member.percentage !== undefined ? member.percentage : '100'))));
-                    allocation = val;
-                }
-
-                var billingType = typeof member === 'string' ? 'Billable' : (member.billing_type || (member.is_billable ? 'Billable' : 'Non-Billable'));
-                var statusClass = billingType.toLowerCase() === 'billable' ? 'bg-success' : 'bg-warning';
-
-                detailsHtml += '<div class="list-group-item d-flex justify-content-between align-items-center py-2">' +
-                    '<div>' +
-                    '<div class="fw-bold">' + mName + '</div>' +
-                    '</div>' +
-                    '<div class="text-end">' +
-                    '<span class="badge bg-primary rounded-pill me-1">' + allocation + '% Alloc.</span>' +
-                    '<span class="badge ' + statusClass + ' rounded-pill">' + billingType + '</span>' +
-                    '</div>' +
-                    '</div>';
+function viewDashboardAnnouncement(id) {
+    fetch('/api/announcements/' + id)
+        .then(r => r.json())
+        .then(data => {
+            if (data.success) {
+                const modal = new bootstrap.Modal(document.getElementById('dashboardAnnouncementDetailModal'));
+                document.querySelector('#dashboardAnnouncementDetailModal .modal-body').innerHTML = `
+                    <div class="mb-3">
+                        <h4 class="fw-bold mb-1">${data.announcement.title}</h4>
+                        <small class="text-muted">Created on ${data.announcement.created_at}</small>
+                    </div>
+                    <p class="text-muted mb-3">${data.announcement.short_description}</p>
+                    <div style="white-space: pre-wrap;">${data.announcement.content}</div>
+                `;
+                modal.show();
             }
-
-            detailsHtml += '</div></div></div>';
-        } else {
-            detailsHtml += '<div class="row mt-3"><div class="col-12"><div class="alert alert-info py-2">No team members found for this project.</div></div></div>';
-        }
-
-        var isAssignedManager = (userRole === 'manager' && projectManager === employeeName);
-        var isHr = (userRole === 'hr' || userRole === 'admin');
-
-        if (isHr || isAssignedManager || userRole === 'manager') {
-            detailsHtml += '<div class="row mt-3">' +
-                '<div class="col-12">' +
-                '<button class="btn btn-primary w-100" onclick="openEmployeeSelectionModal(' + project.id + ', \'' + (project.name || project.project_name || '') + '\')">' +
-                '<i class="bi bi-person-plus me-2"></i>' +
-                'Add Team Members' +
-                '</button>' +
-                '</div>' +
-                '</div>';
-        }
-
-        document.getElementById('modalProjectName').textContent = project.project_name || project.name || 'Project Details';
-        document.getElementById('projectDetailsContent').innerHTML = detailsHtml;
-
-        var modal = new bootstrap.Modal(document.getElementById('projectDetailsModal'));
-        modal.show();
-    }
-
-    let currentProjectId = null;
-    let currentProjectMembers = [];
-
-    function getMemberName(member) {
-        if (typeof member === 'string') return member;
-        if (!member || typeof member !== 'object') return '';
-        return member.name || member.employee_name || member.employee || member.member_name || member.m_name || '';
-    }
-
-    function getMemberAllocation(member) {
-        if (typeof member === 'string') return 100;
-        if (!member || typeof member !== 'object') return 100;
-        const raw = member.allocation ?? member.allocation_percentage ?? member.billable_percentage ?? member.billable_pct ?? member.percentage ?? 100;
-        const parsed = parseInt(raw, 10);
-        return Number.isFinite(parsed) ? parsed : 100;
-    }
-
-    function getProjectMembers(project) {
-        const candidateLists = [
-            project && project.team_members,
-            project && project.team,
-            project && project.assignments,
-            project && project.project_team,
-            project && project.members,
-            project && project.employees,
-            project && project.member_list
-        ];
-
-        const unique = {};
-        candidateLists.forEach((list) => {
-            if (!Array.isArray(list)) return;
-            list.forEach((member) => {
-                const name = getMemberName(member);
-                if (!name) return;
-                if (!unique[name] || typeof unique[name] === 'string') {
-                    unique[name] = member;
-                }
-            });
-        });
-
-        return Object.values(unique);
-    }
-
-    function openEmployeeSelectionModal(projectId, projectName) {
-        currentProjectId = projectId;
-        document.getElementById('modalProjectName').textContent = projectName || 'Project';
-
-        const projectsData = getProjectsData();
-        const project = projectsData.find((p) => p.id == projectId);
-    currentProjectMembers = project ? getProjectMembers(project) : [];
-
-    const openModal = (availableEmployees) => {
-        populateEmployeeList(currentProjectMembers, availableEmployees);
-        const modal = new bootstrap.Modal(document.getElementById('employeeSelectionModal'));
-        modal.show();
-    };
-
-    const fetchEmployeesAndOpenModal = () => {
-        fetch('/api/employees_with_allocation')
-            .then(res => res.json())
-            .then(data => {
-                if (data.success) {
-                    openModal(data.employees);
-                } else {
-                    alert("Error fetching employees: " + data.error);
-                }
-            })
-            .catch(err => {
-                console.error("Error fetching employees:", err);
-                alert("Failed to fetch employees.");
-            });
-    };
-
-    if (project) {
-        fetchEmployeesAndOpenModal();
-        return;
-    }
-
-    fetch('/get_project_details/' + projectId)
-        .then((response) => response.json())
-        .then((data) => {
-            if (data.success && data.project) {
-                currentProjectMembers = getProjectMembers(data.project);
-            }
-            fetchEmployeesAndOpenModal();
-        })
-        .catch(() => {
-            fetchEmployeesAndOpenModal();
         });
 }
 
-    function populateEmployeeList(currentTeamMembers, availableEmployees) {
-        const currentMemberNames = new Set((currentTeamMembers || []).map(getMemberName).filter(Boolean));
-        const filteredEmployees = availableEmployees.filter((emp) => !currentMemberNames.has(emp.employee_name || emp.name));
-        const container = document.getElementById('availableEmployeesList');
+function prepareDashboardCreate() {
+    document.getElementById('createAnnouncementForm').reset();
+}
 
-        if (filteredEmployees.length === 0) {
-            container.innerHTML = '<div class="text-center py-4"><i class="bi bi-person-check text-success" style="font-size: 2rem;"></i><p class="mt-2 text-muted">All eligible employees are already assigned.</p></div>';
-            updateAllocationTracker();
-            return;
-        }
-
-        let html = '';
-        filteredEmployees.forEach((emp, i) => {
-            let statusClass = 'bg-success';
-            if (emp.availability_status === 'fully_allocated') statusClass = 'bg-danger';
-            else if (emp.availability_status === 'over_allocated') statusClass = 'bg-warning text-dark';
-            else if (emp.availability_status === 'partially_available') statusClass = 'bg-info text-dark';
-
-            const empName = emp.employee_name || emp.name;
-            const empDesignation = emp.designation || emp.role || 'Employee';
-            const currentAlloc = parseInt((emp.workload && emp.workload.total_allocation) || 0, 10) || 0;
-
-            // Capacity is out of 150%
-            const maxCapacity = 150;
-            const remainingTo150 = Math.max(0, maxCapacity - currentAlloc);
-            const remainingTo100 = Math.max(0, 100 - currentAlloc);
-
-            const allowOverAllocation = Boolean(emp.allow_over_allocation);
-            const isDisabled = remainingTo150 <= 0 ? 'disabled' : '';
-            const inputMax = remainingTo150;
-            // Default to what gets them to 100%, minimum 1, max inputMax
-            const defaultAlloc = Math.max(1, Math.min(100, remainingTo100 > 0 ? remainingTo100 : inputMax));
-
-            const overAllocBadge = currentAlloc > 100 ? `<span class="badge bg-warning text-dark ms-1" style="font-size: 0.65rem;">Over-allocated</span>` : '';
-
-            html += `
-            <div class="assignment-row py-3 border-bottom"
-                 data-name="${empName}"
-                 data-capacity="${inputMax}"
-                 data-allow-overallocation="${allowOverAllocation ? '1' : '0'}"
-                 data-current-alloc="${currentAlloc}"
-                 data-projects='${JSON.stringify(emp.workload ? emp.workload.projects : []).replace(/'/g, "&apos;")}'>
-                <div class="row align-items-center">
-                    <div class="col-7">
-                        <div class="form-check d-flex align-items-start">
-                            <input class="form-check-input me-3 member-checkbox" type="checkbox" value="${empName}" id="emp_${i}" onchange="toggleAssignmentInputs(this)" ${isDisabled}>
-                            <label class="form-check-label" for="emp_${i}">
-                                <div class="fw-bold">${empName}</div>
-                                <small class="text-muted d-block">${empDesignation}</small>
-                                <span class="badge ${statusClass} mt-1" style="font-size: 0.65rem;">${currentAlloc}% Allocated</span>
-                                <span class="dynamic-badges">
-                                    ${overAllocBadge}
-                                </span>
-                            </label>
-                        </div>
-                    </div>
-                    <div class="col-5 text-end">
-                        <div class="capacity-indicator">
-                            <small class="text-muted d-block mb-1">Max Capacity (150%)</small>
-                            <div class="progress" style="height: 6px; width: 80px; margin-left: auto;">
-                                <div class="progress-bar ${remainingTo150 < 20 ? 'bg-danger' : (remainingTo150 < 50 ? 'bg-warning' : 'bg-success')}"
-                                     role="progressbar" style="width: ${(remainingTo150 / 150) * 100}%"></div>
-                            </div>
-                            <small class="fw-bold ${remainingTo150 <= 0 ? 'text-danger' : 'text-success'}">${remainingTo150}% Free</small>
-                        </div>
-                    </div>
-                </div>
-                <div class="assignment-inputs d-none mt-3 p-3 bg-light rounded-3 border">
-                    <div class="row g-3">
-                        <div class="col-6">
-                            <label class="small fw-bold text-muted mb-1 d-block">Allocation (%)</label>
-                            <div class="input-group input-group-sm">
-                                <input type="number" class="form-control allocation-input"
-                                       value="${defaultAlloc}"
-                                       min="1" max="${inputMax}"
-                                       oninput="validateAndTrack(this, ${inputMax}, ${allowOverAllocation ? 'true' : 'false'})">
-                                <span class="input-group-text">/ ${inputMax}%</span>
-                            </div>
-                            <div class="invalid-feedback d-block" style="font-size: 0.65rem; display:none;">Exceeds max 150% capacity!</div>
-                        </div>
-                        <div class="col-6">
-                            <label class="small fw-bold text-muted mb-1 d-block">Billing Type</label>
-                            <select class="form-select form-select-sm billing-type-input">
-                                <option value="billable" selected>Billable</option>
-                                <option value="non-billable">Non-Billable</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-            </div>`;
-        });
-
-        container.innerHTML = html;
-        updateAllocationTracker();
-    }
-
-    function toggleAssignmentInputs(checkbox) {
-        const row = checkbox.closest('.assignment-row');
-        if (!row) return;
-        const inputs = row.querySelector('.assignment-inputs');
-        if (!inputs) return;
-
-        if (checkbox.checked) {
-            inputs.classList.remove('d-none');
+function submitAnnouncement() {
+    const form = document.getElementById('createAnnouncementForm');
+    const formData = new FormData(form);
+    const data = Object.fromEntries(formData);
+    
+    fetch('/api/announcements', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + (sessionStorage.getItem('token') || '')
+        },
+        body: JSON.stringify(data)
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.success) {
+            bootstrap.Modal.getInstance(document.getElementById('dashboardAnnouncementModal')).hide();
+            window.location.reload();
         } else {
-            inputs.classList.add('d-none');
-        }
-        updateAllocationTracker();
-    }
-
-    function validateAndTrack(input, max, allowOverAllocation = false) {
-        const val = parseInt(input.value, 10) || 0;
-        const row = input.closest('.assignment-row');
-        const errorDiv = row ? row.querySelector('.invalid-feedback') : null;
-        const currentAlloc = parseInt(row.dataset.currentAlloc, 10) || 0;
-        const totalAlloc = currentAlloc + val;
-
-        if (val > max || val <= 0) {
-            input.classList.add('is-invalid');
-            if (errorDiv) {
-                errorDiv.textContent = 'Exceeds max 150% capacity!';
-                errorDiv.style.display = 'block';
-            }
-        } else {
-            input.classList.remove('is-invalid');
-            if (errorDiv) errorDiv.style.display = 'none';
-
-            let badgeContainer = row.querySelector('.dynamic-badges');
-            if (badgeContainer) {
-                if (totalAlloc > 100) {
-                    badgeContainer.innerHTML = `<span class="badge bg-warning text-dark ms-1" style="font-size: 0.65rem;">Over-allocated (${totalAlloc}%)</span>`;
-                } else {
-                    badgeContainer.innerHTML = '';
-                }
-            }
-        }
-        updateAllocationTracker();
-    }
-
-    function updateAllocationTracker() {
-        let total = 0;
-        const currentMembers = Array.isArray(currentProjectMembers) ? currentProjectMembers : [];
-
-        const selectedMemberNames = Array.from(document.querySelectorAll('#availableEmployeesList .member-checkbox:checked')).map(cb => cb.value);
-
-        currentMembers.forEach(m => {
-            const mName = getMemberName(m);
-            const mAlloc = getMemberAllocation(m);
-            if (!selectedMemberNames.includes(mName)) {
-                total += parseInt(mAlloc) || 0;
-            }
-        });
-
-        document.querySelectorAll('#availableEmployeesList .assignment-row').forEach(row => {
-            const checkbox = row.querySelector('.member-checkbox');
-            if (checkbox && checkbox.checked) {
-                total += parseInt(row.querySelector('.allocation-input').value) || 0;
-            }
-        });
-
-        const tracker = document.getElementById('totalAllocValue');
-        const badge = document.getElementById('allocationTracker');
-        if (tracker) tracker.textContent = total;
-
-        if (badge) {
-            if (total > 100) {
-                badge.classList.remove('bg-secondary', 'bg-success');
-                badge.classList.add('bg-danger');
-            } else if (total === 100) {
-                badge.classList.remove('bg-secondary', 'bg-danger');
-                badge.classList.add('bg-success');
-            } else {
-                badge.classList.remove('bg-success', 'bg-danger');
-                badge.classList.add('bg-secondary');
-            }
-        }
-    }
-
-    function selectAllEmployees() {
-        const checkboxes = document.querySelectorAll('#availableEmployeesList .member-checkbox:not(:disabled)');
-        checkboxes.forEach(checkbox => {
-            checkbox.checked = true;
-            toggleAssignmentInputs(checkbox);
-        });
-    }
-
-    function clearAllEmployees() {
-        const checkboxes = document.querySelectorAll('#availableEmployeesList .member-checkbox');
-        checkboxes.forEach(checkbox => {
-            checkbox.checked = false;
-            toggleAssignmentInputs(checkbox);
-        });
-    }
-
-    function assignSelectedEmployees() {
-        const rows = document.querySelectorAll('#availableEmployeesList .assignment-row');
-        const selectedMembers = [];
-
-        for (let i = 0; i < rows.length; i++) {
-            const row = rows[i];
-            const checkbox = row.querySelector('.member-checkbox');
-            const allocationInput = row.querySelector('.allocation-input');
-
-            if (checkbox && checkbox.checked) {
-                const name = checkbox.value;
-                const allocation = parseInt(allocationInput.value) || 0;
-                const billingType = row.querySelector('.billing-type-input').value;
-                const max = parseInt(row.dataset.capacity) || 0;
-                const allowOverAllocation = row.dataset.allowOverallocation === '1';
-
-                if (allocation > max) {
-                    alert('Error: ' + name + ' cannot exceed max 150% capacity.');
-                    allocationInput.classList.add('is-invalid');
-                    return;
-                }
-
-                if (allocation <= 0) {
-                    alert('Allocation for ' + name + ' must be greater than 0');
-                    allocationInput.classList.add('is-invalid');
-                    return;
-                }
-
-                selectedMembers.push({
-                    name: name,
-                    employee_name: name,
-                    allocation: allocation,
-                    allocation_percentage: allocation,
-                    billable_percentage: allocation,
-                    billing_type: billingType,
-                    is_billable: billingType === 'billable'
-                });
-            }
-        }
-
-        if (selectedMembers.length === 0) {
-            alert('Please select at least one employee to assign');
-            return;
-        }
-
-        const formData = {
-            project_id: currentProjectId,
-            team_members: selectedMembers
-        };
-
-        fetch('/add_team_members', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(formData)
-        })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    const modal = bootstrap.Modal.getInstance(document.getElementById('employeeSelectionModal'));
-                    if (modal) modal.hide();
-                    viewProjectDetails(currentProjectId);
-                } else {
-                    alert('Error: ' + (data.error || 'Assignment failed'));
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('Error assigning employees. Please try again.');
-            });
-    }
-
-
-
-    // --- ANNOUNCEMENTS LOGIC ---
-    function viewDashboardAnnouncement(id) {
-        const token = sessionStorage.getItem('token') || "{{ session.get('token', '') }}";
-        fetch(`/api/announcements/${id}`, {
-            headers: { "Authorization": `Bearer ${token}` }
-        })
-        .then(res => res.json())
-        .then(data => {
-            let ann = null;
-            if (data && data.announcement) {
-                ann = data.announcement;
-            } else if (data && data.data) {
-                ann = data.data;
-            } else if (data && typeof data === 'object' && !Array.isArray(data)) {
-                ann = data;
-            }
-
-            if (!ann || (!ann.id && !ann.title)) {
-                alert("Failed to fetch announcement details: invalid response structure.");
-                return;
-            }
-
-            const isExpired = new Date(ann.expires_at) <= new Date();
-            const badge = document.getElementById("dashDetailBadge");
-            
-            badge.className = "badge rounded-pill text-uppercase";
-            if (isExpired) {
-                badge.innerText = "Expired";
-                badge.classList.add("badge-expired");
-            } else if (ann.status === "draft") {
-                badge.innerText = "Draft";
-                badge.classList.add("badge-draft");
-            } else {
-                badge.innerText = "Active";
-                badge.classList.add("badge-published");
-            }
-
-            document.getElementById("dashDetailTitle").innerText = ann.title;
-            document.getElementById("dashDetailCreatedBy").innerText = ann.created_by || 'Admin';
-            document.getElementById("dashDetailCreatedAt").innerText = formatDateString(ann.created_at);
-            document.getElementById("dashDetailExpiresAt").innerText = formatDateString(ann.expires_at);
-            document.getElementById("dashDetailDescription").innerHTML = ann.description;
-
-            // Handle Attachment Box
-            const attachBox = document.getElementById("dashDetailAttachmentBox");
-            const hasAttachment = ann.attachment_path || ann.has_attachment;
-            if (hasAttachment) {
-                attachBox.style.setProperty("display", "flex", "important");
-                const path = ann.attachment_path || '';
-                const filename = path ? path.split(/[\\/]/).pop() : 'Attachment File';
-                document.getElementById("dashDetailAttachmentName").innerText = filename;
-                document.getElementById("dashDetailDownloadBtn").onclick = function() {
-                    window.open(`/api/announcements/${ann.id || id}/attachment?token=${token}`, "_blank");
-                };
-            } else {
-                attachBox.style.setProperty("display", "none", "important");
-            }
-
-            // Bind Edit and Delete handlers for HR users
-            const editBtn = document.getElementById("dashDetailEditBtn");
-            const deleteBtn = document.getElementById("dashDetailDeleteBtn");
-            if (editBtn) {
-                editBtn.onclick = function() {
-                    const detailModal = bootstrap.Modal.getInstance(document.getElementById("dashboardAnnouncementDetailModal"));
-                    if (detailModal) detailModal.hide();
-                    prepareDashboardEdit(ann);
-                };
-            }
-            if (deleteBtn) {
-                deleteBtn.onclick = function() {
-                    if (confirm("Are you sure you want to permanently delete this announcement?")) {
-                        deleteDashboardAnnouncement(ann.id || id);
-                    }
-                };
-            }
-
-            // Open Modal
-            const detailModal = new bootstrap.Modal(document.getElementById("dashboardAnnouncementDetailModal"));
-            detailModal.show();
-        })
-        .catch(err => {
-            console.error(err);
-            alert("Error loading announcement details.");
-        });
-    }
-
-    function prepareDashboardCreate() {
-        const titleEl = document.getElementById("dashAnnModalTitle");
-        if (titleEl) titleEl.innerText = "Create Announcement";
-        const form = document.getElementById("dashAnnForm");
-        if (form) {
-            form.reset();
-            form.classList.remove('was-validated');
-        }
-        document.getElementById("dashAnnId").value = "";
-        document.getElementById("dashAnnCurrentAttachmentInfo").style.display = "none";
-        document.getElementById("dashAnnExpiresAt").min = new Date().toISOString().slice(0, 16);
-    }
-
-    function prepareDashboardEdit(ann) {
-        document.getElementById("dashAnnModalTitle").innerText = "Edit Announcement";
-        document.getElementById("dashAnnId").value = ann.id;
-        document.getElementById("dashAnnTitle").value = ann.title;
-        document.getElementById("dashAnnDescription").value = ann.description;
-        
-        // Format datetime-local value (YYYY-MM-DDTHH:MM)
-        const expDate = new Date(ann.expires_at);
-        const offset = expDate.getTimezoneOffset();
-        const localizedExp = new Date(expDate.getTime() - (offset*60*1000)).toISOString().slice(0, 16);
-        document.getElementById("dashAnnExpiresAt").value = localizedExp;
-        document.getElementById("dashAnnExpiresAt").min = new Date().toISOString().slice(0, 16);
-
-        document.getElementById("dashAnnStatus").value = ann.status;
-
-        const attachInfo = document.getElementById("dashAnnCurrentAttachmentInfo");
-        if (ann.attachment_path) {
-            attachInfo.style.display = "block";
-            document.getElementById("dashAnnCurrentAttachmentName").innerText = ann.attachment_path.split(/[\\/]/).pop();
-        } else {
-            attachInfo.style.display = "none";
-        }
-
-        const editModal = new bootstrap.Modal(document.getElementById("dashboardAnnouncementModal"));
-        editModal.show();
-    }
-
-    function deleteDashboardAnnouncement(id) {
-        const token = sessionStorage.getItem('token') || "{{ session.get('token', '') }}";
-        fetch(`/api/announcements/${id}`, {
-            method: 'DELETE',
-            headers: { "Authorization": `Bearer ${token}` }
-        })
-        .then(res => res.json())
-        .then(data => {
-            const isSuccess = data && (data.success || !data.error);
-            if (!isSuccess) {
-                alert("Failed to delete announcement: " + (data.error || "Unknown error"));
-                return;
-            }
-
-            const detailModalEl = document.getElementById("dashboardAnnouncementDetailModal");
-            const detailModal = bootstrap.Modal.getInstance(detailModalEl);
-            if (detailModal) detailModal.hide();
-
-            alert("Announcement deleted successfully.");
-            refreshDashboardAnnouncements();
-        })
-        .catch(err => {
-            console.error(err);
-            alert("Error communicating with server.");
-        });
-    }
-
-    function refreshDashboardAnnouncements() {
-        const token = sessionStorage.getItem('token') || "{{ session.get('token', '') }}";
-        const container = document.getElementById("dashboardAnnouncementsListContainer");
-        if (!container) return;
-
-        fetch("/api/announcements/dashboard", {
-            headers: { "Authorization": `Bearer ${token}` }
-        })
-        .then(res => res.json())
-        .then(data => {
-            let list = [];
-            if (Array.isArray(data)) {
-                list = data;
-            } else if (data && typeof data === 'object') {
-                list = data.announcements || data.data || [];
-            }
-
-            if (list.length === 0) {
-                container.innerHTML = `
-                    <div class="text-muted text-center py-4">
-                        <i class="bi bi-megaphone fs-3 d-block mb-2"></i>
-                        No new announcements
-                    </div>
-                `;
-                return;
-            }
-
-            let html = '<div class="list-group list-group-flush gap-2">';
-            list.forEach(ann => {
-                const dateText = formatDateString(ann.created_at);
-                html += `
-                    <div class="list-group-item px-1 py-2 border-0 bg-transparent rounded-3 hover-row-bg" style="cursor: pointer;" onclick="viewDashboardAnnouncement(${ann.id})">
-                        <div class="d-flex align-items-center gap-2">
-                            <div class="flex-shrink-0 bg-primary bg-opacity-10 text-primary rounded-circle d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">
-                                <i class="bi bi-megaphone-fill"></i>
-                            </div>
-                            <div class="flex-grow-1" style="min-width: 0;">
-                                <div class="d-flex justify-content-between align-items-baseline mb-0">
-                                    <h6 class="text-dark fw-bold mb-0 text-truncate" style="font-size: 0.85rem;">${ann.title}</h6>
-                                    <small class="text-muted flex-shrink-0" style="font-size: 0.65rem;">${dateText}</small>
-                                </div>
-                                <p class="text-muted mb-0 text-truncate-2" style="font-size: 0.75rem; line-height: 1.3;">${ann.short_description || ann.description || ''}</p>
-                            </div>
-                        </div>
-                    </div>
-                `;
-            });
-            html += '</div>';
-            container.innerHTML = html;
-        })
-        .catch(err => {
-            console.error("Error refreshing dashboard announcements:", err);
-        });
-    }
-
-    function formatDateString(isoStr) {
-        if (!isoStr) return '';
-        try {
-            const date = new Date(isoStr);
-            const options = { day: 'numeric', month: 'short', year: 'numeric' };
-            return date.toLocaleDateString('en-US', options);
-        } catch {
-            return isoStr;
-        }
-    }
-
-    // Attach form listener
-    document.addEventListener("DOMContentLoaded", function() {
-        const form = document.getElementById("dashAnnForm");
-        if (form) {
-            form.addEventListener("submit", function(e) {
-                e.preventDefault();
-                
-                if (!form.checkValidity()) {
-                    form.classList.add('was-validated');
-                    return;
-                }
-
-                const id = document.getElementById("dashAnnId").value;
-                const token = sessionStorage.getItem('token') || "{{ session.get('token', '') }}";
-                const formData = new FormData(form);
-                
-                const rawExpires = document.getElementById("dashAnnExpiresAt").value;
-                if (rawExpires) {
-                    formData.set("expires_at", rawExpires.replace('T', ' ') + ':00');
-                }
-
-                const submitBtn = document.getElementById("dashAnnSubmitBtn");
-                submitBtn.disabled = true;
-                submitBtn.innerText = "Saving...";
-
-                const url = id ? `/api/announcements/${id}` : '/api/announcements';
-                const method = id ? 'PUT' : 'POST';
-
-                fetch(url, {
-                    method: method,
-                    headers: { "Authorization": `Bearer ${token}` },
-                    body: formData
-                })
-                .then(res => res.json())
-                .then(data => {
-                    submitBtn.disabled = false;
-                    submitBtn.innerText = "Save Announcement";
-
-                    const isSuccess = data && (data.success || data.id || data.message || !data.error);
-                    if (!isSuccess) {
-                        alert("Operation failed: " + (data.error || "Unknown error"));
-                        return;
-                    }
-
-                    const modalEl = document.getElementById("dashboardAnnouncementModal");
-                    const modal = bootstrap.Modal.getInstance(modalEl);
-                    if (modal) modal.hide();
-                    
-                    alert(data.message || "Announcement saved successfully.");
-                    refreshDashboardAnnouncements();
-                })
-                .catch(err => {
-                    submitBtn.disabled = false;
-                    submitBtn.innerText = "Save Announcement";
-                    console.error(err);
-                    alert("An error occurred during submission.");
-                });
-            });
+            alert(data.error || 'Failed to create announcement');
         }
     });
+}
 
-    // Make functions globally available
-    window.loadNotificationsPage = loadNotificationsPage;
-    window.viewProjectDetails = viewProjectDetails;
-    window.openEmployeeSelectionModal = openEmployeeSelectionModal;
-    window.populateEmployeeList = populateEmployeeList;
-    window.selectAllEmployees = selectAllEmployees;
-    window.clearAllEmployees = clearAllEmployees;
-    window.assignSelectedEmployees = assignSelectedEmployees;
-    window.viewDashboardAnnouncement = viewDashboardAnnouncement;
-    window.prepareDashboardCreate = prepareDashboardCreate;
-    window.prepareDashboardEdit = prepareDashboardEdit;
-    window.deleteDashboardAnnouncement = deleteDashboardAnnouncement;
-    window.refreshDashboardAnnouncements = refreshDashboardAnnouncements;
-
+function viewProject(id) {
+    window.location.href = '/projects/' + id;
+}
 </script>
-
 {% endblock %}
