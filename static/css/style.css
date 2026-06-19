@@ -555,7 +555,8 @@ body {
 
 .form-control::placeholder {
     color: #94a3b8;
-    font-style: italic;
+    font-style: normal;
+    font-weight: 400;
 }
 
 select.form-control {
