@@ -1045,7 +1045,15 @@
                 </div>
 
                 <div class="detail-card detail-section">
-                    <div class="asset-detail-grid">
+                    <div class="mb-3">
+                        <label class="detail-label text-primary">Ownership Details</label>
+                        <div class="mt-1">
+                            <span class="badge" id="detailOwnershipType">Purchased</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Purchased Fields -->
+                    <div id="detailPurchasedFields" class="asset-detail-grid">
                         <div class="asset-detail-item">
                             <label class="detail-label">Purchase Date</label>
                             <div class="asset-detail-value" id="detailPurchaseDate"></div>
@@ -1053,6 +1061,40 @@
                         <div class="asset-detail-item">
                             <label class="detail-label">Warranty Expiry</label>
                             <div class="asset-detail-value" id="detailWarranty"></div>
+                        </div>
+                    </div>
+
+                    <!-- Rented Fields -->
+                    <div id="detailRentedFields" style="display: none;">
+                        <div class="asset-detail-grid mb-3">
+                            <div class="asset-detail-item">
+                                <label class="detail-label">Vendor Name</label>
+                                <div class="asset-detail-value" id="detailVendorName"></div>
+                            </div>
+                            <div class="asset-detail-item">
+                                <label class="detail-label">Vendor Contact</label>
+                                <div class="asset-detail-value" id="detailVendorContact"></div>
+                            </div>
+                        </div>
+                        <div class="asset-detail-grid mb-3">
+                            <div class="asset-detail-item">
+                                <label class="detail-label">Rental Start</label>
+                                <div class="asset-detail-value" id="detailRentalStart"></div>
+                            </div>
+                            <div class="asset-detail-item">
+                                <label class="detail-label">Rental End</label>
+                                <div class="asset-detail-value" id="detailRentalEnd"></div>
+                            </div>
+                        </div>
+                        <div class="asset-detail-grid">
+                            <div class="asset-detail-item">
+                                <label class="detail-label">Rental Cost</label>
+                                <div class="asset-detail-value" id="detailRentalCost"></div>
+                            </div>
+                            <div class="asset-detail-item">
+                                <label class="detail-label">Billing Frequency</label>
+                                <div class="asset-detail-value" id="detailRentalFrequency"></div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -1613,8 +1655,37 @@
             customAssetEl.classList.toggle('text-primary', !!a.asset_id);
         }
 
-        document.getElementById('detailPurchaseDate').innerText  = a.purchase_date   ? new Date(a.purchase_date).toLocaleDateString()   : 'N/A';
-        document.getElementById('detailWarranty').innerText       = (a.warranty_expiry || a.warranty_end) ? new Date(a.warranty_expiry || a.warranty_end).toLocaleDateString() : 'N/A';
+        const ownershipType = a.ownership_type || 'Purchased';
+        const ownershipBadge = document.getElementById('detailOwnershipType');
+        if (ownershipBadge) {
+            ownershipBadge.innerText = ownershipType;
+            if (ownershipType === 'Rented') {
+                ownershipBadge.className = 'badge bg-info text-dark';
+            } else {
+                ownershipBadge.className = 'badge bg-success';
+            }
+        }
+
+        const purchasedFields = document.getElementById('detailPurchasedFields');
+        const rentedFields = document.getElementById('detailRentedFields');
+
+        if (ownershipType === 'Rented') {
+            if (purchasedFields) purchasedFields.style.display = 'none';
+            if (rentedFields) rentedFields.style.display = 'block';
+
+            document.getElementById('detailVendorName').innerText = a.vendor_name || 'N/A';
+            document.getElementById('detailVendorContact').innerText = a.vendor_contact || 'N/A';
+            document.getElementById('detailRentalStart').innerText = a.rental_start_date ? new Date(a.rental_start_date).toLocaleDateString() : 'N/A';
+            document.getElementById('detailRentalEnd').innerText = a.rental_end_date ? new Date(a.rental_end_date).toLocaleDateString() : 'N/A';
+            document.getElementById('detailRentalCost').innerText = a.rental_cost ? `$${parseFloat(a.rental_cost).toFixed(2)}` : 'N/A';
+            document.getElementById('detailRentalFrequency').innerText = a.rental_cost_frequency || 'N/A';
+        } else {
+            if (purchasedFields) purchasedFields.style.display = '';
+            if (rentedFields) rentedFields.style.display = 'none';
+
+            document.getElementById('detailPurchaseDate').innerText  = a.purchase_date   ? new Date(a.purchase_date).toLocaleDateString()   : 'N/A';
+            document.getElementById('detailWarranty').innerText       = (a.warranty_expiry || a.warranty_end) ? new Date(a.warranty_expiry || a.warranty_end).toLocaleDateString() : 'N/A';
+        }
 
         const notesCont = document.getElementById('detailNotes');
         if (notesCont) {

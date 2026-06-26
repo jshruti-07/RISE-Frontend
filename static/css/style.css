@@ -1484,6 +1484,8 @@ select.form-control {
 
     border-radius: 8px;
 
+    margin: 5px 5px 5px 5px;
+
 }
 
 .menu-title.active {
@@ -1491,6 +1493,8 @@ select.form-control {
     color: #ffffff !important;
 
     font-weight: 600 !important;
+
+    margin: 5px 5px 5px 5px;
 
 }
 
@@ -1543,6 +1547,7 @@ select.form-control {
 .submenu a:hover {
 
     color: white;
+    margin: 5px 5px 5px 5px;
 
 }
 
@@ -1557,6 +1562,8 @@ select.form-control {
     font-weight: 600 !important;
 
     background: transparent !important;
+
+    margin: 5px 5px 5px 5px;
 
 }
 

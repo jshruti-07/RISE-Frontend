@@ -111,7 +111,7 @@
                 <div>
                     {% set dashboard_name = session.get('display_name') or session.get('full_name') or session.get('original_name') or (session.get('employee_name') | clean_name if session.get('employee_name') else None) or session.get('user') or 'there' %}
                     <h3 class="mb-1 fw-bold">Good Day, {{ dashboard_name }}!</h3>
-                    <p class="mb-0 text-white-50 mt-2" style="font-size: 0.95rem;">Here's what is happening with your projects and team today.</p>
+                    <p class="mb-0 text-white-50 mt-2" style="font-size: 0.7rem;">Here's what is happening with your projects and team today.</p>
                 </div>
             </div>
         </div>
