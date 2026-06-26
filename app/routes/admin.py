@@ -420,7 +420,7 @@ def export_assets():
         logging.error(f"Asset Export Error: {str(e)}")
         return jsonify({"success": False, "error": "An error occurred while generating the Excel file."}), 500
 
-@admin_bp.route('/api/assets/<id>', methods=['GET', 'DELETE'])
+@admin_bp.route('/api/assets/<id>', methods=['GET', 'DELETE', 'PUT'])
 @role_required(['admin', 'hr'])
 def api_asset_detail(id):
     if request.method == 'GET':
@@ -431,6 +431,17 @@ def api_asset_detail(id):
             return jsonify({"success": False, "error": res.text}), res.status_code
         except Exception as e:
             return jsonify({"success": False, "error": str(e)}), 500
+
+    elif request.method == 'PUT':
+        try:
+            payload = request.get_json(force=True) or {}
+            res = requests.put(f"{BASE_URL}/devices/{id}", json=payload, headers=get_headers(), timeout=10)
+            if res.status_code in [200, 201, 204]:
+                return jsonify({"success": True})
+            return jsonify({"success": False, "error": res.text}), res.status_code
+        except Exception as e:
+            return jsonify({"success": False, "error": str(e)}), 500
+
     else: # DELETE
         try:
             res = requests.delete(f"{BASE_URL}/devices/{id}", headers=get_headers(), timeout=10)
