@@ -350,7 +350,7 @@ body {
 
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
-    padding: 24px;
+    padding: 0;
 
     box-sizing: border-box;
 
@@ -390,11 +390,12 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    position: relative;
+    position: sticky;
+    top: 0;
     z-index: 1030;
     overflow: visible;
     border-bottom: 1px solid #e2e8f0;
-    margin-bottom: 24px;
+    margin-bottom: 0;
 }
 
 /* Keep profile/menu dropdown above page heroes and cards below the topbar */
@@ -560,7 +561,7 @@ select.form-control {
 
 .page-content {
 
-    margin-top: 20px;
+    padding: 24px;
 
     width: 100%;
 
