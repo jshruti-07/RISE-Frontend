@@ -121,20 +121,27 @@
     <div class="sidebar" id="sidebar">
 
         <div class="sidebar-header">
-            <img src="{{ url_for('static', filename='images/logo_dashboard.png') }}" alt="Company Logo">
+            <div style="display: flex; align-items: center; gap: 12px; text-decoration: none;">
+                <div style="width: 36px; height: 36px; background: #5b21b6; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 16px;">BC</div>
+                <div style="display: flex; flex-direction: column; line-height: 1.2;">
+                    <span style="font-weight: 600; color: #0f172a; font-size: 15px;">BuildCore PIM</span>
+                    <span style="font-size: 11px; color: #94a3b8;">Product Information</span>
+                </div>
+            </div>
         </div>
 
         <div class="menu">
 
             <!-- DASHBOARD -->
             <a style="margin-bottom: 0px;" href="{{ url_for('dashboard.dashboard') }}">
-                <i class="bi bi-house"></i> <span>Dashboard</span>
+                <i class="bi bi-grid-1x2"></i> <span>Dashboard</span>
             </a>
 
             <!-- TEAM MEMBERS (HR + MANAGER + ADMIN) -->
             {% if session.role in ['hr', 'manager', 'admin'] %}
-            <a style="margin-bottom: 0px;" href="{{ url_for('employees.employee_list') }}">
-                <i class="bi bi-people"></i> <span>Team Members</span>
+            <a style="margin-bottom: 0px; display: flex; align-items: center;" href="{{ url_for('employees.employee_list') }}">
+                <i class="bi bi-box"></i> <span style="flex: 1;">Team Members</span>
+                <span style="background: #f1f5f9; color: #475569; font-size: 0.7rem; padding: 2px 6px; border-radius: 10px; font-weight: 600;">1,248</span>
             </a>
             {% endif %}
 
@@ -209,7 +216,7 @@
 
             <!-- QUICK ACTIONS SECTION -->
             <hr style="margin: 16px 12px; border-top: 1px solid #e2e8f0; opacity: 1;">
-            <div class="menu-category-header">Quick Actions</div>
+            <div class="menu-category-header">QUICK ACTIONS</div>
 
             <!-- Apply Leave -->
             <a style="margin-bottom: 0px;" href="{{ url_for('work.add_leave') }}">
@@ -235,7 +242,11 @@
 
         </div>
 
-
+        <div style="padding: 12px 16px; border-top: 1px solid #e2e8f0; margin-top: auto;">
+            <a href="#" onclick="toggleSidebar(); return false;" style="display: flex; align-items: center; gap: 12px; color: #64748b; text-decoration: none; font-size: 0.85rem; font-weight: 500; padding: 8px;">
+                <i class="bi bi-chevron-left"></i> <span>Collapse</span>
+            </a>
+        </div>
 
     </div>
 
@@ -252,115 +263,73 @@
         <div class="topbar">
 
             <!-- LEFT -->
-
-            <div class="topbar-left d-flex align-items-center gap-3">
-                <button onclick="toggleSidebar()" class="menu-btn" title="Toggle Sidebar" style="display: flex; align-items: center; justify-content: center; padding: 0; width: 32px; height: 32px; border-radius: 8px;">
-                    <i class="bi bi-list" style="font-size: 1.25rem;"></i>
+            <div class="topbar-left d-flex align-items-center">
+                <button onclick="toggleSidebar()" class="btn border-0 p-1 me-2 d-lg-none" title="Toggle Sidebar">
+                    <i class="bi bi-list" style="font-size: 1.5rem;"></i>
                 </button>
-
-                <button onclick="history.back()" class="btn btn-sm btn-outline-secondary rounded-pill shadow-sm px-3" style="font-weight: 500; height: 32px; display: flex; align-items: center; background-color: #ffffff;">
-                    <i class="bi bi-chevron-left me-1"></i> Back
-                </button>
+                <h5 class="m-0 text-dark fw-bold" style="font-size: 1.1rem;">Dashboard</h5>
             </div>
             
-            <!-- CENTER SEARCH -->
-            <div class="topbar-center mx-auto position-relative" style="width: 40%;">
-                <div class="input-group shadow-sm" style="border-radius: 20px; overflow: hidden; border: 1px solid #e2e8f0; background: #fff;">
-                    <span class="input-group-text bg-transparent border-0 text-muted ps-3 pe-2">
-                        <i class="bi bi-search"></i>
-                    </span>
-                    <input type="text" id="globalSearchInput" class="form-control border-0 shadow-none bg-transparent" placeholder="Search tasks, projects, or team members..." style="font-weight: normal;">
+            <!-- CENTER SEARCH & RIGHT -->
+            <div class="topbar-right d-flex align-items-center gap-4 ms-auto">
+                
+                <!-- SEARCH -->
+                <div class="position-relative d-none d-md-block" style="width: 300px;">
+                    <div class="input-group" style="background: #f8fafc; border-radius: 8px; overflow: hidden; border: 1px solid transparent; transition: all 0.2s;">
+                        <span class="input-group-text bg-transparent border-0 text-slate-400 ps-3 pe-2">
+                            <i class="bi bi-search" style="color: #94a3b8;"></i>
+                        </span>
+                        <input type="text" id="globalSearchInput" class="form-control border-0 shadow-none bg-transparent" placeholder="Search products, attributes..." style="font-size: 0.85rem; padding-left: 0;">
+                        <span class="input-group-text bg-transparent border-0 text-slate-400 pe-3">
+                            <kbd style="background: #ffffff; color: #475569; border: 1px solid #cbd5e1; padding: 2px 6px; font-family: inherit; font-size: 0.7rem; border-radius: 4px;">⌘K</kbd>
+                        </span>
+                    </div>
                 </div>
-                <div id="globalSearchResults" class="dropdown-menu shadow-lg border-0 d-none">
-                    <!-- Dynamic results will be injected here -->
-                </div>
-            </div>
 
-
-
-
-            <!-- RIGHT -->
-
-            <div class="topbar-right">
-
-
-
-                <!-- NOTIFICATIONS BUTTON -->
-                {% if session.role in ['employee','hr','manager'] %}
-                <div class="me-3">
-                    <a href="#" onclick="loadNotificationsPage(); return false;"
-                        class="topbar-action position-relative text-decoration-none">
-                        <i class="bi bi-bell fs-5 text-secondary"></i>
-                        <span id="notificationBadge"
-                            class="position-absolute top-0 start-100 translate-middle p-1 bg-danger border border-light rounded-circle"
-                            style="display: none;">
+                <!-- NOTIFICATIONS & HELP -->
+                <div class="d-flex align-items-center gap-3">
+                    {% if session.role in ['employee','hr','manager'] %}
+                    <a href="#" onclick="loadNotificationsPage(); return false;" class="text-secondary position-relative text-decoration-none">
+                        <i class="bi bi-bell" style="font-size: 1.1rem; color: #475569;"></i>
+                        <span id="notificationBadge" class="position-absolute top-0 start-100 translate-middle p-1 bg-danger border border-light rounded-circle" style="display: none; width: 8px; height: 8px; padding: 0 !important;">
                             <span class="visually-hidden">New alerts</span>
                         </span>
                     </a>
+                    {% endif %}
+                    <a href="#" class="text-secondary text-decoration-none">
+                        <i class="bi bi-question-circle" style="font-size: 1.1rem; color: #475569;"></i>
+                    </a>
                 </div>
-                {% endif %}
 
-
-
+                <!-- PROFILE -->
                 <div class="dropdown">
-
-
-
                     <button class="btn p-0 border-0 shadow-none bg-transparent d-flex align-items-center" type="button" data-bs-toggle="dropdown" aria-expanded="false" id="topbarUserDropdown">
-                        <div class="user-profile-card">
-                            <img id="topbarAvatar" class="user-avatar-img profile-img"
-                                src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'%3E%3Ccircle cx='40' cy='40' r='40' fill='%23475569'/%3E%3Ccircle cx='40' cy='30' r='14' fill='%23cbd5e1'/%3E%3Cellipse cx='40' cy='68' rx='22' ry='16' fill='%23cbd5e1'/%3E%3C/svg%3E"
-                                alt="Profile Photo"
-                                style="width: 38px; height: 38px; border-radius: 50%; object-fit: cover;">
-                            <div class="profile-info">
-                                <span class="profile-name">{{ session.display_name or session.full_name or session.original_name or (session.employee_name | clean_name if session.employee_name else None) or 'User' }}</span>
-                                <span class="profile-role">
+                        <div style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                            <div style="width: 34px; height: 34px; background: #0d9488; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; font-size: 0.85rem;">
+                                AB
+                            </div>
+                            <div style="display: flex; flex-direction: column; align-items: flex-start; line-height: 1.2;">
+                                <span style="font-size: 0.85rem; font-weight: 600; color: #0f172a;">{{ session.display_name or session.full_name or session.original_name or (session.employee_name | clean_name if session.employee_name else None) or 'Anna Becker' }}</span>
+                                <span style="font-size: 0.75rem; color: #64748b;">
                                     {% if session.role == 'employee' %}
                                         {{ labels.EMPLOYEE }}
                                     {% else %}
-                                        {{ session.role | capitalize if session.role else 'User' }}
+                                        {{ session.role | capitalize if session.role else 'Product Steward' }}
                                     {% endif %}
                                 </span>
                             </div>
-                            <i class="bi bi-chevron-down profile-chevron"></i>
                         </div>
                     </button>
-
-
-
-                    <ul class="dropdown-menu dropdown-menu-end">
-
-
-
+                    <ul class="dropdown-menu dropdown-menu-end shadow border-0" style="border-radius: 8px; margin-top: 10px;">
                         <li><a class="dropdown-item" href="{{ url_for('user.profile') }}">👤 Profile</a></li>
-
                         <li><a class="dropdown-item" href="#">⚙︁ Settings</a></li>
-
                         <li><a class="dropdown-item" href="#">❁ Help</a></li>
-
-
-
-                        <li>
-                            <hr class="dropdown-divider">
-                        </li>
-
-
-
+                        <li><hr class="dropdown-divider"></li>
                         <li><a class="dropdown-item text-danger" href="/logout">Logout</a></li>
-
-
-
                     </ul>
-
-
-
                 </div>
 
-
-
             </div>
-
-
 
         </div> <!-- ✁Topbar CLOSED -->
 

@@ -83,12 +83,10 @@ body {
 /* HEADER */
 .sidebar-header {
     display: flex;
-    justify-content: center;
     align-items: center;
-    padding: 16px 16px;
-    background: #0f172a; /* Dark background to make white logo visible */
-    border-radius: 12px;
-    margin: 12px 12px 6px 12px;
+    padding: 24px;
+    background: transparent;
+    margin: 0;
 }
 
 .sidebar-header img {
@@ -182,15 +180,15 @@ body {
     display: flex;
     align-items: center;
     gap: 12px;
-    padding: 5px 16px;
+    padding: 8px 16px;
     color: #475569; /* Slate-600 */
     text-decoration: none;
-    border-radius: 8px;
-    margin: 1px 12px;
+    border-radius: 6px;
+    margin: 4px 12px;
     font-weight: 500;
     font-size: 0.88rem;
     transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-    border-left: 3px solid transparent;
+    border: none;
 }
 
 .menu a i {
@@ -201,7 +199,7 @@ body {
 
 .menu a:hover {
     color: #0f172a;
-    background: #f1f5f9;
+    background: #f8fafc;
 }
 
 .menu a:hover i {
@@ -209,15 +207,22 @@ body {
 }
 
 .menu a.active {
-    background: #eff6ff; /* Blue-50 */
-    color: #2563eb !important; /* Blue-600 */
+    background: #f0f4ff; /* Light purple */
+    color: #4f46e5 !important; /* Indigo/Purple */
     font-weight: 600;
-    border-left-color: #2563eb;
-    border-radius: 8px;
 }
 
 .menu a.active i {
-    color: #2563eb !important;
+    color: #4f46e5 !important;
+}
+
+.menu-category-header {
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin: 20px 24px 8px 24px;
 }
 
 /* SUBMENU & ACCORDIONS (Styled for light sidebar compatibility) */
@@ -368,18 +373,17 @@ body {
 
 .topbar {
     width: 100%;
-    background: transparent;
+    background: #ffffff;
     color: #1e293b;
-    padding: 10px 12px;
-    border-radius: 10px;
+    padding: 12px 24px;
     display: flex;
     justify-content: space-between;
     align-items: center;
     position: relative;
     z-index: 1030;
     overflow: visible;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-    margin-bottom: 15px;
+    border-bottom: 1px solid #e2e8f0;
+    margin-bottom: 24px;
 }
 
 /* Keep profile/menu dropdown above page heroes and cards below the topbar */
