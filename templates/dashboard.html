@@ -13,25 +13,26 @@
 {% block content %}
 <style>
     .dashboard-page {
-        font-size: 0.92rem;
+        font-size: 0.88rem;
     }
 
     .dashboard-hero {
-        background: linear-gradient(135deg, #080872 0%, #2c4364 100%);
-        border-radius: 20px;
+        background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+        border-radius: 12px;
         color: #fff;
-        padding: 1rem 0.9rem;
+        padding: 1.5rem 2rem;
         position: relative;
         overflow: hidden;
+        box-shadow: 0 4px 20px rgba(15, 23, 42, 0.08);
     }
 
     .dashboard-hero::after {
         content: '';
         position: absolute;
-        width: 350px;
-        height: 350px;
+        width: 300px;
+        height: 300px;
         border-radius: 50%;
-        background: rgba(255, 255, 255, 0.05);
+        background: radial-gradient(circle, rgba(99, 102, 241, 0.08) 0%, transparent 70%);
         top: -80px;
         right: -80px;
         pointer-events: none;
@@ -39,11 +40,11 @@
 
     .dashboard-page .card-ui {
         background: #fff;
-        border: 1px solid #e5e7eb;
-        border-radius: 16px;
-        box-shadow: 0 8px 24px rgba(15, 23, 42, 0.07);
-        backdrop-filter: none;
+        border: 1px solid #f1f5f9;
+        border-radius: 12px;
+        box-shadow: 0 1px 3px 0 rgba(15, 23, 42, 0.05), 0 1px 2px -1px rgba(15, 23, 42, 0.05);
         overflow: hidden;
+        transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
     .dashboard-page .card-ui::before {
@@ -51,44 +52,112 @@
     }
 
     .dashboard-page .card-ui:hover {
-        transform: none;
-        border-color: #d1d5db;
-        box-shadow: 0 10px 28px rgba(15, 23, 42, 0.09);
+        transform: translateY(-2px);
+        border-color: #e2e8f0;
+        box-shadow: 0 10px 15px -3px rgba(15, 23, 42, 0.08), 0 4px 6px -4px rgba(15, 23, 42, 0.08);
     }
 
     .dashboard-stat-card {
-        padding: 1rem 1.2rem;
+        padding: 8px 16px;
     }
 
     .dashboard-stat-label {
-        color: #6b7280;
-        font-size: 0.82rem;
+        color: #64748b;
+        font-size: 0.88rem;
+        font-weight: 500;
         text-transform: uppercase;
-        letter-spacing: 0.03em;
-        margin-bottom: 0.2rem;
+        letter-spacing: 0.05em;
+        margin-bottom: 2px;
+    }
+
+    .dashboard-page .card-ui h6 {
+        font-size: 0.88rem !important;
+        font-weight: 600 !important;
     }
 
     .dashboard-stat-value {
-        color: #111827;
-        font-size: 1.5rem;
+        color: #0f172a;
+        font-size: 1.4rem;
         font-weight: 700;
         line-height: 1.1;
     }
 
     .dashboard-stat-subtext {
-        color: #6b7280;
-        font-size: 0.82rem;
+        color: #64748b;
+        font-size: 0.78rem;
         line-height: 1.35;
         margin-top: 0.2rem;
     }
 
-    .hover-card {
-        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    .dashboard-stat-card .profile-info-icon {
+        width: 34px;
+        height: 34px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.25rem;
     }
 
-    .hover-card:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 12px 22px rgba(15, 23, 42, 0.12) !important;
+    .col-md-4:nth-child(1) .profile-info-icon {
+        background: rgba(99, 102, 241, 0.08);
+        color: #6366f1;
+    }
+
+    .col-md-4:nth-child(2) .profile-info-icon {
+        background: rgba(245, 158, 11, 0.08);
+        color: #f59e0b;
+    }
+
+    .col-md-4:nth-child(3) .profile-info-icon {
+        background: rgba(16, 185, 129, 0.08);
+        color: #10b981;
+    }
+
+    /* Summary Mini Status Cards */
+    .summary-card {
+        padding: 6px 12px;
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-left: 4px solid #cbd5e1;
+        border-radius: 8px;
+        transition: all 0.2s ease;
+        text-decoration: none;
+        display: block;
+    }
+
+    .summary-card:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(15, 23, 42, 0.05);
+        background: #fff;
+    }
+
+    .border-open {
+        border-left-color: #f59e0b !important;
+    }
+
+    .border-progress {
+        border-left-color: #3b82f6 !important;
+    }
+
+    .border-closed {
+        border-left-color: #10b981 !important;
+    }
+
+    .border-pending {
+        border-left-color: #f59e0b !important;
+    }
+
+    .border-approved {
+        border-left-color: #10b981 !important;
+    }
+
+    .border-rejected {
+        border-left-color: #ef4444 !important;
+    }
+
+    .hover-card {
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
     .no-scrollbar::-webkit-scrollbar {
@@ -109,9 +178,12 @@
         <div class="position-relative" style="z-index: 1;">
             <div class="d-flex flex-column gap-2">
                 <div>
-                    {% set dashboard_name = session.get('display_name') or session.get('full_name') or session.get('original_name') or (session.get('employee_name') | clean_name if session.get('employee_name') else None) or session.get('user') or 'there' %}
+                    {% set dashboard_name = session.get('display_name') or session.get('full_name') or
+                    session.get('original_name') or (session.get('employee_name') | clean_name if
+                    session.get('employee_name') else None) or session.get('user') or 'there' %}
                     <h3 class="mb-1 fw-bold">Good Day, {{ dashboard_name }}!</h3>
-                    <p class="mb-0 text-white-50 mt-2" style="font-size: 0.7rem;">Here's what is happening with your projects and team today.</p>
+                    <p class="mb-0 text-white-50 mt-2" style="font-size: 0.7rem;">Here's what is happening with your
+                        projects and team today.</p>
                 </div>
             </div>
         </div>
@@ -203,21 +275,26 @@
         <div class="col-lg-4">
             <div class="card-ui h-100 dashboard-stat-card d-flex flex-column">
                 <div class="d-flex justify-content-between align-items-start mb-4">
-                    <h6 class="fw-bold mb-0"><i class="bi bi-clock-history text-warning me-2 fs-5"></i>Pending Timesheets</h6>
+                    <h6 class="fw-bold mb-0"><i class="bi bi-clock-history text-warning me-2 fs-5"></i>Pending
+                        Timesheets</h6>
                     <i class="bi bi-clock text-muted"></i>
                 </div>
                 <div class="flex-grow-1 d-flex flex-column justify-content-center align-items-center text-center">
-                    <div class="bg-light rounded-circle d-flex align-items-center justify-content-center mb-3" style="width: 70px; height: 70px;">
+                    <div class="bg-light rounded-circle d-flex align-items-center justify-content-center mb-3"
+                        style="width: 70px; height: 70px;">
                         <i class="bi bi-file-earmark-text text-secondary fs-1"></i>
                     </div>
                     {% if pending_timesheets_count and pending_timesheets_count|int > 0 %}
-                        <p class="text-dark fw-bold mb-1" style="font-size: 0.9rem;">You have {{ pending_timesheets_count }} pending timesheets.</p>
-                        <p class="text-muted small mb-4">Please submit them as soon as possible.</p>
+                    <p class="text-dark fw-bold mb-1" style="font-size: 0.9rem;">You have {{ pending_timesheets_count }}
+                        pending timesheets.</p>
+                    <p class="text-muted small mb-4">Please submit them as soon as possible.</p>
                     {% else %}
-                        <p class="text-muted small mb-1">No pending timesheets to submit.</p>
-                        <p class="text-muted small mb-4">You're all caught up!</p>
+                    <p class="text-muted small mb-1">No pending timesheets to submit.</p>
+                    <p class="text-muted small mb-4">You're all caught up!</p>
                     {% endif %}
-                    <a href="{{ url_for('work.add_timesheet') }}" class="btn btn-primary rounded-pill px-4 py-2 w-100 mt-auto shadow-sm text-white fw-semibold" style="background-color: #3b82f6; border-color: #3b82f6;">
+                    <a href="{{ url_for('work.add_timesheet') }}"
+                        class="btn btn-primary rounded-pill px-4 py-2 w-100 mt-auto shadow-sm text-white fw-semibold"
+                        style="background-color: #3b82f6; border-color: #3b82f6;">
                         <i class="bi bi-plus"></i> Add New Timesheet
                     </a>
                 </div>
@@ -234,7 +311,8 @@
                         <span class="badge bg-primary bg-opacity-25 text-primary rounded-pill px-3">
                             {{ my_projects|length }} Active
                         </span>
-                        <a href="{{ url_for('projects.projects_list') }}" class="btn btn-sm btn-outline-primary rounded-pill px-3" style="font-size: 0.75rem;">
+                        <a href="{{ url_for('projects.projects_list') }}"
+                            class="btn btn-sm btn-outline-primary rounded-pill px-3" style="font-size: 0.75rem;">
                             View All <i class="bi bi-arrow-right small ms-1"></i>
                         </a>
                     </div>
@@ -258,12 +336,12 @@
                                     {{ proj.name }}
                                 </td>
                                 <td class="px-3 border-0 text-center">
-                                    <span class="badge bg-success bg-opacity-25 text-success rounded-pill px-3">Active</span>
+                                    <span
+                                        class="badge bg-success bg-opacity-25 text-success rounded-pill px-3">Active</span>
                                 </td>
                                 <td class="px-2 border-0 text-end">
                                     <button class="btn btn-sm text-primary py-0 btn-view-project"
-                                        data-id="{{ proj.id }}"
-                                        title="View Project Details">
+                                        data-id="{{ proj.id }}" title="View Project Details">
                                         <i class="bi bi-eye fs-5"></i>
                                     </button>
                                 </td>
@@ -313,8 +391,7 @@
                                             <td class="px-2 border-0 fw-semibold text-dark">{{ project.name }}</td>
                                             <td class="px-2 border-0 text-end">
                                                 <button class="btn btn-sm btn-outline-primary py-0 btn-view-project"
-                                                    data-id="{{ project.id }}"
-                                                    title="View Project Details"
+                                                    data-id="{{ project.id }}" title="View Project Details"
                                                     style="font-size: 0.7rem; border-radius: 6px;">
                                                     <i class="bi bi-eye"></i>
                                                 </button>
@@ -424,10 +501,10 @@
 
             <!-- Help Desk & Reimbursement Summary Row (HR/Admin only) -->
             {% if session.role in ['hr', 'admin'] %}
-            <div class="row mb-4">
+            <div class="row mb-2 mt-1">
                 <div class="col-xl-6">
                     <!-- Help Desk Summary Card -->
-                    <div class="card-ui p-3 mb-3 h-100">
+                    <div class="card-ui p-3 mb-0 h-100">
                         <div class="d-flex justify-content-between align-items-center mb-3">
                             <h6 class="mb-0 fw-bold">Help Desk Summary</h6>
                             <a href="{{ url_for('admin.helpdesk') }}"
@@ -439,15 +516,13 @@
                         <div class="row g-2">
                             <div class="col-sm-4">
                                 <a href="{{ url_for('admin.helpdesk') }}?status=open" class="text-decoration-none">
-                                    <div
-                                        class="p-2 rounded-3 bg-light border-start border-4 border-warning shadow-sm h-100 hover-card">
+                                    <div class="summary-card border-open h-100">
                                         <div class="d-flex justify-content-between align-items-center">
                                             <div>
-                                                <h6 class="text-muted small fw-bold text-uppercase mb-0"
-                                                    style="font-size: 0.6rem;">Open</h6>
-                                                <h6 class="fw-bold mb-0 text-dark" style="font-size: 1.1rem;">{{
-                                                    hd_stats.by_status.get('open', 0) if hd_stats.by_status else 0 }}
-                                                </h6>
+                                                <div class="text-muted small fw-semibold text-uppercase mb-1"
+                                                    style="font-size: 0.65rem; letter-spacing: 0.05em;">Open</div>
+                                                <h5 class="fw-bold mb-0 text-dark">{{ hd_stats.by_status.get('open', 0)
+                                                    if hd_stats.by_status else 0 }}</h5>
                                             </div>
                                         </div>
                                     </div>
@@ -456,15 +531,15 @@
                             <div class="col-sm-4">
                                 <a href="{{ url_for('admin.helpdesk') }}?status=in_progress"
                                     class="text-decoration-none">
-                                    <div
-                                        class="p-2 rounded-3 bg-light border-start border-4 border-info shadow-sm h-100 hover-card">
+                                    <div class="summary-card border-progress h-100">
                                         <div class="d-flex justify-content-between align-items-center">
                                             <div>
-                                                <h6 class="text-muted small fw-bold text-uppercase mb-0"
-                                                    style="font-size: 0.6rem;">In Progress</h6>
-                                                <h6 class="fw-bold mb-0 text-dark" style="font-size: 1.1rem;">{{
+                                                <div class="text-muted small fw-semibold text-uppercase mb-1"
+                                                    style="font-size: 0.65rem; letter-spacing: 0.05em;">In Progress
+                                                </div>
+                                                <h5 class="fw-bold mb-0 text-dark">{{
                                                     hd_stats.by_status.get('in_progress', 0) if hd_stats.by_status else
-                                                    0 }}</h6>
+                                                    0 }}</h5>
                                             </div>
                                         </div>
                                     </div>
@@ -472,17 +547,16 @@
                             </div>
                             <div class="col-sm-4">
                                 <a href="{{ url_for('admin.helpdesk') }}?status=closed" class="text-decoration-none">
-                                    <div
-                                        class="p-2 rounded-3 bg-light border-start border-4 border-success shadow-sm h-100 hover-card">
+                                    <div class="summary-card border-closed h-100">
                                         <div class="d-flex justify-content-between align-items-center">
                                             <div>
-                                                <h6 class="text-muted small fw-bold text-uppercase mb-0"
-                                                    style="font-size: 0.6rem;">Closed</h6>
-                                                <h6 class="fw-bold mb-0 text-dark" style="font-size: 1.1rem;">
+                                                <div class="text-muted small fw-semibold text-uppercase mb-1"
+                                                    style="font-size: 0.65rem; letter-spacing: 0.05em;">Closed</div>
+                                                <h5 class="fw-bold mb-0 text-dark">
                                                     {% if hd_stats.by_status %}
                                                     {{ hd_stats.by_status.get('closed', 0) }}
                                                     {% endif %}
-                                                </h6>
+                                                </h5>
                                             </div>
                                         </div>
                                     </div>
@@ -494,7 +568,7 @@
 
                 <div class="col-xl-6">
                     <!-- Reimbursement Summary Card -->
-                    <div class="card-ui p-3 mb-3 h-100">
+                    <div class="card-ui p-3 mb-0 h-100">
                         <div class="d-flex justify-content-between align-items-center mb-3">
                             <h6 class="mb-0 fw-bold">Reimbursement Summary</h6>
                             <a href="{{ url_for('admin.reimbursement') }}"
@@ -507,16 +581,15 @@
                             <div class="col-sm-4">
                                 <a href="{{ url_for('admin.reimbursement') }}?status=pending"
                                     class="text-decoration-none">
-                                    <div
-                                        class="p-2 rounded-3 bg-light border-start border-4 border-warning shadow-sm h-100 hover-card">
+                                    <div class="summary-card border-pending h-100">
                                         <div class="d-flex justify-content-between align-items-center">
                                             <div>
-                                                <h6 class="text-muted small fw-bold text-uppercase mb-0"
-                                                    style="font-size: 0.6rem;">Pending</h6>
-                                                <h6 class="fw-bold mb-0 text-dark" style="font-size: 1.1rem;">
+                                                <div class="text-muted small fw-semibold text-uppercase mb-1"
+                                                    style="font-size: 0.65rem; letter-spacing: 0.05em;">Pending</div>
+                                                <h5 class="fw-bold mb-0 text-dark">
                                                     {{ reimbursement_stats.pending_approval.count if
                                                     reimbursement_stats.pending_approval else 0 }}
-                                                </h6>
+                                                </h5>
                                             </div>
                                         </div>
                                     </div>
@@ -525,17 +598,16 @@
                             <div class="col-sm-4">
                                 <a href="{{ url_for('admin.reimbursement') }}?status=approved"
                                     class="text-decoration-none">
-                                    <div
-                                        class="p-2 rounded-3 bg-light border-start border-4 border-success shadow-sm h-100 hover-card">
+                                    <div class="summary-card border-approved h-100">
                                         <div class="d-flex justify-content-between align-items-center">
                                             <div>
-                                                <h6 class="text-muted small fw-bold text-uppercase mb-0"
-                                                    style="font-size: 0.6rem;">Approved</h6>
-                                                <h6 class="fw-bold mb-0 text-dark" style="font-size: 1.1rem;">
+                                                <div class="text-muted small fw-semibold text-uppercase mb-1"
+                                                    style="font-size: 0.65rem; letter-spacing: 0.05em;">Approved</div>
+                                                <h5 class="fw-bold mb-0 text-dark">
                                                     {{ reimbursement_stats.by_status.approved.count if
                                                     reimbursement_stats.by_status and
                                                     reimbursement_stats.by_status.approved else 0 }}
-                                                </h6>
+                                                </h5>
                                             </div>
                                         </div>
                                     </div>
@@ -544,17 +616,16 @@
                             <div class="col-sm-4">
                                 <a href="{{ url_for('admin.reimbursement') }}?status=rejected"
                                     class="text-decoration-none">
-                                    <div
-                                        class="p-2 rounded-3 bg-light border-start border-4 border-danger shadow-sm h-100 hover-card">
+                                    <div class="summary-card border-rejected h-100">
                                         <div class="d-flex justify-content-between align-items-center">
                                             <div>
-                                                <h6 class="text-muted small fw-bold text-uppercase mb-0"
-                                                    style="font-size: 0.6rem;">Rejected</h6>
-                                                <h6 class="fw-bold mb-0 text-dark" style="font-size: 1.1rem;">
+                                                <div class="text-muted small fw-semibold text-uppercase mb-1"
+                                                    style="font-size: 0.65rem; letter-spacing: 0.05em;">Rejected</div>
+                                                <h5 class="fw-bold mb-0 text-dark">
                                                     {{ reimbursement_stats.by_status.rejected.count if
                                                     reimbursement_stats.by_status and
                                                     reimbursement_stats.by_status.rejected else 0 }}
-                                                </h6>
+                                                </h5>
                                             </div>
                                         </div>
                                     </div>
@@ -574,10 +645,8 @@
                             <h6 class="mb-0">Announcements 📢</h6>
                             {% if session.role == 'hr' %}
                             <button class="btn btn-sm btn-outline-primary rounded-pill px-2 py-0"
-                                    style="font-size: 0.75rem;"
-                                    data-bs-toggle="modal"
-                                    data-bs-target="#dashboardAnnouncementModal"
-                                    onclick="prepareDashboardCreate()">
+                                style="font-size: 0.75rem;" data-bs-toggle="modal"
+                                data-bs-target="#dashboardAnnouncementModal" onclick="prepareDashboardCreate()">
                                 <i class="bi bi-plus-lg me-1"></i>Create
                             </button>
                             {% endif %}
@@ -585,37 +654,44 @@
                         <div class="no-scrollbar" style="max-height:230px; overflow-y:auto; font-size: 0.80rem;">
                             <div id="dashboardAnnouncementsListContainer">
                                 {% if announcements %}
-                                    <div class="list-group list-group-flush gap-2">
-                                        {% for ann in announcements %}
-                                            <div class="list-group-item px-1 py-2 border-0 bg-transparent rounded-3 hover-row-bg" style="cursor: pointer;" onclick="viewDashboardAnnouncement({{ ann.id }})">
-                                                <div class="d-flex align-items-center gap-2">
-                                                    <div class="flex-shrink-0 bg-info bg-opacity-10 text-info rounded-circle d-flex align-items-center justify-content-center" style="width: 36px; height: 36px;">
-                                                        <i class="bi bi-info-lg fs-5"></i>
-                                                    </div>
-                                                    <div class="flex-grow-1" style="min-width: 0;">
-                                                        <div class="d-flex justify-content-between align-items-baseline mb-0">
-                                                            <h6 class="text-dark fw-bold mb-0 text-truncate" style="font-size: 0.85rem;">{{ ann.title | safe }}</h6>
-                                                            <small class="text-muted flex-shrink-0" style="font-size: 0.65rem;">
-                                                                {% if '-' in ann.created_at %}
-                                                                    {% set c_parts = ann.created_at[:10].split('-') %}
-                                                                    {% set months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'] %}
-                                                                    {{ c_parts[2] }} {{ months[c_parts[1]|int - 1] }}
-                                                                {% else %}
-                                                                    {{ ann.created_at[:10] }}
-                                                                {% endif %}
-                                                            </small>
-                                                        </div>
-                                                        <p class="text-muted mb-0 text-truncate-2" style="font-size: 0.75rem; line-height: 1.3;">{{ ann.short_description }}</p>
-                                                    </div>
-                                                </div>
+                                <div class="list-group list-group-flush gap-2">
+                                    {% for ann in announcements %}
+                                    <div class="list-group-item px-1 py-2 border-0 bg-transparent rounded-3 hover-row-bg"
+                                        style="cursor: pointer;" onclick="viewDashboardAnnouncement({{ ann.id }})">
+                                        <div class="d-flex align-items-center gap-2">
+                                            <div class="flex-shrink-0 bg-info bg-opacity-10 text-info rounded-circle d-flex align-items-center justify-content-center"
+                                                style="width: 36px; height: 36px;">
+                                                <i class="bi bi-info-lg fs-5"></i>
                                             </div>
-                                        {% endfor %}
+                                            <div class="flex-grow-1" style="min-width: 0;">
+                                                <div class="d-flex justify-content-between align-items-baseline mb-0">
+                                                    <h6 class="text-dark fw-bold mb-0 text-truncate"
+                                                        style="font-size: 0.85rem;">{{ ann.title | safe }}</h6>
+                                                    <small class="text-muted flex-shrink-0" style="font-size: 0.65rem;">
+                                                        {% if '-' in ann.created_at %}
+                                                        {% set c_parts = ann.created_at[:10].split('-') %}
+                                                        {% set months =
+                                                        ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
+                                                        %}
+                                                        {{ c_parts[2] }} {{ months[c_parts[1]|int - 1] }}
+                                                        {% else %}
+                                                        {{ ann.created_at[:10] }}
+                                                        {% endif %}
+                                                    </small>
+                                                </div>
+                                                <p class="text-muted mb-0 text-truncate-2"
+                                                    style="font-size: 0.75rem; line-height: 1.3;">{{
+                                                    ann.short_description }}</p>
+                                            </div>
+                                        </div>
                                     </div>
+                                    {% endfor %}
+                                </div>
                                 {% else %}
-                                    <div class="text-muted text-center py-4">
-                                        <i class="bi bi-megaphone fs-3 d-block mb-2"></i>
-                                        No new announcements
-                                    </div>
+                                <div class="text-muted text-center py-4">
+                                    <i class="bi bi-megaphone fs-3 d-block mb-2"></i>
+                                    No new announcements
+                                </div>
                                 {% endif %}
                             </div>
                         </div>
@@ -633,14 +709,16 @@
                             {% for b in birthdays %}
                             <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
                                 <div class="d-flex align-items-center gap-2">
-                                    <img src="{% if b.photo_url %}{% if b.photo_url.startswith('http') %}{{ b.photo_url }}{% else %}{{ BASE_URL }}{{ b.photo_url }}{% endif %}{% else %}data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 80 80'%3E%3Ccircle cx='40' cy='40' r='40' fill='%23475569'/%3E%3Ccircle cx='40' cy='30' r='14' fill='%23cbd5e1'/%3E%3Cellipse cx='40' cy='68' rx='22' ry='16' fill='%23cbd5e1'/%3E%3C/svg%3E{% endif %}" 
-                                         class="rounded-circle shadow-sm" 
-                                         style="width: 32px; height: 32px; object-fit: cover;" 
-                                         alt="{{ b.name | clean_name if b.name else 'User' }}">
+                                    <img src="{% if b.photo_url %}{% if b.photo_url.startswith('http') %}{{ b.photo_url }}{% else %}{{ BASE_URL }}{{ b.photo_url }}{% endif %}{% else %}data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 80 80'%3E%3Ccircle cx='40' cy='40' r='40' fill='%23475569'/%3E%3Ccircle cx='40' cy='30' r='14' fill='%23cbd5e1'/%3E%3Cellipse cx='40' cy='68' rx='22' ry='16' fill='%23cbd5e1'/%3E%3C/svg%3E{% endif %}"
+                                        class="rounded-circle shadow-sm"
+                                        style="width: 32px; height: 32px; object-fit: cover;"
+                                        alt="{{ b.name | clean_name if b.name else 'User' }}">
                                     <div style="line-height: 1.2;">
-                                        <div class="fw-bold text-dark" style="font-size: 0.85rem;">{{ b.name | clean_name if b.name else 'Unknown' }}</div>
+                                        <div class="fw-bold text-dark" style="font-size: 0.85rem;">{{ b.name |
+                                            clean_name if b.name else 'Unknown' }}</div>
                                         {% if b.is_today %}
-                                        <span class="badge bg-success bg-opacity-10 text-success p-0" style="font-size: 0.65rem;">Today! 🎂</span>
+                                        <span class="badge bg-success bg-opacity-10 text-success p-0"
+                                            style="font-size: 0.65rem;">Today! 🎂</span>
                                         {% else %}
                                         <span class="text-muted" style="font-size: 0.65rem;">Upcoming</span>
                                         {% endif %}
@@ -649,34 +727,37 @@
                                 <div class="text-end" style="line-height: 1.2;">
                                     <div class="fw-bold text-primary" style="font-size: 0.8rem;">
                                         {% if b.date_of_birth %}
-                                            {% if '-' in b.date_of_birth and b.date_of_birth|length >= 10 %}
-                                                {% set dob_parts = b.date_of_birth[:10].split('-') %}
-                                                {% set months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'] %}
-                                                {{ dob_parts[2] }} {{ months[dob_parts[1]|int - 1] }}
-                                            {% elif ' ' in b.date_of_birth %}
-                                                {% set dob_parts = b.date_of_birth.split(' ') %}
-                                                {% if dob_parts|length >= 3 %}
-                                                    {# Handles "Tue, 16 May 1995..." format #}
-                                                    {{ dob_parts[1] }} {{ dob_parts[2] }}
-                                                {% else %}
-                                                    {{ b.date_of_birth }}
-                                                {% endif %}
-                                            {% else %}
-                                                {{ b.date_of_birth }}
-                                            {% endif %}
+                                        {% if '-' in b.date_of_birth and b.date_of_birth|length >= 10 %}
+                                        {% set dob_parts = b.date_of_birth[:10].split('-') %}
+                                        {% set months =
+                                        ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'] %}
+                                        {{ dob_parts[2] }} {{ months[dob_parts[1]|int - 1] }}
+                                        {% elif ' ' in b.date_of_birth %}
+                                        {% set dob_parts = b.date_of_birth.split(' ') %}
+                                        {% if dob_parts|length >= 3 %}
+                                        {# Handles "Tue, 16 May 1995..." format #}
+                                        {{ dob_parts[1] }} {{ dob_parts[2] }}
                                         {% else %}
-                                            -
+                                        {{ b.date_of_birth }}
+                                        {% endif %}
+                                        {% else %}
+                                        {{ b.date_of_birth }}
+                                        {% endif %}
+                                        {% else %}
+                                        -
                                         {% endif %}
                                     </div>
                                     {% if b.days_until_birthday and not b.is_today %}
-                                    <small class="text-muted" style="font-size: 0.6rem;">In {{ b.days_until_birthday }} days</small>
+                                    <small class="text-muted" style="font-size: 0.6rem;">In {{ b.days_until_birthday }}
+                                        days</small>
                                     {% endif %}
                                 </div>
                             </div>
                             {% endfor %}
                             {% else %}
                             <div class="text-muted text-center py-4 d-flex flex-column align-items-center">
-                                <div class="bg-danger bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center mb-2" style="width: 50px; height: 50px;">
+                                <div class="bg-danger bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center mb-2"
+                                    style="width: 50px; height: 50px;">
                                     <i class="bi bi-calendar-event text-danger fs-3"></i>
                                 </div>
                                 <p class="mb-0 small">No birthdays in the next 7 days</p>
@@ -768,14 +849,17 @@
         background-color: rgba(245, 158, 11, 0.15) !important;
         color: #d97706 !important;
     }
+
     .badge-published {
         background-color: rgba(16, 185, 129, 0.15) !important;
         color: #059669 !important;
     }
+
     .badge-expired {
         background-color: rgba(239, 68, 68, 0.15) !important;
         color: #dc2626 !important;
     }
+
     .text-truncate-2 {
         display: -webkit-box;
         -webkit-line-clamp: 2;
@@ -796,46 +880,54 @@
             </div>
             <div class="modal-body modal-body-detail">
                 <div class="detail-view">
-                <div class="detail-hero">
-                <div class="d-flex justify-content-between align-items-start gap-2 mb-2">
-                <h3 id="dashDetailTitle" class="detail-hero-title mb-0">Loading Title...</h3>
-                <span id="dashDetailBadge" class="badge rounded-pill flex-shrink-0">Active</span>
-                </div>
-                <div class="d-flex align-items-center gap-3 text-muted mb-3 flex-wrap small">
-                    <span class="d-flex align-items-center gap-1">
-                        <i class="bi bi-person-circle"></i> Posted by: <strong id="dashDetailCreatedBy" class="text-dark">Admin</strong>
-                    </span>
-                    <span class="d-flex align-items-center gap-1">
-                        <i class="bi bi-calendar3"></i> Posted: <strong id="dashDetailCreatedAt" class="text-dark">Date</strong>
-                    </span>
-                    <span class="d-flex align-items-center gap-1">
-                        <i class="bi bi-calendar-x"></i> Expires: <strong id="dashDetailExpiresAt" class="text-dark">Date</strong>
-                    </span>
-                </div>
-                
-                </div>
-
-                <div class="detail-card mb-3">
-                <div class="detail-card-title"><i class="bi bi-card-text"></i> Description</div>
-                <div class="announcement-content detail-note border-0" id="dashDetailDescription" style="line-height: 1.6; font-size: 0.95rem;">
-                    Loading description...
-                </div>
-                </div>
-
-                <div id="dashDetailAttachmentBox" class="detail-card d-flex align-items-center justify-content-between mb-2" style="display: none !important;">
-                    <div class="d-flex align-items-center gap-2 overflow-hidden">
-                        <div class="bg-primary bg-opacity-10 text-primary rounded p-2 flex-shrink-0">
-                            <i class="bi bi-file-earmark-arrow-down-fill fs-5"></i>
+                    <div class="detail-hero">
+                        <div class="d-flex justify-content-between align-items-start gap-2 mb-2">
+                            <h3 id="dashDetailTitle" class="detail-hero-title mb-0">Loading Title...</h3>
+                            <span id="dashDetailBadge" class="badge rounded-pill flex-shrink-0">Active</span>
                         </div>
-                        <div class="overflow-hidden">
-                            <h6 class="mb-0 fw-semibold text-dark text-truncate" id="dashDetailAttachmentName" style="font-size: 0.85rem;">filename.pdf</h6>
-                            <span class="text-muted small" style="font-size: 0.7rem;">Click to download attachment</span>
+                        <div class="d-flex align-items-center gap-3 text-muted mb-3 flex-wrap small">
+                            <span class="d-flex align-items-center gap-1">
+                                <i class="bi bi-person-circle"></i> Posted by: <strong id="dashDetailCreatedBy"
+                                    class="text-dark">Admin</strong>
+                            </span>
+                            <span class="d-flex align-items-center gap-1">
+                                <i class="bi bi-calendar3"></i> Posted: <strong id="dashDetailCreatedAt"
+                                    class="text-dark">Date</strong>
+                            </span>
+                            <span class="d-flex align-items-center gap-1">
+                                <i class="bi bi-calendar-x"></i> Expires: <strong id="dashDetailExpiresAt"
+                                    class="text-dark">Date</strong>
+                            </span>
+                        </div>
+
+                    </div>
+
+                    <div class="detail-card mb-3">
+                        <div class="detail-card-title"><i class="bi bi-card-text"></i> Description</div>
+                        <div class="announcement-content detail-note border-0" id="dashDetailDescription"
+                            style="line-height: 1.6; font-size: 0.95rem;">
+                            Loading description...
                         </div>
                     </div>
-                    <button class="btn btn-sm btn-primary rounded-pill px-3 shadow-sm" id="dashDetailDownloadBtn">
-                        <i class="bi bi-download me-1"></i> Download
-                    </button>
-                </div>
+
+                    <div id="dashDetailAttachmentBox"
+                        class="detail-card d-flex align-items-center justify-content-between mb-2"
+                        style="display: none !important;">
+                        <div class="d-flex align-items-center gap-2 overflow-hidden">
+                            <div class="bg-primary bg-opacity-10 text-primary rounded p-2 flex-shrink-0">
+                                <i class="bi bi-file-earmark-arrow-down-fill fs-5"></i>
+                            </div>
+                            <div class="overflow-hidden">
+                                <h6 class="mb-0 fw-semibold text-dark text-truncate" id="dashDetailAttachmentName"
+                                    style="font-size: 0.85rem;">filename.pdf</h6>
+                                <span class="text-muted small" style="font-size: 0.7rem;">Click to download
+                                    attachment</span>
+                            </div>
+                        </div>
+                        <button class="btn btn-sm btn-primary rounded-pill px-3 shadow-sm" id="dashDetailDownloadBtn">
+                            <i class="bi bi-download me-1"></i> Download
+                        </button>
+                    </div>
 
                 </div>
             </div>
@@ -872,23 +964,26 @@
             <div class="modal-body modal-body-form">
                 <form id="dashAnnForm" enctype="multipart/form-data" novalidate>
                     <input type="hidden" id="dashAnnId" name="id">
-                    
+
                     <div class="mb-3">
                         <label class="form-label small fw-bold text-dark">Title *</label>
-                        <input type="text" class="form-control rounded-3" id="dashAnnTitle" name="title" required placeholder="Enter announcement title...">
+                        <input type="text" class="form-control rounded-3" id="dashAnnTitle" name="title" required
+                            placeholder="Enter announcement title...">
                         <div class="invalid-feedback">Please enter a valid title.</div>
                     </div>
 
                     <div class="mb-3">
                         <label class="form-label small fw-bold text-dark">Description *</label>
-                        <textarea class="form-control rounded-3" id="dashAnnDescription" name="description" rows="5" required placeholder="Write detailed content..."></textarea>
+                        <textarea class="form-control rounded-3" id="dashAnnDescription" name="description" rows="5"
+                            required placeholder="Write detailed content..."></textarea>
                         <div class="invalid-feedback">Please enter a description.</div>
                     </div>
 
                     <div class="row g-3 mb-3">
                         <div class="col-md-6">
                             <label class="form-label small fw-bold text-dark">Expiry Date *</label>
-                            <input type="datetime-local" class="form-control rounded-3" id="dashAnnExpiresAt" name="expires_at" required>
+                            <input type="datetime-local" class="form-control rounded-3" id="dashAnnExpiresAt"
+                                name="expires_at" required>
                             <div class="invalid-feedback">Please select a valid future expiration date.</div>
                         </div>
                         <div class="col-md-6">
@@ -903,10 +998,12 @@
                     <div class="mb-3">
                         <label class="form-label small fw-bold text-dark">Attachment (File, max 10MB)</label>
                         <div class="input-group">
-                            <input type="file" class="form-control rounded-3" id="dashAnnAttachment" name="attachment" accept=".jpg,.jpeg,.png,.pdf">
+                            <input type="file" class="form-control rounded-3" id="dashAnnAttachment" name="attachment"
+                                accept=".jpg,.jpeg,.png,.pdf">
                         </div>
                         <div id="dashAnnCurrentAttachmentInfo" class="mt-2 small text-primary" style="display: none;">
-                            <i class="bi bi-paperclip"></i> Currently attached: <span id="dashAnnCurrentAttachmentName"></span>
+                            <i class="bi bi-paperclip"></i> Currently attached: <span
+                                id="dashAnnCurrentAttachmentName"></span>
                         </div>
                     </div>
 
@@ -914,7 +1011,8 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <button type="submit" form="dashAnnForm" class="btn btn-primary fw-bold" id="dashAnnSubmitBtn">Save Announcement</button>
+                <button type="submit" form="dashAnnForm" class="btn btn-primary fw-bold" id="dashAnnSubmitBtn">Save
+                    Announcement</button>
             </div>
         </div>
     </div>
@@ -1050,10 +1148,10 @@
     };
     const getConfigData = () => JSON.parse(document.getElementById('config-data').textContent || '{}');
 
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function () {
         // Event delegation for project actions (Active Projects table & My Projects table)
-        document.querySelectorAll('.table-hover').forEach(function(table) {
-            table.addEventListener('click', function(e) {
+        document.querySelectorAll('.table-hover').forEach(function (table) {
+            table.addEventListener('click', function (e) {
                 const viewBtn = e.target.closest('.btn-view-project');
                 if (viewBtn) viewProjectDetails(viewBtn.dataset.id);
             });
@@ -1309,47 +1407,47 @@
 
         const projectsData = getProjectsData();
         const project = projectsData.find((p) => p.id == projectId);
-    currentProjectMembers = project ? getProjectMembers(project) : [];
+        currentProjectMembers = project ? getProjectMembers(project) : [];
 
-    const openModal = (availableEmployees) => {
-        populateEmployeeList(currentProjectMembers, availableEmployees);
-        const modal = new bootstrap.Modal(document.getElementById('employeeSelectionModal'));
-        modal.show();
-    };
+        const openModal = (availableEmployees) => {
+            populateEmployeeList(currentProjectMembers, availableEmployees);
+            const modal = new bootstrap.Modal(document.getElementById('employeeSelectionModal'));
+            modal.show();
+        };
 
-    const fetchEmployeesAndOpenModal = () => {
-        fetch('/api/employees_with_allocation')
-            .then(res => res.json())
-            .then(data => {
-                if (data.success) {
-                    openModal(data.employees);
-                } else {
-                    alert("Error fetching employees: " + data.error);
+        const fetchEmployeesAndOpenModal = () => {
+            fetch('/api/employees_with_allocation')
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        openModal(data.employees);
+                    } else {
+                        alert("Error fetching employees: " + data.error);
+                    }
+                })
+                .catch(err => {
+                    console.error("Error fetching employees:", err);
+                    alert("Failed to fetch employees.");
+                });
+        };
+
+        if (project) {
+            fetchEmployeesAndOpenModal();
+            return;
+        }
+
+        fetch('/get_project_details/' + projectId)
+            .then((response) => response.json())
+            .then((data) => {
+                if (data.success && data.project) {
+                    currentProjectMembers = getProjectMembers(data.project);
                 }
+                fetchEmployeesAndOpenModal();
             })
-            .catch(err => {
-                console.error("Error fetching employees:", err);
-                alert("Failed to fetch employees.");
+            .catch(() => {
+                fetchEmployeesAndOpenModal();
             });
-    };
-
-    if (project) {
-        fetchEmployeesAndOpenModal();
-        return;
     }
-
-    fetch('/get_project_details/' + projectId)
-        .then((response) => response.json())
-        .then((data) => {
-            if (data.success && data.project) {
-                currentProjectMembers = getProjectMembers(data.project);
-            }
-            fetchEmployeesAndOpenModal();
-        })
-        .catch(() => {
-            fetchEmployeesAndOpenModal();
-        });
-}
 
     function populateEmployeeList(currentTeamMembers, availableEmployees) {
         const currentMemberNames = new Set((currentTeamMembers || []).map(getMemberName).filter(Boolean));
@@ -1626,84 +1724,84 @@
         fetch(`/api/announcements/${id}`, {
             headers: { "Authorization": `Bearer ${token}` }
         })
-        .then(res => res.json())
-        .then(data => {
-            let ann = null;
-            if (data && data.announcement) {
-                ann = data.announcement;
-            } else if (data && data.data) {
-                ann = data.data;
-            } else if (data && typeof data === 'object' && !Array.isArray(data)) {
-                ann = data;
-            }
+            .then(res => res.json())
+            .then(data => {
+                let ann = null;
+                if (data && data.announcement) {
+                    ann = data.announcement;
+                } else if (data && data.data) {
+                    ann = data.data;
+                } else if (data && typeof data === 'object' && !Array.isArray(data)) {
+                    ann = data;
+                }
 
-            if (!ann || (!ann.id && !ann.title)) {
-                alert("Failed to fetch announcement details: invalid response structure.");
-                return;
-            }
+                if (!ann || (!ann.id && !ann.title)) {
+                    alert("Failed to fetch announcement details: invalid response structure.");
+                    return;
+                }
 
-            const isExpired = new Date(ann.expires_at) <= new Date();
-            const badge = document.getElementById("dashDetailBadge");
-            
-            badge.className = "badge rounded-pill text-uppercase";
-            if (isExpired) {
-                badge.innerText = "Expired";
-                badge.classList.add("badge-expired");
-            } else if (ann.status === "draft") {
-                badge.innerText = "Draft";
-                badge.classList.add("badge-draft");
-            } else {
-                badge.innerText = "Active";
-                badge.classList.add("badge-published");
-            }
+                const isExpired = new Date(ann.expires_at) <= new Date();
+                const badge = document.getElementById("dashDetailBadge");
 
-            document.getElementById("dashDetailTitle").innerText = ann.title;
-            document.getElementById("dashDetailCreatedBy").innerText = ann.created_by || 'Admin';
-            document.getElementById("dashDetailCreatedAt").innerText = formatDateString(ann.created_at);
-            document.getElementById("dashDetailExpiresAt").innerText = formatDateString(ann.expires_at);
-            document.getElementById("dashDetailDescription").innerHTML = ann.description;
+                badge.className = "badge rounded-pill text-uppercase";
+                if (isExpired) {
+                    badge.innerText = "Expired";
+                    badge.classList.add("badge-expired");
+                } else if (ann.status === "draft") {
+                    badge.innerText = "Draft";
+                    badge.classList.add("badge-draft");
+                } else {
+                    badge.innerText = "Active";
+                    badge.classList.add("badge-published");
+                }
 
-            // Handle Attachment Box
-            const attachBox = document.getElementById("dashDetailAttachmentBox");
-            const hasAttachment = ann.attachment_path || ann.has_attachment;
-            if (hasAttachment) {
-                attachBox.style.setProperty("display", "flex", "important");
-                const path = ann.attachment_path || '';
-                const filename = path ? path.split(/[\\/]/).pop() : 'Attachment File';
-                document.getElementById("dashDetailAttachmentName").innerText = filename;
-                document.getElementById("dashDetailDownloadBtn").onclick = function() {
-                    window.open(`/api/announcements/${ann.id || id}/attachment?token=${token}`, "_blank");
-                };
-            } else {
-                attachBox.style.setProperty("display", "none", "important");
-            }
+                document.getElementById("dashDetailTitle").innerText = ann.title;
+                document.getElementById("dashDetailCreatedBy").innerText = ann.created_by || 'Admin';
+                document.getElementById("dashDetailCreatedAt").innerText = formatDateString(ann.created_at);
+                document.getElementById("dashDetailExpiresAt").innerText = formatDateString(ann.expires_at);
+                document.getElementById("dashDetailDescription").innerHTML = ann.description;
 
-            // Bind Edit and Delete handlers for HR users
-            const editBtn = document.getElementById("dashDetailEditBtn");
-            const deleteBtn = document.getElementById("dashDetailDeleteBtn");
-            if (editBtn) {
-                editBtn.onclick = function() {
-                    const detailModal = bootstrap.Modal.getInstance(document.getElementById("dashboardAnnouncementDetailModal"));
-                    if (detailModal) detailModal.hide();
-                    prepareDashboardEdit(ann);
-                };
-            }
-            if (deleteBtn) {
-                deleteBtn.onclick = function() {
-                    if (confirm("Are you sure you want to permanently delete this announcement?")) {
-                        deleteDashboardAnnouncement(ann.id || id);
-                    }
-                };
-            }
+                // Handle Attachment Box
+                const attachBox = document.getElementById("dashDetailAttachmentBox");
+                const hasAttachment = ann.attachment_path || ann.has_attachment;
+                if (hasAttachment) {
+                    attachBox.style.setProperty("display", "flex", "important");
+                    const path = ann.attachment_path || '';
+                    const filename = path ? path.split(/[\\/]/).pop() : 'Attachment File';
+                    document.getElementById("dashDetailAttachmentName").innerText = filename;
+                    document.getElementById("dashDetailDownloadBtn").onclick = function () {
+                        window.open(`/api/announcements/${ann.id || id}/attachment?token=${token}`, "_blank");
+                    };
+                } else {
+                    attachBox.style.setProperty("display", "none", "important");
+                }
 
-            // Open Modal
-            const detailModal = new bootstrap.Modal(document.getElementById("dashboardAnnouncementDetailModal"));
-            detailModal.show();
-        })
-        .catch(err => {
-            console.error(err);
-            alert("Error loading announcement details.");
-        });
+                // Bind Edit and Delete handlers for HR users
+                const editBtn = document.getElementById("dashDetailEditBtn");
+                const deleteBtn = document.getElementById("dashDetailDeleteBtn");
+                if (editBtn) {
+                    editBtn.onclick = function () {
+                        const detailModal = bootstrap.Modal.getInstance(document.getElementById("dashboardAnnouncementDetailModal"));
+                        if (detailModal) detailModal.hide();
+                        prepareDashboardEdit(ann);
+                    };
+                }
+                if (deleteBtn) {
+                    deleteBtn.onclick = function () {
+                        if (confirm("Are you sure you want to permanently delete this announcement?")) {
+                            deleteDashboardAnnouncement(ann.id || id);
+                        }
+                    };
+                }
+
+                // Open Modal
+                const detailModal = new bootstrap.Modal(document.getElementById("dashboardAnnouncementDetailModal"));
+                detailModal.show();
+            })
+            .catch(err => {
+                console.error(err);
+                alert("Error loading announcement details.");
+            });
     }
 
     function prepareDashboardCreate() {
@@ -1724,11 +1822,11 @@
         document.getElementById("dashAnnId").value = ann.id;
         document.getElementById("dashAnnTitle").value = ann.title;
         document.getElementById("dashAnnDescription").value = ann.description;
-        
+
         // Format datetime-local value (YYYY-MM-DDTHH:MM)
         const expDate = new Date(ann.expires_at);
         const offset = expDate.getTimezoneOffset();
-        const localizedExp = new Date(expDate.getTime() - (offset*60*1000)).toISOString().slice(0, 16);
+        const localizedExp = new Date(expDate.getTime() - (offset * 60 * 1000)).toISOString().slice(0, 16);
         document.getElementById("dashAnnExpiresAt").value = localizedExp;
         document.getElementById("dashAnnExpiresAt").min = new Date().toISOString().slice(0, 16);
 
@@ -1752,25 +1850,25 @@
             method: 'DELETE',
             headers: { "Authorization": `Bearer ${token}` }
         })
-        .then(res => res.json())
-        .then(data => {
-            const isSuccess = data && (data.success || !data.error);
-            if (!isSuccess) {
-                alert("Failed to delete announcement: " + (data.error || "Unknown error"));
-                return;
-            }
+            .then(res => res.json())
+            .then(data => {
+                const isSuccess = data && (data.success || !data.error);
+                if (!isSuccess) {
+                    alert("Failed to delete announcement: " + (data.error || "Unknown error"));
+                    return;
+                }
 
-            const detailModalEl = document.getElementById("dashboardAnnouncementDetailModal");
-            const detailModal = bootstrap.Modal.getInstance(detailModalEl);
-            if (detailModal) detailModal.hide();
+                const detailModalEl = document.getElementById("dashboardAnnouncementDetailModal");
+                const detailModal = bootstrap.Modal.getInstance(detailModalEl);
+                if (detailModal) detailModal.hide();
 
-            alert("Announcement deleted successfully.");
-            refreshDashboardAnnouncements();
-        })
-        .catch(err => {
-            console.error(err);
-            alert("Error communicating with server.");
-        });
+                alert("Announcement deleted successfully.");
+                refreshDashboardAnnouncements();
+            })
+            .catch(err => {
+                console.error(err);
+                alert("Error communicating with server.");
+            });
     }
 
     function refreshDashboardAnnouncements() {
@@ -1781,29 +1879,29 @@
         fetch("/api/announcements/dashboard", {
             headers: { "Authorization": `Bearer ${token}` }
         })
-        .then(res => res.json())
-        .then(data => {
-            let list = [];
-            if (Array.isArray(data)) {
-                list = data;
-            } else if (data && typeof data === 'object') {
-                list = data.announcements || data.data || [];
-            }
+            .then(res => res.json())
+            .then(data => {
+                let list = [];
+                if (Array.isArray(data)) {
+                    list = data;
+                } else if (data && typeof data === 'object') {
+                    list = data.announcements || data.data || [];
+                }
 
-            if (list.length === 0) {
-                container.innerHTML = `
+                if (list.length === 0) {
+                    container.innerHTML = `
                     <div class="text-muted text-center py-4">
                         <i class="bi bi-megaphone fs-3 d-block mb-2"></i>
                         No new announcements
                     </div>
                 `;
-                return;
-            }
+                    return;
+                }
 
-            let html = '<div class="list-group list-group-flush gap-2">';
-            list.forEach(ann => {
-                const dateText = formatDateString(ann.created_at);
-                html += `
+                let html = '<div class="list-group list-group-flush gap-2">';
+                list.forEach(ann => {
+                    const dateText = formatDateString(ann.created_at);
+                    html += `
                     <div class="list-group-item px-1 py-2 border-0 bg-transparent rounded-3 hover-row-bg" style="cursor: pointer;" onclick="viewDashboardAnnouncement(${ann.id})">
                         <div class="d-flex align-items-center gap-2">
                             <div class="flex-shrink-0 bg-primary bg-opacity-10 text-primary rounded-circle d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">
@@ -1819,13 +1917,13 @@
                         </div>
                     </div>
                 `;
+                });
+                html += '</div>';
+                container.innerHTML = html;
+            })
+            .catch(err => {
+                console.error("Error refreshing dashboard announcements:", err);
             });
-            html += '</div>';
-            container.innerHTML = html;
-        })
-        .catch(err => {
-            console.error("Error refreshing dashboard announcements:", err);
-        });
     }
 
     function formatDateString(isoStr) {
@@ -1840,12 +1938,12 @@
     }
 
     // Attach form listener
-    document.addEventListener("DOMContentLoaded", function() {
+    document.addEventListener("DOMContentLoaded", function () {
         const form = document.getElementById("dashAnnForm");
         if (form) {
-            form.addEventListener("submit", function(e) {
+            form.addEventListener("submit", function (e) {
                 e.preventDefault();
-                
+
                 if (!form.checkValidity()) {
                     form.classList.add('was-validated');
                     return;
@@ -1854,7 +1952,7 @@
                 const id = document.getElementById("dashAnnId").value;
                 const token = sessionStorage.getItem('token') || "{{ session.get('token', '') }}";
                 const formData = new FormData(form);
-                
+
                 const rawExpires = document.getElementById("dashAnnExpiresAt").value;
                 if (rawExpires) {
                     formData.set("expires_at", rawExpires.replace('T', ' ') + ':00');
@@ -1872,30 +1970,30 @@
                     headers: { "Authorization": `Bearer ${token}` },
                     body: formData
                 })
-                .then(res => res.json())
-                .then(data => {
-                    submitBtn.disabled = false;
-                    submitBtn.innerText = "Save Announcement";
+                    .then(res => res.json())
+                    .then(data => {
+                        submitBtn.disabled = false;
+                        submitBtn.innerText = "Save Announcement";
 
-                    const isSuccess = data && (data.success || data.id || data.message || !data.error);
-                    if (!isSuccess) {
-                        alert("Operation failed: " + (data.error || "Unknown error"));
-                        return;
-                    }
+                        const isSuccess = data && (data.success || data.id || data.message || !data.error);
+                        if (!isSuccess) {
+                            alert("Operation failed: " + (data.error || "Unknown error"));
+                            return;
+                        }
 
-                    const modalEl = document.getElementById("dashboardAnnouncementModal");
-                    const modal = bootstrap.Modal.getInstance(modalEl);
-                    if (modal) modal.hide();
-                    
-                    alert(data.message || "Announcement saved successfully.");
-                    refreshDashboardAnnouncements();
-                })
-                .catch(err => {
-                    submitBtn.disabled = false;
-                    submitBtn.innerText = "Save Announcement";
-                    console.error(err);
-                    alert("An error occurred during submission.");
-                });
+                        const modalEl = document.getElementById("dashboardAnnouncementModal");
+                        const modal = bootstrap.Modal.getInstance(modalEl);
+                        if (modal) modal.hide();
+
+                        alert(data.message || "Announcement saved successfully.");
+                        refreshDashboardAnnouncements();
+                    })
+                    .catch(err => {
+                        submitBtn.disabled = false;
+                        submitBtn.innerText = "Save Announcement";
+                        console.error(err);
+                        alert("An error occurred during submission.");
+                    });
             });
         }
     });

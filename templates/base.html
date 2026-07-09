@@ -61,10 +61,8 @@
             padding: 2px 5px;
         }
 
-        /* Clean, blended scrollbar for sidebar menu */
         .sidebar .menu {
             overflow-y: auto;
-            max-height: calc(100vh - 280px);
             padding-right: 8px;
         }
 
@@ -123,240 +121,117 @@
     <div class="sidebar" id="sidebar">
 
         <div class="sidebar-header">
-
             <img src="{{ url_for('static', filename='images/logo_dashboard.png') }}" alt="Company Logo">
-
         </div>
-
-        <div class="sidebar-user text-center">
-
-            <!-- Sidebar avatar: starts with SVG placeholder, replaced by real photo via JS -->
-            <img id="sidebarAvatar"
-                src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'%3E%3Ccircle cx='40' cy='40' r='40' fill='%23475569'/%3E%3Ccircle cx='40' cy='30' r='14' fill='%23cbd5e1'/%3E%3Cellipse cx='40' cy='68' rx='22' ry='16' fill='%23cbd5e1'/%3E%3C/svg%3E"
-                class="user-img border border-warning border-3" alt="Profile Photo">
-
-            <h6>{{ session.display_name or session.full_name or session.original_name or (session.employee_name | clean_name if session.employee_name else None) or 'User' }}</h6>
-
-            <span class="badge rounded-pill bg-primary bg-opacity-25 text-primary border border-primary px-3 py-1 mt-1" style="font-size: 0.7rem;">{{ labels.EMPLOYEE.upper() if session.role == 'employee' else (session.role or 'User').upper() }}</span>
-
-            <div class="sidebar-quick-links mt-2">
-
-                <div style="display: flex; justify-content: space-around; gap: 10px; width: 100%;">
-                    <a href="{{ url_for('work.add_leave') }}" title="Apply Leave" class="text-center d-flex flex-column align-items-center text-decoration-none">
-                        <i class="bi bi-calendar-plus fs-5 mb-1 text-light"></i>
-                        <span class="text-light" style="font-size: 0.75rem;">Apply Leave</span>
-                    </a>
-
-                    <a href="{{ url_for('work.add_timesheet') }}" title="Add Timesheet" class="text-center d-flex flex-column align-items-center text-decoration-none">
-                        <i class="bi bi-clock-history fs-5 mb-1 text-light"></i>
-                        <span class="text-light" style="font-size: 0.75rem;">Add Timesheet</span>
-                    </a>
-                </div>
-
-            </div>
-
-        </div>
-
-
-
-        <hr style="margin-top: 5px; margin-bottom: 5px;">
-
-
 
         <div class="menu">
 
-
-
             <!-- DASHBOARD -->
-
             <a style="margin-bottom: 0px;" href="{{ url_for('dashboard.dashboard') }}">
-
                 <i class="bi bi-house"></i> <span>Dashboard</span>
-
             </a>
 
-
-
-            <!-- EMPLOYEES (HR + MANAGER + ADMIN) -->
-
-            {% if session.role in ['hr','manager','admin'] %}
-
-            <div class="menu-item">
-
-                <div class="menu-title" onclick="toggleMenu('empMenu', this)">
-
-                    <span><i class="bi bi-people"></i> {{ labels.EMPLOYEES }}</span>
-
-                    <span class="arrow">+</span>
-
-                </div>
-
-
-
-                <div class="submenu" id="empMenu">
-
-                    <a style="margin-bottom: 0px;" href="{{ url_for('employees.employee_list') }}">{{ labels.EMPLOYEES }}</a>
-
-
-
-                    {% if session.role in ['hr','admin'] %}
-
-                    <a style="margin-bottom: 0px;" href="{{ url_for('employees.add_employee') }}">{{ labels.ADD_EMPLOYEE }}</a>
-                    <a style="margin-bottom: 0px;" href="{{ url_for('user.bank_verification') }}">Bank Verification</a>
-                    {% endif %}
-
-                </div>
-
-            </div>
-
+            <!-- TEAM MEMBERS (HR + MANAGER + ADMIN) -->
+            {% if session.role in ['hr', 'manager', 'admin'] %}
+            <a style="margin-bottom: 0px;" href="{{ url_for('employees.employee_list') }}">
+                <i class="bi bi-people"></i> <span>Team Members</span>
+            </a>
             {% endif %}
-
-
-
-            <!-- PROJECTS -->
-
-            {% if session.role == 'employee' %}
-
-            <div class="menu-item">
-
-                <a style="margin-bottom: 0px;" href="{{ url_for('projects.projects_list') }}">
-
-                    <span><i class="bi bi-folder"></i> Projects</span>
-
-                </a>
-
-            </div>
-
-            {% endif %}
-
-
 
             <!-- TIMESHEETS -->
-
             {% if session.role in ['employee','manager','hr','admin'] %}
-
-            <div class="menu-item">
-
-                <div class="menu-title" onclick="toggleMenu('timeMenu', this)">
-
-                    <span><i class="bi bi-clock"></i> Timesheets</span>
-
-                    <span class="arrow">+</span>
-
-                </div>
-
-
-
-                <div class="submenu" id="timeMenu">
-
-                    <a style="margin-bottom: 0px;" href="{{ url_for('work.timesheets_list') }}">All Timesheets</a>
-
-
-
-                    {% if session.role in ['employee','hr','admin'] %}
-
-                    <a style="margin-bottom: 0px;" href="{{ url_for('work.add_timesheet') }}">Add Timesheet</a>
-
-                    {% endif %}
-
-                </div>
-
-            </div>
-
+            <a style="margin-bottom: 0px;" href="{{ url_for('work.timesheets_list') }}">
+                <i class="bi bi-clock"></i> <span>Timesheets</span>
+            </a>
             {% endif %}
-
-
 
             <!-- LEAVES -->
             {% if session.role in ['employee','hr','manager','admin'] %}
-            <div class="menu-item">
-                <div class="menu-title" onclick="toggleMenu('leaveMenu', this)">
-                    <span><i class="bi bi-calendar"></i> Leaves</span>
-                    <span class="arrow">+</span>
-                </div>
-                <div class="submenu" id="leaveMenu">
-                    <a style="margin-bottom: 0px;" href="{{ url_for('work.leaves_list') }}">All Leaves</a>
-                    {% if session.role == 'employee' %}
-                    <a style="margin-bottom: 0px;" href="{{ url_for('work.add_leave') }}">Apply Leave</a>
-                    {% endif %}
-                </div>
-            </div>
+            <a style="margin-bottom: 0px;" href="{{ url_for('work.leaves_list') }}">
+                <i class="bi bi-calendar"></i> <span>Leaves</span>
+            </a>
             {% endif %}
-            <!-- PROJECTS (HR + MANAGER + ADMIN) -->
-            {% if session.role in ['hr','manager','admin'] %}
 
+            <!-- PROJECTS -->
             <a style="margin-bottom: 0px;" href="{{ url_for('projects.projects_list') }}">
-
                 <i class="bi bi-folder"></i> <span>Projects</span>
-
             </a>
 
+            <!-- REIMBURSEMENT (ALL USERS) -->
+            <a style="margin-bottom: 0px;" href="{{ url_for('admin.reimbursement') }}">
+                <i class="bi bi-receipt"></i> <span>Reimbursements</span>
+            </a>
+
+            <!-- REPORTS (HR + MANAGER + ADMIN) -->
+            {% if session.role in ['hr', 'manager', 'admin'] %}
+            <a style="margin-bottom: 0px;" href="{{ url_for('work.hr_missing_timesheets') }}">
+                <i class="bi bi-file-earmark-bar-graph"></i> <span>Reports</span>
+            </a>
             {% endif %}
 
-
-            <!-- ATTENDANCE -->
-
-            <a style="margin-bottom: 0px;" href="{{ url_for('work.attendance_view') }}">
-
-                <i class="bi bi-person-check"></i> <span>Attendance</span>
-
+            <!-- PAYSLIPS (MANAGER + EMPLOYEE) -->
+            {% if session.role in ['manager','employee'] %}
+            <a style="margin-bottom: 0px;" href="{{ url_for('user.payslips') }}">
+                <i class="bi bi-file-earmark-text"></i> <span>Payslips</span>
             </a>
+            {% endif %}
 
-
-
-            <!-- HELP DESK (ALL USERS) -->
-
-            <a style="margin-bottom: 0px;" href="{{ url_for('admin.helpdesk') }}">
-                <i class="bi bi-headset"></i> <span>Help Desk</span>
+            <!-- BANK VERIFICATION (HR + ADMIN) -->
+            {% if session.role in ['hr', 'admin'] %}
+            <a style="margin-bottom: 0px;" href="{{ url_for('user.bank_verification') }}">
+                <i class="bi bi-credit-card"></i> <span>Bank Verification</span>
             </a>
+            {% endif %}
 
+            <!-- ASSETS (HR + ADMIN) -->
             {% if session.role in ['hr', 'admin'] %}
             <a style="margin-bottom: 0px;" href="{{ url_for('admin.assets') }}">
                 <i class="bi bi-laptop"></i> <span>Assets</span>
             </a>
             {% endif %}
 
+            <!-- ONBOARDING (HR ONLY) -->
             {% if session.role == 'hr' %}
             <a style="margin-bottom: 0px;" href="{{ url_for('onboarding.dashboard') }}">
                 <i class="bi bi-door-open"></i> <span>Onboarding</span>
             </a>
             {% endif %}
 
-
-            <!-- REIMBURSEMENT (ALL USERS) -->
-
-            <a style="margin-bottom: 0px;" href="{{ url_for('admin.reimbursement') }}">
-
-                <i class="bi bi-receipt"></i> <span>Reimbursement</span>
-
-            </a>
-
-
             <!-- POLICIES (ALL USERS) -->
-
             <a style="margin-bottom: 0px;" href="{{ url_for('admin.policies') }}">
-
                 <i class="bi bi-file-text"></i> <span>Policies</span>
-
             </a>
 
-
-
-
-
-            <!-- PAYSLIPS (MANAGER + EMPLOYEE) -->
-
-            {% if session.role in ['manager','employee'] %}
-
-            <a style="margin-bottom: 0px;" href="{{ url_for('user.payslips') }}">
-
-                <i class="bi bi-file-earmark-text"></i> <span>Payslips</span>
-
+            <!-- HELP DESK (ALL USERS) -->
+            <a style="margin-bottom: 0px;" href="{{ url_for('admin.helpdesk') }}">
+                <i class="bi bi-headset"></i> <span>Help Desk</span>
             </a>
 
+            <!-- QUICK ACTIONS SECTION -->
+            <hr style="margin: 16px 12px; border-top: 1px solid #e2e8f0; opacity: 1;">
+            <div class="menu-category-header">Quick Actions</div>
+
+            <!-- Apply Leave -->
+            <a style="margin-bottom: 0px;" href="{{ url_for('work.add_leave') }}">
+                <i class="bi bi-calendar-plus icon-green"></i> <span>Apply Leave</span>
+            </a>
+
+            <!-- Add Timesheet -->
+            <a style="margin-bottom: 0px;" href="{{ url_for('work.add_timesheet') }}">
+                <i class="bi bi-clock-history icon-purple"></i> <span>Add Timesheet</span>
+            </a>
+
+            <!-- New Project (HR + MANAGER + ADMIN) -->
+            {% if session.role in ['hr', 'manager', 'admin'] %}
+            <a style="margin-bottom: 0px;" href="{{ url_for('projects.create_project') }}">
+                <i class="bi bi-folder-plus icon-orange"></i> <span>New Project</span>
+            </a>
             {% endif %}
 
-
+            <!-- Request Reimbursement -->
+            <a style="margin-bottom: 0px;" href="{{ url_for('admin.reimbursement') }}">
+                <i class="bi bi-file-earmark-plus icon-blue"></i> <span>Request Reimbursement</span>
+            </a>
 
         </div>
 
@@ -389,14 +264,18 @@
             </div>
             
             <!-- CENTER SEARCH -->
-            <div class="topbar-center mx-auto" style="width: 40%;">
+            <div class="topbar-center mx-auto position-relative" style="width: 40%;">
                 <div class="input-group shadow-sm" style="border-radius: 20px; overflow: hidden; border: 1px solid #e2e8f0; background: #fff;">
                     <span class="input-group-text bg-transparent border-0 text-muted ps-3 pe-2">
                         <i class="bi bi-search"></i>
                     </span>
-                    <input type="text" class="form-control border-0 shadow-none bg-transparent" placeholder="Search tasks, projects, or team members..." style="font-weight: normal;">
+                    <input type="text" id="globalSearchInput" class="form-control border-0 shadow-none bg-transparent" placeholder="Search tasks, projects, or team members..." style="font-weight: normal;">
+                </div>
+                <div id="globalSearchResults" class="dropdown-menu shadow-lg border-0 d-none">
+                    <!-- Dynamic results will be injected here -->
                 </div>
             </div>
+
 
 
 
@@ -427,14 +306,24 @@
 
 
 
-                    <button class="btn p-0 border-0 shadow-none bg-transparent d-flex align-items-center" type="button" data-bs-toggle="dropdown">
-
-                        <div class="avatar text-dark border border-2 border-white shadow-sm fs-6">
-                            {{ (session.employee_name or 'User')[0]|upper }}
+                    <button class="btn p-0 border-0 shadow-none bg-transparent d-flex align-items-center" type="button" data-bs-toggle="dropdown" aria-expanded="false" id="topbarUserDropdown">
+                        <div class="user-profile-card">
+                            <img id="topbarAvatar" class="user-avatar-img profile-img"
+                                src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'%3E%3Ccircle cx='40' cy='40' r='40' fill='%23475569'/%3E%3Ccircle cx='40' cy='30' r='14' fill='%23cbd5e1'/%3E%3Cellipse cx='40' cy='68' rx='22' ry='16' fill='%23cbd5e1'/%3E%3C/svg%3E"
+                                alt="Profile Photo"
+                                style="width: 38px; height: 38px; border-radius: 50%; object-fit: cover;">
+                            <div class="profile-info">
+                                <span class="profile-name">{{ session.display_name or session.full_name or session.original_name or (session.employee_name | clean_name if session.employee_name else None) or 'User' }}</span>
+                                <span class="profile-role">
+                                    {% if session.role == 'employee' %}
+                                        {{ labels.EMPLOYEE }}
+                                    {% else %}
+                                        {{ session.role | capitalize if session.role else 'User' }}
+                                    {% endif %}
+                                </span>
+                            </div>
+                            <i class="bi bi-chevron-down profile-chevron"></i>
                         </div>
-
-
-
                     </button>
 
 
@@ -506,25 +395,31 @@
 
     <script>
 
-        // Async sidebar photo loader
+        // Async user photo loader for all avatar images
         (function () {
             var cachedPhoto = '{{ sidebar_photo_url or "" }}';
-            var img = document.getElementById('sidebarAvatar');
+            var imgs = document.querySelectorAll('.user-avatar-img');
 
-            if (img && cachedPhoto && cachedPhoto !== 'None' && cachedPhoto !== '') {
-                // Already cached in session — apply immediately
-                img.onerror = function () { this.onerror = null; };
-                img.src = cachedPhoto;
-            } else {
-                // Not cached — fetch asynchronously so login/dashboard never blocks
-                fetch('/api/my-photo')
-                    .then(function (r) { return r.json(); })
-                    .then(function (data) {
-                        if (data.photo_url && img) {
-                            img.onerror = function () { this.onerror = null; };
-                            img.src = data.photo_url;
-                        }
-                    })
+            function applyPhoto(url) {
+                imgs.forEach(function(img) {
+                    img.onerror = function () { this.onerror = null; };
+                    img.src = url;
+                });
+            }
+
+            if (imgs.length > 0) {
+                if (cachedPhoto && cachedPhoto !== 'None' && cachedPhoto !== '') {
+                    applyPhoto(cachedPhoto);
+                } else {
+                    // Not cached — fetch asynchronously so login/dashboard never blocks
+                    fetch('/api/my-photo')
+                        .then(function (r) { return r.json(); })
+                        .then(function (data) {
+                            if (data.photo_url) {
+                                applyPhoto(data.photo_url);
+                            }
+                        })
+                }
             }
         })();
 
@@ -945,8 +840,242 @@
     <div id="toastContainer" class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 11">
     </div>
 
+    <!-- Global Search Script -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const searchInput = document.getElementById('globalSearchInput');
+            const searchResults = document.getElementById('globalSearchResults');
+            const backendUrl = "{{ config.BACKEND_URL or 'http://13.205.90.13:5001' }}";
+            const token = "{{ session.token or '' }}";
+            const userRole = "{{ session.role or '' }}".toLowerCase();
+
+            let projects = [];
+            let employees = [];
+            let joinees = [];
+            let dataLoaded = false;
+            let activeIndex = -1;
+
+            // Load data once when the search bar is focused
+            searchInput.addEventListener('focus', function() {
+                if (!dataLoaded && token) {
+                    const headers = {
+                        "Authorization": "Bearer " + token,
+                        "Content-Type": "application/json"
+                    };
+
+                    // Concurrently fetch projects and employees
+                    Promise.all([
+                        fetch(backendUrl + "/projects/", { headers }).then(res => res.json()).catch(() => ({})),
+                        fetch(backendUrl + "/employees/", { headers }).then(res => res.json()).catch(() => ({}))
+                    ]).then(([projData, empData]) => {
+                        const rawProjects = projData.projects || projData.data || (Array.isArray(projData) ? projData : []);
+                        projects = rawProjects.map(p => {
+                            if (p && typeof p === 'object') {
+                                p.id = p.id || p.project_id;
+                            }
+                            return p;
+                        });
+                        employees = empData.employees || empData.data || (Array.isArray(empData) ? empData : []);
+                        dataLoaded = true;
+
+                        // HR can also search onboarding candidates
+                        if (userRole === 'hr' || userRole === 'admin') {
+                            fetch(backendUrl + "/onboarding/joinees", { headers })
+                                .then(res => res.json())
+                                .then(joinData => {
+                                    joinees = joinData.joinees || joinData.data || (Array.isArray(joinData) ? joinData : []);
+                                })
+                                .catch(() => {});
+                        }
+                    });
+                }
+            });
+
+            // Perform filtering and render dropdown
+            searchInput.addEventListener('input', function() {
+                const query = this.value.trim().toLowerCase();
+
+                // If on list pages, filter table rows client-side instantly
+                if (window.location.pathname.endsWith('/projects')) {
+                    filterProjectsTable(query);
+                } else if (window.location.pathname.endsWith('/employees')) {
+                    filterEmployeesTable(query);
+                }
+
+                if (query.length < 2) {
+                    searchResults.classList.add('d-none');
+                    return;
+                }
+
+                renderSearchResults(query);
+            });
+
+            // Handle keyboard navigation (ArrowUp, ArrowDown, Enter, Escape)
+            searchInput.addEventListener('keydown', function(e) {
+                const items = searchResults.querySelectorAll('.search-item');
+                if (!items.length) return;
+
+                if (e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    activeIndex = (activeIndex + 1) % items.length;
+                    highlightItem(items);
+                } else if (e.key === 'ArrowUp') {
+                    e.preventDefault();
+                    activeIndex = (activeIndex - 1 + items.length) % items.length;
+                    highlightItem(items);
+                } else if (e.key === 'Enter') {
+                    e.preventDefault();
+                    if (activeIndex >= 0 && activeIndex < items.length) {
+                        items[activeIndex].click();
+                    }
+                } else if (e.key === 'Escape') {
+                    searchResults.classList.add('d-none');
+                    searchInput.blur();
+                }
+            });
+
+            // Highlight selected item
+            function highlightItem(items) {
+                items.forEach((item, index) => {
+                    if (index === activeIndex) {
+                        item.classList.add('active');
+                        item.style.backgroundColor = '#f1f5f9';
+                        item.style.borderLeftColor = '#2563eb';
+                        item.scrollIntoView({ block: 'nearest' });
+                    } else {
+                        item.classList.remove('active');
+                        item.style.backgroundColor = '';
+                        item.style.borderLeftColor = 'transparent';
+                    }
+                });
+            }
+
+            // Client-side table filters
+            function filterProjectsTable(query) {
+                const rows = document.querySelectorAll('#projectsContainer tbody tr');
+                rows.forEach(row => {
+                    const text = row.innerText.toLowerCase();
+                    row.style.display = text.includes(query) ? '' : 'none';
+                });
+            }
+
+            function filterEmployeesTable(query) {
+                const rows = document.querySelectorAll('.form-card table tbody tr');
+                rows.forEach(row => {
+                    const text = row.innerText.toLowerCase();
+                    row.style.display = text.includes(query) ? '' : 'none';
+                });
+            }
+
+            // Render result items
+            function renderSearchResults(query) {
+                let html = '';
+                
+                // Match projects
+                const matchedProj = projects.filter(p => 
+                    (p.name || '').toLowerCase().includes(query) || 
+                    (p.project_id || '').toLowerCase().includes(query) ||
+                    (p.customer_name || '').toLowerCase().includes(query)
+                );
+
+                // Match employees
+                const matchedEmp = employees.filter(e => 
+                    (e.name || '').toLowerCase().includes(query) || 
+                    (e.email || '').toLowerCase().includes(query) ||
+                    (e.designation || '').toLowerCase().includes(query)
+                );
+
+                // Match candidates
+                const matchedJoin = joinees.filter(j => 
+                    (j.full_name || '').toLowerCase().includes(query) || 
+                    (j.personal_email || '').toLowerCase().includes(query)
+                );
+
+                const totalResults = matchedProj.length + matchedEmp.length + matchedJoin.length;
+
+                if (totalResults === 0) {
+                    searchResults.innerHTML = `
+                        <div class="search-no-results">
+                            <i class="bi bi-search"></i>
+                            No results found for "${query}"
+                        </div>
+                    `;
+                    searchResults.classList.remove('d-none');
+                    return;
+                }
+
+                // Render Projects Section
+                if (matchedProj.length > 0) {
+                    html += '<div class="search-category">Projects</div>';
+                    matchedProj.forEach(p => {
+                        const pid = p.id || p.project_id;
+                        const manager = p.assigned_manager_name || p.manager_name || p.assigned_manager || p.manager || 'Not Set';
+                        const url = window.location.pathname.endsWith('/projects') ? 
+                            `javascript:viewProjectDetails(${pid})` : 
+                            `/projects?open=${pid}`;
+                        html += `
+                            <a href="${url}" class="search-item" onclick="document.getElementById('globalSearchResults').classList.add('d-none')">
+                                <i class="bi bi-folder-fill text-primary"></i>
+                                <div>
+                                    <div class="search-item-title">${p.name || 'Unnamed Project'}</div>
+                                    <div class="search-item-subtitle">ID: ${p.project_id || 'N/A'} | Manager: ${manager}</div>
+                                </div>
+                            </a>
+                        `;
+                    });
+                }
+
+                // Render Team Members Section
+                if (matchedEmp.length > 0) {
+                    html += '<div class="search-category">Team Members</div>';
+                    matchedEmp.forEach(e => {
+                        const name = e.name || '';
+                        const roleLabel = e.role === 'employee' ? 'Employee' : (e.role ? e.role.toUpperCase() : 'Team Member');
+                        html += `
+                            <a href="/profile/${encodeURIComponent(name)}" class="search-item">
+                                <i class="bi bi-person-fill text-success"></i>
+                                <div>
+                                    <div class="search-item-title">${name}</div>
+                                    <div class="search-item-subtitle">${e.email || ''} | Role: ${roleLabel}</div>
+                                </div>
+                            </a>
+                        `;
+                    });
+                }
+
+                // Render Candidates Section
+                if (matchedJoin.length > 0) {
+                    html += '<div class="search-category">Onboarding Candidates</div>';
+                    matchedJoin.forEach(j => {
+                        html += `
+                            <a href="/onboarding" class="search-item">
+                                <i class="bi bi-briefcase-fill text-warning"></i>
+                                <div>
+                                    <div class="search-item-title">${j.full_name || 'Unnamed Candidate'}</div>
+                                    <div class="search-item-subtitle">${j.personal_email || ''} | Status: ${j.onboarding_status || 'PENDING'}</div>
+                                </div>
+                            </a>
+                        `;
+                    });
+                }
+
+                searchResults.innerHTML = html;
+                searchResults.classList.remove('d-none');
+                activeIndex = -1;
+            }
+
+            // Close search results dropdown on clicking outside
+            document.addEventListener('click', function(e) {
+                if (!searchInput.contains(e.target) && !searchResults.contains(e.target)) {
+                    searchResults.classList.add('d-none');
+                }
+            });
+        });
+    </script>
+
     {% block scripts %}{% endblock %}
 
 </body>
+
 
 </html>

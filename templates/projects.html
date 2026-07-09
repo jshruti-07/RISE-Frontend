@@ -335,7 +335,15 @@
                 if (projectLink) viewProjectDetails(projectLink.dataset.id);
             });
         }
+
+        // Check for 'open' query parameter to auto-open details modal
+        const urlParams = new URLSearchParams(window.location.search);
+        const openProjectId = urlParams.get('open');
+        if (openProjectId) {
+            viewProjectDetails(openProjectId);
+        }
     });
+
 
 
     function viewProjectDetails(projectId) {

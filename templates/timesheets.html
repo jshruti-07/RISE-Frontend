@@ -43,15 +43,15 @@
         </script>
 
         <div class="d-flex align-items-center gap-2">
-            <button type="button" class="btn btn-outline-success btn-sm" id="exportExcelBtn"
+            <button type="button" class="btn btn-success btn-sm" id="exportExcelBtn"
                 style="border-radius: 10px;">
                 <i class="bi bi-file-earmark-excel"></i> Export Excel
             </button>
             {% if session.role in ['hr', 'admin'] %}
-            <a href="{{ url_for('work.hr_missing_timesheets') }}" class="btn btn-outline-warning btn-sm" style="border-radius: 10px;">Pending Timesheets</a>
+            <a href="{{ url_for('work.hr_missing_timesheets') }}" class="btn btn-sm text-white" style="border-radius: 10px; background-color: #e28a00; border-color: #e28a00;">Pending Timesheets</a>
             {% endif %}
             {% if session.role in ['employee','hr','admin', 'manager'] %}
-            <a href="{{ url_for('work.add_timesheet') }}" class="btn btn-primary">Add Timesheet</a>
+            <a href="{{ url_for('work.add_timesheet') }}" class="btn btn-primary btn-sm" style="border-radius: 10px;">Add Timesheet</a>
             {% endif %}
         </div>
     </div>
