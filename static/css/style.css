@@ -284,8 +284,19 @@ body {
 .sidebar.collapsed .menu a span,
 .sidebar.collapsed .menu-title span,
 .sidebar.collapsed .menu-title .arrow,
-.sidebar.collapsed .submenu {
+.sidebar.collapsed .submenu,
+.sidebar.collapsed .logo-text,
+.sidebar.collapsed .menu-category-header,
+.sidebar.collapsed .collapse-text {
     display: none !important;
+}
+
+.sidebar.collapsed .collapse-icon {
+    transform: rotate(180deg);
+}
+
+.sidebar.collapsed .collapse-container {
+    padding: 12px 0 !important;
 }
 
 .sidebar.collapsed .menu a {

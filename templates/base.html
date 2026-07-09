@@ -123,9 +123,9 @@
         <div class="sidebar-header">
             <div style="display: flex; align-items: center; gap: 12px; text-decoration: none;">
                 <div style="width: 36px; height: 36px; background: #5b21b6; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 16px;">BC</div>
-                <div style="display: flex; flex-direction: column; line-height: 1.2;">
-                    <span style="font-weight: 600; color: #0f172a; font-size: 15px;">BuildCore PIM</span>
-                    <span style="font-size: 11px; color: #94a3b8;">Product Information</span>
+                <div class="logo-text" style="display: flex; flex-direction: column; line-height: 1.2;">
+                    <span style="font-weight: 600; color: #0f172a; font-size: 15px;">Altzor</span>
+                    <span style="font-size: 11px; color: #94a3b8;">The Ultimate RISE app</span>
                 </div>
             </div>
         </div>
@@ -134,14 +134,13 @@
 
             <!-- DASHBOARD -->
             <a style="margin-bottom: 0px;" href="{{ url_for('dashboard.dashboard') }}">
-                <i class="bi bi-grid-1x2"></i> <span>Dashboard</span>
+                <i class="bi bi-house"></i> <span>Dashboard</span>
             </a>
 
             <!-- TEAM MEMBERS (HR + MANAGER + ADMIN) -->
             {% if session.role in ['hr', 'manager', 'admin'] %}
             <a style="margin-bottom: 0px; display: flex; align-items: center;" href="{{ url_for('employees.employee_list') }}">
-                <i class="bi bi-box"></i> <span style="flex: 1;">Team Members</span>
-                <span style="background: #f1f5f9; color: #475569; font-size: 0.7rem; padding: 2px 6px; border-radius: 10px; font-weight: 600;">1,248</span>
+                <i class="bi bi-people"></i> <span style="flex: 1;">Team Members</span>
             </a>
             {% endif %}
 
@@ -242,15 +241,12 @@
 
         </div>
 
-        <div style="padding: 12px 16px; border-top: 1px solid #e2e8f0; margin-top: auto;">
-            <a href="#" onclick="toggleSidebar(); return false;" style="display: flex; align-items: center; gap: 12px; color: #64748b; text-decoration: none; font-size: 0.85rem; font-weight: 500; padding: 8px;">
-                <i class="bi bi-chevron-left"></i> <span>Collapse</span>
+        <div class="collapse-container" style="padding: 12px 16px; border-top: 1px solid #e2e8f0; margin-top: auto;">
+            <a href="#" onclick="toggleSidebar(); return false;" class="collapse-btn" style="display: flex; align-items: center; gap: 12px; color: #64748b; text-decoration: none; font-size: 0.85rem; font-weight: 500; padding: 8px;">
+                <i class="bi bi-chevron-left collapse-icon" style="transition: transform 0.3s;"></i> <span class="collapse-text">Collapse</span>
             </a>
         </div>
-
     </div>
-
-
 
     <!-- MAIN -->
 
