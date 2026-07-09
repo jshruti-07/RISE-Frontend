@@ -17,7 +17,7 @@ body {
 /* ===== SIDEBAR ===== */
 
 .sidebar {
-    width: 240px;
+    width: 210px;
     height: 100vh;
     position: fixed;
     background: #ffffff; /* White background */
@@ -344,9 +344,9 @@ body {
 /* ===== MAIN ===== */
 .main {
 
-    margin-left: 240px;
+    margin-left: 210px;
 
-    width: calc(100% - 240px);
+    width: calc(100% - 210px);
 
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
