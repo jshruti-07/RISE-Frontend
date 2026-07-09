@@ -208,12 +208,12 @@ body {
 
 .menu a.active {
     background: #f0f4ff; /* Light purple */
-    color: #4f46e5 !important; /* Indigo/Purple */
+    color: #141D30 !important; /* Indigo/Purple */
     font-weight: 600;
 }
 
 .menu a.active i {
-    color: #4f46e5 !important;
+    color: #141D30 !important;
 }
 
 .menu-category-header {
