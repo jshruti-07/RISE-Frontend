@@ -764,6 +764,167 @@
         .view-section { padding: 1rem 0.75rem; }
         .confirm-box { margin: 1rem; }
     }
+
+    /* ── Enhanced Asset Detail Modal ── */
+    #assetDetailModal .modal-dialog { max-width: 720px; width: 95vw; }
+    #assetDetailModal .modal-content { border: 0; border-radius: 20px; overflow: hidden; box-shadow: 0 24px 60px rgba(15,23,42,0.18); }
+
+    .adm-header {
+        background: linear-gradient(135deg, #4f46e5 0%, #6366f1 60%, #818cf8 100%);
+        padding: 1.6rem 1.75rem 1.4rem;
+        position: relative;
+        overflow: hidden;
+    }
+    .adm-header::after {
+        content: '';
+        position: absolute;
+        width: 220px; height: 220px;
+        border-radius: 50%;
+        background: rgba(255,255,255,0.07);
+        top: -80px; right: -60px;
+        pointer-events: none;
+    }
+    .adm-header-icon {
+        width: 52px; height: 52px;
+        border-radius: 14px;
+        background: rgba(255,255,255,0.18);
+        backdrop-filter: blur(8px);
+        border: 1px solid rgba(255,255,255,0.25);
+        display: flex; align-items: center; justify-content: center;
+        font-size: 1.5rem; color: #fff;
+        flex-shrink: 0;
+    }
+    .adm-header-title {
+        font-size: 1.2rem; font-weight: 700;
+        color: #fff; margin: 0; line-height: 1.3;
+    }
+    .adm-header-sub {
+        font-size: 0.78rem; color: rgba(255,255,255,0.75);
+        margin: 0.15rem 0 0;
+    }
+    .adm-status-pill {
+        display: inline-flex; align-items: center; gap: 0.35rem;
+        padding: 0.3rem 0.85rem;
+        border-radius: 999px;
+        font-size: 0.72rem; font-weight: 700;
+        letter-spacing: 0.04em; text-transform: uppercase;
+        border: 1px solid rgba(255,255,255,0.3);
+        background: rgba(255,255,255,0.15);
+        color: #fff;
+    }
+    .adm-close-btn {
+        position: absolute; top: 1rem; right: 1rem;
+        width: 32px; height: 32px;
+        border-radius: 8px;
+        background: rgba(255,255,255,0.15);
+        border: 1px solid rgba(255,255,255,0.2);
+        color: #fff; font-size: 0.85rem;
+        display: flex; align-items: center; justify-content: center;
+        cursor: pointer; transition: background 0.2s;
+    }
+    .adm-close-btn:hover { background: rgba(255,255,255,0.28); }
+    .adm-edit-btn {
+        position: absolute; top: 1rem; right: 3.25rem;
+        display: inline-flex; align-items: center; gap: 0.3rem;
+        padding: 0.28rem 0.8rem;
+        border-radius: 8px;
+        background: rgba(255,255,255,0.15);
+        border: 1px solid rgba(255,255,255,0.25);
+        color: #fff; font-size: 0.75rem; font-weight: 600;
+        cursor: pointer; transition: background 0.2s;
+    }
+    .adm-edit-btn:hover { background: rgba(255,255,255,0.28); color: #fff; }
+
+    .adm-body { padding: 1.5rem 1.75rem 1.75rem; background: #f8fafc; overflow-y: auto; max-height: 72vh; }
+
+    .adm-section { margin-bottom: 1.1rem; }
+    .adm-section-label {
+        display: flex; align-items: center; gap: 0.5rem;
+        font-size: 0.68rem; font-weight: 700;
+        color: #64748b; text-transform: uppercase; letter-spacing: 0.07em;
+        margin-bottom: 0.65rem;
+    }
+    .adm-section-label i {
+        font-size: 0.8rem; color: #4f46e5;
+    }
+    .adm-card {
+        background: #fff;
+        border: 1px solid #e5e7eb;
+        border-radius: 14px;
+        padding: 1.1rem 1.25rem;
+        box-shadow: 0 1px 4px rgba(15,23,42,0.04);
+    }
+    .adm-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem 1.5rem;
+    }
+    .adm-grid.three { grid-template-columns: repeat(3,1fr); }
+    .adm-field-label {
+        font-size: 0.67rem; font-weight: 700;
+        color: #94a3b8; text-transform: uppercase;
+        letter-spacing: 0.06em; margin-bottom: 0.2rem; display: block;
+    }
+    .adm-field-value {
+        font-size: 0.92rem; font-weight: 600;
+        color: #0f172a; line-height: 1.4;
+        word-break: break-word;
+    }
+    .adm-field-value.muted { color: #94a3b8; font-weight: 500; font-style: italic; }
+    .adm-divider { height: 1px; background: #f1f5f9; margin: 0.9rem 0; }
+    .adm-owner-card {
+        display: flex; align-items: center; gap: 0.85rem;
+        background: #eef2ff;
+        border: 1px solid #c7d2fe;
+        border-radius: 12px;
+        padding: 0.85rem 1.1rem;
+    }
+    .adm-owner-avatar {
+        width: 42px; height: 42px;
+        border-radius: 50%;
+        background: linear-gradient(135deg,#4f46e5,#6366f1);
+        display: flex; align-items: center; justify-content: center;
+        color: #fff; font-size: 1.1rem; flex-shrink: 0;
+    }
+    .adm-available-card {
+        display: flex; align-items: center; gap: 0.85rem;
+        background: #f0fdf4;
+        border: 1px solid #bbf7d0;
+        border-radius: 12px;
+        padding: 0.85rem 1.1rem;
+    }
+    .adm-note-box {
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 10px;
+        padding: 0.8rem 1rem;
+        font-size: 0.85rem;
+        color: #475569;
+        line-height: 1.6;
+        word-break: break-word;
+    }
+    .adm-image-wrap {
+        border-radius: 12px; overflow: hidden;
+        max-height: 200px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    }
+    .adm-assign-row {
+        display: flex; gap: 0.6rem; align-items: center;
+    }
+    .adm-assign-row .form-select {
+        border-radius: 10px; font-size: 0.85rem;
+        border-color: #e2e8f0; flex: 1;
+    }
+    .adm-agreement-badge {
+        display: inline-flex; align-items: center; gap: 0.4rem;
+        padding: 0.45rem 1rem;
+        border-radius: 999px;
+        font-size: 0.78rem; font-weight: 700;
+    }
+    @media (max-width: 600px) {
+        .adm-grid, .adm-grid.three { grid-template-columns: 1fr; }
+        .adm-body { padding: 1.1rem; }
+    }
 </style>
 
 <input type="hidden" id="sessionToken" value="{{ session.get('token', '') }}">
@@ -845,11 +1006,10 @@
                     <thead>
                         <tr>
                             <th class="border-0">Device Name</th>
-                            <th class="border-0">Device ID</th>
-                            <th class="border-0">Device Type</th>
-                            <th class="border-0">Product ID</th>
                             <th class="border-0">Allotted To</th>
+                            <th class="border-0">Assignment Duration</th>
                             <th class="border-0">Agreement</th>
+                            <th class="border-0">Rental Start Date</th>
                             <th class="border-0 text-end">Actions</th>
                         </tr>
                     </thead>
@@ -990,20 +1150,33 @@
     </div>
 </div>
 
-<!-- ── Detail Modal ── -->
-<div class="modal fade modal-split-detail" id="assetDetailModal" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered" style="max-width: 550px; width: 95vw;">
+<!-- ── Detail Modal (Enhanced) ── -->
+<div class="modal fade" id="assetDetailModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
-            <div class="modal-header border-0 pb-0 px-4 pt-4">
-                <h4 class="fw-bold m-0" id="detailAssetTag">Asset Details</h4>
-                <div class="d-flex align-items-center gap-2 ms-auto">
-                    <button type="button" class="btn btn-sm btn-outline-primary rounded-pill px-3" id="btnToggleEditMode" onclick="toggleEditMode()" style="font-size: 0.8rem;">
-                        <i class="bi bi-pencil me-1"></i> Edit
-                    </button>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+
+            <!-- Gradient Header -->
+            <div class="adm-header">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="adm-header-icon">
+                        <i class="bi bi-laptop"></i>
+                    </div>
+                    <div style="position:relative;z-index:1;flex:1;min-width:0;">
+                        <div class="adm-header-title" id="detailAssetTag">Asset Details</div>
+                        <div class="adm-header-sub" id="detailAssetSubtitle">Loading details…</div>
+                        <div class="mt-2" id="detailStatus"></div>
+                    </div>
                 </div>
+                <button type="button" class="adm-edit-btn" id="btnToggleEditMode" onclick="toggleEditMode()">
+                    <i class="bi bi-pencil-square"></i> Edit
+                </button>
+                <button type="button" class="adm-close-btn" data-bs-dismiss="modal" aria-label="Close">
+                    <i class="bi bi-x-lg"></i>
+                </button>
             </div>
-            <div class="modal-body px-4 pt-3 pb-4">
+
+            <!-- Scrollable Body -->
+            <div class="adm-body">
                 <div id="detailImageContainer" class="mb-4 text-center" style="display: none;">
                     <div id="imageCarousel" class="carousel slide" data-bs-ride="carousel">
                         <div class="carousel-inner rounded-4 shadow-sm" id="carouselInner"></div>
@@ -1016,140 +1189,159 @@
                     </div>
                 </div>
 
-                <div id="detailStatus" class="mb-3"></div>
-
-                <div class="detail-card detail-section">
-                    <div class="asset-detail-grid">
-                        <div class="asset-detail-item">
-                            <label class="detail-label">Device</label>
-                            <div class="asset-detail-value" id="detailDeviceName"></div>
-                        </div>
-                        <div class="asset-detail-item">
-                            <label class="detail-label">Model</label>
-                            <div class="asset-detail-value" id="detailModel"></div>
-                        </div>
-                        <div class="asset-detail-item">
-                            <label class="detail-label">Serial Number</label>
-                            <div class="asset-detail-value" id="detailSerial"></div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="detail-card detail-section">
-                    <div class="asset-detail-item">
-                        <label class="detail-label">Asset ID</label>
-                        <div class="asset-detail-value text-primary fs-5 fw-bold" id="detailCustomAssetId"></div>
-                    </div>
-                </div>
-
-                <div class="detail-card detail-section">
-                    <div class="asset-detail-grid three-up">
-                        <div class="asset-detail-item">
-                            <label class="detail-label">Processor</label>
-                            <div class="asset-detail-value" id="detailProcessor"></div>
-                        </div>
-                        <div class="asset-detail-item">
-                            <label class="detail-label">RAM</label>
-                            <div class="asset-detail-value" id="detailRam"></div>
-                        </div>
-                        <div class="asset-detail-item">
-                            <label class="detail-label">Storage</label>
-                            <div class="asset-detail-value" id="detailStorage"></div>
+                <!-- ── Device Identity ── -->
+                <div class="adm-section">
+                    <div class="adm-section-label"><i class="bi bi-cpu"></i> Device Identity</div>
+                    <div class="adm-card">
+                        <div class="adm-grid">
+                            <div>
+                                <span class="adm-field-label">Device Name</span>
+                                <div class="adm-field-value" id="detailDeviceName"></div>
+                            </div>
+                            <div>
+                                <span class="adm-field-label">Model</span>
+                                <div class="adm-field-value" id="detailModel"></div>
+                            </div>
+                            <div>
+                                <span class="adm-field-label">Serial Number</span>
+                                <div class="adm-field-value" id="detailSerial"></div>
+                            </div>
+                            <div>
+                                <span class="adm-field-label">Asset ID / Tag</span>
+                                <div class="adm-field-value" style="color:#4f46e5;" id="detailCustomAssetId"></div>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <div class="detail-card detail-section">
-                    <div class="mb-3">
-                        <label class="detail-label text-primary">Ownership Details</label>
-                        <div class="mt-1">
+                <!-- ── Hardware Specs ── -->
+                <div class="adm-section">
+                    <div class="adm-section-label"><i class="bi bi-motherboard"></i> Hardware Specs</div>
+                    <div class="adm-card">
+                        <div class="adm-grid three">
+                            <div>
+                                <span class="adm-field-label">Processor</span>
+                                <div class="adm-field-value" id="detailProcessor"></div>
+                            </div>
+                            <div>
+                                <span class="adm-field-label">RAM</span>
+                                <div class="adm-field-value" id="detailRam"></div>
+                            </div>
+                            <div>
+                                <span class="adm-field-label">Storage</span>
+                                <div class="adm-field-value" id="detailStorage"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ── Ownership Details ── -->
+                <div class="adm-section">
+                    <div class="adm-section-label"><i class="bi bi-receipt"></i> Ownership Details</div>
+                    <div class="adm-card">
+                        <div class="d-flex align-items-center gap-2 mb-3">
+                            <span class="adm-field-label mb-0" style="text-transform:uppercase;">Type:</span>
                             <span class="badge" id="detailOwnershipType">Purchased</span>
                         </div>
-                    </div>
-                    
-                    <!-- Purchased Fields -->
-                    <div id="detailPurchasedFields" class="asset-detail-grid">
-                        <div class="asset-detail-item">
-                            <label class="detail-label">Purchase Date</label>
-                            <div class="asset-detail-value" id="detailPurchaseDate"></div>
-                        </div>
-                        <div class="asset-detail-item">
-                            <label class="detail-label">Warranty Expiry</label>
-                            <div class="asset-detail-value" id="detailWarranty"></div>
-                        </div>
-                    </div>
 
-                    <!-- Rented Fields -->
-                    <div id="detailRentedFields" style="display: none;">
-                        <div class="asset-detail-grid mb-3">
-                            <div class="asset-detail-item">
-                                <label class="detail-label">Vendor Name</label>
-                                <div class="asset-detail-value" id="detailVendorName"></div>
+                        <!-- Purchased Fields -->
+                        <div id="detailPurchasedFields" class="adm-grid">
+                            <div>
+                                <span class="adm-field-label">Purchase Date</span>
+                                <div class="adm-field-value" id="detailPurchaseDate"></div>
                             </div>
-                            <div class="asset-detail-item">
-                                <label class="detail-label">Vendor Contact</label>
-                                <div class="asset-detail-value" id="detailVendorContact"></div>
-                            </div>
-                        </div>
-                        <div class="asset-detail-grid mb-3">
-                            <div class="asset-detail-item">
-                                <label class="detail-label">Rental Start</label>
-                                <div class="asset-detail-value" id="detailRentalStart"></div>
-                            </div>
-                            <div class="asset-detail-item">
-                                <label class="detail-label">Rental End</label>
-                                <div class="asset-detail-value" id="detailRentalEnd"></div>
+                            <div>
+                                <span class="adm-field-label">Warranty Expiry</span>
+                                <div class="adm-field-value" id="detailWarranty"></div>
                             </div>
                         </div>
-                        <div class="asset-detail-grid">
-                            <div class="asset-detail-item">
-                                <label class="detail-label">Rental Cost</label>
-                                <div class="asset-detail-value" id="detailRentalCost"></div>
+
+                        <!-- Rented Fields -->
+                        <div id="detailRentedFields" style="display:none;">
+                            <div class="adm-grid mb-3">
+                                <div>
+                                    <span class="adm-field-label">Vendor Name</span>
+                                    <div class="adm-field-value" id="detailVendorName"></div>
+                                </div>
+                                <div>
+                                    <span class="adm-field-label">Vendor Contact</span>
+                                    <div class="adm-field-value" id="detailVendorContact"></div>
+                                </div>
                             </div>
-                            <div class="asset-detail-item">
-                                <label class="detail-label">Billing Frequency</label>
-                                <div class="asset-detail-value" id="detailRentalFrequency"></div>
+                            <div class="adm-divider"></div>
+                            <div class="adm-grid mb-3">
+                                <div>
+                                    <span class="adm-field-label">Rental Start</span>
+                                    <div class="adm-field-value" id="detailRentalStart"></div>
+                                </div>
+                                <div>
+                                    <span class="adm-field-label">Rental End</span>
+                                    <div class="adm-field-value" id="detailRentalEnd"></div>
+                                </div>
                             </div>
+                            <div class="adm-grid">
+                                <div>
+                                    <span class="adm-field-label">Rental Cost</span>
+                                    <div class="adm-field-value" id="detailRentalCost"></div>
+                                </div>
+                                <div>
+                                    <span class="adm-field-label">Billing Frequency</span>
+                                    <div class="adm-field-value" id="detailRentalFrequency"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ── Notes ── -->
+                <div class="adm-section">
+                    <div class="adm-section-label"><i class="bi bi-journal-text"></i> Notes</div>
+                    <div class="adm-note-box" id="detailNotes">No notes available.</div>
+                </div>
+
+                <!-- ── Assignment ── -->
+                <div class="adm-section">
+                    <div class="adm-section-label"><i class="bi bi-person-badge"></i> Assignment</div>
+                    <div id="detailOwnerSection">
+                        <div class="adm-available-card">
+                            <div style="width:42px;height:42px;border-radius:50%;background:#dcfce7;border:2px solid #bbf7d0;display:flex;align-items:center;justify-content:center;color:#16a34a;font-size:1.1rem;flex-shrink:0;">
+                                <i class="bi bi-check-circle-fill"></i>
+                            </div>
+                            <div>
+                                <div style="font-weight:700;color:#16a34a;font-size:0.85rem;">Available</div>
+                                <div style="font-size:0.78rem;color:#64748b;">No employee assigned</div>
+                            </div>
+                        </div>
+                        <div id="returnAssetContainer" class="mt-2" style="display:none;">
+                            <button type="button" class="btn btn-sm btn-outline-danger rounded-pill fw-bold" onclick="promptReturnAsset()">
+                                <i class="bi bi-arrow-return-left me-1"></i> Return Asset
+                            </button>
                         </div>
                     </div>
                 </div>
 
-                <div class="detail-card detail-section">
-                    <label class="detail-label">Notes</label>
-                    <div class="detail-note" id="detailNotes">No notes available.</div>
-                </div>
-
-                <div class="detail-card mb-3" id="detailOwnerSection">
-                    <label class="detail-label text-primary">Current Owner</label>
-                    <div class="d-flex align-items-center gap-2 mt-1">
-                        <i class="bi bi-person-circle fs-4 text-primary"></i>
-                        <div id="detailEmployee">Unassigned</div>
-                    </div>
-                    <div id="returnAssetContainer" class="mt-3" style="display: none;">
-                        <button type="button" class="btn btn-sm btn-outline-danger rounded-pill fw-bold" onclick="promptReturnAsset()">
-                            <i class="bi bi-arrow-return-left me-1"></i> Return Asset
-                        </button>
+                <!-- ── Agreement ── -->
+                <div class="adm-section" id="detailAgreementSection" style="display:none;">
+                    <div class="adm-section-label"><i class="bi bi-file-earmark-check"></i> Usage Agreement</div>
+                    <div class="adm-card">
+                        <div id="detailAgreementStatus" class="mb-2"></div>
+                        <div id="detailAgreementAction"></div>
                     </div>
                 </div>
 
-                <div class="detail-card mb-3" id="detailAgreementSection" style="display: none;">
-                    <label class="detail-label text-warning">Device Usage Agreement</label>
-                    <div id="detailAgreementStatus" class="mt-1"></div>
-                    <div id="detailAgreementAction" class="mt-2"></div>
-                </div>
-
-                <div class="mt-3" id="updateOwnerContainer">
-                    <label class="detail-label">Update Owner</label>
-                    <div class="d-flex gap-2">
+                <!-- ── Update / Assign Owner ── -->
+                <div class="adm-section" id="updateOwnerContainer">
+                    <div class="adm-section-label"><i class="bi bi-person-gear"></i> Update Owner</div>
+                    <div class="adm-assign-row">
                         <select class="form-select" id="reassignSelect"></select>
-                        <button type="button" class="btn-primary-indigo" onclick="reassignAsset()">Update</button>
+                        <button type="button" class="btn-primary-indigo" style="white-space:nowrap;" onclick="reassignAsset()">Save</button>
                     </div>
                 </div>
 
-                <!-- ── Inline Edit Form (hidden by default) ── -->
+                <!-- ── Inline Edit Form ── -->
                 <div id="editAssetPanel" style="display:none;">
-                    <hr class="my-3">
-                    <p class="fw-semibold text-primary mb-3" style="font-size:0.85rem; letter-spacing:0.05em; text-transform:uppercase;">Edit Asset Details</p>
+                    <div class="adm-divider" style="margin:1.25rem 0;"></div>
+                    <div class="adm-section-label mb-3"><i class="bi bi-pencil-square"></i> Edit Asset Details</div>
                     <form id="editAssetForm">
                         <div class="row g-3 mb-3">
                             <div class="col-6">
@@ -1171,9 +1363,16 @@
                         </div>
                         <div class="row g-3 mb-3">
                             <div class="col-6">
+                                <label class="detail-label">Asset Tag / ID</label>
+                                <input type="text" class="form-control" id="editAssetId" placeholder="e.g. LT-2026-VASANTH">
+                                <small class="text-muted mt-1 d-block">Must be unique across all assets.</small>
+                            </div>
+                            <div class="col-6">
                                 <label class="detail-label">Model</label>
                                 <input type="text" class="form-control" id="editModel" placeholder="e.g. M2 Pro">
                             </div>
+                        </div>
+                        <div class="row g-3 mb-3">
                             <div class="col-6">
                                 <label class="detail-label">Serial Number</label>
                                 <input type="text" class="form-control" id="editSerial" placeholder="e.g. SN-123456">
@@ -1504,6 +1703,39 @@
         });
     });
 
+    // Duration helper: calculates human-readable elapsed time from a date string to today
+    function calculateAssignmentDuration(startDateStr) {
+        if (!startDateStr) return null;
+        const start = new Date(startDateStr);
+        if (isNaN(start.getTime())) return null;
+
+        const today = new Date();
+        start.setHours(0, 0, 0, 0);
+        today.setHours(0, 0, 0, 0);
+
+        if (start > today) return null; // future-dated
+
+        let years  = today.getFullYear() - start.getFullYear();
+        let months = today.getMonth()     - start.getMonth();
+        let days   = today.getDate()      - start.getDate();
+
+        if (days < 0) {
+            months -= 1;
+            const prevMonth = new Date(today.getFullYear(), today.getMonth(), 0);
+            days += prevMonth.getDate();
+        }
+        if (months < 0) { years -= 1; months += 12; }
+
+        if (years === 0 && months === 0 && days === 0) return 'Today';
+
+        const parts = [];
+        if (years  > 0) parts.push(`${years}  yr${years  !== 1 ? 's' : ''}`);
+        if (months > 0) parts.push(`${months} mo${months !== 1 ? 's' : ''}`);
+        if (years  === 0 && days > 0) parts.push(`${days} day${days !== 1 ? 's' : ''}`);
+
+        return parts.join(' ');
+    }
+
     // Shared utility: strip role prefixes like T_, M_, H_, A_ from system names
     function cleanNameJS(name) {
         if (!name) return name;
@@ -1536,7 +1768,7 @@
 
         if (!assets || assets.length === 0) {
             tbody.innerHTML = `
-                <tr><td colspan="7">
+                <tr><td colspan="8">
                     <div class="empty-state">
                         <i class="bi bi-inbox"></i>
                         <h6>No assets registered</h6>
@@ -1566,16 +1798,28 @@
                 allottedDisplay = `<div><strong class="text-dark">${formattedName}</strong></div><div class="small text-muted">${roleDisplay}ID: ${displayId}</div>`;
             }
 
+            const rentalStart = a.rental_start_date
+                ? new Date(a.rental_start_date).toLocaleDateString()
+                : '<span class="text-muted small">—</span>';
+
+            let durationDisplay = '<span class="text-muted small">&mdash;</span>';
+            if (isAssigned) {
+                const durationStart = a.rental_start_date || a.assigned_date;
+                const durationText  = calculateAssignmentDuration(durationStart);
+                durationDisplay = durationText
+                    ? `<span class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill px-2 py-1" style="font-size:0.72rem;">${durationText}</span>`
+                    : '<span class="text-muted small">N/A</span>';
+            }
+
             return `
                 <tr>
                     <td><span class="fw-bold text-dark">${deviceName}</span></td>
-                    <td><code class="small fw-bold" style="color:#4f46e5;">${deviceId}</code></td>
-                    <td><span class="text-muted small">${deviceType}</span></td>
-                    <td><span class="text-muted small font-monospace">${serialNumber}</span></td>
                     <td>${allottedDisplay}</td>
+                    <td>${durationDisplay}</td>
                     <td id="ag-status-${deviceId}">
                         ${isAssigned ? '<span class="spinner-border spinner-border-sm text-primary opacity-50"></span>' : '<span class="text-muted small">N/A</span>'}
                     </td>
+                    <td><span class="text-muted small">${rentalStart}</span></td>
                     <td class="text-end">
                         <div class="d-flex justify-content-end gap-1">
                             ${!isAssigned ? `<button class="btn-asset-assign" onclick="viewAsset('${deviceId}')" title="Assign to an employee"><i class="bi bi-person-plus"></i> Assign</button>` : ''}
@@ -2057,6 +2301,7 @@
             // Expand and pre-fill
             const a = currentAssetData;
             document.getElementById('editDeviceName').value  = a.device_name  || a.brand || '';
+            document.getElementById('editAssetId').value     = a.asset_id     || '';
             document.getElementById('editModel').value       = a.model || a.device_type || '';
             document.getElementById('editSerial').value      = a.serial_number || a.serialNumber || '';
             document.getElementById('editProcessor').value   = a.processor || a.cpu || '';
@@ -2114,6 +2359,7 @@
         const ownership = document.getElementById('editOwnershipType').value;
         const payload = {
             device_name:   document.getElementById('editDeviceName').value.trim(),
+            asset_id:      document.getElementById('editAssetId').value.trim()   || null,
             device_type:   document.getElementById('editDeviceType').value,
             model:         document.getElementById('editModel').value.trim(),
             serial_number: document.getElementById('editSerial').value.trim(),

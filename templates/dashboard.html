@@ -16,154 +16,99 @@
         font-size: 0.88rem;
     }
 
-    .dashboard-hero {
-        background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+    /* KPI Grid & Glass Cards */
+    .glass-card {
+        background: rgba(255, 255, 255, 0.7);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border: 1px solid rgba(226, 232, 240, 0.8);
         border-radius: 12px;
-        color: #fff;
-        padding: 1.5rem 2rem;
-        position: relative;
-        overflow: hidden;
-        box-shadow: 0 4px 20px rgba(15, 23, 42, 0.08);
-    }
-
-    .dashboard-hero::after {
-        content: '';
-        position: absolute;
-        width: 300px;
-        height: 300px;
-        border-radius: 50%;
-        background: radial-gradient(circle, rgba(99, 102, 241, 0.08) 0%, transparent 70%);
-        top: -80px;
-        right: -80px;
-        pointer-events: none;
-    }
-
-    .dashboard-page .card-ui {
-        background: #fff;
-        border: 1px solid #f1f5f9;
-        border-radius: 12px;
-        box-shadow: 0 1px 3px 0 rgba(15, 23, 42, 0.05), 0 1px 2px -1px rgba(15, 23, 42, 0.05);
-        overflow: hidden;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
         transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
     }
-
-    .dashboard-page .card-ui::before {
-        display: none;
-    }
-
-    .dashboard-page .card-ui:hover {
+    
+    .hover-card:hover {
         transform: translateY(-2px);
-        border-color: #e2e8f0;
         box-shadow: 0 10px 15px -3px rgba(15, 23, 42, 0.08), 0 4px 6px -4px rgba(15, 23, 42, 0.08);
     }
 
-    .dashboard-stat-card {
-        padding: 8px 16px;
+    .status-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        display: inline-block;
     }
 
-    .dashboard-stat-label {
+    .kpi-label {
+        font-size: 0.75rem;
+        font-weight: 600;
         color: #64748b;
-        font-size: 0.88rem;
-        font-weight: 500;
         text-transform: uppercase;
         letter-spacing: 0.05em;
-        margin-bottom: 2px;
     }
 
-    .dashboard-page .card-ui h6 {
-        font-size: 0.88rem !important;
-        font-weight: 600 !important;
-    }
-
-    .dashboard-stat-value {
-        color: #0f172a;
-        font-size: 1.4rem;
+    .kpi-value {
+        font-size: 2rem;
         font-weight: 700;
-        line-height: 1.1;
+        color: #0f172a;
+        line-height: 1;
     }
 
-    .dashboard-stat-subtext {
+    .kpi-subtext {
+        font-size: 0.75rem;
         color: #64748b;
-        font-size: 0.78rem;
-        line-height: 1.35;
-        margin-top: 0.2rem;
+        margin-left: 0.5rem;
     }
 
-    .dashboard-stat-card .profile-info-icon {
-        width: 34px;
-        height: 34px;
-        border-radius: 8px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1.25rem;
+    /* Quick Management */
+    .quick-mgmt-card {
+        background: #0f172a;
+        color: white;
+        border-radius: 12px;
+        padding: 1.25rem;
     }
-
-    .col-md-4:nth-child(1) .profile-info-icon {
-        background: rgba(99, 102, 241, 0.08);
-        color: #6366f1;
-    }
-
-    .col-md-4:nth-child(2) .profile-info-icon {
-        background: rgba(245, 158, 11, 0.08);
-        color: #f59e0b;
-    }
-
-    .col-md-4:nth-child(3) .profile-info-icon {
-        background: rgba(16, 185, 129, 0.08);
-        color: #10b981;
-    }
-
-    /* Summary Mini Status Cards */
-    .summary-card {
-        padding: 6px 12px;
-        background: #f8fafc;
-        border: 1px solid #e2e8f0;
-        border-left: 4px solid #cbd5e1;
-        border-radius: 8px;
-        transition: all 0.2s ease;
+    .quick-mgmt-item {
+        color: white;
         text-decoration: none;
-        display: block;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.75rem 0;
+        border-bottom: 1px solid rgba(255,255,255,0.1);
+        font-weight: 500;
+        font-size: 0.9rem;
+        transition: color 0.2s;
+    }
+    .quick-mgmt-item:last-child {
+        border-bottom: none;
+        padding-bottom: 0;
+    }
+    .quick-mgmt-item:hover {
+        color: #38bdf8;
+    }
+    
+    /* Custom Tabs */
+    .nav-tabs-custom .nav-link {
+        color: #64748b;
+        border: none;
+        border-bottom: 2px solid transparent;
+        font-weight: 600;
+        padding: 0.5rem 1rem;
+        font-size: 0.9rem;
+    }
+    .nav-tabs-custom .nav-link.active {
+        color: #4f46e5;
+        border-bottom-color: #4f46e5;
+        background: transparent;
     }
 
-    .summary-card:hover {
-        transform: translateY(-1px);
-        box-shadow: 0 4px 12px rgba(15, 23, 42, 0.05);
-        background: #fff;
-    }
-
-    .border-open {
-        border-left-color: #f59e0b !important;
-    }
-
-    .border-progress {
-        border-left-color: #3b82f6 !important;
-    }
-
-    .border-closed {
-        border-left-color: #10b981 !important;
-    }
-
-    .border-pending {
-        border-left-color: #f59e0b !important;
-    }
-
-    .border-approved {
-        border-left-color: #10b981 !important;
-    }
-
-    .border-rejected {
-        border-left-color: #ef4444 !important;
-    }
-
-    .hover-card {
-        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    .hover-row-bg:hover {
+        background-color: rgba(248, 250, 252, 0.8) !important;
     }
 
     .no-scrollbar::-webkit-scrollbar {
         display: none;
     }
-
     .no-scrollbar {
         -ms-overflow-style: none;
         scrollbar-width: none;
@@ -174,20 +119,7 @@
 
 <div class="container-fluid mt-3 dashboard-page">
 
-    <div class="dashboard-hero mb-4">
-        <div class="position-relative" style="z-index: 1;">
-            <div class="d-flex flex-column gap-2">
-                <div>
-                    {% set dashboard_name = session.get('display_name') or session.get('full_name') or
-                    session.get('original_name') or (session.get('employee_name') | clean_name if
-                    session.get('employee_name') else None) or session.get('user') or 'there' %}
-                    <h3 class="mb-1 fw-bold">Good Day, {{ dashboard_name }}!</h3>
-                    <p class="mb-0 text-white-50 mt-2" style="font-size: 0.7rem;">Here's what is happening with your
-                        projects and team today.</p>
-                </div>
-            </div>
-        </div>
-    </div>
+    <!-- Hero moved to topbar -->
 
     <!-- PENDING AGREEMENTS ALERT -->
     {% if pending_agreements %}
@@ -219,627 +151,9 @@
 
 
 
-    <div class="row g-4">
 
 
-
-
-
-
-
-        {% if session.role in ['hr', 'admin'] %}
-        <!-- EMPLOYEES -->
-        <div class="col-md-4">
-            <a href="{{ url_for('employees.employee_list') }}" class="text-decoration-none">
-                <div class="card-ui h-100 hover-card dashboard-stat-card">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <div class="dashboard-stat-label">{{ labels.TOTAL_EMPLOYEES }}</div>
-                            <div class="dashboard-stat-value">{{ stats.employees }}</div>
-                        </div>
-                        <div class="profile-info-icon"><i class="bi bi-people"></i></div>
-                    </div>
-                </div>
-            </a>
-        </div>
-        <!-- TIMESHEETS -->
-        <div class="col-md-4">
-            <a href="{{ url_for('work.timesheets_list') }}" class="text-decoration-none">
-                <div class="card-ui h-100 hover-card dashboard-stat-card">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <div class="dashboard-stat-label">Pending Timesheets</div>
-                            <div class="dashboard-stat-value">{{ stats.timesheets }}</div>
-                        </div>
-                        <div class="profile-info-icon"><i class="bi bi-clock-history"></i></div>
-                    </div>
-                </div>
-            </a>
-        </div>
-        <!-- LEAVES -->
-        <div class="col-md-4">
-            <a href="{{ url_for('work.leaves_list') }}" class="text-decoration-none">
-                <div class="card-ui h-100 hover-card dashboard-stat-card">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <div class="dashboard-stat-label">Pending Leaves</div>
-                            <div class="dashboard-stat-value">{{ stats.leaves }}</div>
-                        </div>
-                        <div class="profile-info-icon"><i class="bi bi-calendar-check"></i></div>
-                    </div>
-                </div>
-            </a>
-        </div>
-        {% elif session.role == 'employee' %}
-        <!-- EMPLOYEE: Pending timesheets + projects in same row -->
-        <div class="col-lg-4">
-            <div class="card-ui h-100 dashboard-stat-card d-flex flex-column">
-                <div class="d-flex justify-content-between align-items-start mb-4">
-                    <h6 class="fw-bold mb-0"><i class="bi bi-clock-history text-warning me-2 fs-5"></i>Pending
-                        Timesheets</h6>
-                    <i class="bi bi-clock text-muted"></i>
-                </div>
-                <div class="flex-grow-1 d-flex flex-column justify-content-center align-items-center text-center">
-                    <div class="bg-light rounded-circle d-flex align-items-center justify-content-center mb-3"
-                        style="width: 70px; height: 70px;">
-                        <i class="bi bi-file-earmark-text text-secondary fs-1"></i>
-                    </div>
-                    {% if pending_timesheets_count and pending_timesheets_count|int > 0 %}
-                    <p class="text-dark fw-bold mb-1" style="font-size: 0.9rem;">You have {{ pending_timesheets_count }}
-                        pending timesheets.</p>
-                    <p class="text-muted small mb-4">Please submit them as soon as possible.</p>
-                    {% else %}
-                    <p class="text-muted small mb-1">No pending timesheets to submit.</p>
-                    <p class="text-muted small mb-4">You're all caught up!</p>
-                    {% endif %}
-                    <a href="{{ url_for('work.add_timesheet') }}"
-                        class="btn btn-primary rounded-pill px-4 py-2 w-100 mt-auto shadow-sm text-white fw-semibold"
-                        style="background-color: #3b82f6; border-color: #3b82f6;">
-                        <i class="bi bi-plus"></i> Add New Timesheet
-                    </a>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-lg-8">
-            <div class="card-ui p-3 h-100">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h6 class="mb-0 fw-bold text-dark">
-                        <i class="bi bi-folder2-open me-2 text-primary"></i>My Projects
-                    </h6>
-                    <div class="d-flex align-items-center gap-2">
-                        <span class="badge bg-primary bg-opacity-25 text-primary rounded-pill px-3">
-                            {{ my_projects|length }} Active
-                        </span>
-                        <a href="{{ url_for('projects.projects_list') }}"
-                            class="btn btn-sm btn-outline-primary rounded-pill px-3" style="font-size: 0.75rem;">
-                            View All <i class="bi bi-arrow-right small ms-1"></i>
-                        </a>
-                    </div>
-                </div>
-
-                {% if my_projects %}
-                <div class="table-responsive">
-                    <table class="table table-sm table-hover align-middle mb-0" style="font-size: 0.82rem;">
-                        <thead class="bg-light">
-                            <tr>
-                                <th class="border-0 px-3">Project Name</th>
-                                <th class="border-0 px-3 text-center">Status</th>
-                                <th class="border-0 px-2 text-end">Details</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for proj in my_projects %}
-                            <tr class="hover-row">
-                                <td class="px-3 border-0 fw-semibold text-dark">
-                                    <i class="bi bi-folder-fill text-primary me-2 fs-5 align-middle"></i>
-                                    {{ proj.name }}
-                                </td>
-                                <td class="px-3 border-0 text-center">
-                                    <span
-                                        class="badge bg-success bg-opacity-25 text-success rounded-pill px-3">Active</span>
-                                </td>
-                                <td class="px-2 border-0 text-end">
-                                    <button class="btn btn-sm text-primary py-0 btn-view-project"
-                                        data-id="{{ proj.id }}" title="View Project Details">
-                                        <i class="bi bi-eye fs-5"></i>
-                                    </button>
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-                {% else %}
-                <div class="text-center py-5 text-muted">
-                    <i class="bi bi-folder-x fs-2 d-block mb-2"></i>
-                    <p class="mb-0">You are not assigned to any active projects yet.</p>
-                </div>
-                {% endif %}
-            </div>
-        </div>
-        {% endif %}
-    </div>
-
-    <!-- SECOND ROW (FIXED LAYOUT) -->
-    <div class="row mt-2">
-        <!-- LEFT SIDE (PROJECTS + BIRTHDAYS + HOLIDAYS) -->
-        <div class="col-md-12">
-            {% if session.role == 'manager' %}
-            <div class="row mb-4">
-                <div class="col-xl-4">
-                    <div class="card-ui p-3 mb-3 h-100">
-                        <div class="d-flex justify-content-between align-items-center mb-3">
-                            <h6 class="mb-0 fw-bold text-dark">Active Projects</h6>
-                            <span class="badge bg-primary bg-opacity-25 text-primary rounded-pill px-3">{{
-                                projects|length if projects else 0 }} Projects</span>
-                        </div>
-                        <div class="no-scrollbar"
-                            style="max-height:120px; overflow-y:auto; overflow-x:hidden; font-size: 0.75rem;">
-                            {% if projects %}
-                            <div class="table-responsive">
-                                <table class="table table-sm table-hover align-middle mb-0">
-                                    <thead class="bg-light">
-                                        <tr>
-                                            <th class="border-0 px-2">Project Name</th>
-                                            <th class="border-0 px-2 text-end">Action</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {% for project in projects %}
-                                        <tr class="hover-row">
-                                            <td class="px-2 border-0 fw-semibold text-dark">{{ project.name }}</td>
-                                            <td class="px-2 border-0 text-end">
-                                                <button class="btn btn-sm btn-outline-primary py-0 btn-view-project"
-                                                    data-id="{{ project.id }}" title="View Project Details"
-                                                    style="font-size: 0.7rem; border-radius: 6px;">
-                                                    <i class="bi bi-eye"></i>
-                                                </button>
-                                            </td>
-                                        </tr>
-                                        {% endfor %}
-                                    </tbody>
-                                </table>
-                            </div>
-                            {% else %}
-                            <div class="text-muted text-center py-4">
-                                <i class="bi bi-folder-x fs-3 d-block mb-2"></i> No active projects
-                            </div>
-                            {% endif %}
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-xl-4">
-                    <!-- Team Member Pending Timesheets Card (Manager Only) -->
-                    <div class="card-ui p-3 mb-3 h-100">
-                        <div class="d-flex justify-content-between align-items-center mb-3">
-                            <h6 class="mb-0 fw-bold text-dark">{{ labels.TEAM_PENDING_TIMESHEETS }}</h6>
-                            <span class="badge bg-warning bg-opacity-25 text-warning rounded-pill px-3">{{
-                                team_pending_timesheets|length }} Pending</span>
-                        </div>
-                        <div class="no-scrollbar" style="max-height: 120px; overflow-y: auto; font-size: 0.75rem;">
-                            {% if team_pending_timesheets %}
-                            <div class="table-responsive">
-                                <table class="table table-sm table-hover align-middle mb-0">
-                                    <thead class="bg-light">
-                                        <tr>
-                                            <th class="border-0 px-2">{{ labels.EMPLOYEE }}</th>
-                                            <th class="border-0 px-2 text-end">Date</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {% for t in team_pending_timesheets %}
-                                        <tr class="hover-row">
-                                            <td class="px-2 border-0 fw-semibold text-dark">{{ t.employee_name }}</td>
-                                            <td class="px-2 border-0 text-end text-muted">{{ t.start_date[:10] }}</td>
-                                        </tr>
-                                        {% endfor %}
-                                    </tbody>
-                                </table>
-                            </div>
-                            {% else %}
-                            <div class="text-center py-4 text-muted">
-                                <i class="bi bi-check-all fs-3 d-block mb-2 text-success"></i>
-                                All team timesheets submitted
-                            </div>
-                            {% endif %}
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-xl-4">
-                    <!-- Team Leaves Card (Manager Only) -->
-                    <a href="{{ url_for('work.leaves_list') }}" class="text-decoration-none">
-                        <div class="card-ui p-3 mb-3 h-100 hover-card">
-                            <div class="d-flex justify-content-between align-items-center mb-3">
-                                <h6 class="mb-0 fw-bold text-dark">{{ labels.TEAM_LEAVES }}</h6>
-                                <span class="badge bg-info bg-opacity-25 text-info rounded-pill px-3">{{
-                                    team_leaves|length }} Recent</span>
-                            </div>
-                            <div class="no-scrollbar" style="max-height: 120px; overflow-y: auto; font-size: 0.75rem;">
-                                {% if team_leaves %}
-                                <div class="list-group list-group-flush">
-                                    {% for l in team_leaves %}
-                                    <div class="list-group-item px-0 py-2 bg-transparent border-bottom hover-row-bg">
-                                        <div class="d-flex justify-content-between align-items-center">
-                                            <div>
-                                                <div class="fw-semibold text-dark">{{ l.employee_name }}</div>
-                                                <div class="text-muted small" style="font-size: 0.65rem;">
-                                                    {{ l.start_date[:10] }} <i class="bi bi-arrow-right mx-1"></i> {{
-                                                    l.end_date[:10] }}
-                                                </div>
-                                            </div>
-                                            <div>
-                                                {% if l.status|lower == 'pending' %}
-                                                <span class="badge bg-warning bg-opacity-25 text-warning rounded-pill"
-                                                    style="font-size: 0.6rem;">Pending</span>
-                                                {% elif l.status|lower == 'approved' %}
-                                                <span class="badge bg-success bg-opacity-25 text-success rounded-pill"
-                                                    style="font-size: 0.6rem;">Approved</span>
-                                                {% else %}
-                                                <span
-                                                    class="badge bg-secondary bg-opacity-25 text-secondary rounded-pill"
-                                                    style="font-size: 0.6rem;">{{ l.status }}</span>
-                                                {% endif %}
-                                            </div>
-                                        </div>
-                                    </div>
-                                    {% endfor %}
-                                </div>
-                                {% else %}
-                                <div class="text-center py-4 text-muted">
-                                    <i class="bi bi-calendar-x fs-3 d-block mb-2"></i> No recent team leaves
-                                </div>
-                                {% endif %}
-                            </div>
-                        </div>
-                    </a>
-                </div>
-            </div>
-            {% endif %}
-
-            <!-- Help Desk & Reimbursement Summary Row (HR/Admin only) -->
-            {% if session.role in ['hr', 'admin'] %}
-            <div class="row mb-2 mt-1">
-                <div class="col-xl-6">
-                    <!-- Help Desk Summary Card -->
-                    <div class="card-ui p-3 mb-0 h-100">
-                        <div class="d-flex justify-content-between align-items-center mb-3">
-                            <h6 class="mb-0 fw-bold">Help Desk Summary</h6>
-                            <a href="{{ url_for('admin.helpdesk') }}"
-                                class="btn btn-sm btn-outline-primary rounded-pill px-2 py-0"
-                                style="font-size: 0.75rem;">
-                                View All <i class="bi bi-arrow-right small ms-1"></i>
-                            </a>
-                        </div>
-                        <div class="row g-2">
-                            <div class="col-sm-4">
-                                <a href="{{ url_for('admin.helpdesk') }}?status=open" class="text-decoration-none">
-                                    <div class="summary-card border-open h-100">
-                                        <div class="d-flex justify-content-between align-items-center">
-                                            <div>
-                                                <div class="text-muted small fw-semibold text-uppercase mb-1"
-                                                    style="font-size: 0.65rem; letter-spacing: 0.05em;">Open</div>
-                                                <h5 class="fw-bold mb-0 text-dark">{{ hd_stats.by_status.get('open', 0)
-                                                    if hd_stats.by_status else 0 }}</h5>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </a>
-                            </div>
-                            <div class="col-sm-4">
-                                <a href="{{ url_for('admin.helpdesk') }}?status=in_progress"
-                                    class="text-decoration-none">
-                                    <div class="summary-card border-progress h-100">
-                                        <div class="d-flex justify-content-between align-items-center">
-                                            <div>
-                                                <div class="text-muted small fw-semibold text-uppercase mb-1"
-                                                    style="font-size: 0.65rem; letter-spacing: 0.05em;">In Progress
-                                                </div>
-                                                <h5 class="fw-bold mb-0 text-dark">{{
-                                                    hd_stats.by_status.get('in_progress', 0) if hd_stats.by_status else
-                                                    0 }}</h5>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </a>
-                            </div>
-                            <div class="col-sm-4">
-                                <a href="{{ url_for('admin.helpdesk') }}?status=closed" class="text-decoration-none">
-                                    <div class="summary-card border-closed h-100">
-                                        <div class="d-flex justify-content-between align-items-center">
-                                            <div>
-                                                <div class="text-muted small fw-semibold text-uppercase mb-1"
-                                                    style="font-size: 0.65rem; letter-spacing: 0.05em;">Closed</div>
-                                                <h5 class="fw-bold mb-0 text-dark">
-                                                    {% if hd_stats.by_status %}
-                                                    {{ hd_stats.by_status.get('closed', 0) }}
-                                                    {% endif %}
-                                                </h5>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-xl-6">
-                    <!-- Reimbursement Summary Card -->
-                    <div class="card-ui p-3 mb-0 h-100">
-                        <div class="d-flex justify-content-between align-items-center mb-3">
-                            <h6 class="mb-0 fw-bold">Reimbursement Summary</h6>
-                            <a href="{{ url_for('admin.reimbursement') }}"
-                                class="btn btn-sm btn-outline-primary rounded-pill px-2 py-0"
-                                style="font-size: 0.75rem;">
-                                View All <i class="bi bi-arrow-right small ms-1"></i>
-                            </a>
-                        </div>
-                        <div class="row g-2">
-                            <div class="col-sm-4">
-                                <a href="{{ url_for('admin.reimbursement') }}?status=pending"
-                                    class="text-decoration-none">
-                                    <div class="summary-card border-pending h-100">
-                                        <div class="d-flex justify-content-between align-items-center">
-                                            <div>
-                                                <div class="text-muted small fw-semibold text-uppercase mb-1"
-                                                    style="font-size: 0.65rem; letter-spacing: 0.05em;">Pending</div>
-                                                <h5 class="fw-bold mb-0 text-dark">
-                                                    {{ reimbursement_stats.pending_approval.count if
-                                                    reimbursement_stats.pending_approval else 0 }}
-                                                </h5>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </a>
-                            </div>
-                            <div class="col-sm-4">
-                                <a href="{{ url_for('admin.reimbursement') }}?status=approved"
-                                    class="text-decoration-none">
-                                    <div class="summary-card border-approved h-100">
-                                        <div class="d-flex justify-content-between align-items-center">
-                                            <div>
-                                                <div class="text-muted small fw-semibold text-uppercase mb-1"
-                                                    style="font-size: 0.65rem; letter-spacing: 0.05em;">Approved</div>
-                                                <h5 class="fw-bold mb-0 text-dark">
-                                                    {{ reimbursement_stats.by_status.approved.count if
-                                                    reimbursement_stats.by_status and
-                                                    reimbursement_stats.by_status.approved else 0 }}
-                                                </h5>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </a>
-                            </div>
-                            <div class="col-sm-4">
-                                <a href="{{ url_for('admin.reimbursement') }}?status=rejected"
-                                    class="text-decoration-none">
-                                    <div class="summary-card border-rejected h-100">
-                                        <div class="d-flex justify-content-between align-items-center">
-                                            <div>
-                                                <div class="text-muted small fw-semibold text-uppercase mb-1"
-                                                    style="font-size: 0.65rem; letter-spacing: 0.05em;">Rejected</div>
-                                                <h5 class="fw-bold mb-0 text-dark">
-                                                    {{ reimbursement_stats.by_status.rejected.count if
-                                                    reimbursement_stats.by_status and
-                                                    reimbursement_stats.by_status.rejected else 0 }}
-                                                </h5>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            {% endif %}
-
-            <!-- Announcements, Birthdays and Holidays Row -->
-            <div class="row g-3">
-                <div class="col-md-4">
-                    <div class="card-ui p-2 h-100">
-                        <div class="d-flex justify-content-between align-items-center mb-3">
-                            <h6 class="mb-0">Announcements 📢</h6>
-                            {% if session.role == 'hr' %}
-                            <button class="btn btn-sm btn-outline-primary rounded-pill px-2 py-0"
-                                style="font-size: 0.75rem;" data-bs-toggle="modal"
-                                data-bs-target="#dashboardAnnouncementModal" onclick="prepareDashboardCreate()">
-                                <i class="bi bi-plus-lg me-1"></i>Create
-                            </button>
-                            {% endif %}
-                        </div>
-                        <div class="no-scrollbar" style="max-height:230px; overflow-y:auto; font-size: 0.80rem;">
-                            <div id="dashboardAnnouncementsListContainer">
-                                {% if announcements %}
-                                <div class="list-group list-group-flush gap-2">
-                                    {% for ann in announcements %}
-                                    <div class="list-group-item px-1 py-2 border-0 bg-transparent rounded-3 hover-row-bg"
-                                        style="cursor: pointer;" onclick="viewDashboardAnnouncement({{ ann.id }})">
-                                        <div class="d-flex align-items-center gap-2">
-                                            <div class="flex-shrink-0 bg-info bg-opacity-10 text-info rounded-circle d-flex align-items-center justify-content-center"
-                                                style="width: 36px; height: 36px;">
-                                                <i class="bi bi-info-lg fs-5"></i>
-                                            </div>
-                                            <div class="flex-grow-1" style="min-width: 0;">
-                                                <div class="d-flex justify-content-between align-items-baseline mb-0">
-                                                    <h6 class="text-dark fw-bold mb-0 text-truncate"
-                                                        style="font-size: 0.85rem;">{{ ann.title | safe }}</h6>
-                                                    <small class="text-muted flex-shrink-0" style="font-size: 0.65rem;">
-                                                        {% if '-' in ann.created_at %}
-                                                        {% set c_parts = ann.created_at[:10].split('-') %}
-                                                        {% set months =
-                                                        ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
-                                                        %}
-                                                        {{ c_parts[2] }} {{ months[c_parts[1]|int - 1] }}
-                                                        {% else %}
-                                                        {{ ann.created_at[:10] }}
-                                                        {% endif %}
-                                                    </small>
-                                                </div>
-                                                <p class="text-muted mb-0 text-truncate-2"
-                                                    style="font-size: 0.75rem; line-height: 1.3;">{{
-                                                    ann.short_description }}</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    {% endfor %}
-                                </div>
-                                {% else %}
-                                <div class="text-muted text-center py-4">
-                                    <i class="bi bi-megaphone fs-3 d-block mb-2"></i>
-                                    No new announcements
-                                </div>
-                                {% endif %}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-md-4">
-                    <div class="card-ui p-2 h-100">
-                        <div class="d-flex justify-content-between align-items-center mb-3">
-                            <h6 class="mb-0">Upcoming Birthdays 🎂</h6>
-                            <small class="text-muted">Next 7 Days</small>
-                        </div>
-                        <div class="no-scrollbar" style="max-height:230px; overflow-y:auto; font-size: 0.80rem;">
-                            {% if birthdays %}
-                            {% for b in birthdays %}
-                            <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
-                                <div class="d-flex align-items-center gap-2">
-                                    <img src="{% if b.photo_url %}{% if b.photo_url.startswith('http') %}{{ b.photo_url }}{% else %}{{ BASE_URL }}{{ b.photo_url }}{% endif %}{% else %}data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 80 80'%3E%3Ccircle cx='40' cy='40' r='40' fill='%23475569'/%3E%3Ccircle cx='40' cy='30' r='14' fill='%23cbd5e1'/%3E%3Cellipse cx='40' cy='68' rx='22' ry='16' fill='%23cbd5e1'/%3E%3C/svg%3E{% endif %}"
-                                        class="rounded-circle shadow-sm"
-                                        style="width: 32px; height: 32px; object-fit: cover;"
-                                        alt="{{ b.name | clean_name if b.name else 'User' }}">
-                                    <div style="line-height: 1.2;">
-                                        <div class="fw-bold text-dark" style="font-size: 0.85rem;">{{ b.name |
-                                            clean_name if b.name else 'Unknown' }}</div>
-                                        {% if b.is_today %}
-                                        <span class="badge bg-success bg-opacity-10 text-success p-0"
-                                            style="font-size: 0.65rem;">Today! 🎂</span>
-                                        {% else %}
-                                        <span class="text-muted" style="font-size: 0.65rem;">Upcoming</span>
-                                        {% endif %}
-                                    </div>
-                                </div>
-                                <div class="text-end" style="line-height: 1.2;">
-                                    <div class="fw-bold text-primary" style="font-size: 0.8rem;">
-                                        {% if b.date_of_birth %}
-                                        {% if '-' in b.date_of_birth and b.date_of_birth|length >= 10 %}
-                                        {% set dob_parts = b.date_of_birth[:10].split('-') %}
-                                        {% set months =
-                                        ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'] %}
-                                        {{ dob_parts[2] }} {{ months[dob_parts[1]|int - 1] }}
-                                        {% elif ' ' in b.date_of_birth %}
-                                        {% set dob_parts = b.date_of_birth.split(' ') %}
-                                        {% if dob_parts|length >= 3 %}
-                                        {# Handles "Tue, 16 May 1995..." format #}
-                                        {{ dob_parts[1] }} {{ dob_parts[2] }}
-                                        {% else %}
-                                        {{ b.date_of_birth }}
-                                        {% endif %}
-                                        {% else %}
-                                        {{ b.date_of_birth }}
-                                        {% endif %}
-                                        {% else %}
-                                        -
-                                        {% endif %}
-                                    </div>
-                                    {% if b.days_until_birthday and not b.is_today %}
-                                    <small class="text-muted" style="font-size: 0.6rem;">In {{ b.days_until_birthday }}
-                                        days</small>
-                                    {% endif %}
-                                </div>
-                            </div>
-                            {% endfor %}
-                            {% else %}
-                            <div class="text-muted text-center py-4 d-flex flex-column align-items-center">
-                                <div class="bg-danger bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center mb-2"
-                                    style="width: 50px; height: 50px;">
-                                    <i class="bi bi-calendar-event text-danger fs-3"></i>
-                                </div>
-                                <p class="mb-0 small">No birthdays in the next 7 days</p>
-                            </div>
-                            {% endif %}
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-md-4">
-                    <div class="card-ui p-2 h-100">
-                        <div class="d-flex justify-content-between align-items-center mb-3">
-                            <h6 class="mb-0"> Holidays 🎉</h6>
-                            <small class="text-muted">2026</small>
-                        </div>
-                        <div class="no-scrollbar" style="max-height:230px; overflow-y:auto;">
-
-                            {% for h in holidays %}
-
-                            <div class="d-flex py-1 border-bottom">
-
-                                <!-- LEFT -->
-
-                                <div style="flex:1; overflow:hidden; font-size: 0.80rem;">
-
-                                    <div class="fw-semibold text-truncate">{{ h.name }}</div>
-
-                                    <small class="text-muted text-capitalize">{{ h.type }}</small>
-
-                                </div>
-
-                                <!-- RIGHT DATE -->
-
-                                <div class="text-end" style="width:120px; flex-shrink:0;">
-
-                                    <small class="text-muted fw-semibold" style="font-size: 0.75rem;">
-
-                                        {{ h.formatted_date[:16] }}
-
-                                    </small>
-
-                                </div>
-
-                            </div>
-
-                            {% endfor %}
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-
-
-        </div>
-
-
-
-
-
-
-
-    </div>
-
-
-
-
-
-
-
-</div>
-
-
-
-
-
-
-
-</div>
+    {% include 'new_layout.html' %}
 
 
 

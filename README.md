@@ -104,6 +104,7 @@ A global **context processor** (`inject_user`) automatically injects `current_us
 ## Project Structure
 
 ```
+
 Altzor3/
 ├── run.py                        # Main entry point — starts app on port 5002
 ├── app/                          # Main application package

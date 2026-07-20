@@ -123,6 +123,19 @@ def dashboard():
                     birthday_data.append(b)
         except: pass
 
+        # 3. All Birthdays (for Timeline navigation)
+        all_birthdays = []
+        for emp in employees:
+            dob = emp.get('date_of_birth')
+            if dob:
+                nm = person_system_name(emp) or emp.get('employee_name') or emp.get('name', 'Unknown')
+                photo = photo_map.get(nm) or photo_map.get(strip_role_prefix(nm))
+                all_birthdays.append({
+                    'name': nm,
+                    'date_of_birth': dob,
+                    'photo_url': photo
+                })
+
         if session.get('role') in ['hr', 'admin']:
             try:
                 hd_res = requests.get(f"{BASE_URL}/helpdesk/stats/", headers=get_headers(), timeout=5)
@@ -337,6 +350,7 @@ def dashboard():
         stats=stats,
         holidays=holidays,
         birthdays=birthday_data,
+        all_birthdays=all_birthdays,
         hd_stats=hd_stats,
         reimbursement_stats=reimbursement_stats,
         pending_agreements=pending_agreements,

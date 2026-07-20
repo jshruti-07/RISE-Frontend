@@ -17,7 +17,7 @@ app.secret_key = os.getenv("SECRET_KEY", "mysecretkey123")
 app.config['PROPAGATE_EXCEPTIONS'] = True
 
 # 🔗 Backend API
-BASE_URL = os.getenv("BACKEND_URL", "http://192.168.1.51:5001")
+BASE_URL = os.getenv("BACKEND_URL", "http://192.168.1.159:5001")
 
 #Role based access
 def role_required(allowed_roles):

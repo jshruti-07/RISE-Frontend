@@ -1,0 +1,540 @@
+    <div class="max-w-[1440px] mx-auto">
+        <div class="row g-4 mb-4">
+            <!-- CORE DATA COLUMN (Left - 8 cols) -->
+            <div class="col-xl-8 col-lg-7 d-flex flex-column gap-4">
+                
+                <!-- KPI GRID -->
+                {% if session.role in ['hr', 'admin'] %}
+                <div class="row g-3">
+                    <!-- Total Team -->
+                    <div class="col-sm-6 col-md-3">
+                        <a href="{{ url_for('employees.employee_list') }}" class="text-decoration-none">
+                            <div class="glass-card p-3 h-100 hover-card">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <span class="kpi-label">{{ labels.TOTAL_EMPLOYEES }}</span>
+                                    <span class="status-dot bg-dark"></span>
+                                </div>
+                                <div class="d-flex align-items-baseline">
+                                    <p class="kpi-value mb-0">{{ stats.employees }}</p>
+                                    <span class="kpi-subtext">Active</span>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                    <!-- Timesheets -->
+                    <div class="col-sm-6 col-md-3">
+                        <a href="{{ url_for('work.timesheets_list') }}" class="text-decoration-none">
+                            <div class="glass-card p-3 h-100 hover-card">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <span class="kpi-label">Timesheets</span>
+                                    <span class="status-dot" style="background-color: #cbd5e1;"></span>
+                                </div>
+                                <div class="d-flex align-items-baseline">
+                                    <p class="kpi-value mb-0">{{ stats.timesheets }}</p>
+                                    <span class="kpi-subtext">Pending</span>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                    <!-- Leaves -->
+                    <div class="col-sm-6 col-md-3">
+                        <a href="{{ url_for('work.leaves_list') }}" class="text-decoration-none">
+                            <div class="glass-card p-3 h-100 hover-card">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <span class="kpi-label">Leaves</span>
+                                    <span class="status-dot" style="background-color: #cbd5e1;"></span>
+                                </div>
+                                <div class="d-flex align-items-baseline">
+                                    <p class="kpi-value mb-0">{{ stats.leaves }}</p>
+                                    <span class="kpi-subtext">Awaiting</span>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                    <!-- Expenses -->
+                    <div class="col-sm-6 col-md-3">
+                        <a href="{{ url_for('admin.reimbursement') }}" class="text-decoration-none">
+                            <div class="glass-card p-3 h-100 hover-card">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <span class="kpi-label">Expenses</span>
+                                    <span class="status-dot bg-danger"></span>
+                                </div>
+                                <div class="d-flex align-items-baseline">
+                                    <p class="kpi-value mb-0">{{ reimbursement_stats.pending_approval.count if reimbursement_stats and reimbursement_stats.pending_approval else 0 }}</p>
+                                    <span class="kpi-subtext">Action Required</span>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+                {% elif session.role == 'employee' %}
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <div class="glass-card h-100 p-3 d-flex flex-column hover-card">
+                            <div class="d-flex justify-content-between align-items-start mb-4">
+                                <h6 class="fw-bold mb-0 text-dark"><i class="bi bi-clock-history text-warning me-2 fs-5"></i>Pending Timesheets</h6>
+                                <i class="bi bi-clock text-muted"></i>
+                            </div>
+                            <div class="flex-grow-1 d-flex flex-column justify-content-center align-items-center text-center">
+                                {% if pending_timesheets_count and pending_timesheets_count|int > 0 %}
+                                <p class="text-dark fw-bold mb-1" style="font-size: 0.9rem;">You have {{ pending_timesheets_count }} pending timesheets.</p>
+                                <p class="text-muted small mb-4">Please submit them as soon as possible.</p>
+                                {% else %}
+                                <p class="text-muted small mb-1">No pending timesheets to submit.</p>
+                                <p class="text-muted small mb-4">You're all caught up!</p>
+                                {% endif %}
+                                <a href="{{ url_for('work.add_timesheet') }}" class="btn btn-primary rounded-pill px-4 py-2 w-100 mt-auto shadow-sm text-white fw-semibold">
+                                    <i class="bi bi-plus"></i> Add New Timesheet
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="glass-card h-100 p-3 hover-card">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h6 class="mb-0 fw-bold text-dark"><i class="bi bi-folder2-open me-2 text-primary"></i>My Projects</h6>
+                                <div class="d-flex align-items-center gap-2">
+                                    <span class="badge bg-primary bg-opacity-25 text-primary rounded-pill px-3">{{ my_projects|length }} Active</span>
+                                    <a href="{{ url_for('projects.projects_list') }}" class="btn btn-sm btn-outline-primary rounded-pill px-3 py-1" style="font-size: 0.75rem;">View All <i class="bi bi-arrow-right small ms-1"></i></a>
+                                </div>
+                            </div>
+                            {% if my_projects %}
+                            <div class="no-scrollbar" style="max-height: 120px; overflow-y: auto;">
+                                <div class="list-group list-group-flush">
+                                    {% for proj in my_projects %}
+                                    <div class="list-group-item px-2 py-2 bg-transparent border-bottom hover-row-bg d-flex justify-content-between align-items-center">
+                                        <div class="fw-semibold text-dark"><i class="bi bi-folder-fill text-primary me-2"></i>{{ proj.name }}</div>
+                                        <div>
+                                            <span class="badge bg-success bg-opacity-25 text-success rounded-pill px-2 me-1">Active</span>
+                                            <button class="btn btn-sm text-primary py-0 px-1 btn-view-project" data-id="{{ proj.id }}"><i class="bi bi-eye"></i></button>
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            {% else %}
+                            <div class="text-center py-4 text-muted"><i class="bi bi-folder-x fs-2 d-block mb-2"></i><p class="mb-0 small">No active projects yet.</p></div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% elif session.role == 'manager' %}
+                <div class="row g-3">
+                    <div class="col-xl-4 col-md-6">
+                        <div class="glass-card p-3 mb-3 h-100 hover-card">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h6 class="mb-0 fw-bold text-dark">Active Projects</h6>
+                                <span class="badge bg-primary bg-opacity-25 text-primary rounded-pill px-2">{{ projects|length if projects else 0 }}</span>
+                            </div>
+                            <div class="no-scrollbar" style="max-height:120px; overflow-y:auto; overflow-x:hidden; font-size: 0.75rem;">
+                                {% if projects %}
+                                <div class="list-group list-group-flush">
+                                    {% for project in projects %}
+                                    <div class="list-group-item px-2 py-2 bg-transparent border-bottom hover-row-bg d-flex justify-content-between align-items-center">
+                                        <div class="fw-semibold text-dark">{{ project.name }}</div>
+                                        <button class="btn btn-sm text-primary py-0 px-1 btn-view-project" data-id="{{ project.id }}"><i class="bi bi-eye"></i></button>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                                {% else %}
+                                <div class="text-muted text-center py-4"><i class="bi bi-folder-x fs-3 d-block mb-2"></i>No active projects</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xl-4 col-md-6">
+                        <div class="glass-card p-3 mb-3 h-100 hover-card">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h6 class="mb-0 fw-bold text-dark">{{ labels.TEAM_PENDING_TIMESHEETS }}</h6>
+                                <span class="badge bg-warning bg-opacity-25 text-warning rounded-pill px-2">{{ team_pending_timesheets|length }}</span>
+                            </div>
+                            <div class="no-scrollbar" style="max-height: 120px; overflow-y: auto; font-size: 0.75rem;">
+                                {% if team_pending_timesheets %}
+                                <div class="list-group list-group-flush">
+                                    {% for t in team_pending_timesheets %}
+                                    <div class="list-group-item px-2 py-2 bg-transparent border-bottom hover-row-bg d-flex justify-content-between align-items-center">
+                                        <div class="fw-semibold text-dark">{{ t.employee_name }}</div>
+                                        <div class="text-muted">{{ t.start_date[:10] }}</div>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                                {% else %}
+                                <div class="text-center py-4 text-muted"><i class="bi bi-check-all fs-3 d-block mb-2 text-success"></i>All team timesheets submitted</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xl-4 col-md-12">
+                        <a href="{{ url_for('work.leaves_list') }}" class="text-decoration-none">
+                            <div class="glass-card p-3 mb-3 h-100 hover-card">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <h6 class="mb-0 fw-bold text-dark">{{ labels.TEAM_LEAVES }}</h6>
+                                    <span class="badge bg-info bg-opacity-25 text-info rounded-pill px-2">{{ team_leaves|length }}</span>
+                                </div>
+                                <div class="no-scrollbar" style="max-height: 120px; overflow-y: auto; font-size: 0.75rem;">
+                                    {% if team_leaves %}
+                                    <div class="list-group list-group-flush">
+                                        {% for l in team_leaves %}
+                                        <div class="list-group-item px-2 py-2 bg-transparent border-bottom hover-row-bg">
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <div>
+                                                    <div class="fw-semibold text-dark">{{ l.employee_name }}</div>
+                                                    <div class="text-muted small" style="font-size: 0.65rem;">{{ l.start_date[:10] }} <i class="bi bi-arrow-right mx-1"></i> {{ l.end_date[:10] }}</div>
+                                                </div>
+                                                <div>
+                                                    {% if l.status|lower == 'pending' %}
+                                                    <span class="badge bg-warning bg-opacity-25 text-warning rounded-pill" style="font-size: 0.6rem;">Pending</span>
+                                                    {% elif l.status|lower == 'approved' %}
+                                                    <span class="badge bg-success bg-opacity-25 text-success rounded-pill" style="font-size: 0.6rem;">Approved</span>
+                                                    {% else %}
+                                                    <span class="badge bg-secondary bg-opacity-25 text-secondary rounded-pill" style="font-size: 0.6rem;">{{ l.status }}</span>
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                        </div>
+                                        {% endfor %}
+                                    </div>
+                                    {% else %}
+                                    <div class="text-center py-4 text-muted"><i class="bi bi-calendar-x fs-3 d-block mb-2"></i> No recent team leaves</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- HELP DESK & REIMBURSEMENT TABS -->
+                {% if session.role in ['hr', 'admin'] %}
+                <div class="glass-card overflow-hidden">
+                    <div class="border-bottom px-3 pt-3 bg-light bg-opacity-50">
+                        <ul class="nav nav-tabs nav-tabs-custom border-0" id="dashboardTabs" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link active" id="helpdesk-tab" data-bs-toggle="tab" data-bs-target="#helpdesk-pane" type="button" role="tab">Help Desk</button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="reimbursement-tab" data-bs-toggle="tab" data-bs-target="#reimbursement-pane" type="button" role="tab">Reimbursements</button>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="tab-content p-4" id="dashboardTabsContent">
+                        <!-- Help Desk Tab -->
+                        <div class="tab-pane fade show active" id="helpdesk-pane" role="tabpanel">
+                            <div class="d-flex justify-content-between align-items-center mb-4">
+                                <h6 class="mb-0 fw-bold text-dark">Help Desk Tickets</h6>
+                                <a href="{{ url_for('admin.helpdesk') }}" class="btn btn-sm btn-outline-primary rounded-pill px-3 py-1">View All <i class="bi bi-arrow-right ms-1"></i></a>
+                            </div>
+                            
+                            <div class="mb-4">
+                                <div class="d-flex justify-content-between align-items-end mb-1">
+                                    <span class="fw-semibold text-dark">Open</span>
+                                    <span class="fs-5 fw-bold text-danger">{{ hd_stats.by_status.get('open', 0) if hd_stats.by_status else 0 }}</span>
+                                </div>
+                                <div class="progress" style="height: 4px;">
+                                    <div class="progress-bar bg-danger" style="width: 100%"></div>
+                                </div>
+                            </div>
+                            <div class="mb-4">
+                                <div class="d-flex justify-content-between align-items-end mb-1">
+                                    <span class="fw-semibold text-dark">In Progress</span>
+                                    <span class="fs-5 fw-bold text-primary">{{ hd_stats.by_status.get('in_progress', 0) if hd_stats.by_status else 0 }}</span>
+                                </div>
+                                <div class="progress" style="height: 4px;">
+                                    <div class="progress-bar bg-primary" style="width: 100%"></div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="d-flex justify-content-between align-items-end mb-1">
+                                    <span class="fw-semibold text-dark">Closed</span>
+                                    <span class="fs-5 fw-bold text-success">{{ hd_stats.by_status.get('closed', 0) if hd_stats.by_status else 0 }}</span>
+                                </div>
+                                <div class="progress" style="height: 4px;">
+                                    <div class="progress-bar bg-success" style="width: 100%"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Reimbursement Tab -->
+                        <div class="tab-pane fade" id="reimbursement-pane" role="tabpanel">
+                            <div class="d-flex justify-content-between align-items-center mb-4">
+                                <h6 class="mb-0 fw-bold text-dark">Reimbursement Requests</h6>
+                                <a href="{{ url_for('admin.reimbursement') }}" class="btn btn-sm btn-outline-primary rounded-pill px-3 py-1">View All <i class="bi bi-arrow-right ms-1"></i></a>
+                            </div>
+                            <div class="mb-4">
+                                <div class="d-flex justify-content-between align-items-end mb-1">
+                                    <span class="fw-semibold text-dark">Pending</span>
+                                    <span class="fs-5 fw-bold text-danger">{{ reimbursement_stats.pending_approval.count if reimbursement_stats and reimbursement_stats.pending_approval else 0 }}</span>
+                                </div>
+                                <div class="progress" style="height: 4px;">
+                                    <div class="progress-bar bg-danger" style="width: 100%"></div>
+                                </div>
+                            </div>
+                            <div class="mb-4">
+                                <div class="d-flex justify-content-between align-items-end mb-1">
+                                    <span class="fw-semibold text-dark">Approved</span>
+                                    <span class="fs-5 fw-bold text-success">{{ reimbursement_stats.by_status.approved.count if reimbursement_stats and reimbursement_stats.by_status and reimbursement_stats.by_status.approved else 0 }}</span>
+                                </div>
+                                <div class="progress" style="height: 4px;">
+                                    <div class="progress-bar bg-success" style="width: 100%"></div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="d-flex justify-content-between align-items-end mb-1">
+                                    <span class="fw-semibold text-dark">Rejected</span>
+                                    <span class="fs-5 fw-bold text-secondary">{{ reimbursement_stats.by_status.rejected.count if reimbursement_stats and reimbursement_stats.by_status and reimbursement_stats.by_status.rejected else 0 }}</span>
+                                </div>
+                                <div class="progress" style="height: 4px;">
+                                    <div class="progress-bar bg-secondary" style="width: 100%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- ANNOUNCEMENTS -->
+                <div class="glass-card overflow-hidden">
+                    <div class="px-4 py-3 border-bottom d-flex justify-content-between align-items-center bg-light bg-opacity-50">
+                        <h5 class="mb-0 fw-bold text-dark" style="font-size: 1.1rem;">Announcements</h5>
+                        {% if session.role == 'hr' %}
+                        <div class="dropdown">
+                            <button class="btn btn-link text-secondary p-0 text-decoration-none" data-bs-toggle="dropdown">
+                                <i class="bi bi-three-dots fs-5"></i>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0">
+                                <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#dashboardAnnouncementModal" onclick="prepareDashboardCreate()"><i class="bi bi-plus-lg me-2"></i>Create New</a></li>
+                            </ul>
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="no-scrollbar" style="max-height: 300px; overflow-y: auto;">
+                        {% if announcements %}
+                            <div class="list-group list-group-flush">
+                            {% for ann in announcements %}
+                                <div class="list-group-item px-4 py-3 border-bottom hover-row-bg" style="cursor: pointer;" onclick="viewDashboardAnnouncement({{ ann.id }})">
+                                    <div class="d-flex gap-3">
+                                        <div class="flex-shrink-0 bg-primary bg-opacity-10 text-primary rounded d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                            <i class="bi bi-megaphone fs-5"></i>
+                                        </div>
+                                        <div class="flex-grow-1" style="min-width: 0;">
+                                            <div class="d-flex justify-content-between align-items-start mb-1">
+                                                <h6 class="text-dark fw-bold mb-0 text-truncate">{{ ann.title | safe }}</h6>
+                                                <small class="text-muted text-nowrap ms-2" style="font-size: 0.75rem;">
+                                                    {% if '-' in ann.created_at %}
+                                                        {% set c_parts = ann.created_at[:10].split('-') %}
+                                                        {% set months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'] %}
+                                                        {{ c_parts[2] }} {{ months[c_parts[1]|int - 1] }}
+                                                    {% else %}
+                                                        {{ ann.created_at[:10] }}
+                                                    {% endif %}
+                                                </small>
+                                            </div>
+                                            <p class="text-muted mb-1 text-truncate-2" style="font-size: 0.85rem; line-height: 1.4;">{{ ann.short_description }}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                            </div>
+                        {% else %}
+                            <div class="text-muted text-center py-5">
+                                <i class="bi bi-megaphone fs-3 d-block mb-2"></i>
+                                No new announcements
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- SIDEBAR COLUMN (Right - 4 cols) -->
+            <div class="col-xl-4 col-lg-5 d-flex flex-column gap-4">
+                
+                <!-- QUICK MANAGEMENT -->
+                <div class="quick-mgmt-card shadow">
+                    <h6 class="fw-bold mb-3 text-white" style="font-size: 0.85rem; letter-spacing: 0.05em; text-transform: uppercase;">Quick Management</h6>
+                    <div class="d-flex flex-column">
+                        <a href="{{ url_for('work.add_leave') }}" class="quick-mgmt-item">
+                            New Leave Request <i class="bi bi-arrow-right"></i>
+                        </a>
+                        <a href="{{ url_for('work.add_timesheet') }}" class="quick-mgmt-item">
+                            Submit Timesheet <i class="bi bi-arrow-right"></i>
+                        </a>
+                        {% if session.role in ['hr', 'manager', 'admin'] %}
+                        <a href="{{ url_for('projects.create_project') }}" class="quick-mgmt-item">
+                            New Project <i class="bi bi-arrow-right"></i>
+                        </a>
+                        {% endif %}
+                        <a href="{{ url_for('admin.reimbursement') }}" class="quick-mgmt-item">
+                            Request Reimbursement <i class="bi bi-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- TIMELINE -->
+                <div class="glass-card p-4 d-flex flex-column timeline-card" style="max-height: 380px;">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div class="d-flex align-items-center gap-2">
+                            <h5 class="mb-0 fw-bold text-dark" style="font-size: 1.1rem;">Timeline</h5>
+                            <span id="timelineMonthLabel" class="badge bg-primary bg-opacity-10 text-primary" style="font-size: 0.75rem; letter-spacing: 0.05em; text-transform: uppercase;"></span>
+                        </div>
+                        <div class="d-flex align-items-center gap-1">
+                            <button class="btn btn-sm text-secondary p-1 d-flex align-items-center justify-content-center hover-bg-light rounded-circle" id="timelinePrevBtn" style="width:28px; height:28px;"><i class="bi bi-chevron-left"></i></button>
+                            <button class="btn btn-sm text-secondary p-1 d-flex align-items-center justify-content-center hover-bg-light rounded-circle" id="timelineNextBtn" style="width:28px; height:28px;"><i class="bi bi-chevron-right"></i></button>
+                            <div class="position-relative ms-2">
+                                <i class="bi bi-calendar3 text-primary fs-5" id="timelineCalendarBtn" style="cursor: pointer; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'" title="Reset to current month"></i>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="flex-grow-1 overflow-auto no-scrollbar position-relative pe-2">
+                        <!-- Vertical Line -->
+                        <div style="position: absolute; left: 6px; top: 8px; bottom: 0; width: 2px; background: #e2e8f0;"></div>
+                        
+                        <div id="timelineContent" style="padding-left: 1.5rem;">
+                            <!-- JS Populates this -->
+                        </div>
+                    </div>
+                </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const holidays = {{ holidays | tojson | safe if holidays else '[]' }};
+    const birthdays = {{ all_birthdays | tojson | safe if all_birthdays else '[]' }};
+    
+    let currentDate = new Date();
+    let currentViewMonth = currentDate.getMonth(); // 0-11
+    
+    const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    
+    function parseMonth(dateStr) {
+        if (!dateStr) return -1;
+        // if "YYYY-MM-DD"
+        if (dateStr.includes('-') && dateStr.length >= 10) {
+            const parts = dateStr.substring(0,10).split('-');
+            return parseInt(parts[1], 10) - 1; // 0-indexed month
+        }
+        // if "16 May" or similar
+        for (let i = 0; i < monthNames.length; i++) {
+            if (dateStr.toLowerCase().includes(monthNames[i].toLowerCase())) {
+                return i;
+            }
+        }
+        const d = new Date(dateStr);
+        if (!isNaN(d.getTime())) return d.getMonth();
+        return -1;
+    }
+
+    function formatDayMonth(dateStr) {
+        if (!dateStr) return '';
+        if (dateStr.includes('-') && dateStr.length >= 10) {
+            const parts = dateStr.substring(0,10).split('-');
+            const m = parseInt(parts[1], 10) - 1;
+            return parseInt(parts[2], 10) + ' ' + monthNames[m];
+        }
+        return dateStr.substring(0, 11);
+    }
+
+    function capitalizeFirstLetter(string) {
+        if (!string) return '';
+        return string.charAt(0).toUpperCase() + string.slice(1);
+    }
+
+    function renderTimeline() {
+        document.getElementById('timelineMonthLabel').innerText = monthNames[currentViewMonth];
+        const container = document.getElementById('timelineContent');
+        container.innerHTML = '';
+        
+        let events = [];
+        
+        holidays.forEach(h => {
+            const m = parseMonth(h.date || h.formatted_date);
+            if (m === currentViewMonth) {
+                events.push({
+                    type: 'holiday',
+                    title: h.name,
+                    subtitle: h.type || 'Holiday',
+                    dateStr: h.formatted_date || h.date,
+                    displayDate: formatDayMonth(h.formatted_date || h.date)
+                });
+            }
+        });
+        
+        birthdays.forEach(b => {
+            const m = parseMonth(b.date_of_birth);
+            if (m === currentViewMonth) {
+                let name = b.name ? b.name.split('@')[0] : 'Unknown';
+                name = name.split('.').map(capitalizeFirstLetter).join(' ');
+                events.push({
+                    type: 'birthday',
+                    title: name + "'s Birthday",
+                    subtitle: 'Birthday',
+                    dateStr: b.date_of_birth,
+                    displayDate: formatDayMonth(b.date_of_birth)
+                });
+            }
+        });
+        
+        if (events.length === 0) {
+            container.innerHTML = '<div class="text-muted small mt-2"><i class="bi bi-calendar-x me-1"></i>No upcoming events for this month.</div>';
+            return;
+        }
+        
+        // Sort events by day of month
+        events.sort((a, b) => {
+            const dayA = parseInt(a.displayDate) || 0;
+            const dayB = parseInt(b.displayDate) || 0;
+            return dayA - dayB;
+        });
+        
+        events.forEach(ev => {
+            const isBirthday = ev.type === 'birthday';
+            const iconBg = isBirthday ? 'bg-primary' : 'bg-dark';
+            const border = isBirthday ? 'border-primary' : 'border-dark';
+            const textClass = isBirthday ? 'text-primary' : 'text-muted';
+            
+            const el = document.createElement('div');
+            el.className = 'position-relative mb-4';
+            el.innerHTML = `
+                <div class="position-absolute bg-white border ${border} rounded-circle d-flex align-items-center justify-content-center" style="width: 16px; height: 16px; left: -1.5rem; top: 2px; z-index: 2;">
+                    <div class="${iconBg} rounded-circle" style="width: 6px; height: 6px;"></div>
+                </div>
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <div class="fw-bold text-dark" style="font-size: 0.9rem;">${ev.title}</div>
+                        <div class="text-muted text-capitalize" style="font-size: 0.75rem;">${ev.subtitle}</div>
+                    </div>
+                    <div class="text-end ${textClass} fw-semibold" style="font-size: 0.8rem;">
+                        ${ev.displayDate}
+                    </div>
+                </div>
+            `;
+            container.appendChild(el);
+        });
+    }
+
+    const prevBtn = document.getElementById('timelinePrevBtn');
+    const nextBtn = document.getElementById('timelineNextBtn');
+    const calBtn = document.getElementById('timelineCalendarBtn');
+    
+    if (prevBtn) prevBtn.addEventListener('click', () => {
+        currentViewMonth = (currentViewMonth - 1 + 12) % 12;
+        renderTimeline();
+    });
+    
+    if (nextBtn) nextBtn.addEventListener('click', () => {
+        currentViewMonth = (currentViewMonth + 1) % 12;
+        renderTimeline();
+    });
+    
+    if (calBtn) calBtn.addEventListener('click', () => {
+        currentViewMonth = new Date().getMonth();
+        renderTimeline();
+    });
+
+    renderTimeline();
+});
+</script>
+
+            </div>
+        </div>
+    </div>

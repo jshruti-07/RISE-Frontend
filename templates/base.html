@@ -132,110 +132,227 @@
 
         <div class="menu">
 
-            <!-- DASHBOARD -->
-            <a style="margin-bottom: 0px;" href="{{ url_for('dashboard.dashboard') }}">
-                <i class="bi bi-house"></i> <span>Dashboard</span>
+            <!-- DASHBOARD (ribbon-right: yellow accent) -->
+            <a class="ribbon-right" style="margin-bottom: 0;" href="{{ url_for('dashboard.dashboard') }}">
+                <div class="ribbon-inner">
+                    <div class="ribbon-content">
+                        <div class="ribbon-icon"><i class="bi bi-house"></i></div>
+                        <div class="ribbon-text">
+                            <span class="ribbon-title">DASHBOARD</span>
+                            <span class="ribbon-subtitle">Overview &amp; metrics</span>
+                        </div>
+                    </div>
+                    <div class="ribbon-accent-right" style="background: linear-gradient(to bottom, #FDE047, #EAB308);"></div>
+                </div>
             </a>
 
-            <!-- TEAM MEMBERS (HR + MANAGER + ADMIN) -->
+            <!-- TEAM MEMBERS (ribbon-left: violet accent) -->
             {% if session.role in ['hr', 'manager', 'admin'] %}
-            <a style="margin-bottom: 0px; display: flex; align-items: center;" href="{{ url_for('employees.employee_list') }}">
-                <i class="bi bi-people"></i> <span style="flex: 1;">Team Members</span>
+            <a class="ribbon-left" style="margin-bottom: 0; display: block;" href="{{ url_for('employees.employee_list') }}">
+                <div class="ribbon-inner">
+                    <div class="ribbon-accent-left" style="background: linear-gradient(to bottom, #C4B5FD, #8B5CF6);"></div>
+                    <div class="ribbon-content">
+                        <div class="ribbon-icon"><i class="bi bi-people"></i></div>
+                        <div class="ribbon-text">
+                            <span class="ribbon-title">TEAM MEMBERS</span>
+                            <span class="ribbon-subtitle">Manage workforce</span>
+                        </div>
+                    </div>
+                </div>
             </a>
             {% endif %}
 
-            <!-- TIMESHEETS -->
+            <!-- TIMESHEETS (ribbon-right: green accent) -->
             {% if session.role in ['employee','manager','hr','admin'] %}
-            <a style="margin-bottom: 0px;" href="{{ url_for('work.timesheets_list') }}">
-                <i class="bi bi-clock"></i> <span>Timesheets</span>
+            <a class="ribbon-right" style="margin-bottom: 0;" href="{{ url_for('work.timesheets_list') }}">
+                <div class="ribbon-inner">
+                    <div class="ribbon-content">
+                        <div class="ribbon-icon"><i class="bi bi-clock"></i></div>
+                        <div class="ribbon-text">
+                            <span class="ribbon-title">TIMESHEETS</span>
+                            <span class="ribbon-subtitle">Track work hours</span>
+                        </div>
+                    </div>
+                    <div class="ribbon-accent-right" style="background: linear-gradient(to bottom, #86EFAC, #22C55E);"></div>
+                </div>
             </a>
             {% endif %}
 
-            <!-- LEAVES -->
+            <!-- LEAVES (ribbon-left: sky accent) -->
             {% if session.role in ['employee','hr','manager','admin'] %}
-            <a style="margin-bottom: 0px;" href="{{ url_for('work.leaves_list') }}">
-                <i class="bi bi-calendar"></i> <span>Leaves</span>
+            <a class="ribbon-left" style="margin-bottom: 0; display: block;" href="{{ url_for('work.leaves_list') }}">
+                <div class="ribbon-inner">
+                    <div class="ribbon-accent-left" style="background: linear-gradient(to bottom, #7DD3FC, #0EA5E9);"></div>
+                    <div class="ribbon-content">
+                        <div class="ribbon-icon"><i class="bi bi-calendar"></i></div>
+                        <div class="ribbon-text">
+                            <span class="ribbon-title">LEAVES</span>
+                            <span class="ribbon-subtitle">Absence &amp; holidays</span>
+                        </div>
+                    </div>
+                </div>
             </a>
             {% endif %}
 
-            <!-- PROJECTS -->
-            <a style="margin-bottom: 0px;" href="{{ url_for('projects.projects_list') }}">
-                <i class="bi bi-folder"></i> <span>Projects</span>
+            <!-- PROJECTS (ribbon-right: blue accent) -->
+            <a class="ribbon-right" style="margin-bottom: 0;" href="{{ url_for('projects.projects_list') }}">
+                <div class="ribbon-inner">
+                    <div class="ribbon-content">
+                        <div class="ribbon-icon"><i class="bi bi-folder"></i></div>
+                        <div class="ribbon-text">
+                            <span class="ribbon-title">PROJECTS</span>
+                            <span class="ribbon-subtitle">Client deliverables</span>
+                        </div>
+                    </div>
+                    <div class="ribbon-accent-right" style="background: linear-gradient(to bottom, #93C5FD, #3B82F6);"></div>
+                </div>
             </a>
 
-            <!-- REIMBURSEMENT (ALL USERS) -->
-            <a style="margin-bottom: 0px;" href="{{ url_for('admin.reimbursement') }}">
-                <i class="bi bi-receipt"></i> <span>Reimbursements</span>
+            <!-- REIMBURSEMENTS (ribbon-left: pink accent) -->
+            <a class="ribbon-left" style="margin-bottom: 0; display: block;" href="{{ url_for('admin.reimbursement') }}">
+                <div class="ribbon-inner">
+                    <div class="ribbon-accent-left" style="background: linear-gradient(to bottom, #F9A8D4, #EC4899);"></div>
+                    <div class="ribbon-content">
+                        <div class="ribbon-icon"><i class="bi bi-receipt"></i></div>
+                        <div class="ribbon-text">
+                            <span class="ribbon-title">EXPENSES</span>
+                            <span class="ribbon-subtitle">Claims &amp; refunds</span>
+                        </div>
+                    </div>
+                </div>
             </a>
 
-            <!-- REPORTS (HR + MANAGER + ADMIN) -->
+            <!-- REPORTS (ribbon-right: tan/gold accent) -->
             {% if session.role in ['hr', 'manager', 'admin'] %}
-            <a style="margin-bottom: 0px;" href="{{ url_for('work.hr_missing_timesheets') }}">
-                <i class="bi bi-file-earmark-bar-graph"></i> <span>Reports</span>
+            <a class="ribbon-right" style="margin-bottom: 0;" href="{{ url_for('work.hr_missing_timesheets') }}">
+                <div class="ribbon-inner">
+                    <div class="ribbon-content">
+                        <div class="ribbon-icon"><i class="bi bi-file-earmark-bar-graph"></i></div>
+                        <div class="ribbon-text">
+                            <span class="ribbon-title">REPORTS</span>
+                            <span class="ribbon-subtitle">Data &amp; insights</span>
+                        </div>
+                    </div>
+                    <div class="ribbon-accent-right" style="background: linear-gradient(to bottom, #E6C9A8, #C08A5D);"></div>
+                </div>
             </a>
             {% endif %}
 
-            <!-- PAYSLIPS (MANAGER + EMPLOYEE) -->
+            <!-- PAYSLIPS (ribbon-left: teal accent) -->
             {% if session.role in ['manager','employee'] %}
-            <a style="margin-bottom: 0px;" href="{{ url_for('user.payslips') }}">
-                <i class="bi bi-file-earmark-text"></i> <span>Payslips</span>
+            <a class="ribbon-left" style="margin-bottom: 0; display: block;" href="{{ url_for('user.payslips') }}">
+                <div class="ribbon-inner">
+                    <div class="ribbon-accent-left" style="background: linear-gradient(to bottom, #5EEAD4, #0D9488);"></div>
+                    <div class="ribbon-content">
+                        <div class="ribbon-icon"><i class="bi bi-file-earmark-text"></i></div>
+                        <div class="ribbon-text">
+                            <span class="ribbon-title">PAYSLIPS</span>
+                            <span class="ribbon-subtitle">Salary documents</span>
+                        </div>
+                    </div>
+                </div>
             </a>
             {% endif %}
 
-            <!-- BANK VERIFICATION (HR + ADMIN) -->
+            <!-- BANK VERIFICATION (ribbon-right: emerald accent) -->
             {% if session.role in ['hr', 'admin'] %}
-            <a style="margin-bottom: 0px;" href="{{ url_for('user.bank_verification') }}">
-                <i class="bi bi-credit-card"></i> <span>Bank Verification</span>
+            <a class="ribbon-right" style="margin-bottom: 0;" href="{{ url_for('user.bank_verification') }}">
+                <div class="ribbon-inner">
+                    <div class="ribbon-content">
+                        <div class="ribbon-icon"><i class="bi bi-credit-card"></i></div>
+                        <div class="ribbon-text">
+                            <span class="ribbon-title">VERIFICATION</span>
+                            <span class="ribbon-subtitle">Bank validation</span>
+                        </div>
+                    </div>
+                    <div class="ribbon-accent-right" style="background: linear-gradient(to bottom, #6EE7B7, #10B981);"></div>
+                </div>
             </a>
             {% endif %}
 
-            <!-- ASSETS (HR + ADMIN) -->
+            <!-- ASSETS (ribbon-left: orange accent) -->
             {% if session.role in ['hr', 'admin'] %}
-            <a style="margin-bottom: 0px;" href="{{ url_for('admin.assets') }}">
-                <i class="bi bi-laptop"></i> <span>Assets</span>
+            <a class="ribbon-left" style="margin-bottom: 0; display: block;" href="{{ url_for('admin.assets') }}">
+                <div class="ribbon-inner">
+                    <div class="ribbon-accent-left" style="background: linear-gradient(to bottom, #FDBA74, #EA580C);"></div>
+                    <div class="ribbon-content">
+                        <div class="ribbon-icon"><i class="bi bi-laptop"></i></div>
+                        <div class="ribbon-text">
+                            <span class="ribbon-title">ASSETS</span>
+                            <span class="ribbon-subtitle">Company property</span>
+                        </div>
+                    </div>
+                </div>
             </a>
             {% endif %}
 
-            <!-- ONBOARDING (HR ONLY) -->
+            <!-- ONBOARDING (ribbon-right: indigo accent) -->
             {% if session.role == 'hr' %}
-            <a style="margin-bottom: 0px;" href="{{ url_for('onboarding.dashboard') }}">
-                <i class="bi bi-door-open"></i> <span>Onboarding</span>
+            <a class="ribbon-right" style="margin-bottom: 0;" href="{{ url_for('onboarding.dashboard') }}">
+                <div class="ribbon-inner">
+                    <div class="ribbon-content">
+                        <div class="ribbon-icon"><i class="bi bi-door-open"></i></div>
+                        <div class="ribbon-text">
+                            <span class="ribbon-title">ONBOARDING</span>
+                            <span class="ribbon-subtitle">New joinee setup</span>
+                        </div>
+                    </div>
+                    <div class="ribbon-accent-right" style="background: linear-gradient(to bottom, #A5B4FC, #6366F1);"></div>
+                </div>
             </a>
             {% endif %}
 
-            <!-- POLICIES (ALL USERS) -->
-            <a style="margin-bottom: 0px;" href="{{ url_for('admin.policies') }}">
-                <i class="bi bi-file-text"></i> <span>Policies</span>
+            <!-- POLICIES (ribbon-left: slate accent) -->
+            <a class="ribbon-left" style="margin-bottom: 0; display: block;" href="{{ url_for('admin.policies') }}">
+                <div class="ribbon-inner">
+                    <div class="ribbon-accent-left" style="background: linear-gradient(to bottom, #94A3B8, #475569);"></div>
+                    <div class="ribbon-content">
+                        <div class="ribbon-icon"><i class="bi bi-file-text"></i></div>
+                        <div class="ribbon-text">
+                            <span class="ribbon-title">POLICIES</span>
+                            <span class="ribbon-subtitle">Company guidelines</span>
+                        </div>
+                    </div>
+                </div>
             </a>
 
-            <!-- HELP DESK (ALL USERS) -->
-            <a style="margin-bottom: 0px;" href="{{ url_for('admin.helpdesk') }}">
-                <i class="bi bi-headset"></i> <span>Help Desk</span>
+            <!-- HELP DESK (ribbon-right: rose accent) -->
+            <a class="ribbon-right" style="margin-bottom: 0;" href="{{ url_for('admin.helpdesk') }}">
+                <div class="ribbon-inner">
+                    <div class="ribbon-content">
+                        <div class="ribbon-icon"><i class="bi bi-headset"></i></div>
+                        <div class="ribbon-text">
+                            <span class="ribbon-title">HELP DESK</span>
+                            <span class="ribbon-subtitle">Support &amp; tickets</span>
+                        </div>
+                    </div>
+                    <div class="ribbon-accent-right" style="background: linear-gradient(to bottom, #FDA4AF, #E11D48);"></div>
+                </div>
             </a>
 
             <!-- QUICK ACTIONS SECTION -->
-            <hr style="margin: 16px 12px; border-top: 1px solid #e2e8f0; opacity: 1;">
+            <hr style="margin: 14px 16px 8px; border-top: 1px solid #e2e8f0; opacity: 1;">
             <div class="menu-category-header">QUICK ACTIONS</div>
 
             <!-- Apply Leave -->
-            <a style="margin-bottom: 0px;" href="{{ url_for('work.add_leave') }}">
+            <a class="quick-action" style="margin-bottom: 0;" href="{{ url_for('work.add_leave') }}">
                 <i class="bi bi-calendar-plus icon-green"></i> <span>Apply Leave</span>
             </a>
 
             <!-- Add Timesheet -->
-            <a style="margin-bottom: 0px;" href="{{ url_for('work.add_timesheet') }}">
+            <a class="quick-action" style="margin-bottom: 0;" href="{{ url_for('work.add_timesheet') }}">
                 <i class="bi bi-clock-history icon-purple"></i> <span>Add Timesheet</span>
             </a>
 
             <!-- New Project (HR + MANAGER + ADMIN) -->
             {% if session.role in ['hr', 'manager', 'admin'] %}
-            <a style="margin-bottom: 0px;" href="{{ url_for('projects.create_project') }}">
+            <a class="quick-action" style="margin-bottom: 0;" href="{{ url_for('projects.create_project') }}">
                 <i class="bi bi-folder-plus icon-orange"></i> <span>New Project</span>
             </a>
             {% endif %}
 
             <!-- Request Reimbursement -->
-            <a style="margin-bottom: 0px;" href="{{ url_for('admin.reimbursement') }}">
+            <a class="quick-action" style="margin-bottom: 0;" href="{{ url_for('admin.reimbursement') }}">
                 <i class="bi bi-file-earmark-plus icon-blue"></i> <span>Request Reimbursement</span>
             </a>
 
@@ -255,8 +372,7 @@
 
 
         <!-- TOPBAR -->
-
-        <div class="topbar">
+        <div class="topbar" style="border-bottom: 1px solid #e2e8f0;">
 
             <!-- LEFT -->
             <div class="topbar-left d-flex align-items-center">
@@ -275,50 +391,51 @@
                         <span class="input-group-text bg-transparent border-0 text-slate-400 ps-3 pe-2">
                             <i class="bi bi-search" style="color: #94a3b8;"></i>
                         </span>
-                        <input type="text" id="globalSearchInput" class="form-control border-0 shadow-none bg-transparent" placeholder="Search products, attributes..." style="font-size: 0.85rem; padding-left: 0;">
+                        <input type="text" id="globalSearchInput" class="form-control border-0 shadow-none bg-transparent" placeholder="Search operations..." style="font-size: 0.85rem; padding-left: 0;">
                         <span class="input-group-text bg-transparent border-0 text-slate-400 pe-3">
                         </span>
                     </div>
                 </div>
 
-                <!-- NOTIFICATIONS & HELP -->
-                <div class="d-flex align-items-center gap-3">
-                    {% if session.role in ['employee','hr','manager'] %}
-                    <a href="#" onclick="loadNotificationsPage(); return false;" class="text-secondary position-relative text-decoration-none">
-                        <i class="bi bi-bell" style="font-size: 1.1rem; color: #475569;"></i>
-                        <span id="notificationBadge" class="position-absolute top-0 start-100 translate-middle p-1 bg-danger border border-light rounded-circle" style="display: none; width: 8px; height: 8px; padding: 0 !important;">
-                            <span class="visually-hidden">New alerts</span>
-                        </span>
-                    </a>
-                    {% endif %}
-                </div>
-
-                <!-- PROFILE -->
-                <div class="dropdown">
-                    <button class="btn p-0 border-0 shadow-none bg-transparent d-flex align-items-center" type="button" data-bs-toggle="dropdown" aria-expanded="false" id="topbarUserDropdown">
-                        <div style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
-                            <div style="width: 34px; height: 34px; background: #0d9488; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; font-size: 0.85rem;">
-                                AB
-                            </div>
-                            <div style="display: flex; flex-direction: column; align-items: flex-start; line-height: 1.2;">
-                                <span style="font-size: 0.85rem; font-weight: 600; color: #0f172a;">{{ session.display_name or session.full_name or session.original_name or (session.employee_name | clean_name if session.employee_name else None) or 'Anna Becker' }}</span>
-                                <span style="font-size: 0.75rem; color: #64748b;">
-                                    {% if session.role == 'employee' %}
-                                        {{ labels.EMPLOYEE }}
-                                    {% else %}
-                                        {{ session.role | capitalize if session.role else 'Product Steward' }}
-                                    {% endif %}
-                                </span>
-                            </div>
+                <!-- PROFILE & NOTIFICATIONS -->
+                <div class="d-flex align-items-center gap-4">
+                    <div class="d-flex align-items-center gap-3">
+                        {% set display_name = session.display_name or session.full_name or session.original_name or (session.employee_name | clean_name if session.employee_name else None) or 'User' %}
+                        <div style="display: flex; flex-direction: column; align-items: flex-end; line-height: 1.2;">
+                            <span style="font-size: 0.85rem; font-weight: 600; color: #0f172a;">Good Day, {{ display_name }}!</span>
+                            <span style="font-size: 0.75rem; color: #64748b;">
+                                {% if session.role == 'employee' %}
+                                    {{ labels.EMPLOYEE if labels else 'Employee' }}
+                                {% else %}
+                                    {{ session.role | capitalize if session.role else 'Role' }}
+                                {% endif %}
+                            </span>
                         </div>
-                    </button>
-                    <ul class="dropdown-menu dropdown-menu-end shadow border-0" style="border-radius: 8px; margin-top: 10px;">
-                        <li><a class="dropdown-item" href="{{ url_for('user.profile') }}">👤 Profile</a></li>
-                        <li><a class="dropdown-item" href="#">⚙︁ Settings</a></li>
-                        <li><a class="dropdown-item" href="#">❁ Help</a></li>
-                        <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item text-danger" href="/logout">Logout</a></li>
-                    </ul>
+                        
+                        {% if session.role in ['employee','hr','manager', 'admin'] %}
+                        <a href="#" onclick="loadNotificationsPage(); return false;" class="text-secondary position-relative text-decoration-none">
+                            <i class="bi bi-bell" style="font-size: 1.2rem; color: #475569;"></i>
+                            <span id="notificationBadge" class="position-absolute top-0 start-100 translate-middle p-1 bg-danger border border-light rounded-circle" style="display: none; width: 8px; height: 8px; padding: 0 !important;">
+                                <span class="visually-hidden">New alerts</span>
+                            </span>
+                        </a>
+                        {% endif %}
+                    </div>
+
+                    <div class="dropdown">
+                        <button class="btn p-0 border-0 shadow-none bg-transparent d-flex align-items-center" type="button" data-bs-toggle="dropdown" aria-expanded="false" id="topbarUserDropdown">
+                            <div style="width: 34px; height: 34px; background: #0d9488; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; font-size: 0.85rem; overflow: hidden; border: 1px solid #e2e8f0;">
+                                {{ display_name[:2]|upper }}
+                            </div>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end shadow border-0" style="border-radius: 8px; margin-top: 10px;">
+                            <li><a class="dropdown-item" href="{{ url_for('user.profile') }}">👤 Profile</a></li>
+                            <li><a class="dropdown-item" href="#">⚙︁ Settings</a></li>
+                            <li><a class="dropdown-item" href="#">❁ Help</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item text-danger" href="/logout">Logout</a></li>
+                        </ul>
+                    </div>
                 </div>
 
             </div>
