@@ -972,10 +972,13 @@
                 </div>
                 <div class="input-group ms-2" style="width: 250px; background: rgba(255,255,255,0.7); border-radius: 8px; overflow: hidden; border: 1px solid rgba(0,0,0,0.1);">
                     <span class="input-group-text bg-transparent border-0"><i class="bi bi-search text-muted"></i></span>
-                    <input type="text" class="form-control border-0 bg-transparent shadow-none" placeholder="Search assets...">
+                    <input type="text" id="assetSearchInput" class="form-control border-0 bg-transparent shadow-none" placeholder="Search assets..." oninput="applyFilters()">
                 </div>
-                <button class="btn btn-light shadow-sm ms-2" style="border-radius: 8px; font-weight: 500;" title="Filters">
+                <button class="btn btn-light shadow-sm ms-2 position-relative" style="border-radius: 8px; font-weight: 500;" onclick="toggleFilterPanel()" title="Filters">
                     <i class="bi bi-funnel text-secondary"></i> Filters
+                    <span id="filterCountBadge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="display: none; font-size: 0.65rem;">
+                        0
+                    </span>
                 </button>
                 <button class="btn btn-light shadow-sm ms-2" style="border-radius: 8px; font-weight: 500; color: #4f46e5;" id="btnExportModal" onclick="openExportModal()" title="Export Assets to Excel">
                     <i class="bi bi-download me-1"></i> Export
@@ -983,6 +986,97 @@
                 <button class="btn-hero-action ms-2" id="tabAddAsset" onclick="switchTab('add')">
                     <i class="bi bi-plus-lg"></i> Add New Asset
                 </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── Filter Panel ── -->
+    <div id="assetFilterPanel" class="bg-white rounded-3 shadow-sm mb-3 p-3 border border-light" style="display: none;">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h6 class="m-0 fw-bold text-primary"><i class="bi bi-funnel-fill me-2"></i>Filter Assets</h6>
+            <button class="btn btn-sm btn-link text-muted p-0" onclick="clearFilters()">Clear All Filters</button>
+        </div>
+        <div class="row g-3">
+            <div class="col-md-3 col-sm-6">
+                <label class="form-label small text-muted mb-1">Category</label>
+                <select id="filterCategory" class="form-select form-select-sm" onchange="applyFilters()">
+                    <option value="">All Categories</option>
+                    <option value="Laptop">Laptop</option>
+                    <option value="Desktop">Desktop</option>
+                    <option value="Mobile">Mobile</option>
+                    <option value="Tablet">Tablet</option>
+                    <option value="Monitor">Monitor</option>
+                    <option value="Accessory">Accessory</option>
+                    <option value="Other">Other</option>
+                </select>
+            </div>
+            <div class="col-md-3 col-sm-6">
+                <label class="form-label small text-muted mb-1">Status</label>
+                <select id="filterStatus" class="form-select form-select-sm" onchange="applyFilters()">
+                    <option value="">All Statuses</option>
+                    <option value="Available">Available</option>
+                    <option value="Assigned">Assigned</option>
+                    <option value="Under Repair">Under Repair</option>
+                    <option value="Retired">Retired</option>
+                </select>
+            </div>
+            <div class="col-md-3 col-sm-6">
+                <label class="form-label small text-muted mb-1">Ownership Type</label>
+                <select id="filterOwnership" class="form-select form-select-sm" onchange="applyFilters()">
+                    <option value="">All Types</option>
+                    <option value="Purchased">Purchased</option>
+                    <option value="Rented">Rented</option>
+                </select>
+            </div>
+            <div class="col-md-3 col-sm-6">
+                <label class="form-label small text-muted mb-1">Allotment</label>
+                <select id="filterAllotment" class="form-select form-select-sm" onchange="applyFilters()">
+                    <option value="">All</option>
+                    <option value="Assigned">Assigned</option>
+                    <option value="Available">Available</option>
+                </select>
+            </div>
+            <div class="col-md-3 col-sm-6">
+                <label class="form-label small text-muted mb-1">Vendor</label>
+                <select id="filterVendor" class="form-select form-select-sm" onchange="applyFilters()">
+                    <option value="">All Vendors</option>
+                </select>
+            </div>
+            <div class="col-md-3 col-sm-6">
+                <label class="form-label small text-muted mb-1">Location</label>
+                <select id="filterLocation" class="form-select form-select-sm" onchange="applyFilters()">
+                    <option value="">All Locations</option>
+                </select>
+            </div>
+            <div class="col-md-3 col-sm-6">
+                <label class="form-label small text-muted mb-1">Allotted To</label>
+                <select id="filterAllottedTo" class="form-select form-select-sm" onchange="applyFilters()">
+                    <option value="">All Employees</option>
+                </select>
+            </div>
+            <div class="col-md-3 col-sm-6">
+                <div class="d-flex gap-2">
+                    <div class="flex-grow-1">
+                        <label class="form-label small text-muted mb-1">Purchase Date</label>
+                        <input type="date" id="filterPurchaseFrom" class="form-control form-control-sm" placeholder="From" onchange="applyFilters()" title="Purchase Date From">
+                    </div>
+                    <div class="flex-grow-1">
+                        <label class="form-label small text-muted mb-1">&nbsp;</label>
+                        <input type="date" id="filterPurchaseTo" class="form-control form-control-sm" placeholder="To" onchange="applyFilters()" title="Purchase Date To">
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6">
+                <div class="d-flex gap-2">
+                    <div class="flex-grow-1">
+                        <label class="form-label small text-muted mb-1">Warranty Expires</label>
+                        <input type="date" id="filterWarrantyFrom" class="form-control form-control-sm" placeholder="From" onchange="applyFilters()" title="Warranty Expiry From">
+                    </div>
+                    <div class="flex-grow-1">
+                        <label class="form-label small text-muted mb-1">&nbsp;</label>
+                        <input type="date" id="filterWarrantyTo" class="form-control form-control-sm" placeholder="To" onchange="applyFilters()" title="Warranty Expiry To">
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -1743,22 +1837,183 @@
     }
 
     /* ════════════════════════════════════════
-       INVENTORY LOGIC
+       INVENTORY LOGIC & FILTERS
     ════════════════════════════════════════ */
+    let allAssets = [];
+
     function loadAssets() {
         fetch('/api/assets', { headers: getHeaders() })
             .then(res => res.json())
             .then(data => {
-                if (data.success) renderAssets(data.assets);
+                if (data.success) {
+                    try {
+                        allAssets = data.assets || [];
+                        populateFilterDropdowns(allAssets);
+                        applyFilters();
+                    } catch (err) {
+                        console.error("Error in loadAssets processing:", err);
+                        document.getElementById('assetsTableBody').innerHTML = `<tr><td colspan="8" class="text-danger text-center py-4">Error processing assets: ${err.message}<br>${err.stack}</td></tr>`;
+                    }
+                } else {
+                    document.getElementById('assetsTableBody').innerHTML = `<tr><td colspan="8" class="text-danger text-center py-4">API Error: ${data.error || 'Unknown error'}</td></tr>`;
+                }
+            })
+            .catch(err => {
+                console.error("Network error in loadAssets:", err);
+                document.getElementById('assetsTableBody').innerHTML = `<tr><td colspan="8" class="text-danger text-center py-4">Network error: ${err.message}</td></tr>`;
             });
+    }
+
+    function toggleFilterPanel() {
+        const panel = document.getElementById('assetFilterPanel');
+        panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+    }
+
+    function populateFilterDropdowns(assets) {
+        // Vendors
+        const vendorSet = new Set();
+        assets.forEach(a => { if (a.vendor_name) vendorSet.add(a.vendor_name); });
+        const vendors = Array.from(vendorSet).sort();
+        const vendorSelect = document.getElementById('filterVendor');
+        const currentVendor = vendorSelect.value;
+        vendorSelect.innerHTML = '<option value="">All Vendors</option>' + vendors.map(v => `<option value="${v}">${v}</option>`).join('');
+        if (vendors.includes(currentVendor)) vendorSelect.value = currentVendor;
+
+        // Locations
+        const locationSet = new Set();
+        assets.forEach(a => { if (a.location) locationSet.add(a.location); });
+        const locations = Array.from(locationSet).sort();
+        const locSelect = document.getElementById('filterLocation');
+        const currentLoc = locSelect.value;
+        locSelect.innerHTML = '<option value="">All Locations</option>' + locations.map(l => `<option value="${l}">${l}</option>`).join('');
+        if (locations.includes(currentLoc)) locSelect.value = currentLoc;
+
+        // Allotted To
+        const allottedSelect = document.getElementById('filterAllottedTo');
+        const currentAllotted = allottedSelect.value;
+        if (typeof employees !== 'undefined' && employees.length > 0) {
+            allottedSelect.innerHTML = '<option value="">All Employees</option>' + employees.map(e => `<option value="${e.id}">${e.name}</option>`).join('');
+            if (currentAllotted) allottedSelect.value = currentAllotted;
+        }
+    }
+
+    function clearFilters() {
+        document.getElementById('assetSearchInput').value = '';
+        document.getElementById('filterCategory').value = '';
+        document.getElementById('filterStatus').value = '';
+        document.getElementById('filterOwnership').value = '';
+        document.getElementById('filterAllotment').value = '';
+        document.getElementById('filterVendor').value = '';
+        document.getElementById('filterLocation').value = '';
+        document.getElementById('filterAllottedTo').value = '';
+        document.getElementById('filterPurchaseFrom').value = '';
+        document.getElementById('filterPurchaseTo').value = '';
+        document.getElementById('filterWarrantyFrom').value = '';
+        document.getElementById('filterWarrantyTo').value = '';
+        applyFilters();
+    }
+
+    function applyFilters() {
+        const searchQuery = document.getElementById('assetSearchInput').value.toLowerCase().trim();
+        const category = document.getElementById('filterCategory').value;
+        const status = document.getElementById('filterStatus').value;
+        const ownership = document.getElementById('filterOwnership').value;
+        const allotment = document.getElementById('filterAllotment').value;
+        const vendor = document.getElementById('filterVendor').value;
+        const location = document.getElementById('filterLocation').value;
+        const allottedTo = document.getElementById('filterAllottedTo').value;
+        const purchaseFrom = document.getElementById('filterPurchaseFrom').value;
+        const purchaseTo = document.getElementById('filterPurchaseTo').value;
+        const warrantyFrom = document.getElementById('filterWarrantyFrom').value;
+        const warrantyTo = document.getElementById('filterWarrantyTo').value;
+
+        let activeFilterCount = 0;
+        if (category) activeFilterCount++;
+        if (status) activeFilterCount++;
+        if (ownership) activeFilterCount++;
+        if (allotment) activeFilterCount++;
+        if (vendor) activeFilterCount++;
+        if (location) activeFilterCount++;
+        if (allottedTo) activeFilterCount++;
+        if (purchaseFrom || purchaseTo) activeFilterCount++;
+        if (warrantyFrom || warrantyTo) activeFilterCount++;
+
+        const badge = document.getElementById('filterCountBadge');
+        if (activeFilterCount > 0) {
+            badge.textContent = activeFilterCount;
+            badge.style.display = 'inline-block';
+        } else {
+            badge.style.display = 'none';
+        }
+
+        const filtered = allAssets.filter(a => {
+            // Search
+            if (searchQuery) {
+                const searchStr = `${a.device_name || ''} ${a.brand || ''} ${a.model || ''} ${a.serial_number || ''} ${a.asset_id || ''}`.toLowerCase();
+                if (!searchStr.includes(searchQuery)) return false;
+            }
+            
+            // Category
+            if (category && (a.device_type !== category)) return false;
+            
+            // Status
+            if (status && (a.status !== status)) return false;
+            
+            // Ownership
+            if (ownership && (a.ownership_type !== ownership)) return false;
+            
+            // Allotment
+            const empId = a.employee_id || a.assigned_to || a.user_id || a.emp_id || a.allotted_to || a.allotted_id;
+            const isAssigned = (a.status && (a.status.toLowerCase() === 'assigned' || a.status.toLowerCase() === 'allotted')) || !!empId;
+            if (allotment === 'Assigned' && !isAssigned) return false;
+            if (allotment === 'Available' && isAssigned) return false;
+            
+            // Vendor
+            if (vendor && (a.vendor_name !== vendor)) return false;
+            
+            // Location
+            if (location && (a.location !== location)) return false;
+            
+            // Allotted To
+            if (allottedTo && (String(empId) !== String(allottedTo))) return false;
+            
+            // Purchase Date
+            if (purchaseFrom || purchaseTo) {
+                if (!a.purchase_date) return false;
+                const pDate = new Date(a.purchase_date);
+                if (purchaseFrom && pDate < new Date(purchaseFrom)) return false;
+                if (purchaseTo) {
+                    const toDate = new Date(purchaseTo);
+                    toDate.setHours(23, 59, 59, 999);
+                    if (pDate > toDate) return false;
+                }
+            }
+            
+            // Warranty Expiry
+            if (warrantyFrom || warrantyTo) {
+                const wDateStr = a.warranty_expiry || a.warranty_end;
+                if (!wDateStr) return false;
+                const wDate = new Date(wDateStr);
+                if (warrantyFrom && wDate < new Date(warrantyFrom)) return false;
+                if (warrantyTo) {
+                    const toDate = new Date(warrantyTo);
+                    toDate.setHours(23, 59, 59, 999);
+                    if (wDate > toDate) return false;
+                }
+            }
+            
+            return true;
+        });
+
+        renderAssets(filtered);
     }
 
     function renderAssets(assets) {
         const tbody = document.getElementById('assetsTableBody');
 
-        // Update hero stats
-        const total    = assets ? assets.length : 0;
-        const assigned = assets ? assets.filter(a => {
+        // Update hero stats from allAssets to remain consistent when filtering
+        const total    = allAssets ? allAssets.length : 0;
+        const assigned = allAssets ? allAssets.filter(a => {
             const empId = a.employee_id || a.assigned_to || a.user_id || a.emp_id || a.allotted_to || a.allotted_id;
             return (a.status && (a.status.toLowerCase() === 'assigned' || a.status.toLowerCase() === 'allotted')) || !!empId;
         }).length : 0;
@@ -1767,12 +2022,22 @@
         document.getElementById('heroStatFree').textContent     = total - assigned;
 
         if (!assets || assets.length === 0) {
+            const debugFilters = {
+                cat: document.getElementById('filterCategory').value,
+                stat: document.getElementById('filterStatus').value,
+                own: document.getElementById('filterOwnership').value,
+                allot: document.getElementById('filterAllotment').value,
+                ven: document.getElementById('filterVendor').value,
+                loc: document.getElementById('filterLocation').value,
+                emp: document.getElementById('filterAllottedTo').value
+            };
             tbody.innerHTML = `
                 <tr><td colspan="8">
                     <div class="empty-state">
                         <i class="bi bi-inbox"></i>
                         <h6>No assets registered</h6>
                         <p class="small text-muted mb-0">Click "Add Asset" to register your first device.</p>
+                        <p class="small text-danger mt-2">Debug: Total API Assets = ${allAssets ? allAssets.length : 0} | Filters = ${JSON.stringify(debugFilters)}</p>
                     </div>
                 </td></tr>`;
             return;
