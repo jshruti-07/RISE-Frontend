@@ -146,6 +146,22 @@
                 </div>
             </a>
 
+            <!-- ACCESS CONTROL (ribbon-left: red/indigo accent) -->
+            {% if session.role == 'superadmin' %}
+            <a class="ribbon-left" style="margin-bottom: 0; display: block;" href="{{ url_for('superadmin.access_control') }}">
+                <div class="ribbon-inner">
+                    <div class="ribbon-accent-left" style="background: linear-gradient(to bottom, #fca5a5, #ef4444);"></div>
+                    <div class="ribbon-content">
+                        <div class="ribbon-icon"><i class="bi bi-shield-lock"></i></div>
+                        <div class="ribbon-text">
+                            <span class="ribbon-title">ACCESS CONTROL</span>
+                            <span class="ribbon-subtitle">Permission matrix</span>
+                        </div>
+                    </div>
+                </div>
+            </a>
+            {% endif %}
+
             <!-- TEAM MEMBERS (ribbon-left: violet accent) -->
             {% if session.role in ['hr', 'manager', 'admin'] %}
             <a class="ribbon-left" style="margin-bottom: 0; display: block;" href="{{ url_for('employees.employee_list') }}">

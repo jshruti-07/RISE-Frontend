@@ -56,7 +56,10 @@
                 <label>Role</label>
                 <select name="role" class="form-select" required>
                     <option value="" disabled selected>Select Role</option>
+                    {% if session.role == 'superadmin' %}
+                    <option value="superadmin">Super Admin</option>
                     <option value="admin">Admin</option>
+                    {% endif %}
                     <option value="hr">HR</option>
                     <option value="manager">Manager</option>
                     <option value="employee">Team Member</option>

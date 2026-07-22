@@ -152,7 +152,7 @@
 
 
 
-                {% if session.role in ['admin'] %}
+                {% if session.role in ['admin', 'superadmin'] %}
                 <div class="row mb-3">
                     <div class="col-md-6">
                         <label class="d-flex align-items-center gap-2">
@@ -164,7 +164,10 @@
                                 <option value="employee" {% if employee.role == 'employee' %}selected{% endif %}>{{ labels.EMPLOYEE }}</option>
                                 <option value="hr" {% if employee.role == 'hr' %}selected{% endif %}>HR</option>
                                 <option value="manager" {% if employee.role == 'manager' %}selected{% endif %}>Manager</option>
+                                {% if session.role == 'superadmin' %}
                                 <option value="admin" {% if employee.role == 'admin' %}selected{% endif %}>Admin</option>
+                                <option value="superadmin" {% if employee.role == 'superadmin' %}selected{% endif %}>Super Admin</option>
+                                {% endif %}
                             </select>
                         </div>
                     </div>
