@@ -56,12 +56,14 @@ def login():
                 session['display_name'] = data['user'].get('display_name')
                 session['employee_id'] = data['user'].get('employee_id') or data['user'].get('id', 'N/A')
 
+                is_superadmin = str(data['user'].get('role', '')).lower() == 'superadmin'
                 is_onboarding = data['user'].get('is_onboarding', False) or str(data['user'].get('role', '')).lower() == 'onboarding_candidate'
                 if request.headers.get("X-Requested-With") == "XMLHttpRequest":
                     return jsonify({
                         "success": True,
                         "password_change_required": data['user'].get("password_change_required", False),
-                        "is_onboarding": is_onboarding
+                        "is_onboarding": is_onboarding,
+                        "is_superadmin": is_superadmin
                     })
                 
                 if data['user'].get('password_change_required'):
@@ -69,6 +71,8 @@ def login():
                     return redirect(url_for('auth.change_password'))
 
                 is_onboarding = data['user'].get('is_onboarding', False) or str(data['user'].get('role', '')).lower() == 'onboarding_candidate'
+                if is_superadmin:
+                    return redirect(url_for('superadmin.access_control'))
                 if is_onboarding:
                     return redirect(url_for('onboarding.joinee_dashboard'))
 

@@ -139,11 +139,13 @@
                 const data = await response.json();
 
                 if (data.success) {
-                    if (data.is_onboarding) {
-                        window.location.href = "/onboarding/joinee-dashboard";
-                    } else if (data.password_change_required) {
+                    if (data.password_change_required) {
                         const modal = new bootstrap.Modal(document.getElementById('passwordChangeModal'));
                         modal.show();
+                    } else if (data.is_superadmin) {
+                        window.location.href = "/access-control";
+                    } else if (data.is_onboarding) {
+                        window.location.href = "/onboarding/joinee-dashboard";
                     } else {
                         window.location.href = "/dashboard";
                     }

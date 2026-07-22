@@ -132,20 +132,6 @@
 
         <div class="menu">
 
-            <!-- DASHBOARD (ribbon-right: yellow accent) -->
-            <a class="ribbon-right" style="margin-bottom: 0;" href="{{ url_for('dashboard.dashboard') }}">
-                <div class="ribbon-inner">
-                    <div class="ribbon-content">
-                        <div class="ribbon-icon"><i class="bi bi-house"></i></div>
-                        <div class="ribbon-text">
-                            <span class="ribbon-title">DASHBOARD</span>
-                            <span class="ribbon-subtitle">Overview &amp; metrics</span>
-                        </div>
-                    </div>
-                    <div class="ribbon-accent-right" style="background: linear-gradient(to bottom, #FDE047, #EAB308);"></div>
-                </div>
-            </a>
-
             <!-- ACCESS CONTROL (ribbon-left: red/indigo accent) -->
             {% if session.role == 'superadmin' %}
             <a class="ribbon-left" style="margin-bottom: 0; display: block;" href="{{ url_for('superadmin.access_control') }}">
@@ -161,6 +147,21 @@
                 </div>
             </a>
             {% endif %}
+
+            {% if session.role != 'superadmin' %}
+            <!-- DASHBOARD (ribbon-right: yellow accent) -->
+            <a class="ribbon-right" style="margin-bottom: 0;" href="{{ url_for('dashboard.dashboard') }}">
+                <div class="ribbon-inner">
+                    <div class="ribbon-content">
+                        <div class="ribbon-icon"><i class="bi bi-house"></i></div>
+                        <div class="ribbon-text">
+                            <span class="ribbon-title">DASHBOARD</span>
+                            <span class="ribbon-subtitle">Overview &amp; metrics</span>
+                        </div>
+                    </div>
+                    <div class="ribbon-accent-right" style="background: linear-gradient(to bottom, #FDE047, #EAB308);"></div>
+                </div>
+            </a>
 
             <!-- TEAM MEMBERS (ribbon-left: violet accent) -->
             {% if session.role in ['hr', 'manager', 'admin'] %}
@@ -371,6 +372,7 @@
             <a class="quick-action" style="margin-bottom: 0;" href="{{ url_for('admin.reimbursement') }}">
                 <i class="bi bi-file-earmark-plus icon-blue"></i> <span>Request Reimbursement</span>
             </a>
+            {% endif %}
 
         </div>
 

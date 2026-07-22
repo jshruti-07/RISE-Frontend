@@ -351,9 +351,14 @@
         
         // Iterate over modules
         for (const [modName, perms] of Object.entries(modules)) {
-            html += `<div class="module-header"><i class="bi bi-box"></i> ${modName.toUpperCase()}</div>`;
+            const collapseId = 'collapse-' + modName.replace(/[^a-zA-Z0-9]/g, '-');
+            html += `<div class="module-header collapsed" data-bs-toggle="collapse" data-bs-target="#${collapseId}" style="cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
+                        <div><i class="bi bi-box"></i> ${modName.toUpperCase()}</div>
+                        <i class="bi bi-chevron-down toggle-icon" style="transition: transform 0.3s; transform: rotate(-90deg);"></i>
+                     </div>`;
             
-            html += `<table class="matrix-table">
+            html += `<div class="collapse" id="${collapseId}">
+                <table class="matrix-table">
                 <thead>
                     <tr>
                         <th style="width: 30%">Permission</th>`;
@@ -393,7 +398,8 @@
                 html += `</tr>`;
             });
             
-            html += `</tbody></table>`;
+            html += `</tbody></table>
+            </div>`;
         }
         
         container.innerHTML = html;
@@ -520,5 +526,21 @@
     function hideLoading() {
         document.getElementById('loading-overlay').style.display = 'none';
     }
+
+    document.getElementById('matrix-container').addEventListener('hide.bs.collapse', function (e) {
+        const header = document.querySelector(`[data-bs-target="#${e.target.id}"]`);
+        if(header) {
+            const icon = header.querySelector('.toggle-icon');
+            if(icon) icon.style.transform = 'rotate(-90deg)';
+        }
+    });
+    
+    document.getElementById('matrix-container').addEventListener('show.bs.collapse', function (e) {
+        const header = document.querySelector(`[data-bs-target="#${e.target.id}"]`);
+        if(header) {
+            const icon = header.querySelector('.toggle-icon');
+            if(icon) icon.style.transform = 'rotate(0deg)';
+        }
+    });
 </script>
 {% endblock %}
