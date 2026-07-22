@@ -1107,6 +1107,9 @@
             <button class="asset-tab-pill" id="tabAddAsset" onclick="switchTab('add')">
                 <i class="bi bi-plus-circle"></i> Add New Asset
             </button>
+            <button class="asset-tab-pill" id="tabRentals" onclick="switchTab('rentals')">
+                <i class="bi bi-cash-coin"></i> Rental Management
+            </button>
         </div>
 
         <!-- Section 1: Inventory -->
@@ -1257,6 +1260,117 @@
                 </div>
             </form>
         </section>
+
+        <!-- Section 3: Rental Management -->
+        <section id="sectionRentals" class="view-section">
+            <!-- Summary Cards -->
+            <div class="row g-3 mb-4" id="rentalStatsRow">
+                <div class="col-6 col-md-3">
+                    <div class="card border-0 shadow-sm h-100" style="background:linear-gradient(135deg,#dbeafe,#eff6ff);">
+                        <div class="card-body text-center py-3">
+                            <div class="fs-1 fw-bold text-primary" id="statTotalAssets">–</div>
+                            <div class="small text-muted">Total Rental Assets</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="card border-0 shadow-sm h-100" style="background:linear-gradient(135deg,#d1fae5,#ecfdf5);">
+                        <div class="card-body text-center py-3">
+                            <div class="fs-1 fw-bold text-success" id="statMonthlyCost">–</div>
+                            <div class="small text-muted">Total Monthly Cost</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="card border-0 shadow-sm h-100" style="background:linear-gradient(135deg,#fef3c7,#fffbeb);">
+                        <div class="card-body text-center py-3">
+                            <div class="fs-1 fw-bold text-warning" id="statActiveVendors">–</div>
+                            <div class="small text-muted">Active Vendors</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="card border-0 shadow-sm h-100" style="background:linear-gradient(135deg,#fee2e2,#fff5f5);">
+                        <div class="card-body text-center py-3">
+                            <div class="fs-1 fw-bold text-danger" id="statUpcomingRenewals">–</div>
+                            <div class="small text-muted">Renewals (30 days)</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Filters Bar -->
+            <div class="d-flex flex-wrap align-items-center gap-2 mb-3">
+                <input type="text" id="rentalSearch" class="form-control" placeholder="Search asset, vendor..." style="max-width:200px;" oninput="rentalFiltersChanged()">
+                <select id="rentalFilterVendor" class="form-select" style="max-width:160px;" onchange="rentalFiltersChanged()">
+                    <option value="">All Vendors</option>
+                </select>
+                <select id="rentalFilterType" class="form-select" style="max-width:160px;" onchange="rentalFiltersChanged()">
+                    <option value="">All Categories</option>
+                    <option>Laptop</option><option>Desktop</option><option>Mobile</option><option>Tablet</option><option>Peripherals</option>
+                </select>
+                <select id="rentalFilterYear" class="form-select" style="max-width:110px;" onchange="rentalFiltersChanged()">
+                </select>
+                <select id="rentalFilterMonth" class="form-select" style="max-width:130px;" onchange="rentalFiltersChanged()">
+                    <option value="">All Months</option>
+                    <option>Apr</option><option>May</option><option>Jun</option><option>Jul</option>
+                    <option>Aug</option><option>Sep</option><option>Oct</option><option>Nov</option>
+                    <option>Dec</option><option>Jan</option><option>Feb</option><option>Mar</option>
+                </select>
+                <div class="ms-auto d-flex gap-2">
+                    <button class="btn btn-sm btn-outline-secondary" onclick="clearRentalFilters()"><i class="bi bi-x-circle"></i> Clear</button>
+                    <button class="btn btn-sm btn-outline-success" onclick="exportRentals()"><i class="bi bi-file-earmark-excel"></i> Export</button>
+                </div>
+            </div>
+
+            <div class="row g-3">
+                <!-- Left Rail: Vendor Summary -->
+                <div class="col-md-3">
+                    <div class="card border-0 shadow-sm mb-3">
+                        <div class="card-header fw-bold small">Vendor Summary</div>
+                        <div class="card-body p-2" id="vendorSummaryList" style="max-height:300px;overflow-y:auto;">
+                            <div class="text-muted text-center small py-3">Loading…</div>
+                        </div>
+                    </div>
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-header fw-bold small">Quick Filters</div>
+                        <div class="card-body p-2 d-flex flex-column gap-1">
+                            <button class="btn btn-sm btn-outline-primary" onclick="setQuickFilter('active_only')"><i class="bi bi-check-circle"></i> Active Rentals</button>
+                            <button class="btn btn-sm btn-outline-warning" onclick="setQuickFilter('expiring_soon')"><i class="bi bi-clock-history"></i> Expiring Soon (30d)</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Center: Month Strip + Matrix -->
+                <div class="col-md-9">
+                    <!-- Month Strip -->
+                    <div class="d-flex gap-2 mb-3 overflow-auto pb-1" id="monthStrip" style="min-width:0;"></div>
+
+                    <!-- Legend -->
+                    <div class="d-flex gap-3 mb-2 flex-wrap">
+                        <span class="badge" style="background:#d1fae5;color:#065f46;">&#9632; Paid</span>
+                        <span class="badge" style="background:#fef3c7;color:#92400e;">&#9632; Due This Month</span>
+                        <span class="badge" style="background:#dbeafe;color:#1e40af;">&#9632; Upcoming</span>
+                        <span class="badge" style="background:#f3f4f6;color:#374151;">&#9632; Not Applicable</span>
+                    </div>
+
+                    <!-- Rental Matrix Table -->
+                    <div style="overflow-x:auto;">
+                        <table class="table table-bordered table-sm align-middle" style="min-width:1200px;font-size:0.82rem;">
+                            <thead id="rentalMatrixHead" class="table-dark"></thead>
+                            <tbody id="rentalMatrixBody"></tbody>
+                        </table>
+                    </div>
+
+                    <!-- Pagination -->
+                    <div class="d-flex justify-content-between align-items-center mt-2" id="rentalPagination">
+                        <div class="text-muted small" id="rentalPaginationInfo"></div>
+                        <div class="d-flex gap-1" id="rentalPaginationBtns"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
     </div>
 </div>
 
@@ -1817,11 +1931,276 @@
             document.getElementById('tabInventory').classList.add('active');
             document.getElementById('sectionInventory').classList.add('active');
             loadAssets();
+        } else if (tab === 'rentals') {
+            document.getElementById('tabRentals').classList.add('active');
+            document.getElementById('sectionRentals').classList.add('active');
+            if (!rentalLoaded) { loadRentalDashboard(); rentalLoaded = true; }
         } else {
             document.getElementById('tabAddAsset').classList.add('active');
             document.getElementById('sectionAddAsset').classList.add('active');
         }
     }
+
+    /* ════════════════════════════════════════
+       RENTAL MANAGEMENT LOGIC
+    ════════════════════════════════════════ */
+    let rentalLoaded = false;
+    let rentalCurrentPage = 1;
+    let rentalTotalPages = 1;
+    let rentalActiveQuickFilter = null;
+    const MONTH_ORDER = ['Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec','Jan','Feb','Mar'];
+    const STATUS_STYLE = {
+        'Paid':           {bg:'#d1fae5', color:'#065f46'},
+        'Due This Month': {bg:'#fef3c7', color:'#92400e'},
+        'Upcoming':       {bg:'#dbeafe', color:'#1e40af'},
+        'Not Applicable': {bg:'#f3f4f6', color:'#6b7280'},
+    };
+
+    // Populate year dropdown
+    (function() {
+        const sel = document.getElementById('rentalFilterYear');
+        const thisYear = new Date().getFullYear();
+        sel.innerHTML = '';
+        for (let y = thisYear + 1; y >= thisYear - 3; y--) {
+            const opt = document.createElement('option');
+            opt.value = y; opt.textContent = y;
+            if (y === thisYear) opt.selected = true;
+            sel.appendChild(opt);
+        }
+    })();
+
+    function getRentalFilters() {
+        const f = {
+            search: document.getElementById('rentalSearch').value.trim(),
+            vendor: document.getElementById('rentalFilterVendor').value,
+            device_type: document.getElementById('rentalFilterType').value,
+            year: document.getElementById('rentalFilterYear').value,
+            month: document.getElementById('rentalFilterMonth').value,
+        };
+        if (rentalActiveQuickFilter === 'active_only') f.active_only = 'true';
+        if (rentalActiveQuickFilter === 'expiring_soon') f.expiring_soon = 'true';
+        return f;
+    }
+
+    function buildRentalQueryString(filters, extra) {
+        const p = {...filters, ...extra};
+        return new URLSearchParams(Object.fromEntries(Object.entries(p).filter(([,v]) => v))).toString();
+    }
+
+    async function loadRentalDashboard() {
+        await Promise.all([loadRentalStats(), loadRentalVendors(), loadRentalMonthStrip()]);
+        loadRentalMatrix(1);
+    }
+
+    async function loadRentalStats() {
+        try {
+            const qs = buildRentalQueryString(getRentalFilters(), {});
+            const res = await fetch(`/api/rentals/dashboard-stats?${qs}`, { headers: getHeaders() });
+            const data = await res.json();
+            if (data.success) {
+                document.getElementById('statTotalAssets').textContent = data.total_rental_assets ?? '–';
+                document.getElementById('statMonthlyCost').textContent = data.total_monthly_cost != null
+                    ? '₹' + Number(data.total_monthly_cost).toLocaleString('en-IN', {maximumFractionDigits: 0})
+                    : '–';
+                document.getElementById('statActiveVendors').textContent = data.active_vendors ?? '–';
+                document.getElementById('statUpcomingRenewals').textContent = data.upcoming_renewals ?? '–';
+            }
+        } catch(e) { console.error('Rental stats error:', e); }
+    }
+
+    async function loadRentalVendors() {
+        const el = document.getElementById('vendorSummaryList');
+        const vendorSel = document.getElementById('rentalFilterVendor');
+        try {
+            const qs = buildRentalQueryString(getRentalFilters(), {});
+            const res = await fetch(`/api/rentals/vendor-summary?${qs}`, { headers: getHeaders() });
+            const data = await res.json();
+            if (data.success && data.vendors.length) {
+                const currentVendor = vendorSel.value;
+                vendorSel.innerHTML = '<option value="">All Vendors</option>';
+                el.innerHTML = '';
+                data.vendors.forEach(v => {
+                    const opt = document.createElement('option');
+                    opt.value = v.vendor_name; opt.textContent = v.vendor_name;
+                    vendorSel.appendChild(opt);
+
+                    const row = document.createElement('div');
+                    row.className = 'd-flex justify-content-between align-items-center px-2 py-1 rounded mb-1 vendor-card';
+                    row.style.cursor = 'pointer';
+                    row.innerHTML = `<div class="small fw-semibold">${v.vendor_name || 'Unknown'}</div>
+                        <div class="small text-end">
+                            <span class="badge bg-primary-subtle text-primary">${v.asset_count}</span>
+                            <div class="text-success fw-bold">₹${Number(v.total_monthly_amount).toLocaleString('en-IN', {maximumFractionDigits:0})}</div>
+                        </div>`;
+                    row.onclick = () => {
+                        document.getElementById('rentalFilterVendor').value = v.vendor_name;
+                        rentalFiltersChanged();
+                    };
+                    el.appendChild(row);
+                });
+                if (currentVendor) vendorSel.value = currentVendor;
+            } else {
+                el.innerHTML = '<div class="text-muted text-center small py-3">No vendors found</div>';
+            }
+        } catch(e) { el.innerHTML = '<div class="text-danger text-center small py-2">Error loading vendors</div>'; }
+    }
+
+    async function loadRentalMonthStrip() {
+        const strip = document.getElementById('monthStrip');
+        try {
+            const qs = buildRentalQueryString(getRentalFilters(), {});
+            const res = await fetch(`/api/rentals/month-summary?${qs}`, { headers: getHeaders() });
+            const data = await res.json();
+            if (data.success) {
+                const currentMonth = document.getElementById('rentalFilterMonth').value;
+                strip.innerHTML = '';
+                data.months.forEach(m => {
+                    const isActive = currentMonth === m.month;
+                    const card = document.createElement('div');
+                    card.className = 'card border-0 shadow-sm text-center flex-shrink-0';
+                    card.style = `min-width:80px;cursor:pointer;${isActive ? 'outline:2px solid #6366f1;' : ''}`;
+                    card.innerHTML = `<div class="card-body p-2">
+                        <div class="fw-bold small">${m.month}</div>
+                        <div class="text-success fw-bold" style="font-size:0.75rem;">₹${Number(m.total_cost).toLocaleString('en-IN', {maximumFractionDigits:0})}</div>
+                        <div class="text-muted" style="font-size:0.7rem;">${m.asset_count} assets</div>
+                    </div>`;
+                    card.onclick = () => {
+                        document.getElementById('rentalFilterMonth').value = isActive ? '' : m.month;
+                        rentalFiltersChanged();
+                    };
+                    strip.appendChild(card);
+                });
+            }
+        } catch(e) { strip.innerHTML = '<span class="text-danger small">Error loading month summary</span>'; }
+    }
+
+    async function loadRentalMatrix(page) {
+        rentalCurrentPage = page || 1;
+        const tbody = document.getElementById('rentalMatrixBody');
+        const thead = document.getElementById('rentalMatrixHead');
+        tbody.innerHTML = '<tr><td colspan="20" class="text-center py-4 text-muted">Loading\u2026</td></tr>';
+        try {
+            const qs = buildRentalQueryString(getRentalFilters(), { page: rentalCurrentPage, page_size: 25 });
+            const res = await fetch(`/api/rentals/matrix?${qs}`, { headers: getHeaders() });
+            const data = await res.json();
+            if (!data.success) { throw new Error(data.error || 'API error'); }
+
+            rentalTotalPages = data.total_pages || 1;
+
+            // Render header
+            thead.innerHTML = `<tr>
+                <th style="position:sticky;left:0;z-index:2;background:#1f2937;min-width:160px;">Asset Name</th>
+                <th>Vendor</th>
+                <th>Category</th>
+                <th>Start Date</th>
+                <th>End Date</th>
+                <th>Rate/Mo</th>
+                ${MONTH_ORDER.map(m => `<th class="text-center">${m}</th>`).join('')}
+                <th class="text-center">Status</th>
+            </tr>`;
+
+            if (!data.rows || !data.rows.length) {
+                tbody.innerHTML = '<tr><td colspan="20" class="text-center py-4 text-muted">No rental assets found.</td></tr>';
+                renderRentalPagination(data);
+                return;
+            }
+
+            tbody.innerHTML = data.rows.map(r => {
+                const months = r.months || {};
+                const assetName = [r.brand, r.model].filter(Boolean).join(' ') || r.serial_number || '–';
+                const statusStyle = STATUS_STYLE[r.current_status_label] || STATUS_STYLE['Not Applicable'];
+                return `<tr>
+                    <td style="position:sticky;left:0;z-index:1;background:#fff;font-weight:600;">${assetName}</td>
+                    <td>${r.vendor_name || '–'}</td>
+                    <td>${r.device_type || '–'}</td>
+                    <td>${r.rental_start_date || '–'}</td>
+                    <td>${r.rental_end_date || '–'}</td>
+                    <td>₹${Number(r.rental_cost || 0).toLocaleString('en-IN', {maximumFractionDigits:0})}</td>
+                    ${MONTH_ORDER.map(m => {
+                        const cell = months[m] || {status:'Not Applicable', amount:0};
+                        const s = STATUS_STYLE[cell.status] || STATUS_STYLE['Not Applicable'];
+                        const label = cell.status !== 'Not Applicable'
+                            ? `₹${Number(cell.amount).toLocaleString('en-IN', {maximumFractionDigits:0})}`
+                            : '–';
+                        return `<td class="text-center" style="background:${s.bg};color:${s.color};">${label}</td>`;
+                    }).join('')}
+                    <td class="text-center">
+                        <span class="badge rounded-pill" style="background:${statusStyle.bg};color:${statusStyle.color};">${r.current_status_label || '–'}</span>
+                    </td>
+                </tr>`;
+            }).join('');
+
+            renderRentalPagination(data);
+        } catch(e) {
+            tbody.innerHTML = `<tr><td colspan="20" class="text-danger text-center py-4">Error: ${e.message}</td></tr>`;
+        }
+    }
+
+    function renderRentalPagination(data) {
+        const info = document.getElementById('rentalPaginationInfo');
+        const btns = document.getElementById('rentalPaginationBtns');
+        const total = data.total_count || 0;
+        const ps = data.page_size || 25;
+        const page = data.page || 1;
+        const from = total ? (page - 1) * ps + 1 : 0;
+        const to = Math.min(page * ps, total);
+        info.textContent = total ? `Showing ${from}–${to} of ${total} assets` : 'No assets';
+
+        const totalPages = data.total_pages || 1;
+        btns.innerHTML = '';
+        if (totalPages <= 1) return;
+
+        const mkBtn = (label, pg, disabled) => {
+            const b = document.createElement('button');
+            b.className = `btn btn-sm ${pg === rentalCurrentPage ? 'btn-primary' : 'btn-outline-secondary'}`;
+            b.textContent = label;
+            b.disabled = disabled;
+            b.onclick = () => loadRentalMatrix(pg);
+            return b;
+        };
+
+        btns.appendChild(mkBtn('‹', rentalCurrentPage - 1, rentalCurrentPage <= 1));
+        const start = Math.max(1, rentalCurrentPage - 2);
+        const end = Math.min(totalPages, rentalCurrentPage + 2);
+        for (let i = start; i <= end; i++) btns.appendChild(mkBtn(i, i, false));
+        btns.appendChild(mkBtn('›', rentalCurrentPage + 1, rentalCurrentPage >= totalPages));
+    }
+
+    function rentalFiltersChanged() {
+        rentalActiveQuickFilter = null;
+        loadRentalStats();
+        loadRentalVendors();
+        loadRentalMonthStrip();
+        loadRentalMatrix(1);
+    }
+
+    function clearRentalFilters() {
+        document.getElementById('rentalSearch').value = '';
+        document.getElementById('rentalFilterVendor').value = '';
+        document.getElementById('rentalFilterType').value = '';
+        document.getElementById('rentalFilterYear').value = new Date().getFullYear();
+        document.getElementById('rentalFilterMonth').value = '';
+        rentalActiveQuickFilter = null;
+        loadRentalDashboard();
+    }
+
+    function setQuickFilter(type) {
+        rentalActiveQuickFilter = rentalActiveQuickFilter === type ? null : type;
+        loadRentalStats();
+        loadRentalVendors();
+        loadRentalMonthStrip();
+        loadRentalMatrix(1);
+    }
+
+    async function exportRentals() {
+        try {
+            const qs = buildRentalQueryString(getRentalFilters(), {});
+            const link = document.createElement('a');
+            link.href = `/api/rentals/export?${qs}`;
+            link.click();
+        } catch(e) { alert('Export failed: ' + e.message); }
+    }
+
 
     function toggleVendorFields() {
         const isRented = document.getElementById('ownershipRented').checked;

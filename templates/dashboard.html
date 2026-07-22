@@ -1,5 +1,4 @@
-{% extends "base_tailwind.html" %}
-{% block page_title %}Dashboard{% endblock %}
+{% extends "base.html" %}
 
 
 
@@ -27,7 +26,7 @@
         box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
         transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
     }
-
+    
     .hover-card:hover {
         transform: translateY(-2px);
         box-shadow: 0 10px 15px -3px rgba(15, 23, 42, 0.08), 0 4px 6px -4px rgba(15, 23, 42, 0.08);
@@ -68,7 +67,6 @@
         border-radius: 12px;
         padding: 1.25rem;
     }
-
     .quick-mgmt-item {
         color: white;
         text-decoration: none;
@@ -76,21 +74,19 @@
         justify-content: space-between;
         align-items: center;
         padding: 0.75rem 0;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        border-bottom: 1px solid rgba(255,255,255,0.1);
         font-weight: 500;
         font-size: 0.9rem;
         transition: color 0.2s;
     }
-
     .quick-mgmt-item:last-child {
         border-bottom: none;
         padding-bottom: 0;
     }
-
     .quick-mgmt-item:hover {
         color: #38bdf8;
     }
-
+    
     /* Custom Tabs */
     .nav-tabs-custom .nav-link {
         color: #64748b;
@@ -100,7 +96,6 @@
         padding: 0.5rem 1rem;
         font-size: 0.9rem;
     }
-
     .nav-tabs-custom .nav-link.active {
         color: #4f46e5;
         border-bottom-color: #4f46e5;
@@ -114,7 +109,6 @@
     .no-scrollbar::-webkit-scrollbar {
         display: none;
     }
-
     .no-scrollbar {
         -ms-overflow-style: none;
         scrollbar-width: none;
@@ -123,1133 +117,688 @@
 
 
 
-<div class="w-full">
-    <div class="max-w-7xl mx-auto space-y-8">
+<div class="container-fluid mt-3 dashboard-page">
 
-        <!-- PENDING AGREEMENTS ALERT -->
-        {% if pending_agreements %}
-        <div class="space-y-4">
+    <!-- Hero moved to topbar -->
+
+    <!-- PENDING AGREEMENTS ALERT -->
+    {% if pending_agreements %}
+    <div class="row mb-4 animate__animated animate__pulse animate__infinite animate__slow">
+        <div class="col-12">
             {% for ag in pending_agreements %}
-            <div class="glass-card p-6 rounded-2xl border border-outline-variant flex items-center justify-between"
+            <div class="alert alert-warning border-0 shadow-sm rounded-4 p-4 d-flex align-items-center justify-content-between mb-2"
                 style="background: linear-gradient(135deg, #fff3cd 0%, #fff 100%);">
-                <div class="flex items-center gap-4">
-                    <div class="w-12 h-12 rounded-xl bg-yellow-100 text-yellow-600 flex items-center justify-center">
-                        <span class="material-symbols-outlined">lock</span>
+                <div class="d-flex align-items-center">
+                    <div class="icon-box bg-warning bg-opacity-25 text-warning me-3">
+                        <i class="bi bi-file-earmark-lock-fill"></i>
                     </div>
                     <div>
-                        <h5 class="font-bold text-on-surface">Action Required: Device Usage Agreement</h5>
-                        <p class="text-sm text-outline">A <strong>{{ ag.brand }} {{ ag.model }}</strong> has been
-                            assigned to you. Please review and sign the usage agreement.</p>
+                        <h5 class="alert-heading fw-bold mb-1">Action Required: Device Usage Agreement</h5>
+                        <p class="mb-0 text-muted">A <strong>{{ ag.brand }} {{ ag.model }}</strong> has been assigned to
+                            you. Please review and sign the usage agreement.</p>
                     </div>
                 </div>
-                <a href="/assets/agreement/{{ ag.id }}"
-                    class="px-6 py-2 bg-yellow-500 text-white font-bold rounded-full shadow hover:bg-yellow-600 transition-all no-underline">
-                    Review & Sign
+                <a href="/assets/agreement/{{ ag.id }}" class="btn btn-warning rounded-pill px-4 fw-bold shadow-sm">
+                    Review & Sign <i class="bi bi-arrow-right ms-2"></i>
                 </a>
             </div>
             {% endfor %}
         </div>
-        {% endif %}
-
-        <!-- METRICS GRID based on Role -->
-        {% if session.role in ['hr', 'admin', 'superadmin'] %}
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            <!-- Team Members -->
-            <a href="{{ url_for('employees.employee_list') }}"
-                class="glass-card p-6 rounded-2xl border border-outline-variant flex flex-col justify-between hover:shadow-xl hover:-translate-y-1 transition-all duration-300 no-underline">
-                <div class="flex justify-between items-start">
-                    <div>
-                        <p class="text-xs font-bold text-outline uppercase tracking-wider mb-1">{{
-                            labels.TOTAL_EMPLOYEES if labels else 'TOTAL EMPLOYEES' }}</p>
-                        <h3 class="text-4xl font-black text-on-surface">{{ stats.employees }}</h3>
-                    </div>
-                    <span class="w-2 h-2 rounded-full bg-primary shadow-[0_0_8px_rgba(0,105,115,0.6)]"></span>
-                </div>
-                <div class="mt-4 flex items-center gap-2">
-                    <span
-                        class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-primary-container/20 text-primary">Active</span>
-                </div>
-            </a>
-
-            <!-- Timesheets -->
-            <a href="{{ url_for('work.timesheets_list') }}"
-                class="glass-card p-6 rounded-2xl border border-outline-variant flex flex-col justify-between hover:shadow-xl hover:-translate-y-1 transition-all duration-300 no-underline">
-                <div class="flex justify-between items-start">
-                    <div>
-                        <p class="text-xs font-bold text-outline uppercase tracking-wider mb-1">Timesheets</p>
-                        <h3 class="text-4xl font-black text-on-surface">{{ stats.timesheets }}</h3>
-                    </div>
-                    <span class="w-2 h-2 rounded-full bg-outline-variant"></span>
-                </div>
-                <div class="mt-4 flex items-center gap-2">
-                    <span
-                        class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-surface-container-highest text-outline">Pending</span>
-                </div>
-            </a>
-
-            <!-- Leaves -->
-            <a href="{{ url_for('work.leaves_list') }}"
-                class="glass-card p-6 rounded-2xl border border-outline-variant flex flex-col justify-between hover:shadow-xl hover:-translate-y-1 transition-all duration-300 no-underline">
-                <div class="flex justify-between items-start">
-                    <div>
-                        <p class="text-xs font-bold text-outline uppercase tracking-wider mb-1">Leaves</p>
-                        <h3 class="text-4xl font-black text-on-surface">{{ stats.leaves }}</h3>
-                    </div>
-                    <span class="w-2 h-2 rounded-full bg-outline-variant"></span>
-                </div>
-                <div class="mt-4 flex items-center gap-2">
-                    <span
-                        class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-surface-container-highest text-outline">Awaiting</span>
-                </div>
-            </a>
-
-            <!-- Expenses -->
-            <a href="{{ url_for('admin.reimbursement') }}"
-                class="glass-card p-6 rounded-2xl border border-outline-variant flex flex-col justify-between hover:shadow-xl hover:-translate-y-1 transition-all duration-300 no-underline">
-                <div class="flex justify-between items-start">
-                    <div>
-                        <p class="text-xs font-bold text-outline uppercase tracking-wider mb-1">Expenses</p>
-                        <h3 class="text-4xl font-black text-error">{{ reimbursement_stats.pending_approval.count if
-                            reimbursement_stats and reimbursement_stats.pending_approval else 0 }}</h3>
-                    </div>
-                    <span class="w-2 h-2 rounded-full bg-error shadow-[0_0_8px_rgba(186,26,26,0.6)]"></span>
-                </div>
-                <div class="mt-4 flex items-center gap-2">
-                    <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-error-container text-red-800">Action
-                        Required</span>
-                </div>
-            </a>
-        </div>
-
-        <!-- Main Layout Grid (Bento Style) for HR/Admin -->
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 mt-8">
-            <!-- Left Section: Help Desk & Announcements (8 Columns) -->
-            <div class="lg:col-span-8 space-y-8">
-                <!-- Help Desk & Reimbursement Tabs Card -->
-                <div class="bg-surface-container-lowest rounded-3xl border border-outline-variant overflow-hidden">
-                    <!-- Tab Headers -->
-                    <div class="px-8 pt-6 border-b border-outline-variant flex items-center justify-between">
-                        <div class="flex gap-0" id="dashTabButtons">
-                            <button id="tab-helpdesk" onclick="switchDashTab('helpdesk')"
-                                class="pb-4 px-4 text-sm font-bold text-primary border-b-2 border-primary transition-all">
-                                Help Desk
-                            </button>
-                            <button id="tab-reimbursement" onclick="switchDashTab('reimbursement')"
-                                class="pb-4 px-4 text-sm font-bold text-outline border-b-2 border-transparent hover:text-on-surface transition-all">
-                                Reimbursements
-                            </button>
-                        </div>
-                        <div>
-                            <a id="tab-helpdesk-link" href="{{ url_for('admin.helpdesk') }}"
-                                class="flex items-center gap-1 text-xs font-bold text-primary hover:underline group no-underline">
-                                View All <span
-                                    class="material-symbols-outlined text-sm group-hover:translate-x-1 transition-transform">arrow_forward</span>
-                            </a>
-                            <a id="tab-reimbursement-link" href="{{ url_for('admin.reimbursement') }}"
-                                class="hidden flex items-center gap-1 text-xs font-bold text-primary hover:underline group no-underline">
-                                View All <span
-                                    class="material-symbols-outlined text-sm group-hover:translate-x-1 transition-transform">arrow_forward</span>
-                            </a>
-                        </div>
-                    </div>
-
-                    <!-- Help Desk Pane -->
-                    <div id="pane-helpdesk" class="p-8 space-y-6">
-                        <div class="space-y-6">
-                            <!-- Open -->
-                            <div class="space-y-2">
-                                <div class="flex justify-between text-xs font-bold">
-                                    <span class="text-outline">Open</span>
-                                    <span class="text-error font-black text-lg">{{ (hd_stats.by_status.get('open', 0) if
-                                        hd_stats and hd_stats.by_status else 0) }}</span>
-                                </div>
-                                <div class="w-full h-1.5 bg-surface-container rounded-full overflow-hidden">
-                                    <div class="h-full bg-error transition-all duration-1000"
-                                        style="width: {% if hd_stats and hd_stats.total and hd_stats.total > 0 %}{{ ((hd_stats.by_status.get('open', 0) / hd_stats.total) * 100)|round }}{% else %}0{% endif %}%">
-                                    </div>
-                                </div>
-                            </div>
-                            <!-- In Progress -->
-                            <div class="space-y-2">
-                                <div class="flex justify-between text-xs font-bold">
-                                    <span class="text-outline">In Progress</span>
-                                    <span class="text-primary font-black text-lg">{{
-                                        (hd_stats.by_status.get('in_progress', 0) if hd_stats and hd_stats.by_status
-                                        else 0) }}</span>
-                                </div>
-                                <div class="w-full h-1.5 bg-surface-container rounded-full overflow-hidden">
-                                    <div class="h-full bg-primary transition-all duration-1000"
-                                        style="width: {% if hd_stats and hd_stats.total and hd_stats.total > 0 %}{{ ((hd_stats.by_status.get('in_progress', 0) / hd_stats.total) * 100)|round }}{% else %}0{% endif %}%">
-                                    </div>
-                                </div>
-                            </div>
-                            <!-- Closed/Resolved -->
-                            <div class="space-y-2">
-                                <div class="flex justify-between text-xs font-bold">
-                                    <span class="text-outline">Closed</span>
-                                    <span class="text-secondary font-black text-lg">{{
-                                        ((hd_stats.by_status.get('closed', 0) + hd_stats.by_status.get('resolved', 0))
-                                        if hd_stats and hd_stats.by_status else 0) }}</span>
-                                </div>
-                                <div class="w-full h-1.5 bg-surface-container rounded-full overflow-hidden">
-                                    <div class="h-full bg-secondary transition-all duration-1000"
-                                        style="width: {% if hd_stats and hd_stats.total and hd_stats.total > 0 %}{{ (((hd_stats.by_status.get('closed', 0) + hd_stats.by_status.get('resolved', 0)) / hd_stats.total) * 100)|round }}{% else %}0{% endif %}%">
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Reimbursement Pane (hidden by default) -->
-                    <div id="pane-reimbursement" class="p-8 space-y-6 hidden">
-                        <!-- Pending -->
-                        <div class="space-y-2">
-                            <div class="flex justify-between text-xs font-bold">
-                                <span class="text-outline">Pending</span>
-                                <span class="text-error font-black text-lg">{{
-                                    reimbursement_stats.pending_approval.count if reimbursement_stats and
-                                    reimbursement_stats.pending_approval else 0 }}</span>
-                            </div>
-                            <div class="w-full h-1.5 bg-surface-container rounded-full overflow-hidden">
-                                <div class="h-full bg-error" style="width: 100%"></div>
-                            </div>
-                        </div>
-                        <!-- Approved -->
-                        <div class="space-y-2">
-                            <div class="flex justify-between text-xs font-bold">
-                                <span class="text-outline">Approved</span>
-                                <span class="text-secondary font-black text-lg">{{
-                                    reimbursement_stats.by_status.approved.count if reimbursement_stats and
-                                    reimbursement_stats.by_status and reimbursement_stats.by_status.approved else 0
-                                    }}</span>
-                            </div>
-                            <div class="w-full h-1.5 bg-surface-container rounded-full overflow-hidden">
-                                <div class="h-full bg-secondary" style="width: 100%"></div>
-                            </div>
-                        </div>
-                        <!-- Rejected -->
-                        <div class="space-y-2">
-                            <div class="flex justify-between text-xs font-bold">
-                                <span class="text-outline">Rejected</span>
-                                <span class="text-outline font-black text-lg">{{
-                                    reimbursement_stats.by_status.rejected.count if reimbursement_stats and
-                                    reimbursement_stats.by_status and reimbursement_stats.by_status.rejected else 0
-                                    }}</span>
-                            </div>
-                            <div class="w-full h-1.5 bg-surface-container rounded-full overflow-hidden">
-                                <div class="h-full bg-outline-variant" style="width: 100%"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Announcements Section -->
-                <div class="bg-surface-container-lowest rounded-3xl border border-outline-variant overflow-hidden">
-                    <div class="px-8 py-5 border-b border-outline-variant flex justify-between items-center">
-                        <h4 class="text-base font-black text-on-surface">Announcements</h4>
-                        {% if session.role in ['hr', 'superadmin'] %}
-                        <button type="button" class="flex items-center gap-1 text-xs font-bold text-primary hover:underline"
-                            onclick="prepareDashboardCreate()">
-                            <span class="material-symbols-outlined text-sm">add</span> New
-                        </button>
-                        {% endif %}
-                    </div>
-                    <div class="divide-y divide-outline-variant max-h-80 overflow-y-auto custom-scrollbar">
-                        {% if announcements %}
-                        {% for ann in announcements %}
-                        <div class="flex gap-4 px-8 py-4 hover:bg-surface-variant transition-all cursor-pointer"
-                            onclick="viewDashboardAnnouncement({{ ann.id }})">
-                            <div
-                                class="flex-shrink-0 w-10 h-10 rounded-xl bg-primary-container/20 text-primary flex items-center justify-center">
-                                <span class="material-symbols-outlined text-sm">campaign</span>
-                            </div>
-                            <div class="flex-1 min-w-0">
-                                <div class="flex justify-between items-start gap-2">
-                                    <p class="font-bold text-sm text-on-surface truncate">{{ ann.title | safe }}</p>
-                                    <span class="text-[10px] text-outline whitespace-nowrap flex-shrink-0">
-                                        {% if '-' in ann.created_at %}
-                                        {% set c_parts = ann.created_at[:10].split('-') %}
-                                        {% set months =
-                                        ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'] %}
-                                        {{ c_parts[2] }} {{ months[c_parts[1]|int - 1] }}
-                                        {% else %}
-                                        {{ ann.created_at[:10] }}
-                                        {% endif %}
-                                    </span>
-                                </div>
-                                <p class="text-xs text-outline mt-0.5 line-clamp-2">{{ ann.short_description }}</p>
-                            </div>
-                        </div>
-                        {% endfor %}
-                        {% else %}
-                        <div class="text-center py-10 text-outline">
-                            <span class="material-symbols-outlined text-4xl mb-2 opacity-40">campaign</span>
-                            <p class="text-sm">No announcements yet.</p>
-                        </div>
-                        {% endif %}
-                    </div>
-                </div>
-            </div>
-
-            <!-- Right Section: Management & Timeline (4 Columns) -->
-            <div class="lg:col-span-4 space-y-8">
-                <!-- Quick Management Panel -->
-                <div class="bg-on-surface p-8 rounded-3xl text-white shadow-2xl">
-                    <h4 class="text-sm font-black uppercase tracking-[0.2em] mb-2 text-secondary-fixed">Quick Management
-                    </h4>
-                    <div class="space-y-2">
-                        <a href="{{ url_for('work.add_leave') }}"
-                            class="group flex items-center justify-between p-2 rounded-xl hover:bg-white/10 transition-all no-underline text-white">
-                            <span class="text-sm font-medium text-white">New Leave Request</span>
-                            <span
-                                class="material-symbols-outlined text-sm group-hover:translate-x-1 transition-transform text-white">arrow_forward</span>
-                        </a>
-                        <div class="h-px bg-white/10 mx-4"></div>
-                        <a href="{{ url_for('work.add_timesheet') }}"
-                            class="group flex items-center justify-between p-2 rounded-xl hover:bg-white/10 transition-all no-underline text-white">
-                            <span class="text-sm font-medium text-white">Submit Timesheet</span>
-                            <span
-                                class="material-symbols-outlined text-sm group-hover:translate-x-1 transition-transform text-white">arrow_forward</span>
-                        </a>
-                        <div class="h-px bg-white/10 mx-4"></div>
-                        <a href="{{ url_for('projects.create_project') }}"
-                            class="group flex items-center justify-between p-2 rounded-xl hover:bg-white/10 transition-all no-underline text-white">
-                            <span class="text-sm font-medium text-white">New Project</span>
-                            <span
-                                class="material-symbols-outlined text-sm group-hover:translate-x-1 transition-transform text-white">arrow_forward</span>
-                        </a>
-                        <div class="h-px bg-white/10 mx-4"></div>
-                        <a href="{{ url_for('admin.reimbursement') }}"
-                            class="group flex items-center justify-between p-2 rounded-xl hover:bg-white/10 transition-all no-underline text-white">
-                            <span class="text-sm font-medium text-white">Expenses</span>
-                            <span
-                                class="material-symbols-outlined text-sm group-hover:translate-x-1 transition-transform text-white">arrow_forward</span>
-                        </a>
-                    </div>
-                </div>
-
-                <div class="bg-surface-container-lowest p-8 rounded-3xl border border-outline-variant">
-                    <div class="flex justify-between items-center mb-8">
-                        <h4 class="text-lg font-black text-on-surface" id="dashTimelineMonthName">Upcoming</h4>
-                        <div class="flex items-center gap-2">
-                            <button id="dashTimelinePrevBtn" class="w-8 h-8 rounded-full hover:bg-surface-variant flex items-center justify-center text-outline transition-colors border border-outline-variant">
-                                <span class="material-symbols-outlined text-sm">chevron_left</span>
-                            </button>
-                            <span class="material-symbols-outlined text-primary cursor-pointer" id="dashTimelineCalendarBtn" title="Current Month">calendar_month</span>
-                            <button id="dashTimelineNextBtn" class="w-8 h-8 rounded-full hover:bg-surface-variant flex items-center justify-center text-outline transition-colors border border-outline-variant">
-                                <span class="material-symbols-outlined text-sm">chevron_right</span>
-                            </button>
-                        </div>
-                    </div>
-
-                    <div id="dashTimelineContainer" class="relative pl-8 border-l-2 border-outline-variant space-y-8">
-                        <div class="text-sm text-outline">Loading timeline...</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        {% elif session.role == 'employee' %}
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-8">
-            <!-- Employee Pending Timesheets -->
-            <div class="glass-card p-6 rounded-2xl border border-outline-variant flex flex-col">
-                <div class="flex justify-between items-start mb-4">
-                    <h6 class="font-bold text-on-surface flex items-center gap-2">
-                        <span class="material-symbols-outlined text-yellow-500">schedule</span>
-                        Pending Timesheets
-                    </h6>
-                </div>
-                <div class="flex-1 flex flex-col items-center justify-center text-center py-6">
-                    {% if pending_timesheets_count and pending_timesheets_count|int > 0 %}
-                    <p class="font-bold text-on-surface mb-2">You have {{ pending_timesheets_count }} pending
-                        timesheets.</p>
-                    <p class="text-sm text-outline mb-6">Please submit them as soon as possible.</p>
-                    {% else %}
-                    <p class="text-sm text-outline mb-2">No pending timesheets to submit.</p>
-                    <p class="text-sm text-outline mb-6">You're all caught up!</p>
-                    {% endif %}
-                    <a href="{{ url_for('work.add_timesheet') }}"
-                        class="px-6 py-3 bg-primary text-white font-bold rounded-full shadow hover:bg-primary-container transition-all no-underline">
-                        Add New Timesheet
-                    </a>
-                </div>
-            </div>
-
-            <!-- Employee Active Projects -->
-            <div class="glass-card p-6 rounded-2xl border border-outline-variant">
-                <div class="flex justify-between items-center mb-4">
-                    <h6 class="font-bold text-on-surface flex items-center gap-2">
-                        <span class="material-symbols-outlined text-primary">folder_open</span>
-                        My Projects
-                    </h6>
-                    <div class="flex items-center gap-3">
-                        <span class="px-3 py-1 rounded-full bg-primary-container/20 text-primary text-xs font-bold">{{
-                            my_projects|length }} Active</span>
-                        <a href="{{ url_for('projects.projects_list') }}"
-                            class="text-xs text-primary hover:underline font-bold">View All</a>
-                    </div>
-                </div>
-                {% if my_projects %}
-                <div class="space-y-2 max-h-[200px] overflow-y-auto custom-scrollbar">
-                    {% for proj in my_projects %}
-                    <div class="flex items-center justify-between p-3 rounded-xl hover:bg-surface-variant transition-all cursor-pointer btn-view-project"
-                        data-id="{{ proj.id }}">
-                        <div class="flex items-center gap-3">
-                            <span class="material-symbols-outlined text-primary">folder</span>
-                            <span class="font-bold text-sm text-on-surface">{{ proj.name }}</span>
-                        </div>
-                        <span class="px-2 py-1 rounded bg-green-100 text-green-700 text-[10px] font-bold">Active</span>
-                    </div>
-                    {% endfor %}
-                </div>
-                {% else %}
-                <div class="text-center py-8 text-outline">
-                    <span class="material-symbols-outlined text-4xl mb-2 opacity-50">folder_off</span>
-                    <p class="text-sm">No active projects yet.</p>
-                </div>
-                {% endif %}
-            </div>
-        </div>
-        {% elif session.role == 'manager' %}
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
-            <!-- Active Projects -->
-            <div class="glass-card p-6 rounded-2xl border border-outline-variant">
-                <div class="flex justify-between items-center mb-4">
-                    <h6 class="font-bold text-on-surface">Active Projects</h6>
-                    <span class="px-2 py-0.5 rounded-full bg-primary-container/20 text-primary text-xs font-bold">{{
-                        projects|length if projects else 0 }}</span>
-                </div>
-                {% if projects %}
-                <div class="space-y-2 max-h-[200px] overflow-y-auto custom-scrollbar">
-                    {% for project in projects %}
-                    <div class="flex items-center justify-between p-2 rounded-lg hover:bg-surface-variant cursor-pointer btn-view-project"
-                        data-id="{{ project.id }}">
-                        <span class="font-bold text-sm text-on-surface">{{ project.name }}</span>
-                        <span class="material-symbols-outlined text-primary text-sm">visibility</span>
-                    </div>
-                    {% endfor %}
-                </div>
-                {% else %}
-                <div class="text-center py-8 text-outline">
-                    <span class="material-symbols-outlined text-3xl mb-2">folder_off</span>
-                    <p class="text-xs">No active projects</p>
-                </div>
-                {% endif %}
-            </div>
-
-            <!-- Team Pending Timesheets -->
-            <div class="glass-card p-6 rounded-2xl border border-outline-variant">
-                <div class="flex justify-between items-center mb-4">
-                    <h6 class="font-bold text-on-surface">{{ labels.TEAM_PENDING_TIMESHEETS if labels else 'TEAM PENDING
-                        TIMESHEETS' }}</h6>
-                    <span class="px-2 py-0.5 rounded-full bg-yellow-100 text-yellow-700 text-xs font-bold">{{
-                        team_pending_timesheets|length }}</span>
-                </div>
-                {% if team_pending_timesheets %}
-                <div class="space-y-2 max-h-[200px] overflow-y-auto custom-scrollbar">
-                    {% for t in team_pending_timesheets %}
-                    <div class="flex justify-between items-center p-2 rounded-lg hover:bg-surface-variant">
-                        <span class="font-bold text-sm text-on-surface">{{ t.employee_name }}</span>
-                        <span class="text-xs text-outline">{{ t.start_date[:10] }}</span>
-                    </div>
-                    {% endfor %}
-                </div>
-                {% else %}
-                <div class="text-center py-8 text-green-600">
-                    <span class="material-symbols-outlined text-3xl mb-2">check_circle</span>
-                    <p class="text-xs">All team timesheets submitted</p>
-                </div>
-                {% endif %}
-            </div>
-
-            <!-- Team Leaves -->
-            <div class="glass-card p-6 rounded-2xl border border-outline-variant">
-                <div class="flex justify-between items-center mb-4">
-                    <h6 class="font-bold text-on-surface">{{ labels.TEAM_LEAVES if labels else 'TEAM LEAVES' }}</h6>
-                    <span class="px-2 py-0.5 rounded-full bg-blue-100 text-blue-700 text-xs font-bold">{{
-                        team_leaves|length }}</span>
-                </div>
-                {% if team_leaves %}
-                <div class="space-y-2 max-h-[200px] overflow-y-auto custom-scrollbar">
-                    {% for l in team_leaves %}
-                    <div class="p-2 rounded-lg hover:bg-surface-variant">
-                        <div class="flex justify-between items-center mb-1">
-                            <span class="font-bold text-sm text-on-surface">{{ l.employee_name }}</span>
-                            {% if l.status|lower == 'pending' %}
-                            <span
-                                class="px-2 py-0.5 rounded bg-yellow-100 text-yellow-700 text-[10px] font-bold">Pending</span>
-                            {% elif l.status|lower == 'approved' %}
-                            <span
-                                class="px-2 py-0.5 rounded bg-green-100 text-green-700 text-[10px] font-bold">Approved</span>
-                            {% else %}
-                            <span class="px-2 py-0.5 rounded bg-gray-100 text-gray-700 text-[10px] font-bold">{{
-                                l.status }}</span>
-                            {% endif %}
-                        </div>
-                        <div class="text-[10px] text-outline flex items-center gap-1">
-                            {{ l.start_date[:10] }} <span
-                                class="material-symbols-outlined text-[10px]">arrow_forward</span> {{ l.end_date[:10] }}
-                        </div>
-                    </div>
-                    {% endfor %}
-                </div>
-                {% else %}
-                <div class="text-center py-8 text-outline">
-                    <span class="material-symbols-outlined text-3xl mb-2">event_busy</span>
-                    <p class="text-xs">No recent team leaves</p>
-                </div>
-                {% endif %}
-            </div>
-        </div>
-        {% endif %}
-    </div>
-
-
-
-    <!-- Announcements Style Overrides -->
-    <style>
-        .badge-draft {
-            background-color: rgba(245, 158, 11, 0.15) !important;
-            color: #d97706 !important;
-        }
-
-        .badge-published {
-            background-color: rgba(16, 185, 129, 0.15) !important;
-            color: #059669 !important;
-        }
-
-        .badge-expired {
-            background-color: rgba(239, 68, 68, 0.15) !important;
-            color: #dc2626 !important;
-        }
-
-        .text-truncate-2 {
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-        }
-    </style>
-
-    <!-- Announcement Details Modal -->
-    <div class="modal fade" id="dashboardAnnouncementDetailModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title mb-0">
-                        <i class="bi bi-megaphone text-primary me-2"></i>Announcement
-                    </h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body modal-body-detail">
-                    <div class="detail-view">
-                        <div class="detail-hero">
-                            <div class="d-flex justify-content-between align-items-start gap-2 mb-2">
-                                <h3 id="dashDetailTitle" class="detail-hero-title mb-0">Loading Title...</h3>
-                                <span id="dashDetailBadge" class="badge rounded-pill flex-shrink-0">Active</span>
-                            </div>
-                            <div class="d-flex align-items-center gap-3 text-muted mb-3 flex-wrap small">
-                                <span class="d-flex align-items-center gap-1">
-                                    <i class="bi bi-person-circle"></i> Posted by: <strong id="dashDetailCreatedBy"
-                                        class="text-dark">Admin</strong>
-                                </span>
-                                <span class="d-flex align-items-center gap-1">
-                                    <i class="bi bi-calendar3"></i> Posted: <strong id="dashDetailCreatedAt"
-                                        class="text-dark">Date</strong>
-                                </span>
-                                <span class="d-flex align-items-center gap-1">
-                                    <i class="bi bi-calendar-x"></i> Expires: <strong id="dashDetailExpiresAt"
-                                        class="text-dark">Date</strong>
-                                </span>
-                            </div>
-
-                        </div>
-
-                        <div class="detail-card mb-3">
-                            <div class="detail-card-title"><i class="bi bi-card-text"></i> Description</div>
-                            <div class="announcement-content detail-note border-0" id="dashDetailDescription"
-                                style="line-height: 1.6; font-size: 0.95rem;">
-                                Loading description...
-                            </div>
-                        </div>
-
-                        <div id="dashDetailAttachmentBox"
-                            class="detail-card d-flex align-items-center justify-content-between mb-2"
-                            style="display: none !important;">
-                            <div class="d-flex align-items-center gap-2 overflow-hidden">
-                                <div class="bg-primary bg-opacity-10 text-primary rounded p-2 flex-shrink-0">
-                                    <i class="bi bi-file-earmark-arrow-down-fill fs-5"></i>
-                                </div>
-                                <div class="overflow-hidden">
-                                    <h6 class="mb-0 fw-semibold text-dark text-truncate" id="dashDetailAttachmentName"
-                                        style="font-size: 0.85rem;">filename.pdf</h6>
-                                    <span class="text-muted small" style="font-size: 0.7rem;">Click to download
-                                        attachment</span>
-                                </div>
-                            </div>
-                            <button class="btn btn-sm btn-primary rounded-pill px-3 shadow-sm"
-                                id="dashDetailDownloadBtn">
-                                <i class="bi bi-download me-1"></i> Download
-                            </button>
-                        </div>
-
-                    </div>
-                </div>
-                {% if session.role == 'hr' %}
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button class="btn btn-outline-secondary" id="dashDetailEditBtn">
-                        <i class="bi bi-pencil-fill me-1"></i> Edit
-                    </button>
-                    <button class="btn btn-outline-danger" id="dashDetailDeleteBtn">
-                        <i class="bi bi-trash-fill me-1"></i> Delete
-                    </button>
-                </div>
-                {% else %}
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                </div>
-                {% endif %}
-            </div>
-        </div>
-    </div>
-
-    <!-- Create / Edit Announcement Modal (HR and Superadmin) -->
-    {% if session.role in ['hr', 'superadmin'] %}
-    <div class="modal fade" id="dashboardAnnouncementModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title fw-bold mb-0 d-flex align-items-center gap-2" id="dashAnnModalTitle">
-                        <i class="bi bi-pencil-square text-primary"></i> Create Announcement
-                    </h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body modal-body-form">
-                    <form id="dashAnnForm" enctype="multipart/form-data" novalidate>
-                        <input type="hidden" id="dashAnnId" name="id">
-
-                        <div class="mb-3">
-                            <label class="form-label small fw-bold text-dark">Title *</label>
-                            <input type="text" class="form-control rounded-3" id="dashAnnTitle" name="title" required
-                                placeholder="Enter announcement title...">
-                            <div class="invalid-feedback">Please enter a valid title.</div>
-                        </div>
-
-                        <div class="mb-3">
-                            <label class="form-label small fw-bold text-dark">Description *</label>
-                            <textarea class="form-control rounded-3" id="dashAnnDescription" name="description" rows="5"
-                                required placeholder="Write detailed content..."></textarea>
-                            <div class="invalid-feedback">Please enter a description.</div>
-                        </div>
-
-                        <div class="row g-3 mb-3">
-                            <div class="col-md-6">
-                                <label class="form-label small fw-bold text-dark">Expiry Date *</label>
-                                <input type="datetime-local" class="form-control rounded-3" id="dashAnnExpiresAt"
-                                    name="expires_at" required>
-                                <div class="invalid-feedback">Please select a valid future expiration date.</div>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label small fw-bold text-dark">Status</label>
-                                <select class="form-select rounded-3" id="dashAnnStatus" name="status">
-                                    <option value="published" selected>Published (visible to all)</option>
-                                    <option value="draft">Draft (hidden from employees)</option>
-                                </select>
-                            </div>
-                        </div>
-
-                        <div class="mb-3">
-                            <label class="form-label small fw-bold text-dark">Attachment (File, max 10MB)</label>
-                            <div class="input-group">
-                                <input type="file" class="form-control rounded-3" id="dashAnnAttachment"
-                                    name="attachment" accept=".jpg,.jpeg,.png,.pdf">
-                            </div>
-                            <div id="dashAnnCurrentAttachmentInfo" class="mt-2 small text-primary"
-                                style="display: none;">
-                                <i class="bi bi-paperclip"></i> Currently attached: <span
-                                    id="dashAnnCurrentAttachmentName"></span>
-                            </div>
-                        </div>
-
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" form="dashAnnForm" class="btn btn-primary fw-bold" id="dashAnnSubmitBtn">Save
-                        Announcement</button>
-                </div>
-            </div>
-        </div>
     </div>
     {% endif %}
 
-    <!-- Project Details Modal -->
+    <!--  STATS ROW -->
 
-    <div class="modal fade" id="projectDetailsModal" tabindex="-1" aria-hidden="true">
 
-        <div class="modal-dialog modal-lg modal-dialog-centered">
 
-            <div class="modal-content">
 
-                <div class="modal-header">
 
-                    <h5 class="modal-title">
+    {% include 'new_layout.html' %}
 
-                        <i class="bi bi-folder-fill me-2"></i>
 
-                        <span id="modalProjectName">Project Details</span>
 
-                    </h5>
+<!-- Announcements Style Overrides -->
+<style>
+    .badge-draft {
+        background-color: rgba(245, 158, 11, 0.15) !important;
+        color: #d97706 !important;
+    }
 
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    .badge-published {
+        background-color: rgba(16, 185, 129, 0.15) !important;
+        color: #059669 !important;
+    }
 
-                </div>
+    .badge-expired {
+        background-color: rgba(239, 68, 68, 0.15) !important;
+        color: #dc2626 !important;
+    }
 
-                <div class="modal-body modal-body-detail">
+    .text-truncate-2 {
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+</style>
 
-                    <div id="projectDetailsContent">
-
-                        <!-- Project details will be loaded here -->
-
-                    </div>
-
-                </div>
-
-                <div class="modal-footer">
-
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-
-                </div>
-
+<!-- Announcement Details Modal -->
+<div class="modal fade" id="dashboardAnnouncementDetailModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title mb-0">
+                    <i class="bi bi-megaphone text-primary me-2"></i>Announcement
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-
-        </div>
-
-    </div>
-
-
-
-    <!-- Employee Selection Modal -->
-    <div class="modal fade" id="employeeSelectionModal" tabindex="-1" aria-labelledby="employeeSelectionModalLabel"
-        aria-hidden="true">
-        <div class="modal-dialog modal-lg modal-dialog-scrollable">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title mb-0" id="employeeSelectionModalLabel">
-                        <i class="bi bi-people-fill text-primary me-2"></i>
-                        {{ labels.SELECT_TEAM_MEMBERS }} for <span id="modalProjectName"></span>
-                    </h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body modal-body-detail">
-                    <div class="mb-3">
-                        <div class="d-flex justify-content-between align-items-center mb-3">
-                            <h6 class="mb-0">{{ labels.AVAILABLE_EMPLOYEES }}</h6>
-                            <div>
-                                <button type="button" class="btn btn-sm btn-outline-primary"
-                                    onclick="selectAllEmployees()">
-                                    <i class="bi bi-check-all me-1"></i>Select All
-                                </button>
-                                <button type="button" class="btn btn-sm btn-outline-secondary"
-                                    onclick="clearAllEmployees()">
-                                    <i class="bi bi-x-square me-1"></i>Clear All
-                                </button>
-                            </div>
+            <div class="modal-body modal-body-detail">
+                <div class="detail-view">
+                    <div class="detail-hero">
+                        <div class="d-flex justify-content-between align-items-start gap-2 mb-2">
+                            <h3 id="dashDetailTitle" class="detail-hero-title mb-0">Loading Title...</h3>
+                            <span id="dashDetailBadge" class="badge rounded-pill flex-shrink-0">Active</span>
                         </div>
-                        <div class="border rounded p-3" style="max-height: 400px; overflow-y: auto;">
-                            <div id="availableEmployeesList">
-                                <!-- Employees will be loaded here -->
-                            </div>
+                        <div class="d-flex align-items-center gap-3 text-muted mb-3 flex-wrap small">
+                            <span class="d-flex align-items-center gap-1">
+                                <i class="bi bi-person-circle"></i> Posted by: <strong id="dashDetailCreatedBy"
+                                    class="text-dark">Admin</strong>
+                            </span>
+                            <span class="d-flex align-items-center gap-1">
+                                <i class="bi bi-calendar3"></i> Posted: <strong id="dashDetailCreatedAt"
+                                    class="text-dark">Date</strong>
+                            </span>
+                            <span class="d-flex align-items-center gap-1">
+                                <i class="bi bi-calendar-x"></i> Expires: <strong id="dashDetailExpiresAt"
+                                    class="text-dark">Date</strong>
+                            </span>
+                        </div>
+
+                    </div>
+
+                    <div class="detail-card mb-3">
+                        <div class="detail-card-title"><i class="bi bi-card-text"></i> Description</div>
+                        <div class="announcement-content detail-note border-0" id="dashDetailDescription"
+                            style="line-height: 1.6; font-size: 0.95rem;">
+                            Loading description...
                         </div>
                     </div>
-                </div>
-                <div class="modal-footer d-flex justify-content-between align-items-center">
-                    <div id="allocationTracker" class="badge bg-secondary p-2">
-                        Selected Allocation: <span id="totalAllocValue">0</span>%
-                    </div>
-                    <div>
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                        <button type="button" class="btn btn-primary" onclick="assignSelectedEmployees()">
-                            <i class="bi bi-person-plus me-2"></i>
-                            {{ labels.ASSIGN_TEAM_MEMBERS }}
+
+                    <div id="dashDetailAttachmentBox"
+                        class="detail-card d-flex align-items-center justify-content-between mb-2"
+                        style="display: none !important;">
+                        <div class="d-flex align-items-center gap-2 overflow-hidden">
+                            <div class="bg-primary bg-opacity-10 text-primary rounded p-2 flex-shrink-0">
+                                <i class="bi bi-file-earmark-arrow-down-fill fs-5"></i>
+                            </div>
+                            <div class="overflow-hidden">
+                                <h6 class="mb-0 fw-semibold text-dark text-truncate" id="dashDetailAttachmentName"
+                                    style="font-size: 0.85rem;">filename.pdf</h6>
+                                <span class="text-muted small" style="font-size: 0.7rem;">Click to download
+                                    attachment</span>
+                            </div>
+                        </div>
+                        <button class="btn btn-sm btn-primary rounded-pill px-3 shadow-sm" id="dashDetailDownloadBtn">
+                            <i class="bi bi-download me-1"></i> Download
                         </button>
                     </div>
+
+                </div>
+            </div>
+            {% if session.role == 'hr' %}
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button class="btn btn-outline-secondary" id="dashDetailEditBtn">
+                    <i class="bi bi-pencil-fill me-1"></i> Edit
+                </button>
+                <button class="btn btn-outline-danger" id="dashDetailDeleteBtn">
+                    <i class="bi bi-trash-fill me-1"></i> Delete
+                </button>
+            </div>
+            {% else %}
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Create / Edit Announcement Modal (HR Only) -->
+{% if session.role == 'hr' %}
+<div class="modal fade" id="dashboardAnnouncementModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title fw-bold mb-0 d-flex align-items-center gap-2" id="dashAnnModalTitle">
+                    <i class="bi bi-pencil-square text-primary"></i> Create Announcement
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body modal-body-form">
+                <form id="dashAnnForm" enctype="multipart/form-data" novalidate>
+                    <input type="hidden" id="dashAnnId" name="id">
+
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold text-dark">Title *</label>
+                        <input type="text" class="form-control rounded-3" id="dashAnnTitle" name="title" required
+                            placeholder="Enter announcement title...">
+                        <div class="invalid-feedback">Please enter a valid title.</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold text-dark">Description *</label>
+                        <textarea class="form-control rounded-3" id="dashAnnDescription" name="description" rows="5"
+                            required placeholder="Write detailed content..."></textarea>
+                        <div class="invalid-feedback">Please enter a description.</div>
+                    </div>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold text-dark">Expiry Date *</label>
+                            <input type="datetime-local" class="form-control rounded-3" id="dashAnnExpiresAt"
+                                name="expires_at" required>
+                            <div class="invalid-feedback">Please select a valid future expiration date.</div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold text-dark">Status</label>
+                            <select class="form-select rounded-3" id="dashAnnStatus" name="status">
+                                <option value="published" selected>Published (visible to all)</option>
+                                <option value="draft">Draft (hidden from employees)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold text-dark">Attachment (File, max 10MB)</label>
+                        <div class="input-group">
+                            <input type="file" class="form-control rounded-3" id="dashAnnAttachment" name="attachment"
+                                accept=".jpg,.jpeg,.png,.pdf">
+                        </div>
+                        <div id="dashAnnCurrentAttachmentInfo" class="mt-2 small text-primary" style="display: none;">
+                            <i class="bi bi-paperclip"></i> Currently attached: <span
+                                id="dashAnnCurrentAttachmentName"></span>
+                        </div>
+                    </div>
+
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="submit" form="dashAnnForm" class="btn btn-primary fw-bold" id="dashAnnSubmitBtn">Save
+                    Announcement</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Project Details Modal -->
+
+<div class="modal fade" id="projectDetailsModal" tabindex="-1" aria-hidden="true">
+
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+
+        <div class="modal-content">
+
+            <div class="modal-header">
+
+                <h5 class="modal-title">
+
+                    <i class="bi bi-folder-fill me-2"></i>
+
+                    <span id="modalProjectName">Project Details</span>
+
+                </h5>
+
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+
+            </div>
+
+            <div class="modal-body modal-body-detail">
+
+                <div id="projectDetailsContent">
+
+                    <!-- Project details will be loaded here -->
+
+                </div>
+
+            </div>
+
+            <div class="modal-footer">
+
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+
+<!-- Employee Selection Modal -->
+<div class="modal fade" id="employeeSelectionModal" tabindex="-1" aria-labelledby="employeeSelectionModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title mb-0" id="employeeSelectionModalLabel">
+                    <i class="bi bi-people-fill text-primary me-2"></i>
+                    {{ labels.SELECT_TEAM_MEMBERS }} for <span id="modalProjectName"></span>
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body modal-body-detail">
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h6 class="mb-0">{{ labels.AVAILABLE_EMPLOYEES }}</h6>
+                        <div>
+                            <button type="button" class="btn btn-sm btn-outline-primary" onclick="selectAllEmployees()">
+                                <i class="bi bi-check-all me-1"></i>Select All
+                            </button>
+                            <button type="button" class="btn btn-sm btn-outline-secondary"
+                                onclick="clearAllEmployees()">
+                                <i class="bi bi-x-square me-1"></i>Clear All
+                            </button>
+                        </div>
+                    </div>
+                    <div class="border rounded p-3" style="max-height: 400px; overflow-y: auto;">
+                        <div id="availableEmployeesList">
+                            <!-- Employees will be loaded here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer d-flex justify-content-between align-items-center">
+                <div id="allocationTracker" class="badge bg-secondary p-2">
+                    Selected Allocation: <span id="totalAllocValue">0</span>%
+                </div>
+                <div>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" onclick="assignSelectedEmployees()">
+                        <i class="bi bi-person-plus me-2"></i>
+                        {{ labels.ASSIGN_TEAM_MEMBERS }}
+                    </button>
                 </div>
             </div>
         </div>
     </div>
+</div>
 
 
 
-    {% endblock %}
+{% endblock %}
 
 
 
-    {% block scripts %}
+{% block scripts %}
 
-    <script id="projects-data" type="application/json">
+<script id="projects-data" type="application/json">
     {{ projects | tojson | safe }}
 </script>
-    <script id="my-projects-data" type="application/json">
+<script id="my-projects-data" type="application/json">
     {{ my_projects | tojson | safe }}
 </script>
-    <script id="config-data" type="application/json">
+<script id="config-data" type="application/json">
     {
         "userRole": {{ session.role | tojson }},
         "employeeName": {{ session.employee_name | tojson }}
     }
 </script>
 
-    <script>
-        // Helper to safely load data from JSON blocks
-        const getProjectsData = () => {
-            const managerProjects = JSON.parse(document.getElementById('projects-data').textContent || '[]');
-            const myProjects = JSON.parse((document.getElementById('my-projects-data') || {}).textContent || '[]');
-            // Merge both so employee's view modal can look up project by id
-            const allById = {};
-            managerProjects.forEach(p => { if (p.id) allById[p.id] = p; });
-            myProjects.forEach(p => { if (p.id) allById[p.id] = p; });
-            return Object.values(allById).length ? Object.values(allById) : managerProjects;
-        };
-        const getConfigData = () => JSON.parse(document.getElementById('config-data').textContent || '{}');
+<script>
+    // Helper to safely load data from JSON blocks
+    const getProjectsData = () => {
+        const managerProjects = JSON.parse(document.getElementById('projects-data').textContent || '[]');
+        const myProjects = JSON.parse((document.getElementById('my-projects-data') || {}).textContent || '[]');
+        // Merge both so employee's view modal can look up project by id
+        const allById = {};
+        managerProjects.forEach(p => { if (p.id) allById[p.id] = p; });
+        myProjects.forEach(p => { if (p.id) allById[p.id] = p; });
+        return Object.values(allById).length ? Object.values(allById) : managerProjects;
+    };
+    const getConfigData = () => JSON.parse(document.getElementById('config-data').textContent || '{}');
 
-        document.addEventListener('DOMContentLoaded', function () {
-            // Event delegation for project actions (Active Projects table & My Projects table)
-            document.querySelectorAll('.table-hover').forEach(function (table) {
-                table.addEventListener('click', function (e) {
-                    const viewBtn = e.target.closest('.btn-view-project');
-                    if (viewBtn) viewProjectDetails(viewBtn.dataset.id);
-                });
+    document.addEventListener('DOMContentLoaded', function () {
+        // Event delegation for project actions (Active Projects table & My Projects table)
+        document.querySelectorAll('.table-hover').forEach(function (table) {
+            table.addEventListener('click', function (e) {
+                const viewBtn = e.target.closest('.btn-view-project');
+                if (viewBtn) viewProjectDetails(viewBtn.dataset.id);
+            });
+        });
+    });
+
+    // Load notifications page function (needed for "View All Notifications" link)
+
+    function loadNotificationsPage() {
+
+        window.location.href = '/notifications';
+
+    }
+
+
+
+    // View project details function
+
+    function viewProjectDetails(projectId) {
+
+        console.log('Viewing project details for ID:', projectId);
+
+
+
+        // Fetch project details from API
+
+        fetch('/get_project_details/' + projectId)
+
+            .then(function (response) {
+
+                if (response.ok) {
+
+                    return response.json();
+
+                } else {
+
+                    throw new Error('Failed to fetch project details');
+
+                }
+
+            })
+
+            .then(function (data) {
+
+                if (data.success) {
+
+                    displayProjectDetails(data.project);
+
+                } else {
+
+                    alert('Error: ' + data.error);
+
+                }
+
+            })
+
+            .catch(function (error) {
+
+                alert('Error loading project details. Please try again.');
+
+            });
+
+    }
+
+
+
+    // Display project details in modal
+    function displayProjectDetails(project) {
+        const config = getConfigData();
+        var userRole = (config.userRole || '').toLowerCase();
+        var employeeName = config.employeeName;
+
+        var detailsHtml = '<div class="row">' +
+            '<div class="col-md-6">' +
+            '<h6 class="text-muted">Project Information</h6>' +
+            '<table class="table table-sm">' +
+            '<tr><td><strong>Project Name:</strong></td><td>' + (project.name || project.project_name || 'N/A') + '</td></tr>' +
+            '<tr><td><strong>Status:</strong></td><td><span class="badge bg-success">' + (project.status || 'Active') + '</span></td></tr>' +
+            '<tr><td><strong>Assigned Manager:</strong></td><td>' + (project.assigned_manager || project.assigned_manager_name || project.manager_name || project.manager || 'N/A') + '</td></tr>' +
+            '<tr><td><strong>Created By:</strong></td><td>' + (project.created_by || 'N/A') + '</td></tr>' +
+            '<tr><td><strong>Created At:</strong></td><td>' + (project.created_at || project.createdAt || 'N/A') + '</td></tr>' +
+            '</table>' +
+            '</div>';
+
+        // Add customer information only for managers and HR (not for employees)
+        if (userRole !== 'employee') {
+            detailsHtml += '<div class="col-md-6">' +
+                '<h6 class="text-muted">Customer Information</h6>' +
+                '<table class="table table-sm">' +
+                '<tr><td><strong>Customer Name:</strong></td><td>' + (project.customer_name || 'N/A') + '</td></tr>' +
+                '<tr><td><strong>Contact Person:</strong></td><td>' + (project.customer_contact || project.contact_person || project.contact || 'N/A') + '</td></tr>' +
+                '<tr><td><strong>Phone:</strong></td><td>' + (project.customer_phone || project.phone || 'N/A') + '</td></tr>' +
+                '<tr><td><strong>Email:</strong></td><td>' + (project.customer_email || project.email || 'N/A') + '</td></tr>' +
+                '</table>' +
+                '</div>';
+        }
+
+        detailsHtml += '</div>' +
+            '<div class="row mt-3">' +
+            '<div class="col-12">' +
+            '<h6 class="text-muted">Project Timeline</h6>' +
+            '<table class="table table-sm">' +
+            '<tr><td><strong>Start Date:</strong></td><td>' + (project.start_date || project.startDate || 'N/A') + '</td></tr>' +
+            '<tr><td><strong>End Date:</strong></td><td>' + (project.end_date || project.endDate || 'N/A') + '</td></tr>' +
+            '</table>' +
+            '</div>' +
+            '</div>';
+
+        // Standardize manager name
+        var projectManager = project.assigned_manager || project.manager_name || project.manager || project.assigned_manager_name;
+
+        // Merge all possible keys and prioritize objects over strings
+        var rawTeamLists = [
+            project.team_members,
+            project.team,
+            project.assignments,
+            project.project_team,
+            project.team_list,
+            project.members,
+            project.employees,
+            project.member_list
+        ];
+
+        var teamMap = {};
+
+        rawTeamLists.forEach(function (list) {
+            if (!list) return;
+            var arr = Array.isArray(list) ? list : [list];
+
+            arr.forEach(function (member) {
+                var mName = typeof member === 'string' ? member : (member.name || member.employee_name || member.employee || member.employeeName || member.member_name || member.m_name);
+                if (mName) {
+                    if (!teamMap[mName] || (typeof teamMap[mName] === 'string' && typeof member === 'object')) {
+                        teamMap[mName] = member;
+                    }
+                }
             });
         });
 
-        // Load notifications page function (needed for "View All Notifications" link)
+        var teamList = Object.values(teamMap);
 
-        function loadNotificationsPage() {
-
-            window.location.href = '/notifications';
-
-        }
-
-
-
-        // View project details function
-
-        function viewProjectDetails(projectId) {
-
-            console.log('Viewing project details for ID:', projectId);
-
-
-
-            // Fetch project details from API
-
-            fetch('/get_project_details/' + projectId)
-
-                .then(function (response) {
-
-                    if (response.ok) {
-
-                        return response.json();
-
-                    } else {
-
-                        throw new Error('Failed to fetch project details');
-
-                    }
-
-                })
-
-                .then(function (data) {
-
-                    if (data.success) {
-
-                        displayProjectDetails(data.project);
-
-                    } else {
-
-                        alert('Error: ' + data.error);
-
-                    }
-
-                })
-
-                .catch(function (error) {
-
-                    alert('Error loading project details. Please try again.');
-
-                });
-
-        }
-
-
-
-        // Display project details in modal
-        function displayProjectDetails(project) {
-            const config = getConfigData();
-            var userRole = (config.userRole || '').toLowerCase();
-            var employeeName = config.employeeName;
-
-            var detailsHtml = '<div class="row">' +
-                '<div class="col-md-6">' +
-                '<h6 class="text-muted">Project Information</h6>' +
-                '<table class="table table-sm">' +
-                '<tr><td><strong>Project Name:</strong></td><td>' + (project.name || project.project_name || 'N/A') + '</td></tr>' +
-                '<tr><td><strong>Status:</strong></td><td><span class="badge bg-success">' + (project.status || 'Active') + '</span></td></tr>' +
-                '<tr><td><strong>Assigned Manager:</strong></td><td>' + (project.assigned_manager || project.assigned_manager_name || project.manager_name || project.manager || 'N/A') + '</td></tr>' +
-                '<tr><td><strong>Created By:</strong></td><td>' + (project.created_by || 'N/A') + '</td></tr>' +
-                '<tr><td><strong>Created At:</strong></td><td>' + (project.created_at || project.createdAt || 'N/A') + '</td></tr>' +
-                '</table>' +
-                '</div>';
-
-            // Add customer information only for managers and HR (not for employees)
-            if (userRole !== 'employee') {
-                detailsHtml += '<div class="col-md-6">' +
-                    '<h6 class="text-muted">Customer Information</h6>' +
-                    '<table class="table table-sm">' +
-                    '<tr><td><strong>Customer Name:</strong></td><td>' + (project.customer_name || 'N/A') + '</td></tr>' +
-                    '<tr><td><strong>Contact Person:</strong></td><td>' + (project.customer_contact || project.contact_person || project.contact || 'N/A') + '</td></tr>' +
-                    '<tr><td><strong>Phone:</strong></td><td>' + (project.customer_phone || project.phone || 'N/A') + '</td></tr>' +
-                    '<tr><td><strong>Email:</strong></td><td>' + (project.customer_email || project.email || 'N/A') + '</td></tr>' +
-                    '</table>' +
-                    '</div>';
-            }
-
-            detailsHtml += '</div>' +
-                '<div class="row mt-3">' +
+        if (teamList.length > 0) {
+            detailsHtml += '<div class="row mt-3">' +
                 '<div class="col-12">' +
-                '<h6 class="text-muted">Project Timeline</h6>' +
-                '<table class="table table-sm">' +
-                '<tr><td><strong>Start Date:</strong></td><td>' + (project.start_date || project.startDate || 'N/A') + '</td></tr>' +
-                '<tr><td><strong>End Date:</strong></td><td>' + (project.end_date || project.endDate || 'N/A') + '</td></tr>' +
-                '</table>' +
+                '<div class="d-flex justify-content-between align-items-center mb-1">' +
+                '<h6 class="text-muted mb-0">' + (userRole === 'employee' ? 'Your Allocation' : 'Team Members & Workload') + '</h6>' +
+                '<small class="text-muted">' + teamList.length + ' Members</small>' +
                 '</div>' +
-                '</div>';
+                '<div class="list-group list-group-flush border rounded" style="max-height: 250px; overflow-y: auto;">';
 
-            // Standardize manager name
-            var projectManager = project.assigned_manager || project.manager_name || project.manager || project.assigned_manager_name;
+            for (var i = 0; i < teamList.length; i++) {
+                var member = teamList[i];
+                var mName = typeof member === 'string' ? member : (member.name || member.employee_name || member.employee || member.employeeName || member.member_name || member.m_name);
 
-            // Merge all possible keys and prioritize objects over strings
-            var rawTeamLists = [
-                project.team_members,
-                project.team,
-                project.assignments,
-                project.project_team,
-                project.team_list,
-                project.members,
-                project.employees,
-                project.member_list
-            ];
+                if (userRole === 'employee' && mName !== employeeName) continue;
 
-            var teamMap = {};
-
-            rawTeamLists.forEach(function (list) {
-                if (!list) return;
-                var arr = Array.isArray(list) ? list : [list];
-
-                arr.forEach(function (member) {
-                    var mName = typeof member === 'string' ? member : (member.name || member.employee_name || member.employee || member.employeeName || member.member_name || member.m_name);
-                    if (mName) {
-                        if (!teamMap[mName] || (typeof teamMap[mName] === 'string' && typeof member === 'object')) {
-                            teamMap[mName] = member;
-                        }
-                    }
-                });
-            });
-
-            var teamList = Object.values(teamMap);
-
-            if (teamList.length > 0) {
-                detailsHtml += '<div class="row mt-3">' +
-                    '<div class="col-12">' +
-                    '<div class="d-flex justify-content-between align-items-center mb-1">' +
-                    '<h6 class="text-muted mb-0">' + (userRole === 'employee' ? 'Your Allocation' : 'Team Members & Workload') + '</h6>' +
-                    '<small class="text-muted">' + teamList.length + ' Members</small>' +
-                    '</div>' +
-                    '<div class="list-group list-group-flush border rounded" style="max-height: 250px; overflow-y: auto;">';
-
-                for (var i = 0; i < teamList.length; i++) {
-                    var member = teamList[i];
-                    var mName = typeof member === 'string' ? member : (member.name || member.employee_name || member.employee || member.employeeName || member.member_name || member.m_name);
-
-                    if (userRole === 'employee' && mName !== employeeName) continue;
-
-                    var allocation = '100';
-                    if (typeof member !== 'string') {
-                        var val = (member.allocation !== undefined) ? member.allocation :
-                            (member.allocation_percentage !== undefined ? member.allocation_percentage :
-                                (member.billable_percentage !== undefined ? member.billable_percentage :
-                                    (member.billable_pct !== undefined ? member.billable_pct :
-                                        (member.percentage !== undefined ? member.percentage : '100'))));
-                        allocation = val;
-                    }
-
-                    var billingType = typeof member === 'string' ? 'Billable' : (member.billing_type || (member.is_billable ? 'Billable' : 'Non-Billable'));
-                    var statusClass = billingType.toLowerCase() === 'billable' ? 'bg-success' : 'bg-warning';
-
-                    detailsHtml += '<div class="list-group-item d-flex justify-content-between align-items-center py-2">' +
-                        '<div>' +
-                        '<div class="fw-bold">' + mName + '</div>' +
-                        '</div>' +
-                        '<div class="text-end">' +
-                        '<span class="badge bg-primary rounded-pill me-1">' + allocation + '% Alloc.</span>' +
-                        '<span class="badge ' + statusClass + ' rounded-pill">' + billingType + '</span>' +
-                        '</div>' +
-                        '</div>';
+                var allocation = '100';
+                if (typeof member !== 'string') {
+                    var val = (member.allocation !== undefined) ? member.allocation :
+                        (member.allocation_percentage !== undefined ? member.allocation_percentage :
+                            (member.billable_percentage !== undefined ? member.billable_percentage :
+                                (member.billable_pct !== undefined ? member.billable_pct :
+                                    (member.percentage !== undefined ? member.percentage : '100'))));
+                    allocation = val;
                 }
 
-                detailsHtml += '</div></div></div>';
-            } else {
-                detailsHtml += '<div class="row mt-3"><div class="col-12"><div class="alert alert-info py-2">No team members found for this project.</div></div></div>';
-            }
+                var billingType = typeof member === 'string' ? 'Billable' : (member.billing_type || (member.is_billable ? 'Billable' : 'Non-Billable'));
+                var statusClass = billingType.toLowerCase() === 'billable' ? 'bg-success' : 'bg-warning';
 
-            var isAssignedManager = (userRole === 'manager' && projectManager === employeeName);
-            var isHr = (userRole === 'hr' || userRole === 'admin');
-
-            if (isHr || isAssignedManager || userRole === 'manager') {
-                detailsHtml += '<div class="row mt-3">' +
-                    '<div class="col-12">' +
-                    '<button class="btn btn-primary w-100" onclick="openEmployeeSelectionModal(' + project.id + ', \'' + (project.name || project.project_name || '') + '\')">' +
-                    '<i class="bi bi-person-plus me-2"></i>' +
-                    'Add Team Members' +
-                    '</button>' +
+                detailsHtml += '<div class="list-group-item d-flex justify-content-between align-items-center py-2">' +
+                    '<div>' +
+                    '<div class="fw-bold">' + mName + '</div>' +
+                    '</div>' +
+                    '<div class="text-end">' +
+                    '<span class="badge bg-primary rounded-pill me-1">' + allocation + '% Alloc.</span>' +
+                    '<span class="badge ' + statusClass + ' rounded-pill">' + billingType + '</span>' +
                     '</div>' +
                     '</div>';
             }
 
-            document.getElementById('modalProjectName').textContent = project.project_name || project.name || 'Project Details';
-            document.getElementById('projectDetailsContent').innerHTML = detailsHtml;
-
-            var modal = new bootstrap.Modal(document.getElementById('projectDetailsModal'));
-            modal.show();
+            detailsHtml += '</div></div></div>';
+        } else {
+            detailsHtml += '<div class="row mt-3"><div class="col-12"><div class="alert alert-info py-2">No team members found for this project.</div></div></div>';
         }
 
-        let currentProjectId = null;
-        let currentProjectMembers = [];
+        var isAssignedManager = (userRole === 'manager' && projectManager === employeeName);
+        var isHr = (userRole === 'hr' || userRole === 'admin');
 
-        function getMemberName(member) {
-            if (typeof member === 'string') return member;
-            if (!member || typeof member !== 'object') return '';
-            return member.name || member.employee_name || member.employee || member.member_name || member.m_name || '';
+        if (isHr || isAssignedManager || userRole === 'manager') {
+            detailsHtml += '<div class="row mt-3">' +
+                '<div class="col-12">' +
+                '<button class="btn btn-primary w-100" onclick="openEmployeeSelectionModal(' + project.id + ', \'' + (project.name || project.project_name || '') + '\')">' +
+                '<i class="bi bi-person-plus me-2"></i>' +
+                'Add Team Members' +
+                '</button>' +
+                '</div>' +
+                '</div>';
         }
 
-        function getMemberAllocation(member) {
-            if (typeof member === 'string') return 100;
-            if (!member || typeof member !== 'object') return 100;
-            const raw = member.allocation ?? member.allocation_percentage ?? member.billable_percentage ?? member.billable_pct ?? member.percentage ?? 100;
-            const parsed = parseInt(raw, 10);
-            return Number.isFinite(parsed) ? parsed : 100;
-        }
+        document.getElementById('modalProjectName').textContent = project.project_name || project.name || 'Project Details';
+        document.getElementById('projectDetailsContent').innerHTML = detailsHtml;
 
-        function getProjectMembers(project) {
-            const candidateLists = [
-                project && project.team_members,
-                project && project.team,
-                project && project.assignments,
-                project && project.project_team,
-                project && project.members,
-                project && project.employees,
-                project && project.member_list
-            ];
+        var modal = new bootstrap.Modal(document.getElementById('projectDetailsModal'));
+        modal.show();
+    }
 
-            const unique = {};
-            candidateLists.forEach((list) => {
-                if (!Array.isArray(list)) return;
-                list.forEach((member) => {
-                    const name = getMemberName(member);
-                    if (!name) return;
-                    if (!unique[name] || typeof unique[name] === 'string') {
-                        unique[name] = member;
-                    }
-                });
+    let currentProjectId = null;
+    let currentProjectMembers = [];
+
+    function getMemberName(member) {
+        if (typeof member === 'string') return member;
+        if (!member || typeof member !== 'object') return '';
+        return member.name || member.employee_name || member.employee || member.member_name || member.m_name || '';
+    }
+
+    function getMemberAllocation(member) {
+        if (typeof member === 'string') return 100;
+        if (!member || typeof member !== 'object') return 100;
+        const raw = member.allocation ?? member.allocation_percentage ?? member.billable_percentage ?? member.billable_pct ?? member.percentage ?? 100;
+        const parsed = parseInt(raw, 10);
+        return Number.isFinite(parsed) ? parsed : 100;
+    }
+
+    function getProjectMembers(project) {
+        const candidateLists = [
+            project && project.team_members,
+            project && project.team,
+            project && project.assignments,
+            project && project.project_team,
+            project && project.members,
+            project && project.employees,
+            project && project.member_list
+        ];
+
+        const unique = {};
+        candidateLists.forEach((list) => {
+            if (!Array.isArray(list)) return;
+            list.forEach((member) => {
+                const name = getMemberName(member);
+                if (!name) return;
+                if (!unique[name] || typeof unique[name] === 'string') {
+                    unique[name] = member;
+                }
             });
+        });
 
-            return Object.values(unique);
-        }
+        return Object.values(unique);
+    }
 
-        function openEmployeeSelectionModal(projectId, projectName) {
-            currentProjectId = projectId;
-            document.getElementById('modalProjectName').textContent = projectName || 'Project';
+    function openEmployeeSelectionModal(projectId, projectName) {
+        currentProjectId = projectId;
+        document.getElementById('modalProjectName').textContent = projectName || 'Project';
 
-            const projectsData = getProjectsData();
-            const project = projectsData.find((p) => p.id == projectId);
-            currentProjectMembers = project ? getProjectMembers(project) : [];
+        const projectsData = getProjectsData();
+        const project = projectsData.find((p) => p.id == projectId);
+        currentProjectMembers = project ? getProjectMembers(project) : [];
 
-            const openModal = (availableEmployees) => {
-                populateEmployeeList(currentProjectMembers, availableEmployees);
-                const modal = new bootstrap.Modal(document.getElementById('employeeSelectionModal'));
-                modal.show();
-            };
+        const openModal = (availableEmployees) => {
+            populateEmployeeList(currentProjectMembers, availableEmployees);
+            const modal = new bootstrap.Modal(document.getElementById('employeeSelectionModal'));
+            modal.show();
+        };
 
-            const fetchEmployeesAndOpenModal = () => {
-                fetch('/api/employees_with_allocation')
-                    .then(res => res.json())
-                    .then(data => {
-                        if (data.success) {
-                            openModal(data.employees);
-                        } else {
-                            alert("Error fetching employees: " + data.error);
-                        }
-                    })
-                    .catch(err => {
-                        console.error("Error fetching employees:", err);
-                        alert("Failed to fetch employees.");
-                    });
-            };
-
-            if (project) {
-                fetchEmployeesAndOpenModal();
-                return;
-            }
-
-            fetch('/get_project_details/' + projectId)
-                .then((response) => response.json())
-                .then((data) => {
-                    if (data.success && data.project) {
-                        currentProjectMembers = getProjectMembers(data.project);
+        const fetchEmployeesAndOpenModal = () => {
+            fetch('/api/employees_with_allocation')
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        openModal(data.employees);
+                    } else {
+                        alert("Error fetching employees: " + data.error);
                     }
-                    fetchEmployeesAndOpenModal();
                 })
-                .catch(() => {
-                    fetchEmployeesAndOpenModal();
+                .catch(err => {
+                    console.error("Error fetching employees:", err);
+                    alert("Failed to fetch employees.");
                 });
+        };
+
+        if (project) {
+            fetchEmployeesAndOpenModal();
+            return;
         }
 
-        function populateEmployeeList(currentTeamMembers, availableEmployees) {
-            const currentMemberNames = new Set((currentTeamMembers || []).map(getMemberName).filter(Boolean));
-            const filteredEmployees = availableEmployees.filter((emp) => !currentMemberNames.has(emp.employee_name || emp.name));
-            const container = document.getElementById('availableEmployeesList');
+        fetch('/get_project_details/' + projectId)
+            .then((response) => response.json())
+            .then((data) => {
+                if (data.success && data.project) {
+                    currentProjectMembers = getProjectMembers(data.project);
+                }
+                fetchEmployeesAndOpenModal();
+            })
+            .catch(() => {
+                fetchEmployeesAndOpenModal();
+            });
+    }
 
-            if (filteredEmployees.length === 0) {
-                container.innerHTML = '<div class="text-center py-4"><i class="bi bi-person-check text-success" style="font-size: 2rem;"></i><p class="mt-2 text-muted">All eligible employees are already assigned.</p></div>';
-                updateAllocationTracker();
-                return;
-            }
+    function populateEmployeeList(currentTeamMembers, availableEmployees) {
+        const currentMemberNames = new Set((currentTeamMembers || []).map(getMemberName).filter(Boolean));
+        const filteredEmployees = availableEmployees.filter((emp) => !currentMemberNames.has(emp.employee_name || emp.name));
+        const container = document.getElementById('availableEmployeesList');
 
-            let html = '';
-            filteredEmployees.forEach((emp, i) => {
-                let statusClass = 'bg-success';
-                if (emp.availability_status === 'fully_allocated') statusClass = 'bg-danger';
-                else if (emp.availability_status === 'over_allocated') statusClass = 'bg-warning text-dark';
-                else if (emp.availability_status === 'partially_available') statusClass = 'bg-info text-dark';
+        if (filteredEmployees.length === 0) {
+            container.innerHTML = '<div class="text-center py-4"><i class="bi bi-person-check text-success" style="font-size: 2rem;"></i><p class="mt-2 text-muted">All eligible employees are already assigned.</p></div>';
+            updateAllocationTracker();
+            return;
+        }
 
-                const empName = emp.employee_name || emp.name;
-                const empDesignation = emp.designation || emp.role || 'Employee';
-                const currentAlloc = parseInt((emp.workload && emp.workload.total_allocation) || 0, 10) || 0;
+        let html = '';
+        filteredEmployees.forEach((emp, i) => {
+            let statusClass = 'bg-success';
+            if (emp.availability_status === 'fully_allocated') statusClass = 'bg-danger';
+            else if (emp.availability_status === 'over_allocated') statusClass = 'bg-warning text-dark';
+            else if (emp.availability_status === 'partially_available') statusClass = 'bg-info text-dark';
 
-                // Capacity is out of 150%
-                const maxCapacity = 150;
-                const remainingTo150 = Math.max(0, maxCapacity - currentAlloc);
-                const remainingTo100 = Math.max(0, 100 - currentAlloc);
+            const empName = emp.employee_name || emp.name;
+            const empDesignation = emp.designation || emp.role || 'Employee';
+            const currentAlloc = parseInt((emp.workload && emp.workload.total_allocation) || 0, 10) || 0;
 
-                const allowOverAllocation = Boolean(emp.allow_over_allocation);
-                const isDisabled = remainingTo150 <= 0 ? 'disabled' : '';
-                const inputMax = remainingTo150;
-                // Default to what gets them to 100%, minimum 1, max inputMax
-                const defaultAlloc = Math.max(1, Math.min(100, remainingTo100 > 0 ? remainingTo100 : inputMax));
+            // Capacity is out of 150%
+            const maxCapacity = 150;
+            const remainingTo150 = Math.max(0, maxCapacity - currentAlloc);
+            const remainingTo100 = Math.max(0, 100 - currentAlloc);
 
-                const overAllocBadge = currentAlloc > 100 ? `<span class="badge bg-warning text-dark ms-1" style="font-size: 0.65rem;">Over-allocated</span>` : '';
+            const allowOverAllocation = Boolean(emp.allow_over_allocation);
+            const isDisabled = remainingTo150 <= 0 ? 'disabled' : '';
+            const inputMax = remainingTo150;
+            // Default to what gets them to 100%, minimum 1, max inputMax
+            const defaultAlloc = Math.max(1, Math.min(100, remainingTo100 > 0 ? remainingTo100 : inputMax));
 
-                html += `
+            const overAllocBadge = currentAlloc > 100 ? `<span class="badge bg-warning text-dark ms-1" style="font-size: 0.65rem;">Over-allocated</span>` : '';
+
+            html += `
             <div class="assignment-row py-3 border-bottom"
                  data-name="${empName}"
                  data-capacity="${inputMax}"
@@ -1304,374 +853,369 @@
                     </div>
                 </div>
             </div>`;
-            });
+        });
 
-            container.innerHTML = html;
-            updateAllocationTracker();
+        container.innerHTML = html;
+        updateAllocationTracker();
+    }
+
+    function toggleAssignmentInputs(checkbox) {
+        const row = checkbox.closest('.assignment-row');
+        if (!row) return;
+        const inputs = row.querySelector('.assignment-inputs');
+        if (!inputs) return;
+
+        if (checkbox.checked) {
+            inputs.classList.remove('d-none');
+        } else {
+            inputs.classList.add('d-none');
         }
+        updateAllocationTracker();
+    }
 
-        function toggleAssignmentInputs(checkbox) {
-            const row = checkbox.closest('.assignment-row');
-            if (!row) return;
-            const inputs = row.querySelector('.assignment-inputs');
-            if (!inputs) return;
+    function validateAndTrack(input, max, allowOverAllocation = false) {
+        const val = parseInt(input.value, 10) || 0;
+        const row = input.closest('.assignment-row');
+        const errorDiv = row ? row.querySelector('.invalid-feedback') : null;
+        const currentAlloc = parseInt(row.dataset.currentAlloc, 10) || 0;
+        const totalAlloc = currentAlloc + val;
 
-            if (checkbox.checked) {
-                inputs.classList.remove('d-none');
-            } else {
-                inputs.classList.add('d-none');
+        if (val > max || val <= 0) {
+            input.classList.add('is-invalid');
+            if (errorDiv) {
+                errorDiv.textContent = 'Exceeds max 150% capacity!';
+                errorDiv.style.display = 'block';
             }
-            updateAllocationTracker();
-        }
+        } else {
+            input.classList.remove('is-invalid');
+            if (errorDiv) errorDiv.style.display = 'none';
 
-        function validateAndTrack(input, max, allowOverAllocation = false) {
-            const val = parseInt(input.value, 10) || 0;
-            const row = input.closest('.assignment-row');
-            const errorDiv = row ? row.querySelector('.invalid-feedback') : null;
-            const currentAlloc = parseInt(row.dataset.currentAlloc, 10) || 0;
-            const totalAlloc = currentAlloc + val;
-
-            if (val > max || val <= 0) {
-                input.classList.add('is-invalid');
-                if (errorDiv) {
-                    errorDiv.textContent = 'Exceeds max 150% capacity!';
-                    errorDiv.style.display = 'block';
-                }
-            } else {
-                input.classList.remove('is-invalid');
-                if (errorDiv) errorDiv.style.display = 'none';
-
-                let badgeContainer = row.querySelector('.dynamic-badges');
-                if (badgeContainer) {
-                    if (totalAlloc > 100) {
-                        badgeContainer.innerHTML = `<span class="badge bg-warning text-dark ms-1" style="font-size: 0.65rem;">Over-allocated (${totalAlloc}%)</span>`;
-                    } else {
-                        badgeContainer.innerHTML = '';
-                    }
-                }
-            }
-            updateAllocationTracker();
-        }
-
-        function updateAllocationTracker() {
-            let total = 0;
-            const currentMembers = Array.isArray(currentProjectMembers) ? currentProjectMembers : [];
-
-            const selectedMemberNames = Array.from(document.querySelectorAll('#availableEmployeesList .member-checkbox:checked')).map(cb => cb.value);
-
-            currentMembers.forEach(m => {
-                const mName = getMemberName(m);
-                const mAlloc = getMemberAllocation(m);
-                if (!selectedMemberNames.includes(mName)) {
-                    total += parseInt(mAlloc) || 0;
-                }
-            });
-
-            document.querySelectorAll('#availableEmployeesList .assignment-row').forEach(row => {
-                const checkbox = row.querySelector('.member-checkbox');
-                if (checkbox && checkbox.checked) {
-                    total += parseInt(row.querySelector('.allocation-input').value) || 0;
-                }
-            });
-
-            const tracker = document.getElementById('totalAllocValue');
-            const badge = document.getElementById('allocationTracker');
-            if (tracker) tracker.textContent = total;
-
-            if (badge) {
-                if (total > 100) {
-                    badge.classList.remove('bg-secondary', 'bg-success');
-                    badge.classList.add('bg-danger');
-                } else if (total === 100) {
-                    badge.classList.remove('bg-secondary', 'bg-danger');
-                    badge.classList.add('bg-success');
+            let badgeContainer = row.querySelector('.dynamic-badges');
+            if (badgeContainer) {
+                if (totalAlloc > 100) {
+                    badgeContainer.innerHTML = `<span class="badge bg-warning text-dark ms-1" style="font-size: 0.65rem;">Over-allocated (${totalAlloc}%)</span>`;
                 } else {
-                    badge.classList.remove('bg-success', 'bg-danger');
-                    badge.classList.add('bg-secondary');
+                    badgeContainer.innerHTML = '';
                 }
             }
         }
+        updateAllocationTracker();
+    }
 
-        function selectAllEmployees() {
-            const checkboxes = document.querySelectorAll('#availableEmployeesList .member-checkbox:not(:disabled)');
-            checkboxes.forEach(checkbox => {
-                checkbox.checked = true;
-                toggleAssignmentInputs(checkbox);
-            });
-        }
+    function updateAllocationTracker() {
+        let total = 0;
+        const currentMembers = Array.isArray(currentProjectMembers) ? currentProjectMembers : [];
 
-        function clearAllEmployees() {
-            const checkboxes = document.querySelectorAll('#availableEmployeesList .member-checkbox');
-            checkboxes.forEach(checkbox => {
-                checkbox.checked = false;
-                toggleAssignmentInputs(checkbox);
-            });
-        }
+        const selectedMemberNames = Array.from(document.querySelectorAll('#availableEmployeesList .member-checkbox:checked')).map(cb => cb.value);
 
-        function assignSelectedEmployees() {
-            const rows = document.querySelectorAll('#availableEmployeesList .assignment-row');
-            const selectedMembers = [];
-
-            for (let i = 0; i < rows.length; i++) {
-                const row = rows[i];
-                const checkbox = row.querySelector('.member-checkbox');
-                const allocationInput = row.querySelector('.allocation-input');
-
-                if (checkbox && checkbox.checked) {
-                    const name = checkbox.value;
-                    const allocation = parseInt(allocationInput.value) || 0;
-                    const billingType = row.querySelector('.billing-type-input').value;
-                    const max = parseInt(row.dataset.capacity) || 0;
-                    const allowOverAllocation = row.dataset.allowOverallocation === '1';
-
-                    if (allocation > max) {
-                        alert('Error: ' + name + ' cannot exceed max 150% capacity.');
-                        allocationInput.classList.add('is-invalid');
-                        return;
-                    }
-
-                    if (allocation <= 0) {
-                        alert('Allocation for ' + name + ' must be greater than 0');
-                        allocationInput.classList.add('is-invalid');
-                        return;
-                    }
-
-                    selectedMembers.push({
-                        name: name,
-                        employee_name: name,
-                        allocation: allocation,
-                        allocation_percentage: allocation,
-                        billable_percentage: allocation,
-                        billing_type: billingType,
-                        is_billable: billingType === 'billable'
-                    });
-                }
+        currentMembers.forEach(m => {
+            const mName = getMemberName(m);
+            const mAlloc = getMemberAllocation(m);
+            if (!selectedMemberNames.includes(mName)) {
+                total += parseInt(mAlloc) || 0;
             }
+        });
 
-            if (selectedMembers.length === 0) {
-                alert('Please select at least one employee to assign');
-                return;
+        document.querySelectorAll('#availableEmployeesList .assignment-row').forEach(row => {
+            const checkbox = row.querySelector('.member-checkbox');
+            if (checkbox && checkbox.checked) {
+                total += parseInt(row.querySelector('.allocation-input').value) || 0;
             }
+        });
 
-            const formData = {
-                project_id: currentProjectId,
-                team_members: selectedMembers
-            };
+        const tracker = document.getElementById('totalAllocValue');
+        const badge = document.getElementById('allocationTracker');
+        if (tracker) tracker.textContent = total;
 
-            fetch('/add_team_members', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(formData)
-            })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        const modal = bootstrap.Modal.getInstance(document.getElementById('employeeSelectionModal'));
-                        if (modal) modal.hide();
-                        viewProjectDetails(currentProjectId);
-                    } else {
-                        alert('Error: ' + (data.error || 'Assignment failed'));
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('Error assigning employees. Please try again.');
-                });
-        }
-
-
-
-        // --- ANNOUNCEMENTS LOGIC ---
-        function viewDashboardAnnouncement(id) {
-            const token = sessionStorage.getItem('token') || "{{ session.get('token', '') }}";
-            fetch(`/api/announcements/${id}`, {
-                headers: { "Authorization": `Bearer ${token}` }
-            })
-                .then(res => res.json())
-                .then(data => {
-                    let ann = null;
-                    if (data && data.announcement) {
-                        ann = data.announcement;
-                    } else if (data && data.data) {
-                        ann = data.data;
-                    } else if (data && typeof data === 'object' && !Array.isArray(data)) {
-                        ann = data;
-                    }
-
-                    if (!ann || (!ann.id && !ann.title)) {
-                        alert("Failed to fetch announcement details: invalid response structure.");
-                        return;
-                    }
-
-                    const isExpired = new Date(ann.expires_at) <= new Date();
-                    const badge = document.getElementById("dashDetailBadge");
-
-                    badge.className = "badge rounded-pill text-uppercase";
-                    if (isExpired) {
-                        badge.innerText = "Expired";
-                        badge.classList.add("badge-expired");
-                    } else if (ann.status === "draft") {
-                        badge.innerText = "Draft";
-                        badge.classList.add("badge-draft");
-                    } else {
-                        badge.innerText = "Active";
-                        badge.classList.add("badge-published");
-                    }
-
-                    document.getElementById("dashDetailTitle").innerText = ann.title;
-                    document.getElementById("dashDetailCreatedBy").innerText = ann.created_by || 'Admin';
-                    document.getElementById("dashDetailCreatedAt").innerText = formatDateString(ann.created_at);
-                    document.getElementById("dashDetailExpiresAt").innerText = formatDateString(ann.expires_at);
-                    document.getElementById("dashDetailDescription").innerHTML = ann.description;
-
-                    // Handle Attachment Box
-                    const attachBox = document.getElementById("dashDetailAttachmentBox");
-                    const hasAttachment = ann.attachment_path || ann.has_attachment;
-                    if (hasAttachment) {
-                        attachBox.style.setProperty("display", "flex", "important");
-                        const path = ann.attachment_path || '';
-                        const filename = path ? path.split(/[\\/]/).pop() : 'Attachment File';
-                        document.getElementById("dashDetailAttachmentName").innerText = filename;
-                        document.getElementById("dashDetailDownloadBtn").onclick = function () {
-                            window.open(`/api/announcements/${ann.id || id}/attachment?token=${token}`, "_blank");
-                        };
-                    } else {
-                        attachBox.style.setProperty("display", "none", "important");
-                    }
-
-                    // Bind Edit and Delete handlers for HR users
-                    const editBtn = document.getElementById("dashDetailEditBtn");
-                    const deleteBtn = document.getElementById("dashDetailDeleteBtn");
-                    if (editBtn) {
-                        editBtn.onclick = function () {
-                            const detailModal = bootstrap.Modal.getInstance(document.getElementById("dashboardAnnouncementDetailModal"));
-                            if (detailModal) detailModal.hide();
-                            prepareDashboardEdit(ann);
-                        };
-                    }
-                    if (deleteBtn) {
-                        deleteBtn.onclick = function () {
-                            if (confirm("Are you sure you want to permanently delete this announcement?")) {
-                                deleteDashboardAnnouncement(ann.id || id);
-                            }
-                        };
-                    }
-
-                    // Open Modal
-                    const detailModal = new bootstrap.Modal(document.getElementById("dashboardAnnouncementDetailModal"));
-                    detailModal.show();
-                })
-                .catch(err => {
-                    console.error(err);
-                    alert("Error loading announcement details.");
-                });
-        }
-
-        function prepareDashboardCreate() {
-            const titleEl = document.getElementById("dashAnnModalTitle");
-            if (titleEl) titleEl.innerText = "Create Announcement";
-            const form = document.getElementById("dashAnnForm");
-            if (form) {
-                form.reset();
-                form.classList.remove('was-validated');
-            }
-            document.getElementById("dashAnnId").value = "";
-            document.getElementById("dashAnnCurrentAttachmentInfo").style.display = "none";
-            document.getElementById("dashAnnExpiresAt").min = new Date().toISOString().slice(0, 16);
-
-            const modalEl = document.getElementById("dashboardAnnouncementModal");
-            if (modalEl) {
-                bootstrap.Modal.getOrCreateInstance(modalEl).show();
-            }
-        }
-
-        function prepareDashboardEdit(ann) {
-            document.getElementById("dashAnnModalTitle").innerText = "Edit Announcement";
-            document.getElementById("dashAnnId").value = ann.id;
-            document.getElementById("dashAnnTitle").value = ann.title;
-            document.getElementById("dashAnnDescription").value = ann.description;
-
-            // Format datetime-local value (YYYY-MM-DDTHH:MM)
-            const expDate = new Date(ann.expires_at);
-            const offset = expDate.getTimezoneOffset();
-            const localizedExp = new Date(expDate.getTime() - (offset * 60 * 1000)).toISOString().slice(0, 16);
-            document.getElementById("dashAnnExpiresAt").value = localizedExp;
-            document.getElementById("dashAnnExpiresAt").min = new Date().toISOString().slice(0, 16);
-
-            document.getElementById("dashAnnStatus").value = ann.status;
-
-            const attachInfo = document.getElementById("dashAnnCurrentAttachmentInfo");
-            if (ann.attachment_path) {
-                attachInfo.style.display = "block";
-                document.getElementById("dashAnnCurrentAttachmentName").innerText = ann.attachment_path.split(/[\\/]/).pop();
+        if (badge) {
+            if (total > 100) {
+                badge.classList.remove('bg-secondary', 'bg-success');
+                badge.classList.add('bg-danger');
+            } else if (total === 100) {
+                badge.classList.remove('bg-secondary', 'bg-danger');
+                badge.classList.add('bg-success');
             } else {
-                attachInfo.style.display = "none";
+                badge.classList.remove('bg-success', 'bg-danger');
+                badge.classList.add('bg-secondary');
             }
-
-            const editModal = new bootstrap.Modal(document.getElementById("dashboardAnnouncementModal"));
-            editModal.show();
         }
+    }
 
-        function deleteDashboardAnnouncement(id) {
-            const token = sessionStorage.getItem('token') || "{{ session.get('token', '') }}";
-            fetch(`/api/announcements/${id}`, {
-                method: 'DELETE',
-                headers: { "Authorization": `Bearer ${token}` }
-            })
-                .then(res => res.json())
-                .then(data => {
-                    const isSuccess = data && (data.success || !data.error);
-                    if (!isSuccess) {
-                        alert("Failed to delete announcement: " + (data.error || "Unknown error"));
-                        return;
-                    }
+    function selectAllEmployees() {
+        const checkboxes = document.querySelectorAll('#availableEmployeesList .member-checkbox:not(:disabled)');
+        checkboxes.forEach(checkbox => {
+            checkbox.checked = true;
+            toggleAssignmentInputs(checkbox);
+        });
+    }
 
-                    const detailModalEl = document.getElementById("dashboardAnnouncementDetailModal");
-                    const detailModal = bootstrap.Modal.getInstance(detailModalEl);
-                    if (detailModal) detailModal.hide();
+    function clearAllEmployees() {
+        const checkboxes = document.querySelectorAll('#availableEmployeesList .member-checkbox');
+        checkboxes.forEach(checkbox => {
+            checkbox.checked = false;
+            toggleAssignmentInputs(checkbox);
+        });
+    }
 
-                    alert("Announcement deleted successfully.");
-                    refreshDashboardAnnouncements();
-                })
-                .catch(err => {
-                    console.error(err);
-                    alert("Error communicating with server.");
+    function assignSelectedEmployees() {
+        const rows = document.querySelectorAll('#availableEmployeesList .assignment-row');
+        const selectedMembers = [];
+
+        for (let i = 0; i < rows.length; i++) {
+            const row = rows[i];
+            const checkbox = row.querySelector('.member-checkbox');
+            const allocationInput = row.querySelector('.allocation-input');
+
+            if (checkbox && checkbox.checked) {
+                const name = checkbox.value;
+                const allocation = parseInt(allocationInput.value) || 0;
+                const billingType = row.querySelector('.billing-type-input').value;
+                const max = parseInt(row.dataset.capacity) || 0;
+                const allowOverAllocation = row.dataset.allowOverallocation === '1';
+
+                if (allocation > max) {
+                    alert('Error: ' + name + ' cannot exceed max 150% capacity.');
+                    allocationInput.classList.add('is-invalid');
+                    return;
+                }
+
+                if (allocation <= 0) {
+                    alert('Allocation for ' + name + ' must be greater than 0');
+                    allocationInput.classList.add('is-invalid');
+                    return;
+                }
+
+                selectedMembers.push({
+                    name: name,
+                    employee_name: name,
+                    allocation: allocation,
+                    allocation_percentage: allocation,
+                    billable_percentage: allocation,
+                    billing_type: billingType,
+                    is_billable: billingType === 'billable'
                 });
+            }
         }
 
-        function refreshDashboardAnnouncements() {
-            const token = sessionStorage.getItem('token') || "{{ session.get('token', '') }}";
-            const container = document.getElementById("dashboardAnnouncementsListContainer");
-            if (!container) return;
+        if (selectedMembers.length === 0) {
+            alert('Please select at least one employee to assign');
+            return;
+        }
 
-            fetch("/api/announcements/dashboard", {
-                headers: { "Authorization": `Bearer ${token}` }
+        const formData = {
+            project_id: currentProjectId,
+            team_members: selectedMembers
+        };
+
+        fetch('/add_team_members', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(formData)
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('employeeSelectionModal'));
+                    if (modal) modal.hide();
+                    viewProjectDetails(currentProjectId);
+                } else {
+                    alert('Error: ' + (data.error || 'Assignment failed'));
+                }
             })
-                .then(res => res.json())
-                .then(data => {
-                    let list = [];
-                    if (Array.isArray(data)) {
-                        list = data;
-                    } else if (data && typeof data === 'object') {
-                        list = data.announcements || data.data || [];
-                    }
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error assigning employees. Please try again.');
+            });
+    }
 
-                    if (list.length === 0) {
-                        container.innerHTML = `
+
+
+    // --- ANNOUNCEMENTS LOGIC ---
+    function viewDashboardAnnouncement(id) {
+        const token = sessionStorage.getItem('token') || "{{ session.get('token', '') }}";
+        fetch(`/api/announcements/${id}`, {
+            headers: { "Authorization": `Bearer ${token}` }
+        })
+            .then(res => res.json())
+            .then(data => {
+                let ann = null;
+                if (data && data.announcement) {
+                    ann = data.announcement;
+                } else if (data && data.data) {
+                    ann = data.data;
+                } else if (data && typeof data === 'object' && !Array.isArray(data)) {
+                    ann = data;
+                }
+
+                if (!ann || (!ann.id && !ann.title)) {
+                    alert("Failed to fetch announcement details: invalid response structure.");
+                    return;
+                }
+
+                const isExpired = new Date(ann.expires_at) <= new Date();
+                const badge = document.getElementById("dashDetailBadge");
+
+                badge.className = "badge rounded-pill text-uppercase";
+                if (isExpired) {
+                    badge.innerText = "Expired";
+                    badge.classList.add("badge-expired");
+                } else if (ann.status === "draft") {
+                    badge.innerText = "Draft";
+                    badge.classList.add("badge-draft");
+                } else {
+                    badge.innerText = "Active";
+                    badge.classList.add("badge-published");
+                }
+
+                document.getElementById("dashDetailTitle").innerText = ann.title;
+                document.getElementById("dashDetailCreatedBy").innerText = ann.created_by || 'Admin';
+                document.getElementById("dashDetailCreatedAt").innerText = formatDateString(ann.created_at);
+                document.getElementById("dashDetailExpiresAt").innerText = formatDateString(ann.expires_at);
+                document.getElementById("dashDetailDescription").innerHTML = ann.description;
+
+                // Handle Attachment Box
+                const attachBox = document.getElementById("dashDetailAttachmentBox");
+                const hasAttachment = ann.attachment_path || ann.has_attachment;
+                if (hasAttachment) {
+                    attachBox.style.setProperty("display", "flex", "important");
+                    const path = ann.attachment_path || '';
+                    const filename = path ? path.split(/[\\/]/).pop() : 'Attachment File';
+                    document.getElementById("dashDetailAttachmentName").innerText = filename;
+                    document.getElementById("dashDetailDownloadBtn").onclick = function () {
+                        window.open(`/api/announcements/${ann.id || id}/attachment?token=${token}`, "_blank");
+                    };
+                } else {
+                    attachBox.style.setProperty("display", "none", "important");
+                }
+
+                // Bind Edit and Delete handlers for HR users
+                const editBtn = document.getElementById("dashDetailEditBtn");
+                const deleteBtn = document.getElementById("dashDetailDeleteBtn");
+                if (editBtn) {
+                    editBtn.onclick = function () {
+                        const detailModal = bootstrap.Modal.getInstance(document.getElementById("dashboardAnnouncementDetailModal"));
+                        if (detailModal) detailModal.hide();
+                        prepareDashboardEdit(ann);
+                    };
+                }
+                if (deleteBtn) {
+                    deleteBtn.onclick = function () {
+                        if (confirm("Are you sure you want to permanently delete this announcement?")) {
+                            deleteDashboardAnnouncement(ann.id || id);
+                        }
+                    };
+                }
+
+                // Open Modal
+                const detailModal = new bootstrap.Modal(document.getElementById("dashboardAnnouncementDetailModal"));
+                detailModal.show();
+            })
+            .catch(err => {
+                console.error(err);
+                alert("Error loading announcement details.");
+            });
+    }
+
+    function prepareDashboardCreate() {
+        const titleEl = document.getElementById("dashAnnModalTitle");
+        if (titleEl) titleEl.innerText = "Create Announcement";
+        const form = document.getElementById("dashAnnForm");
+        if (form) {
+            form.reset();
+            form.classList.remove('was-validated');
+        }
+        document.getElementById("dashAnnId").value = "";
+        document.getElementById("dashAnnCurrentAttachmentInfo").style.display = "none";
+        document.getElementById("dashAnnExpiresAt").min = new Date().toISOString().slice(0, 16);
+    }
+
+    function prepareDashboardEdit(ann) {
+        document.getElementById("dashAnnModalTitle").innerText = "Edit Announcement";
+        document.getElementById("dashAnnId").value = ann.id;
+        document.getElementById("dashAnnTitle").value = ann.title;
+        document.getElementById("dashAnnDescription").value = ann.description;
+
+        // Format datetime-local value (YYYY-MM-DDTHH:MM)
+        const expDate = new Date(ann.expires_at);
+        const offset = expDate.getTimezoneOffset();
+        const localizedExp = new Date(expDate.getTime() - (offset * 60 * 1000)).toISOString().slice(0, 16);
+        document.getElementById("dashAnnExpiresAt").value = localizedExp;
+        document.getElementById("dashAnnExpiresAt").min = new Date().toISOString().slice(0, 16);
+
+        document.getElementById("dashAnnStatus").value = ann.status;
+
+        const attachInfo = document.getElementById("dashAnnCurrentAttachmentInfo");
+        if (ann.attachment_path) {
+            attachInfo.style.display = "block";
+            document.getElementById("dashAnnCurrentAttachmentName").innerText = ann.attachment_path.split(/[\\/]/).pop();
+        } else {
+            attachInfo.style.display = "none";
+        }
+
+        const editModal = new bootstrap.Modal(document.getElementById("dashboardAnnouncementModal"));
+        editModal.show();
+    }
+
+    function deleteDashboardAnnouncement(id) {
+        const token = sessionStorage.getItem('token') || "{{ session.get('token', '') }}";
+        fetch(`/api/announcements/${id}`, {
+            method: 'DELETE',
+            headers: { "Authorization": `Bearer ${token}` }
+        })
+            .then(res => res.json())
+            .then(data => {
+                const isSuccess = data && (data.success || !data.error);
+                if (!isSuccess) {
+                    alert("Failed to delete announcement: " + (data.error || "Unknown error"));
+                    return;
+                }
+
+                const detailModalEl = document.getElementById("dashboardAnnouncementDetailModal");
+                const detailModal = bootstrap.Modal.getInstance(detailModalEl);
+                if (detailModal) detailModal.hide();
+
+                alert("Announcement deleted successfully.");
+                refreshDashboardAnnouncements();
+            })
+            .catch(err => {
+                console.error(err);
+                alert("Error communicating with server.");
+            });
+    }
+
+    function refreshDashboardAnnouncements() {
+        const token = sessionStorage.getItem('token') || "{{ session.get('token', '') }}";
+        const container = document.getElementById("dashboardAnnouncementsListContainer");
+        if (!container) return;
+
+        fetch("/api/announcements/dashboard", {
+            headers: { "Authorization": `Bearer ${token}` }
+        })
+            .then(res => res.json())
+            .then(data => {
+                let list = [];
+                if (Array.isArray(data)) {
+                    list = data;
+                } else if (data && typeof data === 'object') {
+                    list = data.announcements || data.data || [];
+                }
+
+                if (list.length === 0) {
+                    container.innerHTML = `
                     <div class="text-muted text-center py-4">
                         <i class="bi bi-megaphone fs-3 d-block mb-2"></i>
                         No new announcements
                     </div>
                 `;
-                        return;
-                    }
+                    return;
+                }
 
-                    let html = '<div class="list-group list-group-flush gap-2">';
-                    list.forEach(ann => {
-                        const dateText = formatDateString(ann.created_at);
-                        html += `
+                let html = '<div class="list-group list-group-flush gap-2">';
+                list.forEach(ann => {
+                    const dateText = formatDateString(ann.created_at);
+                    html += `
                     <div class="list-group-item px-1 py-2 border-0 bg-transparent rounded-3 hover-row-bg" style="cursor: pointer;" onclick="viewDashboardAnnouncement(${ann.id})">
                         <div class="d-flex align-items-center gap-2">
                             <div class="flex-shrink-0 bg-primary bg-opacity-10 text-primary rounded-circle d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">
@@ -1687,294 +1231,101 @@
                         </div>
                     </div>
                 `;
-                    });
-                    html += '</div>';
-                    container.innerHTML = html;
-                })
-                .catch(err => {
-                    console.error("Error refreshing dashboard announcements:", err);
                 });
-        }
-
-        function formatDateString(isoStr) {
-            if (!isoStr) return '';
-            try {
-                const date = new Date(isoStr);
-                const options = { day: 'numeric', month: 'short', year: 'numeric' };
-                return date.toLocaleDateString('en-US', options);
-            } catch {
-                return isoStr;
-            }
-        }
-
-        // Attach form listener
-        document.addEventListener("DOMContentLoaded", function () {
-            const form = document.getElementById("dashAnnForm");
-            if (form) {
-                form.addEventListener("submit", function (e) {
-                    e.preventDefault();
-
-                    if (!form.checkValidity()) {
-                        form.classList.add('was-validated');
-                        return;
-                    }
-
-                    const id = document.getElementById("dashAnnId").value;
-                    const token = sessionStorage.getItem('token') || "{{ session.get('token', '') }}";
-                    const formData = new FormData(form);
-
-                    const rawExpires = document.getElementById("dashAnnExpiresAt").value;
-                    if (rawExpires) {
-                        formData.set("expires_at", rawExpires.replace('T', ' ') + ':00');
-                    }
-
-                    const submitBtn = document.getElementById("dashAnnSubmitBtn");
-                    submitBtn.disabled = true;
-                    submitBtn.innerText = "Saving...";
-
-                    const url = id ? `/api/announcements/${id}` : '/api/announcements';
-                    const method = id ? 'PUT' : 'POST';
-
-                    fetch(url, {
-                        method: method,
-                        headers: { "Authorization": `Bearer ${token}` },
-                        body: formData
-                    })
-                        .then(res => res.json())
-                        .then(data => {
-                            submitBtn.disabled = false;
-                            submitBtn.innerText = "Save Announcement";
-
-                            const isSuccess = data && (data.success || data.id || data.message || !data.error);
-                            if (!isSuccess) {
-                                alert("Operation failed: " + (data.error || "Unknown error"));
-                                return;
-                            }
-
-                            const modalEl = document.getElementById("dashboardAnnouncementModal");
-                            const modal = bootstrap.Modal.getInstance(modalEl);
-                            if (modal) modal.hide();
-
-                            alert(data.message || "Announcement saved successfully.");
-                            refreshDashboardAnnouncements();
-                        })
-                        .catch(err => {
-                            submitBtn.disabled = false;
-                            submitBtn.innerText = "Save Announcement";
-                            console.error(err);
-                            alert("An error occurred during submission.");
-                        });
-                });
-            }
-        });
-
-        // Make functions globally available
-        window.loadNotificationsPage = loadNotificationsPage;
-        window.viewProjectDetails = viewProjectDetails;
-        window.openEmployeeSelectionModal = openEmployeeSelectionModal;
-        window.populateEmployeeList = populateEmployeeList;
-        window.selectAllEmployees = selectAllEmployees;
-        window.clearAllEmployees = clearAllEmployees;
-        window.assignSelectedEmployees = assignSelectedEmployees;
-        window.viewDashboardAnnouncement = viewDashboardAnnouncement;
-        window.prepareDashboardCreate = prepareDashboardCreate;
-        window.prepareDashboardEdit = prepareDashboardEdit;
-        window.deleteDashboardAnnouncement = deleteDashboardAnnouncement;
-        window.refreshDashboardAnnouncements = refreshDashboardAnnouncements;
-
-    </script>
-
-    <script>
-        function switchDashTab(tab) {
-            const tabs = ['helpdesk', 'reimbursement'];
-            tabs.forEach(t => {
-                const btn = document.getElementById('tab-' + t);
-                const pane = document.getElementById('pane-' + t);
-                const link = document.getElementById('tab-' + t + '-link');
-                if (t === tab) {
-                    btn.classList.add('text-primary', 'border-primary');
-                    btn.classList.remove('text-outline', 'border-transparent', 'hover:text-on-surface');
-                    pane.classList.remove('hidden');
-                    link.classList.remove('hidden');
-                } else {
-                    btn.classList.remove('text-primary', 'border-primary');
-                    btn.classList.add('text-outline', 'border-transparent', 'hover:text-on-surface');
-                    pane.classList.add('hidden');
-                    link.classList.add('hidden');
-                }
+                html += '</div>';
+                container.innerHTML = html;
+            })
+            .catch(err => {
+                console.error("Error refreshing dashboard announcements:", err);
             });
-        }
-    </script>
-
-    <script id="timeline-data" type="application/json">
-    {
-        "holidays": {{ holidays | default([]) | tojson | safe }},
-        "birthdays": {{ birthdays | default([]) | tojson | safe }},
-        "all_birthdays": {{ all_birthdays | default([]) | tojson | safe }}
     }
-    </script>
 
-    <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // --- TIMELINE LOGIC ---
-        let currentViewMonth = new Date().getMonth();
-        const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-        
-        function parseMonth(dateStr) {
-            if (!dateStr) return -1;
-            try {
-                // If it's MM-DD format
-                if (dateStr.length === 5 && dateStr.indexOf('-') === 2) {
-                    return parseInt(dateStr.split('-')[0], 10) - 1;
-                }
-                const d = new Date(dateStr);
-                if (!isNaN(d.getMonth())) return d.getMonth();
-                const parts = dateStr.split('-');
-                if (parts.length >= 2) return parseInt(parts[1], 10) - 1;
-                return -1;
-            } catch (e) {
-                return -1;
-            }
+    function formatDateString(isoStr) {
+        if (!isoStr) return '';
+        try {
+            const date = new Date(isoStr);
+            const options = { day: 'numeric', month: 'short', year: 'numeric' };
+            return date.toLocaleDateString('en-US', options);
+        } catch {
+            return isoStr;
         }
-        
-        function formatDayMonth(dateStr) {
-            if (!dateStr) return '';
-            try {
-                if (dateStr.length === 5 && dateStr.indexOf('-') === 2) {
-                    const parts = dateStr.split('-');
-                    return parseInt(parts[1], 10) + ' ' + monthNames[parseInt(parts[0], 10) - 1].substring(0, 3);
+    }
+
+    // Attach form listener
+    document.addEventListener("DOMContentLoaded", function () {
+        const form = document.getElementById("dashAnnForm");
+        if (form) {
+            form.addEventListener("submit", function (e) {
+                e.preventDefault();
+
+                if (!form.checkValidity()) {
+                    form.classList.add('was-validated');
+                    return;
                 }
-                const d = new Date(dateStr);
-                if (!isNaN(d.getDate())) {
-                    return d.getDate() + ' ' + monthNames[d.getMonth()].substring(0, 3);
+
+                const id = document.getElementById("dashAnnId").value;
+                const token = sessionStorage.getItem('token') || "{{ session.get('token', '') }}";
+                const formData = new FormData(form);
+
+                const rawExpires = document.getElementById("dashAnnExpiresAt").value;
+                if (rawExpires) {
+                    formData.set("expires_at", rawExpires.replace('T', ' ') + ':00');
                 }
-                return dateStr;
-            } catch (e) {
-                return dateStr;
-            }
-        }
-        
-        function renderTimeline() {
-            const container = document.getElementById('dashTimelineContainer');
-            const titleEl = document.getElementById('dashTimelineMonthName');
-            if (!container) return;
-            
-            if (titleEl) {
-                titleEl.innerText = monthNames[currentViewMonth];
-            }
-            
-            container.innerHTML = '';
-            
-            let timelineData = { holidays: [], all_birthdays: [] };
-            try {
-                timelineData = JSON.parse(document.getElementById('timeline-data').textContent || '{"holidays":[],"all_birthdays":[]}');
-            } catch(e) {
-                console.error("Error parsing timeline data", e);
-            }
-            
-            const events = [];
-            const holidays = timelineData.holidays || [];
-            const birthdays = timelineData.all_birthdays && timelineData.all_birthdays.length ? timelineData.all_birthdays : (timelineData.birthdays || []);
-            
-            holidays.forEach(h => {
-                const m = parseMonth(h.date || h.formatted_date);
-                if (m === currentViewMonth) {
-                    events.push({
-                        type: 'holiday',
-                        title: h.name,
-                        subtitle: h.type || 'Holiday',
-                        dateStr: h.formatted_date || h.date,
-                        displayDate: formatDayMonth(h.formatted_date || h.date)
+
+                const submitBtn = document.getElementById("dashAnnSubmitBtn");
+                submitBtn.disabled = true;
+                submitBtn.innerText = "Saving...";
+
+                const url = id ? `/api/announcements/${id}` : '/api/announcements';
+                const method = id ? 'PUT' : 'POST';
+
+                fetch(url, {
+                    method: method,
+                    headers: { "Authorization": `Bearer ${token}` },
+                    body: formData
+                })
+                    .then(res => res.json())
+                    .then(data => {
+                        submitBtn.disabled = false;
+                        submitBtn.innerText = "Save Announcement";
+
+                        const isSuccess = data && (data.success || data.id || data.message || !data.error);
+                        if (!isSuccess) {
+                            alert("Operation failed: " + (data.error || "Unknown error"));
+                            return;
+                        }
+
+                        const modalEl = document.getElementById("dashboardAnnouncementModal");
+                        const modal = bootstrap.Modal.getInstance(modalEl);
+                        if (modal) modal.hide();
+
+                        alert(data.message || "Announcement saved successfully.");
+                        refreshDashboardAnnouncements();
+                    })
+                    .catch(err => {
+                        submitBtn.disabled = false;
+                        submitBtn.innerText = "Save Announcement";
+                        console.error(err);
+                        alert("An error occurred during submission.");
                     });
-                }
-            });
-            
-            birthdays.forEach(b => {
-                const dateVal = b.date_of_birth || b.date;
-                const m = parseMonth(dateVal);
-                if (m === currentViewMonth) {
-                    let name = b.name ? b.name.split('@')[0] : 'Unknown';
-                    // capitalize 
-                    name = name.split('.').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
-                    events.push({
-                        type: 'birthday',
-                        title: name + "'s Birthday",
-                        subtitle: 'Birthday',
-                        dateStr: dateVal,
-                        displayDate: formatDayMonth(dateVal)
-                    });
-                }
-            });
-            
-            if (events.length === 0) {
-                container.innerHTML = '<div class="text-sm text-outline py-4">No upcoming events for ' + monthNames[currentViewMonth] + '.</div>';
-                return;
-            }
-            
-            // Sort by day
-            events.sort((a, b) => {
-                const dayA = parseInt(a.displayDate) || 0;
-                const dayB = parseInt(b.displayDate) || 0;
-                return dayA - dayB;
-            });
-            
-            events.forEach(ev => {
-                const isBirthday = ev.type === 'birthday';
-                const el = document.createElement('div');
-                el.className = 'relative' + (!isBirthday ? ' opacity-70' : '');
-                
-                if (isBirthday) {
-                    el.innerHTML = `
-                        <div class="absolute -left-[37px] top-1 w-4 h-4 rounded-full border-2 border-primary bg-white flex items-center justify-center">
-                            <div class="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></div>
-                        </div>
-                        <div class="flex justify-between items-start">
-                            <div>
-                                <p class="text-sm font-bold text-on-surface">${ev.title}</p>
-                                <p class="text-xs text-outline">${ev.subtitle}</p>
-                            </div>
-                            <span class="text-[10px] font-black text-primary">${ev.displayDate}</span>
-                        </div>
-                    `;
-                } else {
-                    el.innerHTML = `
-                        <div class="absolute -left-[37px] top-1 w-4 h-4 rounded-full border-2 border-outline-variant bg-white"></div>
-                        <div class="flex justify-between items-start">
-                            <div>
-                                <p class="text-sm font-bold text-on-surface">${ev.title}</p>
-                                <p class="text-xs text-outline">${ev.subtitle}</p>
-                            </div>
-                            <span class="text-[10px] font-black text-outline">${ev.displayDate}</span>
-                        </div>
-                    `;
-                }
-                
-                container.appendChild(el);
             });
         }
-
-        const prevBtn = document.getElementById('dashTimelinePrevBtn');
-        const nextBtn = document.getElementById('dashTimelineNextBtn');
-        const calBtn = document.getElementById('dashTimelineCalendarBtn');
-        
-        if (prevBtn) prevBtn.addEventListener('click', () => {
-            currentViewMonth = (currentViewMonth - 1 + 12) % 12;
-            renderTimeline();
-        });
-        
-        if (nextBtn) nextBtn.addEventListener('click', () => {
-            currentViewMonth = (currentViewMonth + 1) % 12;
-            renderTimeline();
-        });
-        
-        if (calBtn) calBtn.addEventListener('click', () => {
-            currentViewMonth = new Date().getMonth();
-            renderTimeline();
-        });
-
-        // initial render
-        renderTimeline();
     });
-    </script>
 
-    {% endblock %}
+    // Make functions globally available
+    window.loadNotificationsPage = loadNotificationsPage;
+    window.viewProjectDetails = viewProjectDetails;
+    window.openEmployeeSelectionModal = openEmployeeSelectionModal;
+    window.populateEmployeeList = populateEmployeeList;
+    window.selectAllEmployees = selectAllEmployees;
+    window.clearAllEmployees = clearAllEmployees;
+    window.assignSelectedEmployees = assignSelectedEmployees;
+    window.viewDashboardAnnouncement = viewDashboardAnnouncement;
+    window.prepareDashboardCreate = prepareDashboardCreate;
+    window.prepareDashboardEdit = prepareDashboardEdit;
+    window.deleteDashboardAnnouncement = deleteDashboardAnnouncement;
+    window.refreshDashboardAnnouncements = refreshDashboardAnnouncements;
+
+</script>
+
+{% endblock %}

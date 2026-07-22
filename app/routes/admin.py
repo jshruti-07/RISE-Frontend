@@ -681,3 +681,63 @@ def api_announcement_attachment(announcement_id):
     res = requests.get(f"{BASE_URL}/announcements/{announcement_id}/attachment", headers=get_headers(), stream=True)
     return Response(res.content, status=res.status_code, headers=dict(res.headers))
 
+
+# ── RENTAL MANAGEMENT ROUTES ─────────────────────────────────────────────────
+
+@admin_bp.route('/api/rentals/dashboard-stats', methods=['GET'])
+@role_required(['admin', 'hr'])
+def api_rental_dashboard_stats():
+    try:
+        res = requests.get(f"{BASE_URL}/rentals/dashboard-stats", params=request.args.to_dict(), headers=get_headers(), timeout=10)
+        return jsonify(res.json()), res.status_code
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+
+@admin_bp.route('/api/rentals/matrix', methods=['GET'])
+@role_required(['admin', 'hr'])
+def api_rental_matrix():
+    try:
+        res = requests.get(f"{BASE_URL}/rentals/matrix", params=request.args.to_dict(), headers=get_headers(), timeout=15)
+        return jsonify(res.json()), res.status_code
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+
+@admin_bp.route('/api/rentals/vendor-summary', methods=['GET'])
+@role_required(['admin', 'hr'])
+def api_rental_vendor_summary():
+    try:
+        res = requests.get(f"{BASE_URL}/rentals/vendor-summary", params=request.args.to_dict(), headers=get_headers(), timeout=10)
+        return jsonify(res.json()), res.status_code
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+
+@admin_bp.route('/api/rentals/month-summary', methods=['GET'])
+@role_required(['admin', 'hr'])
+def api_rental_month_summary():
+    try:
+        res = requests.get(f"{BASE_URL}/rentals/month-summary", params=request.args.to_dict(), headers=get_headers(), timeout=10)
+        return jsonify(res.json()), res.status_code
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+
+@admin_bp.route('/api/rentals/export', methods=['GET'])
+@role_required(['admin', 'hr'])
+def api_rental_export():
+    try:
+        res = requests.get(f"{BASE_URL}/rentals/export", params=request.args.to_dict(), headers=get_headers(), timeout=60, stream=True)
+        if res.status_code == 200:
+            return Response(
+                res.content,
+                status=200,
+                headers={
+                    "Content-Type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                    "Content-Disposition": res.headers.get("Content-Disposition", "attachment; filename=Rental_Report.xlsx")
+                }
+            )
+        return jsonify(res.json()), res.status_code
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
