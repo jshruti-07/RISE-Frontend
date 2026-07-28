@@ -1,5 +1,9 @@
 /* Onboarding dashboard */
 
+body {
+    zoom: 0.75;
+}
+
 .onboarding-page {
     font-size: 0.92rem;
 }

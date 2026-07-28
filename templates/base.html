@@ -61,13 +61,14 @@
             padding: 2px 5px;
         }
 
+        /* Glass sidebar scrollbar — blue-tinted to match theme */
         .sidebar .menu {
             overflow-y: auto;
-            padding-right: 8px;
+            padding-right: 0;
         }
 
         .sidebar .menu::-webkit-scrollbar {
-            width: 6px;
+            width: 4px;
         }
 
         .sidebar .menu::-webkit-scrollbar-track {
@@ -76,21 +77,33 @@
         }
 
         .sidebar .menu::-webkit-scrollbar-thumb {
-            background: rgba(255, 255, 255, 0.15);
+            background: rgba(59, 130, 246, 0.18);
             border-radius: 10px;
-            border: 2px solid transparent;
-            background-clip: content-box;
         }
 
         .sidebar .menu::-webkit-scrollbar-thumb:hover {
-            background: rgba(255, 255, 255, 0.25);
-            background-clip: content-box;
+            background: rgba(59, 130, 246, 0.32);
         }
 
-        /* Firefox scrollbar styling */
         .sidebar .menu {
             scrollbar-width: thin;
-            scrollbar-color: rgba(255, 255, 255, 0.15) transparent;
+            scrollbar-color: rgba(59, 130, 246, 0.18) transparent;
+        }
+
+        /* Mobile: slide in from left, keep glass card look */
+        @media (max-width: 992px) {
+            .sidebar {
+                transform: translateX(calc(-100% - 20px));
+                transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            }
+            .sidebar.show-mobile {
+                transform: translateX(0);
+            }
+        }
+
+        /* Collapsed double-chevron rotates to point right */
+        .sidebar.collapsed .collapse-icon {
+            transform: rotate(180deg);
         }
     </style>
 </head>
@@ -132,11 +145,11 @@
 
         <div class="menu">
 
-            <!-- ACCESS CONTROL (ribbon-left: red/indigo accent) -->
+            <!-- ACCESS CONTROL -->
             {% if session.role == 'superadmin' %}
             <a class="ribbon-left" style="margin-bottom: 0; display: block;" href="{{ url_for('superadmin.access_control') }}">
                 <div class="ribbon-inner">
-                    <div class="ribbon-accent-left" style="background: linear-gradient(to bottom, #fca5a5, #ef4444);"></div>
+                    <div class="ribbon-accent-left" style="background: linear-gradient(to bottom, #93C5FD, #3B82F6);"></div>
                     <div class="ribbon-content">
                         <div class="ribbon-icon"><i class="bi bi-shield-lock"></i></div>
                         <div class="ribbon-text">
@@ -149,9 +162,10 @@
             {% endif %}
 
             {% if session.role != 'superadmin' %}
-            <!-- DASHBOARD (ribbon-right: yellow accent) -->
-            <a class="ribbon-right" style="margin-bottom: 0;" href="{{ url_for('dashboard.dashboard') }}">
+            <!-- DASHBOARD -->
+            <a class="ribbon-left" style="margin-bottom: 0; display: block;" href="{{ url_for('dashboard.dashboard') }}">
                 <div class="ribbon-inner">
+                    <div class="ribbon-accent-left" style="background: linear-gradient(to bottom, #93C5FD, #3B82F6);"></div>
                     <div class="ribbon-content">
                         <div class="ribbon-icon"><i class="bi bi-house"></i></div>
                         <div class="ribbon-text">
@@ -159,15 +173,14 @@
                             <span class="ribbon-subtitle">Overview &amp; metrics</span>
                         </div>
                     </div>
-                    <div class="ribbon-accent-right" style="background: linear-gradient(to bottom, #FDE047, #EAB308);"></div>
                 </div>
             </a>
 
-            <!-- TEAM MEMBERS (ribbon-left: violet accent) -->
+            <!-- TEAM MEMBERS -->
             {% if session.role in ['hr', 'manager', 'admin'] %}
             <a class="ribbon-left" style="margin-bottom: 0; display: block;" href="{{ url_for('employees.employee_list') }}">
                 <div class="ribbon-inner">
-                    <div class="ribbon-accent-left" style="background: linear-gradient(to bottom, #C4B5FD, #8B5CF6);"></div>
+                    <div class="ribbon-accent-left" style="background: linear-gradient(to bottom, #93C5FD, #3B82F6);"></div>
                     <div class="ribbon-content">
                         <div class="ribbon-icon"><i class="bi bi-people"></i></div>
                         <div class="ribbon-text">
@@ -179,10 +192,11 @@
             </a>
             {% endif %}
 
-            <!-- TIMESHEETS (ribbon-right: green accent) -->
+            <!-- TIMESHEETS -->
             {% if session.role in ['employee','manager','hr','admin'] %}
-            <a class="ribbon-right" style="margin-bottom: 0;" href="{{ url_for('work.timesheets_list') }}">
+            <a class="ribbon-left" style="margin-bottom: 0; display: block;" href="{{ url_for('work.timesheets_list') }}">
                 <div class="ribbon-inner">
+                    <div class="ribbon-accent-left" style="background: linear-gradient(to bottom, #93C5FD, #3B82F6);"></div>
                     <div class="ribbon-content">
                         <div class="ribbon-icon"><i class="bi bi-clock"></i></div>
                         <div class="ribbon-text">
@@ -190,16 +204,15 @@
                             <span class="ribbon-subtitle">Track work hours</span>
                         </div>
                     </div>
-                    <div class="ribbon-accent-right" style="background: linear-gradient(to bottom, #86EFAC, #22C55E);"></div>
                 </div>
             </a>
             {% endif %}
 
-            <!-- LEAVES (ribbon-left: sky accent) -->
+            <!-- LEAVES -->
             {% if session.role in ['employee','hr','manager','admin'] %}
             <a class="ribbon-left" style="margin-bottom: 0; display: block;" href="{{ url_for('work.leaves_list') }}">
                 <div class="ribbon-inner">
-                    <div class="ribbon-accent-left" style="background: linear-gradient(to bottom, #7DD3FC, #0EA5E9);"></div>
+                    <div class="ribbon-accent-left" style="background: linear-gradient(to bottom, #93C5FD, #3B82F6);"></div>
                     <div class="ribbon-content">
                         <div class="ribbon-icon"><i class="bi bi-calendar"></i></div>
                         <div class="ribbon-text">
@@ -211,9 +224,10 @@
             </a>
             {% endif %}
 
-            <!-- PROJECTS (ribbon-right: blue accent) -->
-            <a class="ribbon-right" style="margin-bottom: 0;" href="{{ url_for('projects.projects_list') }}">
+            <!-- PROJECTS -->
+            <a class="ribbon-left" style="margin-bottom: 0; display: block;" href="{{ url_for('projects.projects_list') }}">
                 <div class="ribbon-inner">
+                    <div class="ribbon-accent-left" style="background: linear-gradient(to bottom, #93C5FD, #3B82F6);"></div>
                     <div class="ribbon-content">
                         <div class="ribbon-icon"><i class="bi bi-folder"></i></div>
                         <div class="ribbon-text">
@@ -221,14 +235,13 @@
                             <span class="ribbon-subtitle">Client deliverables</span>
                         </div>
                     </div>
-                    <div class="ribbon-accent-right" style="background: linear-gradient(to bottom, #93C5FD, #3B82F6);"></div>
                 </div>
             </a>
 
-            <!-- REIMBURSEMENTS (ribbon-left: pink accent) -->
+            <!-- REIMBURSEMENTS -->
             <a class="ribbon-left" style="margin-bottom: 0; display: block;" href="{{ url_for('admin.reimbursement') }}">
                 <div class="ribbon-inner">
-                    <div class="ribbon-accent-left" style="background: linear-gradient(to bottom, #F9A8D4, #EC4899);"></div>
+                    <div class="ribbon-accent-left" style="background: linear-gradient(to bottom, #93C5FD, #3B82F6);"></div>
                     <div class="ribbon-content">
                         <div class="ribbon-icon"><i class="bi bi-receipt"></i></div>
                         <div class="ribbon-text">
@@ -239,10 +252,11 @@
                 </div>
             </a>
 
-            <!-- REPORTS (ribbon-right: tan/gold accent) -->
+            <!-- REPORTS -->
             {% if session.role in ['hr', 'manager', 'admin'] %}
-            <a class="ribbon-right" style="margin-bottom: 0;" href="{{ url_for('work.hr_missing_timesheets') }}">
+            <a class="ribbon-left" style="margin-bottom: 0; display: block;" href="{{ url_for('work.hr_missing_timesheets') }}">
                 <div class="ribbon-inner">
+                    <div class="ribbon-accent-left" style="background: linear-gradient(to bottom, #93C5FD, #3B82F6);"></div>
                     <div class="ribbon-content">
                         <div class="ribbon-icon"><i class="bi bi-file-earmark-bar-graph"></i></div>
                         <div class="ribbon-text">
@@ -250,16 +264,15 @@
                             <span class="ribbon-subtitle">Data &amp; insights</span>
                         </div>
                     </div>
-                    <div class="ribbon-accent-right" style="background: linear-gradient(to bottom, #E6C9A8, #C08A5D);"></div>
                 </div>
             </a>
             {% endif %}
 
-            <!-- PAYSLIPS (ribbon-left: teal accent) -->
+            <!-- PAYSLIPS -->
             {% if session.role in ['manager','employee'] %}
             <a class="ribbon-left" style="margin-bottom: 0; display: block;" href="{{ url_for('user.payslips') }}">
                 <div class="ribbon-inner">
-                    <div class="ribbon-accent-left" style="background: linear-gradient(to bottom, #5EEAD4, #0D9488);"></div>
+                    <div class="ribbon-accent-left" style="background: linear-gradient(to bottom, #93C5FD, #3B82F6);"></div>
                     <div class="ribbon-content">
                         <div class="ribbon-icon"><i class="bi bi-file-earmark-text"></i></div>
                         <div class="ribbon-text">
@@ -271,10 +284,11 @@
             </a>
             {% endif %}
 
-            <!-- BANK VERIFICATION (ribbon-right: emerald accent) -->
+            <!-- BANK VERIFICATION -->
             {% if session.role in ['hr', 'admin'] %}
-            <a class="ribbon-right" style="margin-bottom: 0;" href="{{ url_for('user.bank_verification') }}">
+            <a class="ribbon-left" style="margin-bottom: 0; display: block;" href="{{ url_for('user.bank_verification') }}">
                 <div class="ribbon-inner">
+                    <div class="ribbon-accent-left" style="background: linear-gradient(to bottom, #93C5FD, #3B82F6);"></div>
                     <div class="ribbon-content">
                         <div class="ribbon-icon"><i class="bi bi-credit-card"></i></div>
                         <div class="ribbon-text">
@@ -282,16 +296,15 @@
                             <span class="ribbon-subtitle">Bank validation</span>
                         </div>
                     </div>
-                    <div class="ribbon-accent-right" style="background: linear-gradient(to bottom, #6EE7B7, #10B981);"></div>
                 </div>
             </a>
             {% endif %}
 
-            <!-- ASSETS (ribbon-left: orange accent) -->
+            <!-- ASSETS -->
             {% if session.role in ['hr', 'admin'] %}
             <a class="ribbon-left" style="margin-bottom: 0; display: block;" href="{{ url_for('admin.assets') }}">
                 <div class="ribbon-inner">
-                    <div class="ribbon-accent-left" style="background: linear-gradient(to bottom, #FDBA74, #EA580C);"></div>
+                    <div class="ribbon-accent-left" style="background: linear-gradient(to bottom, #93C5FD, #3B82F6);"></div>
                     <div class="ribbon-content">
                         <div class="ribbon-icon"><i class="bi bi-laptop"></i></div>
                         <div class="ribbon-text">
@@ -303,10 +316,11 @@
             </a>
             {% endif %}
 
-            <!-- ONBOARDING (ribbon-right: indigo accent) -->
+            <!-- ONBOARDING -->
             {% if session.role == 'hr' %}
-            <a class="ribbon-right" style="margin-bottom: 0;" href="{{ url_for('onboarding.dashboard') }}">
+            <a class="ribbon-left" style="margin-bottom: 0; display: block;" href="{{ url_for('onboarding.dashboard') }}">
                 <div class="ribbon-inner">
+                    <div class="ribbon-accent-left" style="background: linear-gradient(to bottom, #93C5FD, #3B82F6);"></div>
                     <div class="ribbon-content">
                         <div class="ribbon-icon"><i class="bi bi-door-open"></i></div>
                         <div class="ribbon-text">
@@ -314,15 +328,30 @@
                             <span class="ribbon-subtitle">New joinee setup</span>
                         </div>
                     </div>
-                    <div class="ribbon-accent-right" style="background: linear-gradient(to bottom, #A5B4FC, #6366F1);"></div>
                 </div>
             </a>
             {% endif %}
 
-            <!-- POLICIES (ribbon-left: slate accent) -->
+            <!-- OFFBOARDING (ribbon-left: rose accent) -->
+            {% if session.role in ['hr', 'manager', 'accounts'] %}
+            <a class="ribbon-left" style="margin-bottom: 0; display: block;" href="{{ url_for('offboarding_ui.dashboard') }}">
+                <div class="ribbon-inner">
+                    <div class="ribbon-accent-left" style="background: linear-gradient(to bottom, #FCA5A5, #DC2626);"></div>
+                    <div class="ribbon-content">
+                        <div class="ribbon-icon"><i class="bi bi-door-closed"></i></div>
+                        <div class="ribbon-text">
+                            <span class="ribbon-title">OFFBOARDING</span>
+                            <span class="ribbon-subtitle">Exit process</span>
+                        </div>
+                    </div>
+                </div>
+            </a>
+            {% endif %}
+
+            <!-- POLICIES -->
             <a class="ribbon-left" style="margin-bottom: 0; display: block;" href="{{ url_for('admin.policies') }}">
                 <div class="ribbon-inner">
-                    <div class="ribbon-accent-left" style="background: linear-gradient(to bottom, #94A3B8, #475569);"></div>
+                    <div class="ribbon-accent-left" style="background: linear-gradient(to bottom, #93C5FD, #3B82F6);"></div>
                     <div class="ribbon-content">
                         <div class="ribbon-icon"><i class="bi bi-file-text"></i></div>
                         <div class="ribbon-text">
@@ -333,9 +362,10 @@
                 </div>
             </a>
 
-            <!-- HELP DESK (ribbon-right: rose accent) -->
-            <a class="ribbon-right" style="margin-bottom: 0;" href="{{ url_for('admin.helpdesk') }}">
+            <!-- HELP DESK -->
+            <a class="ribbon-left" style="margin-bottom: 0; display: block;" href="{{ url_for('admin.helpdesk') }}">
                 <div class="ribbon-inner">
+                    <div class="ribbon-accent-left" style="background: linear-gradient(to bottom, #93C5FD, #3B82F6);"></div>
                     <div class="ribbon-content">
                         <div class="ribbon-icon"><i class="bi bi-headset"></i></div>
                         <div class="ribbon-text">
@@ -343,12 +373,11 @@
                             <span class="ribbon-subtitle">Support &amp; tickets</span>
                         </div>
                     </div>
-                    <div class="ribbon-accent-right" style="background: linear-gradient(to bottom, #FDA4AF, #E11D48);"></div>
                 </div>
             </a>
 
             <!-- QUICK ACTIONS SECTION -->
-            <hr style="margin: 14px 16px 8px; border-top: 1px solid #e2e8f0; opacity: 1;">
+            <hr style="margin: 12px 16px 4px; border-top: 1px solid rgba(203, 213, 225, 0.6); opacity: 1;">
             <div class="menu-category-header">QUICK ACTIONS</div>
 
             <!-- Apply Leave -->
@@ -376,9 +405,10 @@
 
         </div>
 
-        <div class="collapse-container" style="padding: 12px 16px; border-top: 1px solid #e2e8f0; margin-top: auto;">
-            <a href="#" onclick="toggleSidebar(); return false;" class="collapse-btn" style="display: flex; align-items: center; gap: 12px; color: #64748b; text-decoration: none; font-size: 0.85rem; font-weight: 500; padding: 8px;">
-                <i class="bi bi-chevron-left collapse-icon" style="transition: transform 0.3s;"></i> <span class="collapse-text">Collapse</span>
+        <div class="collapse-container" style="padding: 10px 12px 14px; border-top: 1px solid rgba(203,213,225,0.5); margin-top: auto;">
+            <a href="#" onclick="toggleSidebar(); return false;" class="collapse-btn" style="display: flex; align-items: center; gap: 8px; color: #64748b; text-decoration: none; font-size: 0.82rem; font-weight: 600; padding: 9px 14px; background: rgba(241,245,249,0.8); border-radius: 50px; border: 1px solid rgba(203,213,225,0.5); transition: background 0.18s ease;">
+                <i class="bi bi-chevron-double-left collapse-icon" style="font-size: 0.85rem; transition: transform 0.3s;"></i>
+                <span class="collapse-text">Collapse</span>
             </a>
         </div>
     </div>

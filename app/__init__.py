@@ -26,6 +26,7 @@ def create_app():
     from app.routes.user import user_bp
     from app.routes.main import main_bp
     from app.onboarding_ui import onboarding_bp
+    from app.offboarding_ui import offboarding_ui_bp
     from app.routes.superadmin import superadmin_bp
 
     # Register blueprints
@@ -39,6 +40,7 @@ def create_app():
     app.register_blueprint(main_bp)
     app.register_blueprint(onboarding_bp)
     app.register_blueprint(superadmin_bp)
+    app.register_blueprint(offboarding_ui_bp, url_prefix='/offboarding')
 
     @app.before_request
     def restrict_superadmin_navigation():

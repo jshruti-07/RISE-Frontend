@@ -25,7 +25,7 @@
     <th>Joining Date</th>
     <th class="text-center">Role</th>
     <th class="text-center">Leave Balance</th>
-    <th>Actions</th>
+    <!-- <th>Actions</th> -->
 </tr>
 </thead>
 
@@ -62,6 +62,14 @@
             data-bs-target="#deleteModal"
             onclick="setDeleteData('{{ emp.id }}','{{ emp.name }}')">
             Delete
+        </button>
+        {% endif %}
+        {% if session.role == 'hr' %}
+        <button class="btn btn-sm ms-1" style="background-color: #FEE2E2; color: #DC2626; min-width: 70px;" 
+            data-bs-toggle="modal"
+            data-bs-target="#offboardModal"
+            onclick="setOffboardData('{{ emp.id }}','{{ emp.name }}')">
+            Offboard
         </button>
         {% endif %}
     </td>
@@ -118,15 +126,63 @@
   </div>
 </div>
 
-<script>
-function setDeleteData(id, name) {
-    document.getElementById('deleteEmpName').textContent = name;
-    document.getElementById('deleteForm').action = '/delete/' + id;
-}
+<div class="modal fade" id="offboardModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <form id="offboardForm" method="POST" action="{{ url_for('offboarding_ui.initiate') }}">
+      <div class="modal-header border-0 pb-0">
+        <h5 class="modal-title fw-bold">Initiate Offboarding</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+          <p>Are you sure you want to initiate offboarding for <strong id="offboardEmpName"></strong>?</p>
+          <input type="hidden" name="employee_id" id="offboardEmpId">
+          <input type="hidden" name="employee_name" id="offboardEmpNameInput">
+          
+          <div class="mb-3">
+              <label class="form-label text-muted small text-uppercase">Reason</label>
+              <select class="form-select" name="reason" required>
+                  <option value="RESIGNATION">Resignation</option>
+                  <option value="TERMINATION">Termination</option>
+                  <option value="RETIREMENT">Retirement</option>
+                  <option value="OTHER">Other</option>
+              </select>
+          </div>
+          
+          <div class="mb-3">
+              <label class="form-label text-muted small text-uppercase">Notes (Optional)</label>
+              <textarea class="form-control" name="reason_notes" rows="2"></textarea>
+          </div>
+          
+          <div class="mb-3">
+              <label class="form-label text-muted small text-uppercase">Last Working Day</label>
+              <input type="date" class="form-control" name="last_working_day" required>
+          </div>
+      </div>
+      <div class="modal-footer border-0 pt-0 d-flex justify-content-between">
+        <button type="button" class="btn btn-light w-45" data-bs-dismiss="modal">Cancel</button>
+        <button type="submit" class="btn text-white w-45" style="background-color: #DC2626;">Initiate Offboarding</button>
+      </div>
+      </form>
+    </div>
+  </div>
+</div>
 
-document.addEventListener('DOMContentLoaded', () => {
-    applyPagination('.table', 10);
-});
+<script>
+    function setDeleteData(id, name) {
+    document.getElementById('deleteEmpName').innerText = name;
+    document.getElementById('deleteForm').action = '/delete/' + id;
+    }
+    
+    function setOffboardData(id, name) {
+        document.getElementById('offboardEmpName').innerText = name;
+        document.getElementById('offboardEmpId').value = id;
+        document.getElementById('offboardEmpNameInput').value = name;
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        applyPagination('.table', 10);
+    });
 </script>
 
 {% endblock %}

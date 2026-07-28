@@ -3,8 +3,11 @@
 body {
 
     font-family: 'Inter', sans-serif;
+    zoom: 0.75;
 
-    background: #f4f6f9;
+    /* Subtle gradient so backdrop-filter blur on the glass sidebar is visible */
+    background: linear-gradient(135deg, #e8edf5 0%, #dde7f2 30%, #e4ecf7 60%, #f0f4fb 100%);
+    background-attachment: fixed;
 
     margin: 0;
 
@@ -14,22 +17,34 @@ body {
 
 
 
-/* ===== SIDEBAR ===== */
+/* ===== SIDEBAR — GLASSMORPHISM FLOATING CARD ===== */
 
 .sidebar {
-    width: 240px;
-    height: 100vh;
+    width: 248px;
+    /* height: floating card — inset from viewport edges */
+    height: calc((100vh / 0.75) - 24px);
     position: fixed;
-    background: #f3f3f3;
-    border-right: 1px solid #e2e8f0;
+    /* Glass background */
+    background: rgba(255, 255, 255, 0.78);
+    -webkit-backdrop-filter: blur(16px) saturate(1.6);
+    backdrop-filter: blur(16px) saturate(1.6);
+    /* Floating card: inset from edges */
+    top: 12px;
+    left: 12px;
+    /* Rounded on ALL 4 sides */
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    box-shadow:
+        0 8px 32px rgba(15, 23, 42, 0.10),
+        0 2px 8px rgba(15, 23, 42, 0.06),
+        inset 0 1px 0 rgba(255, 255, 255, 0.8);
     color: #334155;
-    top: 0;
-    left: 0;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: 4px 0 24px rgba(15, 23, 42, 0.04);
+    transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+                left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     display: flex;
     flex-direction: column;
     overflow: hidden;
+    z-index: 1040;
 }
 
 /* Hide scrollbar for Chrome, Safari and Opera */
@@ -53,7 +68,6 @@ body {
     object-fit: cover;
     z-index: 0;
     opacity: 0.05;
-    /* Dimmed heavily for light background compatibility */
     pointer-events: none;
 }
 
@@ -64,37 +78,23 @@ body {
 }
 
 @keyframes aiGradient {
-    0% {
-        background-position: 0% 50%;
-    }
-
-    25% {
-        background-position: 50% 25%;
-    }
-
-    50% {
-        background-position: 100% 50%;
-    }
-
-    75% {
-        background-position: 50% 75%;
-    }
-
-    100% {
-        background-position: 0% 50%;
-    }
+    0%   { background-position: 0% 50%; }
+    25%  { background-position: 50% 25%; }
+    50%  { background-position: 100% 50%; }
+    75%  { background-position: 50% 75%; }
+    100% { background-position: 0% 50%; }
 }
 
 .menu {
     flex: 1;
     overflow-y: auto;
     overflow-x: hidden;
-    padding: 10px 0;
+    padding: 4px 0 8px;
 }
 
 /* COLLAPSED */
 .sidebar.collapsed {
-    width: 70px;
+    width: 68px;
 }
 
 /* HEADER */
@@ -204,151 +204,137 @@ body {
     font-size: 0.8rem;
 }
 
-/* ===== RIBBON NAV ITEMS ===== */
+/* ===== NAV ITEMS — GLASSMORPHISM FLAT ROWS ===== */
+
+/* Base link reset — works for both .ribbon-left and .ribbon-right */
 .menu a {
     display: block;
     text-decoration: none;
     position: relative;
-    margin-bottom: 0px;
-    filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.06));
-    /* Reset any flex defaults from Bootstrap */
+    filter: none;
     padding: 0;
     gap: 0;
-    border-radius: 0;
     border: none;
     background: transparent;
     font-size: inherit;
     font-weight: inherit;
     color: inherit;
-    transition: none;
+    transition: background 0.18s ease, transform 0.18s ease;
+    margin: 1px 8px;
+    border-radius: 10px;
 }
 
-/* Inner ribbon card */
+/* Override the old ribbon-inner card — flatten into transparent row */
 .menu a .ribbon-inner {
     display: flex;
     align-items: center;
-    background: #ffffff;
-    height: 52px;
+    height: 42px;
     position: relative;
-    transition: transform 0.3s ease;
+    background: transparent !important;
+    margin: 0;
+    border-radius: 10px;
+    padding: 0 12px;
+    transition: background 0.18s ease;
 }
 
-.menu a:hover .ribbon-inner {
-    transform: translateY(-2px);
-}
-
-/* Right-tab ribbons (odd items: rounded left, accent on right) */
-.menu a.ribbon-right .ribbon-inner {
-    border-radius: 12px 0 0 12px;
-    margin-left: 20px;
-    margin-right: 20px;
-    background: linear-gradient(to right, rgba(255, 255, 255, 0) 0%, #ffffff 15%);
-}
-
-/* Left-tab ribbons (even items: rounded right, accent on left) */
+/* Remove the asymmetric ribbon-right / ribbon-left shapes entirely */
+.menu a.ribbon-right .ribbon-inner,
 .menu a.ribbon-left .ribbon-inner {
-    border-radius: 0 12px 12px 0;
-    margin-left: 20px;
-    margin-right: 20px;
-    background: linear-gradient(to left, rgba(255, 255, 255, 0) 0%, #ffffff 15%);
+    border-radius: 10px;
+    margin: 0;
+    background: transparent !important;
+    padding: 0 12px;
 }
 
-/* Accent tab on the right side */
+/* Hide the accent bars — not needed in flat layout */
+.menu a .ribbon-accent-left,
 .menu a .ribbon-accent-right {
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    right: -8px;
-    width: 7px;
-    border-radius: 0 50px 50px 0;
+    display: none !important;
 }
 
-/* Accent tab on the left side */
-.menu a .ribbon-accent-left {
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    left: -8px;
-    width: 7px;
-    border-radius: 50px 0 0 50px;
+/* Hover: soft tinted background */
+.menu a:hover .ribbon-inner {
+    background: rgba(59, 130, 246, 0.07) !important;
+    transform: none;
 }
 
-/* Icon + text layout inside ribbon */
+/* Icon + text layout */
 .menu a .ribbon-content {
     display: flex;
     align-items: center;
     width: 100%;
     overflow: hidden;
+    padding: 0 !important;
 }
 
-.ribbon-right .ribbon-content {
-    padding: 0 12px 0 20px;
-}
-
+.ribbon-right .ribbon-content,
 .ribbon-left .ribbon-content {
-    padding: 0 20px 0 12px;
+    padding: 0 !important;
 }
 
 .menu a .ribbon-icon {
-    color: #94a3b8;
+    color: #64748b;
     flex-shrink: 0;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.1rem;
-    width: 22px;
+    font-size: 1.05rem;
+    width: 24px;
+    margin-right: 10px;
+    transition: color 0.18s ease;
 }
 
 .menu a .ribbon-text {
     display: flex;
     flex-direction: column;
-    margin-left: 10px;
     overflow: hidden;
+    margin-left: 0;
 }
 
 .menu a .ribbon-title {
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 0.04em;
+    font-size: 0.845rem;
+    font-weight: 500;
+    letter-spacing: 0;
     color: #374151;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    line-height: 1.2;
+    line-height: 1.3;
+    text-transform: none;
 }
 
+/* Hide the subtitle in the new clean layout */
 .menu a .ribbon-subtitle {
-    font-size: 9px;
-    color: #9ca3af;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    margin-top: 2px;
-    line-height: 1;
+    display: none;
 }
 
-/* Active state - slightly brighten the card */
+/* ── ACTIVE STATE: soft blue-gray rounded pill ── */
+.menu a.active {
+    background: rgba(59, 130, 246, 0.10);
+}
+
 .menu a.active .ribbon-inner {
-    background: #ffffff !important;
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+    background: transparent !important;
+    box-shadow: none;
 }
 
 .menu a.active .ribbon-title {
-    color: #111827;
+    color: #172857;
+    font-weight: 600;
 }
 
 .menu a.active .ribbon-icon {
-    color: #374151;
+    color: #172857;
 }
 
-/* Quick Actions category header */
+/* Quick Actions section label */
 .menu-category-header {
-    font-size: 0.7rem;
-    font-weight: 600;
+    font-size: 0.68rem;
+    font-weight: 700;
     color: #94a3b8;
     text-transform: uppercase;
-    letter-spacing: 0.05em;
-    margin: 20px 24px 8px 24px;
+    letter-spacing: 0.08em;
+    margin: 8px 20px 4px;
     display: block;
 }
 
@@ -386,42 +372,43 @@ body {
 
 .submenu a:hover {
     color: #0f172a;
-    background: #f1f5f9;
+    background: rgba(59,130,246,0.07);
     transform: none;
 }
 
 .submenu a.active {
-    background: #eff6ff;
+    background: rgba(59,130,246,0.10);
     color: #2563eb !important;
     border-left-color: #2563eb;
     border-radius: 8px;
 }
 
-/* Quick Actions plain links (after the <hr>) */
+/* Quick Actions plain links */
 .menu a.quick-action {
     display: flex !important;
     align-items: center;
     gap: 10px;
-    padding: 6px 16px;
+    padding: 7px 12px;
     color: #475569;
     background: transparent;
-    border-radius: 6px;
-    margin: 3px 12px;
+    border-radius: 10px;
+    margin: 1px 8px;
     font-weight: 500;
-    font-size: 0.85rem;
+    font-size: 0.845rem;
     filter: none;
-    transition: all 0.2s ease;
+    transition: background 0.18s ease;
     height: auto;
 }
 
 .menu a.quick-action i {
     font-size: 1rem;
-    transition: color 0.2s ease;
+    color: #64748b;
+    transition: color 0.18s ease;
 }
 
 .menu a.quick-action:hover {
     color: #0f172a;
-    background: #f1f5f9;
+    background: rgba(59, 130, 246, 0.07);
     transform: none;
 }
 
@@ -441,27 +428,28 @@ body {
 }
 
 .sidebar.collapsed .collapse-container {
-    padding: 12px 0 !important;
+    padding: 12px 6px !important;
 }
 
-/* Collapsed ribbon: shrink to icon-only pill */
+/* Collapsed icon-only pills */
 .sidebar.collapsed .menu a.ribbon-right,
 .sidebar.collapsed .menu a.ribbon-left {
     filter: none;
-    margin: 3px 6px;
+    margin: 2px 6px;
 }
 
 .sidebar.collapsed .menu a .ribbon-inner {
-    height: 40px;
+    height: 38px;
     margin: 0;
-    border-radius: 8px;
-    background: #ffffff !important;
+    border-radius: 10px;
+    background: transparent !important;
     justify-content: center;
+    padding: 0 !important;
 }
 
 .sidebar.collapsed .menu a.ribbon-right .ribbon-inner,
 .sidebar.collapsed .menu a.ribbon-left .ribbon-inner {
-    background: #ffffff !important;
+    background: transparent !important;
 }
 
 .sidebar.collapsed .menu a .ribbon-accent-right,
@@ -480,6 +468,8 @@ body {
 
 .sidebar.collapsed .menu a .ribbon-icon {
     width: auto;
+    margin-right: 0;
+    font-size: 1.1rem;
 }
 
 .sidebar.collapsed .menu a.quick-action span {
@@ -488,7 +478,7 @@ body {
 
 .sidebar.collapsed .menu a.quick-action {
     justify-content: center;
-    padding: 6px 0;
+    padding: 7px 0;
 }
 
 .sidebar.collapsed .menu-title {
@@ -529,10 +519,10 @@ body {
 
 /* ===== MAIN ===== */
 .main {
+    /* Account for sidebar width (248px) + sidebar left inset (12px) + gap (8px) */
+    margin-left: 268px;
 
-    margin-left: 240px;
-
-    width: calc(100% - 240px);
+    width: calc(100% - 268px);
 
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
@@ -542,26 +532,14 @@ body {
 
 }
 
-/* Ensure proper spacing for dashboard content */
-/*
-.main .table,
-.main .d-flex {
-    margin-bottom: 20px;
-}
-*/
-
 .main .card-ui {
     margin-bottom: 20px;
 }
 
-/* WHEN COLLAPSED */
-
+/* WHEN COLLAPSED: sidebar is 68px + 12px left inset + 8px gap */
 .sidebar.collapsed+.main {
-
-    margin-left: 70px;
-
-    width: calc(100% - 70px);
-
+    margin-left: 88px;
+    width: calc(100% - 88px);
 }
 
 
@@ -1088,7 +1066,7 @@ select.form-control {
 
     background: linear-gradient(135deg, #001f3f 0%, #003366 50%, #001f3f 100%);
 
-    min-height: 100vh;
+    min-height: calc(100vh / 0.75);
 
     overflow: hidden;
 
@@ -1141,7 +1119,7 @@ select.form-control {
 
     display: flex;
 
-    height: 100vh;
+    height: calc(100vh / 0.75);
 
     position: relative;
 
@@ -2117,13 +2095,16 @@ select.form-control {
 
 @media (max-width: 992px) {
     .sidebar {
-        left: -220px;
+        /* The inline style block handles transform animation; here just ensure z-index and shadow */
         z-index: 1050;
-        box-shadow: 10px 0 30px rgba(0, 0, 0, 0.2);
+        box-shadow:
+            0 8px 32px rgba(15, 23, 42, 0.16),
+            0 2px 8px rgba(15, 23, 42, 0.10),
+            inset 0 1px 0 rgba(255, 255, 255, 0.8);
     }
 
     .sidebar.show-mobile {
-        left: 0;
+        left: 12px; /* Keep the glass inset even on mobile */
     }
 
     .main {
@@ -2145,6 +2126,7 @@ select.form-control {
         gap: 10px !important;
     }
 }
+
 
 /* ===== BANK DETAILS READ-ONLY STYLING ===== */
 .bank-input-readonly {

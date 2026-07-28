@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+{% block title %}Offboarding Dashboard{% endblock %}
+
+{% block content %}
+<div class="page-content">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h4>Offboarding Requests</h4>
+    </div>
+    
+    <div class="card-ui">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Employee</th>
+                        <th>Initiated By</th>
+                        <th>Last Working Day</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for req in requests %}
+                    <tr>
+                        <td>{{ req.employee_name }}</td>
+                        <td>{{ req.initiated_by_name }}</td>
+                        <td>{{ req.last_working_day }}</td>
+                        <td>
+                            <span class="badge {% if req.status == 'COMPLETED' %}bg-success{% elif req.status == 'IN_PROGRESS' %}bg-warning{% elif req.status == 'CANCELLED' %}bg-secondary{% else %}bg-info{% endif %}">
+                                {{ req.status }}
+                            </span>
+                        </td>
+                        <td>
+                            <a href="{{ url_for('offboarding_ui.detail', id=req.id) }}" class="btn btn-sm btn-outline-primary">View Detail</a>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="5" class="text-center text-muted">No offboarding requests found.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

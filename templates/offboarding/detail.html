@@ -1,0 +1,145 @@
+{% extends 'base.html' %}
+{% block title %}Offboarding Detail{% endblock %}
+
+{% block content %}
+<div class="page-content">
+    <div class="mb-4">
+        <h4>Offboarding Details - {{ offboarding_data.request.employee_name }}</h4>
+        <span class="badge {% if offboarding_data.request.status == 'COMPLETED' %}bg-success{% elif offboarding_data.request.status == 'CANCELLED' %}bg-secondary{% else %}bg-primary{% endif %}">
+            Status: {{ offboarding_data.request.status }}
+        </span>
+        {% if session.role == 'hr' and offboarding_data.request.status not in ['COMPLETED', 'CANCELLED'] %}
+        <form method="POST" action="{{ url_for('offboarding_ui.cancel', id=offboarding_data.request.id) }}" class="d-inline ms-3">
+            <button class="btn btn-sm btn-outline-danger" onclick="return confirm('Cancel this offboarding request?');">Cancel Request</button>
+        </form>
+        {% endif %}
+    </div>
+
+    <!-- Approvals -->
+    <div class="card-ui mb-4">
+        <h5 class="mb-3">Approvals</h5>
+        <div class="row">
+            {% for app in offboarding_data.approvals %}
+            <div class="col-md-4">
+                <div class="border rounded p-3 text-center mb-3">
+                    <h6>{{ app.approver_role | upper }}</h6>
+                    <p class="mb-1"><strong>Status:</strong> 
+                        <span class="badge {% if app.status == 'APPROVED' %}bg-success{% elif app.status == 'REJECTED' %}bg-danger{% else %}bg-secondary{% endif %}">
+                            {{ app.status }}
+                        </span>
+                    </p>
+                    {% if app.status != 'PENDING' %}
+                        <p class="mb-1"><small>By {{ app.approver_name }} on {{ app.acted_at }}</small></p>
+                        {% if app.comments %}
+                        <p class="mb-0 text-muted"><small>"{{ app.comments }}"</small></p>
+                        {% endif %}
+                    {% endif %}
+                    
+                    {% if session.role == app.approver_role and offboarding_data.request.status not in ['COMPLETED', 'CANCELLED'] %}
+                        <div class="mt-2">
+                            <form method="POST" action="{{ url_for('offboarding_ui.approve', id=offboarding_data.request.id) }}" class="d-inline">
+                                <input type="hidden" name="comments" value="Approved">
+                                <button type="submit" class="btn btn-sm btn-success">Approve</button>
+                            </form>
+                            <button type="button" class="btn btn-sm btn-danger" onclick="showRejectModal('{{ url_for('offboarding_ui.reject', id=offboarding_data.request.id) }}')">Reject</button>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Checklist -->
+    <div class="card-ui mb-4">
+        <h5 class="mb-3">Checklist</h5>
+        <ul class="list-group list-group-flush">
+            {% for item in offboarding_data.checklist %}
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                <div>
+                    <strong>{{ item.item_type.replace('_', ' ') }}</strong>
+                    {% if item.item_type == 'ASSETS_RETURNED' and item.outstanding_devices %}
+                        <div class="text-danger small mt-1">
+                            {{ item.outstanding_devices | length }} device(s) still checked out.
+                        </div>
+                    {% endif %}
+                    {% if item.notes %}
+                        <div class="text-muted small">{{ item.notes }}</div>
+                    {% endif %}
+                </div>
+                <div>
+                    <span class="badge {% if item.status == 'DONE' %}bg-success{% else %}bg-warning{% endif %} me-2">
+                        {{ item.status }}
+                    </span>
+                    {% if session.role == 'hr' and item.item_type != 'ASSETS_RETURNED' and offboarding_data.request.status not in ['COMPLETED', 'CANCELLED'] %}
+                        <form method="POST" action="{{ url_for('offboarding_ui.mark_done', id=offboarding_data.request.id, item_type=item.item_type) }}" class="d-inline">
+                            <input type="hidden" name="notes" value="">
+                            <button type="submit" class="btn btn-sm btn-outline-secondary">Mark Done</button>
+                        </form>
+                    {% endif %}
+                </div>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+    
+    <!-- Audit Log -->
+    <div class="card-ui">
+        <h5 class="mb-3">Audit Log</h5>
+        <div class="table-responsive">
+            <table class="table table-sm">
+                <thead>
+                    <tr>
+                        <th>Time</th>
+                        <th>Action</th>
+                        <th>By</th>
+                        <th>Notes</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for log in offboarding_data.audit %}
+                    <tr>
+                        <td>{{ log.performed_at }}</td>
+                        <td>{{ log.action }}</td>
+                        <td>{{ log.performed_by_name or 'System' }}</td>
+                        <td>{{ log.notes }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Reject Modal -->
+<div class="modal fade" id="rejectModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form id="rejectForm" method="POST">
+                <div class="modal-header">
+                    <h5 class="modal-title">Reject Offboarding</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label>Reason for Rejection (Required)</label>
+                        <textarea name="comments" class="form-control" required rows="3"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-danger">Submit Rejection</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+function showRejectModal(actionUrl) {
+    document.getElementById('rejectForm').action = actionUrl;
+    var rejectModal = new bootstrap.Modal(document.getElementById('rejectModal'));
+    rejectModal.show();
+}
+</script>
+{% endblock %}

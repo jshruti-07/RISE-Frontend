@@ -167,6 +167,7 @@
                                 {% if session.role == 'superadmin' %}
                                 <option value="admin" {% if employee.role == 'admin' %}selected{% endif %}>Admin</option>
                                 <option value="superadmin" {% if employee.role == 'superadmin' %}selected{% endif %}>Super Admin</option>
+                                <option value="accounts" {% if employee.role == 'accounts' %}selected{% endif %}>Accounts</option>
                                 {% endif %}
                             </select>
                         </div>
