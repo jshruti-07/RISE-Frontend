@@ -5,8 +5,8 @@ body {
     font-family: 'Inter', sans-serif;
     zoom: 0.75;
 
-    /* Subtle gradient so backdrop-filter blur on the glass sidebar is visible */
-    background: linear-gradient(135deg, #e8edf5 0%, #dde7f2 30%, #e4ecf7 60%, #f0f4fb 100%);
+    /* Clean & bright very light blue/white tint */
+    background: linear-gradient(135deg, #ffffff 0%, #f4f7fb 50%, #edf2f9 100%);
     background-attachment: fixed;
 
     margin: 0;
@@ -75,6 +75,86 @@ body {
 .topbar>*:not(.topbar-video-bg) {
     position: relative;
     z-index: 1;
+}
+
+/* Table Card */
+.employee-table {
+    background: #fff;
+    border-radius: 18px;
+    overflow: hidden;
+    border: 1px solid #edf1f7;
+    box-shadow: 0 8px 30px rgba(17, 24, 39, 0.05);
+}
+
+/* Table */
+.employee-table table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+/* Header */
+.employee-table thead th {
+    background: #f8fafc;
+    color: #374151;
+    font-size: 14px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: .4px;
+    padding: 18px 20px;
+    border-bottom: 1px solid #e5e7eb;
+    white-space: nowrap;
+}
+
+/* Body */
+.employee-table tbody td {
+    padding: 16px 20px;
+    font-size: 15px;
+    color: #4b5563;
+    border-bottom: 1px solid #f1f5f9;
+    vertical-align: middle;
+}
+
+/* Last Row */
+.employee-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+/* Alternate Rows */
+.employee-table tbody tr:nth-child(even) {
+    background: #fcfcfd;
+}
+
+/* Hover */
+.employee-table tbody tr:hover {
+    background: #eef5ff;
+    transition: .25s;
+}
+
+/* Name */
+.employee-table td:first-child {
+    font-weight: 600;
+    color: #1f2937;
+}
+
+/* Email */
+.employee-table td:nth-child(3) {
+    color: #64748b;
+    font-size: 14px;
+}
+
+/* Date */
+.employee-table td:last-child {
+    color: #64748b;
+}
+
+/* Rounded Header */
+.employee-table thead th:first-child {
+    border-top-left-radius: 18px;
+}
+
+.employee-table thead th:last-child {
+    border-top-right-radius: 18px;
 }
 
 @keyframes aiGradient {
@@ -832,7 +912,7 @@ select.form-control {
 
 }
 
-.form-card::after {
+/* .form-card::after {
 
     content: '';
 
@@ -852,7 +932,7 @@ select.form-control {
 
     pointer-events: none;
 
-}
+} */
 
 @keyframes rotate {
 

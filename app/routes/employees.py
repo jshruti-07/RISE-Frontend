@@ -376,6 +376,73 @@ def view_profile(employee_name):
 
     is_own_profile = names_match(employee.get('name'), session.get('employee_name'))
 
+    # ── Assets (via new /devices/employee/<name> route) ──────────────────────
+    assets = []
+    try:
+        assets_res = requests.get(
+            f"{BASE_URL}/devices/employee/{quote(display_name, safe='')}",
+            headers=headers, timeout=5
+        )
+        if assets_res.status_code == 200:
+            assets = assets_res.json().get('devices', [])
+    except Exception as e:
+        print(f"Assets fetch failed: {e}")
+
+    # ── Employee Projects ─────────────────────────────────────────────────────
+    employee_projects = []
+    try:
+        proj_res = requests.get(
+            f"{BASE_URL}/projects/employee/{quote(display_name, safe='')}",
+            headers=headers, timeout=5
+        )
+        if proj_res.status_code == 200:
+            employee_projects = proj_res.json().get('projects', [])
+    except Exception as e:
+        print(f"Projects fetch failed: {e}")
+
+    # ── Active Counts: Leave / Reimbursement / Helpdesk ──────────────────────
+    active_leave_count = 0
+    try:
+        leave_res = requests.get(
+            f"{BASE_URL}/leaves",
+            headers=headers,
+            params={'employee_name': display_name, 'status': 'pending'},
+            timeout=5
+        )
+        if leave_res.status_code == 200:
+            leaves_data = leave_res.json().get('leaves', leave_res.json().get('data', []))
+            active_leave_count = len([l for l in leaves_data if isinstance(l, dict)])
+    except Exception as e:
+        print(f"Leave count fetch failed: {e}")
+
+    active_reimbursement_count = 0
+    try:
+        reimb_res = requests.get(
+            f"{BASE_URL}/reimbursements",
+            headers=headers,
+            params={'employee_name': display_name, 'status': 'pending'},
+            timeout=5
+        )
+        if reimb_res.status_code == 200:
+            reimb_data = reimb_res.json().get('reimbursements', reimb_res.json().get('data', []))
+            active_reimbursement_count = len([r for r in reimb_data if isinstance(r, dict)])
+    except Exception as e:
+        print(f"Reimbursement count fetch failed: {e}")
+
+    active_helpdesk_count = 0
+    try:
+        helpdesk_res = requests.get(
+            f"{BASE_URL}/helpdesk",
+            headers=headers,
+            params={'employee_name': display_name, 'status': 'open'},
+            timeout=5
+        )
+        if helpdesk_res.status_code == 200:
+            hd_data = helpdesk_res.json().get('tickets', helpdesk_res.json().get('data', []))
+            active_helpdesk_count = len([t for t in hd_data if isinstance(t, dict)])
+    except Exception as e:
+        print(f"Helpdesk count fetch failed: {e}")
+
     return render_template(
         "profile.html",
         employee=employee,
@@ -387,6 +454,11 @@ def view_profile(employee_name):
         bank_details=bank_details,
         is_hr_view=not is_own_profile,
         is_own_profile=is_own_profile,
+        assets=assets,
+        employee_projects=employee_projects,
+        active_leave_count=active_leave_count,
+        active_reimbursement_count=active_reimbursement_count,
+        active_helpdesk_count=active_helpdesk_count,
         BASE_URL=BASE_URL,
     )
 

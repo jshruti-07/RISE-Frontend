@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 
 {% block title %}{{ employee.display_name or (employee.name|clean_name) or 'Profile' }}{% endblock %}
+{% block page_title %}Team Member Profile{% endblock %}
 
 {% block content %}
 {% set display_name = employee.display_name or employee.original_name or (employee.name|clean_name) or '—' %}
@@ -649,6 +650,209 @@
             </div>
         </div>
     </div>
+
+<!-- ── New sections row: Assets / Projects / Activity / Actions ─────────── -->
+<div class="row g-4 mt-1">
+
+    <!-- Assigned Assets -->
+    <div class="col-lg-6">
+        <div class="card-ui p-4 h-100">
+            <h5 class="profile-section-title"><i class="bi bi-laptop"></i> Assigned Assets</h5>
+            {% if assets %}
+            <div class="table-responsive">
+                <table class="table table-sm mb-0">
+                    <thead>
+                        <tr>
+                            <th class="text-muted small fw-normal">Device</th>
+                            <th class="text-muted small fw-normal">Brand</th>
+                            <th class="text-muted small fw-normal">Assigned</th>
+                            <th class="text-muted small fw-normal">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for asset in assets %}
+                        <tr>
+                            <td class="fw-medium">{{ asset.device_name or asset.name or '—' }}</td>
+                            <td class="text-muted">{{ asset.brand or '—' }}</td>
+                            <td class="text-muted small">{{ asset.assigned_at[:10] if asset.assigned_at else '—' }}</td>
+                            <td>
+                                <span class="badge {{ 'bg-success-subtle text-success' if asset.acceptance_status == 'accepted' else 'bg-warning-subtle text-warning' }}">
+                                    {{ asset.acceptance_status or 'pending' }}
+                                </span>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="text-center text-muted py-4">
+                <i class="bi bi-laptop fs-2 opacity-25 d-block mb-2"></i>
+                No assets assigned
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Current Projects -->
+    <div class="col-lg-6">
+        <div class="card-ui p-4 h-100">
+            <h5 class="profile-section-title"><i class="bi bi-kanban"></i> Active Projects</h5>
+            {% if employee_projects %}
+            <ul class="list-unstyled mb-0">
+                {% for proj in employee_projects %}
+                <li class="d-flex align-items-start gap-3 mb-3">
+                    <div class="profile-info-icon flex-shrink-0" style="background:#f0fdf4;color:#16a34a;">
+                        <i class="bi bi-folder2-open"></i>
+                    </div>
+                    <div class="min-w-0">
+                        <div class="fw-medium">{{ proj.name or proj.project_name or '—' }}</div>
+                        <div class="text-muted small">
+                            {% set s = proj.status or '' %}
+                            <span class="badge {% if s == 'active' %}bg-success-subtle text-success{% elif s == 'completed' %}bg-secondary-subtle text-secondary{% else %}bg-primary-subtle text-primary{% endif %}">
+                                {{ s | title or 'Active' }}
+                            </span>
+                            {% if proj.deadline %}· Due {{ proj.deadline[:10] }}{% endif %}
+                        </div>
+                    </div>
+                </li>
+                {% endfor %}
+            </ul>
+            {% else %}
+            <div class="text-center text-muted py-4">
+                <i class="bi bi-kanban fs-2 opacity-25 d-block mb-2"></i>
+                No active projects
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Active Activity Indicators -->
+    <div class="col-lg-{% if is_hr_view and session.role in ['hr', 'admin'] %}8{% else %}12{% endif %}">
+        <div class="card-ui p-4 h-100">
+            <h5 class="profile-section-title"><i class="bi bi-activity"></i> Active Items</h5>
+            {% set total_active = active_leave_count + active_reimbursement_count + active_helpdesk_count %}
+            {% if total_active == 0 %}
+            <div class="text-muted d-flex align-items-center h-100 justify-content-center">
+                <span><i class="bi bi-check-circle text-success me-2"></i>No active items requiring attention</span>
+            </div>
+            {% else %}
+            <div class="d-flex flex-wrap gap-3">
+                {% if active_leave_count > 0 %}
+                <div class="d-flex align-items-center gap-2 rounded-pill px-3 py-2" style="background:#fef9c3;">
+                    <i class="bi bi-calendar-x text-warning"></i>
+                    <span class="fw-medium small">{{ active_leave_count }} pending leave request{{ 's' if active_leave_count != 1 }}</span>
+                </div>
+                {% endif %}
+                {% if active_reimbursement_count > 0 %}
+                <div class="d-flex align-items-center gap-2 rounded-pill px-3 py-2" style="background:#fce7f3;">
+                    <i class="bi bi-receipt text-danger"></i>
+                    <span class="fw-medium small">{{ active_reimbursement_count }} open reimbursement{{ 's' if active_reimbursement_count != 1 }}</span>
+                </div>
+                {% endif %}
+                {% if active_helpdesk_count > 0 %}
+                <div class="d-flex align-items-center gap-2 rounded-pill px-3 py-2" style="background:#ede9fe;">
+                    <i class="bi bi-headset text-purple" style="color:#7c3aed;"></i>
+                    <span class="fw-medium small">{{ active_helpdesk_count }} open helpdesk ticket{{ 's' if active_helpdesk_count != 1 }}</span>
+                </div>
+                {% endif %}
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Actions (HR/Admin only) -->
+    {% if is_hr_view and session.role in ['hr', 'admin'] %}
+    <div class="col-lg-4">
+        <div class="card-ui p-4 h-100">
+            <h5 class="profile-section-title"><i class="bi bi-gear"></i> Actions</h5>
+            <div class="d-flex flex-column gap-2">
+                <a href="{{ url_for('employees.edit_employee', id=employee.id) }}"
+                   class="btn btn-outline-secondary w-100 text-start">
+                    <i class="bi bi-pencil me-2"></i> Edit Employee
+                </a>
+                <button class="btn btn-outline-danger w-100 text-start"
+                    data-bs-toggle="modal" data-bs-target="#deleteModal"
+                    onclick="setDeleteData('{{ employee.id }}', '{{ employee.name }}')">
+                    <i class="bi bi-trash me-2"></i> Delete Employee
+                </button>
+                {% if session.role == 'hr' %}
+                <button class="btn w-100 text-start text-white"
+                    style="background-color:#DC2626;"
+                    data-bs-toggle="modal" data-bs-target="#offboardModal"
+                    onclick="setOffboardData('{{ employee.id }}', '{{ employee.name }}')">
+                    <i class="bi bi-box-arrow-right me-2"></i> Initiate Offboarding
+                </button>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+</div>
+
+</div>
+
+<!-- Delete Modal (relocated from all_employees.html) -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title text-danger"><i class="bi bi-exclamation-triangle"></i> Confirm Delete</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <p>Are you sure you want to delete <strong id="deleteEmpName"></strong>?</p>
+        <p class="text-muted small">This action cannot be undone.</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+        <form id="deleteForm" method="POST">
+            <button type="submit" class="btn btn-danger"><i class="bi bi-trash"></i> Delete</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Offboard Modal (relocated from all_employees.html) -->
+<div class="modal fade" id="offboardModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <form id="offboardForm" method="POST" action="{{ url_for('offboarding_ui.initiate') }}">
+      <div class="modal-header border-0 pb-0">
+        <h5 class="modal-title fw-bold">Initiate Offboarding</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+          <p>Are you sure you want to initiate offboarding for <strong id="offboardEmpName"></strong>?</p>
+          <input type="hidden" name="employee_id" id="offboardEmpId">
+          <input type="hidden" name="employee_name" id="offboardEmpNameInput">
+          <div class="mb-3">
+              <label class="form-label text-muted small text-uppercase">Reason</label>
+              <select class="form-select" name="reason" required>
+                  <option value="RESIGNATION">Resignation</option>
+                  <option value="TERMINATION">Termination</option>
+                  <option value="RETIREMENT">Retirement</option>
+                  <option value="OTHER">Other</option>
+              </select>
+          </div>
+          <div class="mb-3">
+              <label class="form-label text-muted small text-uppercase">Notes (Optional)</label>
+              <textarea class="form-control" name="reason_notes" rows="2"></textarea>
+          </div>
+          <div class="mb-3">
+              <label class="form-label text-muted small text-uppercase">Last Working Day</label>
+              <input type="date" class="form-control" name="last_working_day" required>
+          </div>
+      </div>
+      <div class="modal-footer border-0 pt-0 d-flex justify-content-between">
+        <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+        <button type="submit" class="btn text-white" style="background-color:#DC2626;">Initiate Offboarding</button>
+      </div>
+      </form>
+    </div>
+  </div>
 </div>
 
 <!-- Document preview modal -->
@@ -722,6 +926,17 @@
             photoInput.addEventListener('change', triggerPhotoUpload);
         }
     });
+
+    function setDeleteData(id, name) {
+        document.getElementById('deleteEmpName').innerText = name;
+        document.getElementById('deleteForm').action = '/delete/' + id;
+    }
+    
+    function setOffboardData(id, name) {
+        document.getElementById('offboardEmpName').innerText = name;
+        document.getElementById('offboardEmpId').value = id;
+        document.getElementById('offboardEmpNameInput').value = name;
+    }
 
     function previewDoc(url) {
         if (!url) {

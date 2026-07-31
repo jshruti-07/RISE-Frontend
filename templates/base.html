@@ -427,7 +427,7 @@
                 <button onclick="toggleSidebar()" class="btn border-0 p-1 me-2 d-lg-none" title="Toggle Sidebar">
                     <i class="bi bi-list" style="font-size: 1.5rem;"></i>
                 </button>
-                <h5 class="m-0 text-dark fw-bold" style="font-size: 1.1rem;">Dashboard</h5>
+                <h5 class="m-0 text-dark fw-bold" style="font-size: 1.1rem;">{% block page_title %}Dashboard{% endblock %}</h5>
             </div>
             
             <!-- CENTER SEARCH & RIGHT -->
@@ -880,15 +880,19 @@
 
             const prevBtn = document.createElement('button');
             prevBtn.className = 'btn btn-outline-primary btn-sm';
-            prevBtn.innerHTML = '<i class="bi bi-chevron-left"></i> Previous';
+            prevBtn.innerHTML = '<i class="bi bi-chevron-left"></i>';
             prevBtn.style.borderTopLeftRadius = '8px';
             prevBtn.style.borderBottomLeftRadius = '8px';
+            // prevBtn.style.marginBottom = '15px';
+            // prevBtn.style.marginRight = '15px';
             
             const nextBtn = document.createElement('button');
             nextBtn.className = 'btn btn-outline-primary btn-sm';
-            nextBtn.innerHTML = 'Next <i class="bi bi-chevron-right"></i>';
+            nextBtn.innerHTML = '<i class="bi bi-chevron-right"></i>';
             nextBtn.style.borderTopRightRadius = '8px';
             nextBtn.style.borderBottomRightRadius = '8px';
+            // nextBtn.style.marginBottom = '15px';
+            // nextBtn.style.marginRight = '15px';
 
             btnGroup.appendChild(prevBtn);
             btnGroup.appendChild(nextBtn);

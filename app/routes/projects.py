@@ -46,6 +46,24 @@ def _manager_fields_for_api(data):
 
     return {'manager_name': mgr, 'assigned_manager_name': mgr}
 
+
+@projects_bp.route('/projects/employee/<employee_name>', methods=['GET'])
+@role_required(['hr', 'manager', 'admin'])
+def get_employee_projects(employee_name):
+    """Proxy route to fetch active projects for a specific employee."""
+    from urllib.parse import quote
+    try:
+        res = requests.get(
+            f"{BASE_URL}/projects/employee/{quote(employee_name, safe='')}",
+            headers=get_headers(), timeout=10
+        )
+        if res.status_code == 200:
+            return jsonify(res.json()), 200
+        return jsonify({"success": False, "error": res.text}), res.status_code
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+
 @projects_bp.route('/projects')
 @role_required(['admin', 'hr', 'manager', 'employee'])
 def projects_list():

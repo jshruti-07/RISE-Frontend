@@ -568,14 +568,24 @@ def leaves_list():
             summary = balance_data.get("summary", summary)
             balance = balance_data.get("balances", [])
             
+        holidays = []
+        try:
+            hol_res = requests.get(f"{BASE_URL}/holidays/", headers=get_headers(), timeout=5)
+            if hol_res.status_code == 200:
+                hdata = hol_res.json()
+                holidays = extract_list(hdata, 'holidays', 'data') if isinstance(hdata, dict) else []
+        except Exception as e:
+            print(f"Error fetching holidays for leaves page: {e}")
+
         return render_template("leaves.html", 
                                leaves=final_leaves, 
                                summary=summary,
                                balance=balance,
+                               holidays=holidays,
                                BASE_URL=BASE_URL)
     except Exception as e:
         print(f"Error in leaves_list: {e}")
-        return render_template("leaves.html", leaves=[], summary={}, balance=[], error=str(e))
+        return render_template("leaves.html", leaves=[], summary={}, balance=[], holidays=[], error=str(e))
 
 @work_bp.route('/add-leave', methods=['GET', 'POST'])
 @role_required(['admin', 'employee', 'hr', 'manager'])
@@ -672,6 +682,25 @@ def leaves_calendar():
     if employee_name: params['employee_name'] = employee_name
     try:
         res = requests.get(f"{BASE_URL}/leaves/calendar", params=params, headers=get_headers())
+        return jsonify(res.json()), res.status_code
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@work_bp.route('/api/holidays', methods=['GET'])
+@role_required(['admin', 'employee', 'hr', 'manager'])
+def get_holidays_api():
+    try:
+        res = requests.get(f"{BASE_URL}/holidays/", headers=get_headers(), timeout=5)
+        return jsonify(res.json()), res.status_code
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@work_bp.route('/api/holidays', methods=['POST'])
+@role_required(['hr'])
+def add_holiday_api():
+    try:
+        data = request.get_json() or {}
+        res = requests.post(f"{BASE_URL}/holidays/", json=data, headers=get_headers(), timeout=5)
         return jsonify(res.json()), res.status_code
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 500

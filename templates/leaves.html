@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% block title %}Leave Application{% endblock %}
+{% block page_title %}Leaves{% endblock %}
 
 {% block content %}
 <style>
@@ -62,9 +63,16 @@
     <!-- Header Section (Always visible) -->
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h4 class="mb-0 fw-bold">Leave Application</h4>
-        <a href="{{ url_for('work.add_leave') }}" class="btn btn-primary">
-            Apply Leave
-        </a>
+        <div class="d-flex gap-2">
+            {% if session.role == 'hr' %}
+            <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#addHolidayModal">
+                <i class="bi bi-calendar-plus me-1"></i> Add Holiday
+            </button>
+            {% endif %}
+            <a href="{{ url_for('work.add_leave') }}" class="btn btn-primary">
+                Apply Leave
+            </a>
+        </div>
     </div>
 
     <!-- Leave Summary Section (Visible to all for their own balance) -->
@@ -144,6 +152,60 @@
                             <span class="legend-dot" style="background-color: #94a3b8;"></span>
                             Weekend
                         </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Company Holidays Section -->
+    <div class="row mt-4" id="holidaysSection">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="card-title mb-0 fw-semibold">
+                            <i class="bi bi-calendar-event text-primary me-2"></i>Company Holidays
+                        </h5>
+                        {% if session.role == 'hr' %}
+                        <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#addHolidayModal">
+                            <i class="bi bi-plus-lg me-1"></i> Add Holiday
+                        </button>
+                        {% endif %}
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0" id="holidaysTable">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Holiday Name</th>
+                                    <th>Type</th>
+                                    <th>Description</th>
+                                </tr>
+                            </thead>
+                            <tbody id="holidaysTableBody">
+                                {% if holidays %}
+                                    {% for h in holidays %}
+                                    <tr>
+                                        <td class="fw-semibold text-primary" style="white-space: nowrap;">
+                                            <i class="bi bi-calendar3 me-1 opacity-75"></i>{{ h.date[:10] if h.date else '—' }}
+                                        </td>
+                                        <td class="fw-bold">{{ h.name }}</td>
+                                        <td>
+                                            <span class="badge {% if h.type == 'public' %}bg-primary{% elif h.type == 'optional' %}bg-info text-dark{% else %}bg-secondary{% endif %} text-uppercase" style="font-size: 0.7rem;">
+                                                {{ h.type or 'public' }}
+                                            </span>
+                                        </td>
+                                        <td class="text-muted small">{{ h.description or '—' }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                {% else %}
+                                    <tr id="noHolidaysRow">
+                                        <td colspan="4" class="text-center text-muted py-3">No company holidays scheduled.</td>
+                                    </tr>
+                                {% endif %}
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
@@ -259,6 +321,58 @@
         {% endfor %}
         </tbody>
     </table>
+</div>
+{% endif %}
+
+{% if session.role == 'hr' %}
+<!-- Add Holiday Modal -->
+<div class="modal fade" id="addHolidayModal" tabindex="-1" aria-labelledby="addHolidayModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title fw-bold" id="addHolidayModalLabel">
+                    <i class="bi bi-calendar-plus me-2"></i>Add New Holiday
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="addHolidayForm">
+                <div class="modal-body p-4">
+                    <div id="holidayAlert" class="alert alert-danger d-none" role="alert"></div>
+
+                    <div class="mb-3">
+                        <label for="holidayDate" class="form-label fw-semibold">Holiday Date <span class="text-danger">*</span></label>
+                        <input type="date" class="form-control" id="holidayDate" name="date" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="holidayName" class="form-label fw-semibold">Holiday Title / Name <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="holidayName" name="name" placeholder="e.g. Independence Day" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="holidayType" class="form-label fw-semibold">Type</label>
+                        <select class="form-select" id="holidayType" name="type">
+                            <option value="public" selected>Public Holiday</option>
+                            <option value="optional">Optional Holiday</option>
+                            <option value="restricted">Restricted Holiday</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="holidayDescription" class="form-label fw-semibold">Description (Optional)</label>
+                        <textarea class="form-control" id="holidayDescription" name="description" rows="2" placeholder="Additional notes or details..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer bg-light px-4 py-3">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary fw-semibold" id="submitHolidayBtn">
+                        <span id="holidaySubmitSpinner" class="spinner-border spinner-border-sm me-1 d-none" role="status" aria-hidden="true"></span>
+                        Save Holiday
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
 </div>
 {% endif %}
 
@@ -513,6 +627,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
         calendar.render();
+        window.inlineCalendar = calendar;
     }
 });
 
@@ -531,12 +646,143 @@ function updateLeave(leaveId, status, btn) {
     .catch(err => { alert(err.message || "Error updating leave"); });
 }
 
+function refreshHolidaysList() {
+    fetch('/api/holidays')
+        .then(res => res.json())
+        .then(data => {
+            if (data.success && data.holidays) {
+                const tbody = document.getElementById('holidaysTableBody');
+                if (!tbody) return;
+                
+                if (data.holidays.length === 0) {
+                    tbody.innerHTML = '<tr id="noHolidaysRow"><td colspan="4" class="text-center text-muted py-3">No company holidays scheduled.</td></tr>';
+                    return;
+                }
+                
+                let html = '';
+                data.holidays.forEach(h => {
+                    const dateStr = h.date ? String(h.date).substring(0, 10) : '—';
+                    const hType = h.type || 'public';
+                    let badgeClass = 'bg-primary';
+                    if (hType === 'optional') badgeClass = 'bg-info text-dark';
+                    else if (hType === 'restricted') badgeClass = 'bg-secondary';
+                    
+                    html += `
+                        <tr>
+                            <td class="fw-semibold text-primary" style="white-space: nowrap;">
+                                <i class="bi bi-calendar3 me-1 opacity-75"></i>${dateStr}
+                            </td>
+                            <td class="fw-bold">${escapeHtml(h.name || '')}</td>
+                            <td>
+                                <span class="badge ${badgeClass} text-uppercase" style="font-size: 0.7rem;">
+                                    ${escapeHtml(hType)}
+                                </span>
+                            </td>
+                            <td class="text-muted small">${escapeHtml(h.description || '—')}</td>
+                        </tr>
+                    `;
+                });
+                tbody.innerHTML = html;
+            }
+        })
+        .catch(err => console.error('Error refreshing holidays list:', err));
+}
+
+function escapeHtml(str) {
+    if (!str) return '';
+    return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('.table').forEach((table, index) => {
         const id = `leave-table-${index}`;
         table.id = table.id || id;
         applyPagination(`#${table.id}`, 10);
     });
+
+    const holidayForm = document.getElementById('addHolidayForm');
+    if (holidayForm) {
+        holidayForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const alertEl = document.getElementById('holidayAlert');
+            const submitBtn = document.getElementById('submitHolidayBtn');
+            const spinner = document.getElementById('holidaySubmitSpinner');
+            
+            if (alertEl) {
+                alertEl.classList.add('d-none');
+                alertEl.textContent = '';
+            }
+            
+            const name = document.getElementById('holidayName').value.trim();
+            const date = document.getElementById('holidayDate').value;
+            const type = document.getElementById('holidayType').value;
+            const description = document.getElementById('holidayDescription').value.trim();
+            
+            if (!name || !date) {
+                if (alertEl) {
+                    alertEl.textContent = 'Please provide both holiday title and date.';
+                    alertEl.classList.remove('d-none');
+                }
+                return;
+            }
+            
+            if (submitBtn) submitBtn.disabled = true;
+            if (spinner) spinner.classList.remove('d-none');
+            
+            fetch('/api/holidays', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ name, date, type, description })
+            })
+            .then(res => res.json().then(data => ({ ok: res.ok, status: res.status, data })))
+            .then(({ ok, status, data }) => {
+                if (submitBtn) submitBtn.disabled = false;
+                if (spinner) spinner.classList.add('d-none');
+                
+                if (!ok || !data.success) {
+                    if (alertEl) {
+                        alertEl.textContent = data.error || data.message || 'Failed to add holiday.';
+                        alertEl.classList.remove('d-none');
+                    } else {
+                        alert(data.error || 'Failed to add holiday.');
+                    }
+                    return;
+                }
+                
+                // Success: Close modal and reset form
+                const modalEl = document.getElementById('addHolidayModal');
+                if (modalEl) {
+                    const modalInstance = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
+                    if (modalInstance) modalInstance.hide();
+                }
+                holidayForm.reset();
+                
+                // Refresh list and calendar
+                refreshHolidaysList();
+                if (window.inlineCalendar && typeof window.inlineCalendar.refetchEvents === 'function') {
+                    window.inlineCalendar.refetchEvents();
+                }
+            })
+            .catch(err => {
+                if (submitBtn) submitBtn.disabled = false;
+                if (spinner) spinner.classList.add('d-none');
+                if (alertEl) {
+                    alertEl.textContent = err.message || 'An error occurred while saving holiday.';
+                    alertEl.classList.remove('d-none');
+                } else {
+                    alert(err.message || 'An error occurred while saving holiday.');
+                }
+            });
+        });
+    }
 });
 </script>
 {% endblock %}
