@@ -9,7 +9,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Configuration
-BASE_URL = os.getenv("BACKEND_URL", "http://192.168.1.159:5001")
+BASE_URL = os.getenv("BACKEND_URL", "http://192.168.1.127:5001")
 
 def get_headers(exclude_content_type=False):
     token = session.get('token')

@@ -40,7 +40,7 @@ body {
         inset 0 1px 0 rgba(255, 255, 255, 0.8);
     color: #334155;
     transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1),
-                left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     display: flex;
     flex-direction: column;
     overflow: hidden;
@@ -158,11 +158,25 @@ body {
 }
 
 @keyframes aiGradient {
-    0%   { background-position: 0% 50%; }
-    25%  { background-position: 50% 25%; }
-    50%  { background-position: 100% 50%; }
-    75%  { background-position: 50% 75%; }
-    100% { background-position: 0% 50%; }
+    0% {
+        background-position: 0% 50%;
+    }
+
+    25% {
+        background-position: 50% 25%;
+    }
+
+    50% {
+        background-position: 100% 50%;
+    }
+
+    75% {
+        background-position: 50% 75%;
+    }
+
+    100% {
+        background-position: 0% 50%;
+    }
 }
 
 .menu {
@@ -452,12 +466,12 @@ body {
 
 .submenu a:hover {
     color: #0f172a;
-    background: rgba(59,130,246,0.07);
+    background: rgba(59, 130, 246, 0.07);
     transform: none;
 }
 
 .submenu a.active {
-    background: rgba(59,130,246,0.10);
+    background: rgba(59, 130, 246, 0.10);
     color: #2563eb !important;
     border-left-color: #2563eb;
     border-radius: 8px;
@@ -2184,7 +2198,8 @@ select.form-control {
     }
 
     .sidebar.show-mobile {
-        left: 12px; /* Keep the glass inset even on mobile */
+        left: 12px;
+        /* Keep the glass inset even on mobile */
     }
 
     .main {
@@ -2607,12 +2622,58 @@ select.form-control {
     color: #1d4ed8 !important;
 }
 
-/* Global Modal Blur Effect */
-.modal-backdrop.show {
-    opacity: 1 !important;
-    background-color: rgba(15, 23, 42, 0.6) !important;
+/*
+ * Application-wide modal layer.  Dialog roots are portalled to <body> by
+ * modal-ui.js, so this layer always covers the sidebar, topbar and content
+ * instead of being clipped by a page-level stacking context.
+ */
+body.app-modal-open {
+    overflow: hidden !important;
+}
+
+.modal-backdrop,
+.modal-backdrop.show,
+.modal-overlay,
+.confirm-overlay,
+.slide-over-overlay {
+    position: fixed !important;
+    inset: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    background-color: rgba(15, 23, 42, 0.60) !important;
     backdrop-filter: blur(4px);
     -webkit-backdrop-filter: blur(4px);
+}
+
+.modal-backdrop,
+.modal-backdrop.show {
+    z-index: 2147483000 !important;
+    opacity: 1 !important;
+}
+
+.modal,
+.modal.show {
+    position: fixed !important;
+    inset: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    z-index: 2147483010 !important;
+}
+
+.modal-overlay,
+.confirm-overlay,
+.slide-over-overlay {
+    z-index: 2147483000 !important;
+}
+
+.modal-overlay .custom-modal,
+.confirm-overlay .confirm-box {
+    position: relative;
+    z-index: 1;
+}
+
+.slide-over-panel {
+    z-index: 2147483010 !important;
 }
 
 /* Menu Category Header */

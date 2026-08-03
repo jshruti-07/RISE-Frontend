@@ -31,68 +31,65 @@
 ] %}
 
 <style>
-    .profile-page {
-        font-size: 0.92rem;
+    :root {
+        --hrms-bg: #F8FAFC;
+        --hrms-card-bg: #FFFFFF;
+        --hrms-border: #E8ECF4;
+        --hrms-text-primary: #0F172A;
+        --hrms-text-secondary: #64748B;
+        --hrms-text-muted: #94A3B8;
+        --hrms-purple-accent: #6C63FF;
+        --hrms-purple-light: #F3F1FF;
+        --hrms-peach-light: #FFF4EC;
+        --hrms-blue-light: #EEF6FF;
+        --hrms-green-light: #F0FDF4;
+        --hrms-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.05), 0 2px 6px -1px rgba(15, 23, 42, 0.03);
+        --hrms-shadow-hover: 0 10px 25px -5px rgba(108, 99, 255, 0.1), 0 8px 10px -6px rgba(15, 23, 42, 0.04);
+        --hrms-radius: 16px;
     }
 
-    .profile-page h2 {
-        font-size: 1.6rem;
+    body {
+        background-color: var(--hrms-bg) !important;
+        font-family: 'Inter', system-ui, -apple-system, sans-serif;
+        color: var(--hrms-text-primary);
     }
 
-    .profile-page h5 {
-        font-size: 1rem;
+    .profile-dashboard-wrapper {
+        background-color: var(--hrms-bg);
+        min-height: 100vh;
+        font-size: 0.925rem;
     }
 
-    .profile-page .card-ui {
-        overflow: visible;
-        background: #ffffff;
-        border: 1px solid #e5e7eb;
-        backdrop-filter: none;
-    }
-
-    .profile-page .card-ui:hover {
-        transform: none;
-    }
-
-    .profile-page .card-ui::before {
-        display: none;
-    }
-
-    .profile-docs-card {
+    /* Main Container Box */
+    .profile-main-card {
+        background: var(--hrms-card-bg);
+        border: 1px solid var(--hrms-border);
+        border-radius: var(--hrms-radius);
+        box-shadow: var(--hrms-shadow);
+        padding: 24px;
         overflow: hidden;
-        max-height: 78vh;
-        display: flex;
-        flex-direction: column;
     }
 
-    .profile-docs-list {
-        overflow-y: auto;
-        overflow-x: hidden;
-        padding-right: 0.25rem;
-        margin-right: -0.25rem;
-        flex: 1 1 auto;
-        min-height: 0;
-    }
-
-    .profile-hero {
-        background: linear-gradient(135deg, #f67113 0%, #ef7722 45%, #fb812a 100%);
-        border-radius: 20px;
-        color: #fff;
-        padding: 2rem 2rem 1.5rem;
+    /* Profile Hero / Header Banner */
+    .profile-hero-banner {
+        background: linear-gradient(135deg, #FFF4EC 0%, #FFF9F5 45%, #F3F1FF 100%);
+        border-radius: 14px;
+        border: 1px solid rgba(232, 236, 244, 0.8);
+        padding: 24px;
+        margin-bottom: 24px;
         position: relative;
-        z-index: 0;
         overflow: hidden;
     }
 
-    .profile-hero::after {
+    .profile-hero-banner::after {
         content: '';
         position: absolute;
-        width: 280px;
-        height: 280px;
+        width: 320px;
+        height: 320px;
         border-radius: 50%;
-        background: rgba(255, 255, 255, 0.08);
-        top: -80px;
-        right: -60px;
+        background: radial-gradient(circle, rgba(108, 99, 255, 0.08) 0%, rgba(255,255,255,0) 70%);
+        top: -120px;
+        right: -80px;
         pointer-events: none;
     }
 
@@ -102,111 +99,208 @@
     }
 
     .profile-avatar {
-        width: 112px;
-        height: 112px;
+        width: 96px;
+        height: 96px;
         border-radius: 50%;
         object-fit: cover;
-        border: 4px solid rgba(255, 255, 255, 0.9);
-        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
-        background: #fff;
+        border: 4px solid #FFFFFF;
+        box-shadow: 0 6px 18px rgba(108, 99, 255, 0.15);
+        background: #FFFFFF;
+        transition: transform 0.2s ease;
+    }
+
+    .profile-avatar:hover {
+        transform: scale(1.02);
     }
 
     .profile-avatar-edit {
         position: absolute;
-        bottom: 4px;
-        right: 4px;
+        bottom: 2px;
+        right: 2px;
         width: 32px;
         height: 32px;
         border-radius: 50%;
-        background: #fff;
-        color: #4f46e5;
+        background: #FFFFFF;
+        color: var(--hrms-purple-accent);
         display: flex;
         align-items: center;
         justify-content: center;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        box-shadow: 0 3px 10px rgba(15, 23, 42, 0.15);
         cursor: pointer;
-        border: none;
+        border: 1px solid var(--hrms-border);
+        transition: all 0.2s ease;
     }
 
-    .profile-stat {
-        background: rgba(255, 255, 255, 0.15);
-        border: 1px solid rgba(255, 255, 255, 0.25);
-        border-radius: 12px;
-        padding: 0.75rem 1rem;
-        min-width: 120px;
+    .profile-avatar-edit:hover {
+        background: var(--hrms-purple-accent);
+        color: #FFFFFF;
+        transform: scale(1.08);
     }
 
-    .profile-stat .stat-value {
-        font-size: 1.35rem;
+    .role-pill {
+        background: rgba(108, 99, 255, 0.1);
+        color: var(--hrms-purple-accent);
         font-weight: 600;
+        font-size: 0.75rem;
+        padding: 4px 12px;
+        border-radius: 20px;
+        letter-spacing: 0.02em;
+    }
+
+    /* Hero Quick Stat Cards */
+    .hero-stat-card {
+        background: rgba(255, 255, 255, 0.85);
+        backdrop-filter: blur(8px);
+        border: 1px solid var(--hrms-border);
+        border-radius: 12px;
+        padding: 10px 16px;
+        min-width: 120px;
+        box-shadow: 0 2px 8px rgba(15, 23, 42, 0.03);
+        transition: all 0.2s ease;
+    }
+
+    .hero-stat-card:hover {
+        background: #FFFFFF;
+        border-color: rgba(108, 99, 255, 0.3);
+        box-shadow: 0 4px 14px rgba(108, 99, 255, 0.08);
+    }
+
+    .hero-stat-value {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: var(--hrms-text-primary);
         line-height: 1.2;
     }
 
-    .profile-stat .stat-label {
-        font-size: 0.75rem;
-        opacity: 0.9;
+    .hero-stat-label {
+        font-size: 0.7rem;
+        font-weight: 600;
+        color: var(--hrms-text-secondary);
         text-transform: uppercase;
-        letter-spacing: 0.04em;
+        letter-spacing: 0.05em;
+        margin-top: 2px;
     }
 
-    .profile-info-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-        gap: 1rem 1.5rem;
-    }
-
-    .profile-info-item {
+    /* Standard Card UI */
+    .hrms-card {
+        background: #FFFFFF;
+        border: 1px solid var(--hrms-border);
+        border-radius: 14px;
+        padding: 24px;
+        transition: all 0.2s ease;
         display: flex;
-        gap: 0.75rem;
-        align-items: flex-start;
+        flex-direction: column;
     }
 
-    .profile-info-icon {
-        width: 40px;
-        height: 40px;
+    .hrms-card:hover {
+        border-color: rgba(108, 99, 255, 0.25);
+        box-shadow: var(--hrms-shadow-hover);
+    }
+
+    .hrms-card-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 18px;
+        padding-bottom: 12px;
+        border-bottom: 1px solid var(--hrms-border);
+    }
+
+    .hrms-card-title {
+        font-size: 1rem;
+        font-weight: 600;
+        color: var(--hrms-text-primary);
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .hrms-card-title-icon {
+        width: 32px;
+        height: 32px;
+        border-radius: 8px;
+        background: var(--hrms-purple-light);
+        color: var(--hrms-purple-accent);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.95rem;
+    }
+
+    /* Strict 3 fields per line Grid for Employment & Contact */
+    .info-grid-3col {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 14px 16px;
+        width: 100%;
+    }
+
+    @media (max-width: 991.98px) {
+        .info-grid-3col {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    @media (max-width: 575.98px) {
+        .info-grid-3col {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .info-item {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+        background: #F8FAFC;
+        border: 1px solid var(--hrms-border);
         border-radius: 10px;
-        background: #eef2ff;
-        color: #4f46e5;
+        padding: 10px 14px;
+        transition: all 0.2s ease;
+        height: 100%;
+    }
+
+    .info-item:hover {
+        background: #FFFFFF;
+        border-color: rgba(108, 99, 255, 0.3);
+        box-shadow: 0 4px 12px rgba(15, 23, 42, 0.04);
+    }
+
+    .info-item-icon {
+        width: 36px;
+        height: 36px;
+        border-radius: 8px;
+        background: var(--hrms-purple-light);
+        color: var(--hrms-purple-accent);
         display: flex;
         align-items: center;
         justify-content: center;
         flex-shrink: 0;
-        font-size: 1.1rem;
+        font-size: 0.95rem;
     }
 
-    .profile-info-item .info-label {
-        font-size: 0.75rem;
-        color: #6b7280;
-        margin-bottom: 0.15rem;
-        text-transform: uppercase;
-        letter-spacing: 0.03em;
-    }
-
-    .profile-info-item .info-value {
-        font-weight: 500;
-        color: #111827;
-        word-break: break-word;
-    }
-
-    .profile-section-title {
-        font-size: 1.05rem;
+    .info-item-label {
+        font-size: 0.7rem;
         font-weight: 600;
-        color: #111827;
-        margin-bottom: 1.25rem;
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
+        color: var(--hrms-text-secondary);
+        margin-bottom: 2px;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
     }
 
-    .profile-section-title i {
-        color: #6366f1;
+    .info-item-value {
+        font-weight: 700;
+        color: #0F172A;
+        word-break: break-word;
+        font-size: 0.9rem;
     }
 
+    /* Document Progress & List */
     .doc-progress-ring {
-        width: 64px;
-        height: 64px;
+        width: 48px;
+        height: 48px;
         border-radius: 50%;
-        background: conic-gradient(#22c55e 0deg, #22c55e calc(var(--pct, 0) * 3.6deg), #e5e7eb calc(var(--pct, 0) * 3.6deg));
+        background: conic-gradient(var(--hrms-purple-accent) 0deg, var(--hrms-purple-accent) calc(var(--pct, 0) * 3.6deg), #E2E8F0 calc(var(--pct, 0) * 3.6deg));
         display: flex;
         align-items: center;
         justify-content: center;
@@ -215,582 +309,786 @@
 
     .doc-progress-ring::before {
         content: '';
-        width: 48px;
-        height: 48px;
+        width: 36px;
+        height: 36px;
         border-radius: 50%;
-        background: #fff;
+        background: #FFFFFF;
         position: absolute;
     }
 
     .doc-progress-ring span {
         position: relative;
         z-index: 1;
-        font-size: 0.8rem;
-        font-weight: 600;
-        color: #111827;
+        font-size: 0.75rem;
+        font-weight: 700;
+        color: var(--hrms-text-primary);
     }
 
-    .doc-item {
-        border: 1px solid #e5e7eb;
-        border-radius: 12px;
-        padding: 0.85rem 1rem;
-        margin-bottom: 0.75rem;
-        background: #fafafa;
+    .doc-list-scroll {
+        max-height: 250px;
+        overflow-y: auto;
+        padding-right: 4px;
     }
 
-    .doc-item strong {
-        font-size: 0.98rem;
+    .doc-list-scroll::-webkit-scrollbar {
+        width: 4px;
     }
 
-    .doc-item .text-muted {
-        font-size: 0.78rem;
+    .doc-list-scroll::-webkit-scrollbar-thumb {
+        background: #CBD5E1;
+        border-radius: 10px;
     }
 
-    .doc-item:last-child {
-        margin-bottom: 0;
+    .doc-item-row {
+        background: #F8FAFC;
+        border: 1px solid var(--hrms-border);
+        border-radius: 10px;
+        padding: 10px 12px;
+        margin-bottom: 8px;
+        transition: all 0.2s ease;
     }
 
-    .doc-upload-form .form-control[type="file"] {
-        min-width: 0;
-        font-size: 0.8rem;
+    .doc-item-row:hover {
+        background: #FFFFFF;
+        border-color: rgba(108, 99, 255, 0.3);
     }
 
     .doc-upload-form .input-group {
         flex-wrap: nowrap;
     }
-    .doc-upload-form .btn {
-        white-space: nowrap;
-        flex-shrink: 0;
-        font-size: 0.78rem;
-    }
-    @media (max-width: 768px) {
 
-        .profile-hero .d-flex.flex-wrap {
-            flex-direction: column;
-            align-items: flex-start !important;
-        }
-        .doc-upload-form .input-group {
-            flex-wrap: wrap;
-        }
-        .doc-upload-form .form-control[type="file"] {
-            width: 100%;
-            border-radius: 0.375rem !important;
-            margin-bottom: 0.35rem;
-        }
-        .doc-upload-form .btn {
-            width: 100%;
-            border-radius: 0.375rem !important;
-        }
-    }
-
-    .profile-empty-state {
-        text-align: center;
-        padding: 2rem 1rem;
-        color: #6b7280;
-        background: #f9fafb;
+    /* Modern Pill Nav Tabs */
+    .hrms-tab-nav {
+        display: flex;
+        gap: 8px;
+        background: #F1F5F9;
+        padding: 6px;
         border-radius: 12px;
-        border: 1px dashed #e5e7eb;
+        border: 1px solid var(--hrms-border);
+        margin-bottom: 20px;
+        overflow-x: auto;
     }
 
-    .profile-empty-state i {
-        font-size: 2rem;
-        color: #9ca3af;
-        margin-bottom: 0.5rem;
+    .hrms-tab-nav .nav-link {
+        border: none;
+        background: transparent;
+        color: var(--hrms-text-secondary);
+        font-weight: 600;
+        font-size: 0.86rem;
+        padding: 8px 18px;
+        border-radius: 8px;
+        transition: all 0.2s ease;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        white-space: nowrap;
+    }
+
+    .hrms-tab-nav .nav-link:hover {
+        color: var(--hrms-purple-accent);
+        background: rgba(255, 255, 255, 0.6);
+    }
+
+    .hrms-tab-nav .nav-link.active {
+        background: #FFFFFF;
+        color: var(--hrms-purple-accent);
+        box-shadow: 0 2px 8px rgba(15, 23, 42, 0.08);
+    }
+
+    .hrms-tab-nav .badge-count {
+        font-size: 0.72rem;
+        padding: 2px 8px;
+        border-radius: 12px;
+        background: #E2E8F0;
+        color: #475569;
+        font-weight: 600;
+    }
+
+    .hrms-tab-nav .nav-link.active .badge-count {
+        background: var(--hrms-purple-light);
+        color: var(--hrms-purple-accent);
+    }
+
+    /* Tab Content Transitions */
+    .tab-pane.fade {
+        transition: opacity 0.15s linear;
+    }
+
+    /* Empty state styling */
+    .hrms-empty-state {
+        text-align: center;
+        padding: 32px 16px;
+        color: var(--hrms-text-secondary);
+        background: #F8FAFC;
+        border-radius: 12px;
+        border: 1px dashed var(--hrms-border);
+    }
+
+    .hrms-empty-state i {
+        font-size: 2.2rem;
+        color: var(--hrms-text-muted);
+        margin-bottom: 8px;
+        display: block;
+    }
+
+    /* Buttons & Badges */
+    .btn-hrms-purple {
+        background: var(--hrms-purple-accent);
+        color: #FFFFFF;
+        border-radius: 8px;
+        border: none;
+        font-weight: 500;
+        padding: 6px 14px;
+        transition: all 0.2s ease;
+    }
+
+    .btn-hrms-purple:hover {
+        background: #5B52E0;
+        color: #FFFFFF;
+        box-shadow: 0 4px 12px rgba(108, 99, 255, 0.25);
+    }
+
+    .btn-hrms-outline {
+        border: 1px solid var(--hrms-border);
+        background: #FFFFFF;
+        color: var(--hrms-text-primary);
+        border-radius: 8px;
+        font-weight: 500;
+        padding: 6px 14px;
+        transition: all 0.2s ease;
+    }
+
+    .btn-hrms-outline:hover {
+        border-color: var(--hrms-purple-accent);
+        color: var(--hrms-purple-accent);
+        background: var(--hrms-purple-light);
+    }
+
+    .badge-soft-success {
+        background: var(--hrms-green-light);
+        color: #15803D;
+        border: 1px solid rgba(22, 163, 74, 0.2);
+    }
+
+    .badge-soft-warning {
+        background: var(--hrms-peach-light);
+        color: #C2410C;
+        border: 1px solid rgba(234, 88, 12, 0.2);
+    }
+
+    .badge-soft-secondary {
+        background: #F1F5F9;
+        color: #475569;
+        border: 1px solid var(--hrms-border);
+    }
+
+    .badge-soft-primary {
+        background: var(--hrms-blue-light);
+        color: #1D4ED8;
+        border: 1px solid rgba(37, 99, 235, 0.2);
+    }
+
+    @media (max-width: 991.98px) {
+        .profile-main-card {
+            padding: 18px;
+        }
+        .profile-hero-banner {
+            padding: 18px;
+        }
     }
 </style>
 
-<div class="container-fluid profile-page py-4 px-3 px-lg-4">
+<div class="profile-dashboard-wrapper py-4 px-2 px-md-4">
+    <div class="container-fluid max-w-7xl mx-auto">
 
-    <!-- Hero header -->
-    <div class="profile-hero mb-4">
-        <div class="d-flex flex-wrap align-items-start gap-4 position-relative" style="z-index: 1;">
-            <div class="profile-avatar-wrap">
-                {% if is_own_profile|default(false) %}
-                <form id="photoUploadForm" method="POST" action="/upload-photo" enctype="multipart/form-data">
-                    <img id="profileImage" src="{{ photo_src }}" alt="{{ display_name }}"
-                        class="profile-avatar"
-                        onerror="this.src='{{ url_for('static', filename='images/default.png') }}'">
-                    <button type="button" class="profile-avatar-edit" title="Change photo"
-                        onclick="document.getElementById('photoInput').click()">
-                        <i class="bi bi-camera-fill"></i>
-                    </button>
-                    <div id="uploadSpinner"
-                        class="spinner-border spinner-border-sm text-light position-absolute top-50 start-50 translate-middle d-none"
-                        role="status"></div>
-                    <input type="file" name="photo" id="photoInput" hidden accept="image/png,image/jpeg,image/webp,image/gif">
-                    <input type="hidden" name="employee_id" value="{{ employee.id }}">
-                </form>
-                {% else %}
-                <img id="profileImage" src="{{ photo_src }}" alt="{{ display_name }}"
-                    class="profile-avatar"
-                    onerror="this.src='{{ url_for('static', filename='images/default.png') }}'">
-                {% endif %}
-            </div>
+        <!-- Parent Card Container -->
+        <div class="profile-main-card">
 
-            <div class="flex-grow-1 min-w-0">
-                <div class="d-flex flex-wrap align-items-center gap-2 mb-1">
-                    <h2 class="mb-0 fw-semibold">{{ display_name }}</h2>
-                    {% if role_label %}
-                    <span class="badge rounded-pill bg-light text-primary">{{ role_label }}</span>
-                    {% endif %}
-                </div>
-                {% if system_name and system_name|clean_name != display_name %}
-                <p class="mb-2 small opacity-75">{{ system_name }}</p>
-                {% endif %}
-                {% if employee.designation or employee.department %}
-                <p class="mb-0 opacity-90">
-                    {% if employee.designation %}{{ employee.designation }}{% endif %}
-                    {% if employee.designation and employee.department %} · {% endif %}
-                    {% if employee.department %}{{ employee.department }}{% endif %}
-                </p>
-                {% endif %}
-            </div>
-
-            <div class="d-flex flex-wrap gap-2 ms-lg-auto">
-                <div class="profile-stat text-center">
-                    <div class="stat-value">{{ summary.remaining_leaves|default(0) }}</div>
-                    <div class="stat-label">Leave balance</div>
-                </div>
-                <div class="profile-stat text-center">
-                    <div class="stat-value" id="heroDocPercent">{{ percent }}%</div>
-                    <div class="stat-label">Documents</div>
-                </div>
-                {% if employee.id is not none %}
-                <div class="profile-stat text-center">
-                    <div class="stat-value">#{{ employee.id }}</div>
-                    <div class="stat-label">Employee ID</div>
-                </div>
-                {% endif %}
-            </div>
-        </div>
-    </div>
-
-    <div class="row g-4">
-        <!-- Left column: details + bank -->
-        <div class="col-lg-7">
-            <!-- Employment & contact -->
-            <div class="card-ui p-4 mb-4">
-                <h5 class="profile-section-title"><i class="bi bi-person-vcard"></i> Employment & contact</h5>
-                <div class="profile-info-grid">
-                    <div class="profile-info-item">
-                        <div class="profile-info-icon"><i class="bi bi-envelope"></i></div>
-                        <div>
-                            <div class="info-label">Email</div>
-                            <div class="info-value">{{ employee.email or 'Not set' }}</div>
-                        </div>
-                    </div>
-                    {% if employee.get('username') and is_hr_view|default(false) %}
-                    <div class="profile-info-item">
-                        <div class="profile-info-icon"><i class="bi bi-key"></i></div>
-                        <div>
-                            <div class="info-label">Login</div>
-                            <div class="info-value">{{ employee.username }}</div>
-                        </div>
-                    </div>
-                    {% endif %}
-                    <div class="profile-info-item">
-                        <div class="profile-info-icon"><i class="bi bi-calendar-event"></i></div>
-                        <div>
-                            <div class="info-label">Date of birth</div>
-                            <div class="info-value">{{ employee.date_of_birth[:10] if employee.get('date_of_birth') else 'Not set' }}</div>
-                        </div>
-                    </div>
-                    <div class="profile-info-item">
-                        <div class="profile-info-icon"><i class="bi bi-calendar-check"></i></div>
-                        <div>
-                            <div class="info-label">Date of joining</div>
-                            <div class="info-value">{{ employee.date_of_joining[:10] if employee.get('date_of_joining') else 'Not set' }}</div>
-                        </div>
-                    </div>
-                    <div class="profile-info-item">
-                        <div class="profile-info-icon"><i class="bi bi-briefcase"></i></div>
-                        <div>
-                            <div class="info-label">Employment type</div>
-                            <div class="info-value">{{ employee.employment_type or 'Not set' }}</div>
-                        </div>
-                    </div>
-                    <div class="profile-info-item">
-                        <div class="profile-info-icon"><i class="bi bi-award"></i></div>
-                        <div>
-                            <div class="info-label">Designation</div>
-                            <div class="info-value">{{ employee.designation or 'Not set' }}</div>
-                        </div>
-                    </div>
-                    <div class="profile-info-item">
-                        <div class="profile-info-icon"><i class="bi bi-building"></i></div>
-                        <div>
-                            <div class="info-label">Department</div>
-                            <div class="info-value">{{ employee.department or 'Not set' }}</div>
-                        </div>
-                    </div>
-                    <div class="profile-info-item">
-                        <div class="profile-info-icon"><i class="bi bi-person-badge"></i></div>
-                        <div>
-                            <div class="info-label">Reporting manager</div>
-                            <div class="info-value">{{ (employee.reporting_manager|clean_name) if employee.reporting_manager else 'Not set' }}</div>
-                        </div>
-                    </div>
-                    <div class="profile-info-item">
-                        <div class="profile-info-icon"><i class="bi bi-sun"></i></div>
-                        <div>
-                            <div class="info-label">Leave summary</div>
-                            <div class="info-value">
-                                {{ summary.remaining_leaves|default(0) }} remaining
-                                {% if summary.total_leaves %}<span class="text-muted fw-normal">/ {{ summary.total_leaves }} total</span>{% endif %}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Bank information -->
-            <div class="card-ui p-4 mb-4">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h5 class="profile-section-title mb-0"><i class="bi bi-bank2"></i> Bank information</h5>
-                    <div id="bankStatusBadge">
-                        {% if bank_details %}
-                            {% if bank_details.status == 'completed' %}
-                                <span class="badge bg-success rounded-pill"><i class="bi bi-patch-check me-1"></i>Verified</span>
-                            {% elif bank_details.status == 'rejected' %}
-                                <span class="badge bg-danger rounded-pill"><i class="bi bi-x-circle me-1"></i>Rejected</span>
-                            {% else %}
-                                <span class="badge bg-warning text-dark rounded-pill"><i class="bi bi-clock-history me-1"></i>Under review</span>
-                            {% endif %}
+            <!-- Pastel Gradient Profile Hero Banner -->
+            <div class="profile-hero-banner">
+                <div class="d-flex flex-column flex-lg-row align-items-center align-items-lg-start gap-4 position-relative" style="z-index: 1;">
+                    
+                    <div class="profile-avatar-wrap">
+                        {% if is_own_profile|default(false) %}
+                        <form id="photoUploadForm" method="POST" action="/upload-photo" enctype="multipart/form-data">
+                            <img id="profileImage" src="{{ photo_src }}" alt="{{ display_name }}"
+                                class="profile-avatar"
+                                onerror="this.src='{{ url_for('static', filename='images/default.png') }}'">
+                            <button type="button" class="profile-avatar-edit" title="Change photo"
+                                onclick="document.getElementById('photoInput').click()">
+                                <i class="bi bi-camera-fill"></i>
+                            </button>
+                            <div id="uploadSpinner"
+                                class="spinner-border spinner-border-sm text-primary position-absolute top-50 start-50 translate-middle d-none"
+                                role="status"></div>
+                            <input type="file" name="photo" id="photoInput" hidden accept="image/png,image/jpeg,image/webp,image/gif">
+                            <input type="hidden" name="employee_id" value="{{ employee.id }}">
+                        </form>
                         {% else %}
-                            <span class="badge bg-secondary rounded-pill"><i class="bi bi-exclamation-circle me-1"></i>Not provided</span>
+                        <img id="profileImage" src="{{ photo_src }}" alt="{{ display_name }}"
+                            class="profile-avatar"
+                            onerror="this.src='{{ url_for('static', filename='images/default.png') }}'">
+                        {% endif %}
+                    </div>
+
+                    <div class="flex-grow-1 text-center text-lg-start min-w-0">
+                        <div class="d-flex flex-wrap justify-content-center justify-content-lg-start align-items-center gap-2 mb-1">
+                            <h2 class="mb-0 fw-bold text-slate-900" style="font-size: 1.4rem; letter-spacing: -0.02em;">{{ display_name }}</h2>
+                            {% if role_label %}
+                            <span class="role-pill">{{ role_label }}</span>
+                            {% endif %}
+                        </div>
+                        
+                        {% if system_name and system_name|clean_name != display_name %}
+                        <p class="mb-1 small text-muted">{{ system_name }}</p>
+                        {% endif %}
+
+                        {% if employee.designation or employee.department %}
+                        <p class="mb-0 text-slate-600 fw-medium">
+                            {% if employee.designation %}{{ employee.designation }}{% endif %}
+                            {% if employee.designation and employee.department %} <span class="text-muted mx-1">•</span> {% endif %}
+                            {% if employee.department %}<span class="text-muted">{{ employee.department }}</span>{% endif %}
+                        </p>
+                        {% endif %}
+                    </div>
+
+                    <!-- Top Stat Cards -->
+                    <div class="d-flex flex-wrap justify-content-center gap-3 ms-lg-auto mt-2 mt-lg-0">
+                        <div class="hero-stat-card text-center">
+                            <div class="hero-stat-value text-indigo-600">{{ summary.remaining_leaves|default(0) }}</div>
+                            <div class="hero-stat-label">Leave balance</div>
+                        </div>
+                        <div class="hero-stat-card text-center">
+                            <div class="hero-stat-value text-emerald-600" id="heroDocPercent">{{ percent }}%</div>
+                            <div class="hero-stat-label">Documents</div>
+                        </div>
+                        {% if employee.id is not none %}
+                        <div class="hero-stat-card text-center">
+                            <div class="hero-stat-value text-slate-700">#{{ employee.id }}</div>
+                            <div class="hero-stat-label">Employee ID</div>
+                        </div>
                         {% endif %}
                     </div>
                 </div>
+            </div>
 
-                {% if is_hr_view and not bank_details %}
-                <div class="profile-empty-state">
-                    <i class="bi bi-bank d-block"></i>
-                    <p class="mb-0">No bank details on file for this employee.</p>
-                </div>
-                {% else %}
-
-                <div id="bankView" class="{% if not bank_details or editing_bank %}d-none{% endif %}">
-                    {% if bank_details and bank_details.status == 'submitted' %}
-                    <div class="alert alert-info py-2 px-3 small border-0 mb-3">
-                        <i class="bi bi-info-circle-fill me-2"></i> Bank details are under review. You can still update them if needed.
-                    </div>
-                    {% elif bank_details and bank_details.status == 'rejected' %}
-                    <div class="alert alert-danger py-2 px-3 small border-0 mb-3">
-                        <i class="bi bi-x-circle-fill me-2"></i> Rejected: {{ bank_details.rejection_reason or 'No reason provided' }}
-                    </div>
-                    {% endif %}
-
-                    {% if config.BANK_DETAILS_READ_ONLY %}
-                    <div class="alert alert-secondary py-2 px-3 small border-0 mb-3">
-                        <i class="bi bi-info-circle-fill me-2"></i> {{ labels.BANK_DETAILS_VIEW_ONLY }}
-                    </div>
-                    {% endif %}
-
-                    <div class="row g-3">
-                        <div class="col-md-6">
-                            <label class="small text-muted d-block">Account holder</label>
-                            <span id="view_holder" class="fw-medium">{{ bank_details.account_holder_name if bank_details else '—' }}</span>
+            <!-- Top Row Grid: Employment & Contact + Documents (Equal Height & Matched Proportions) -->
+            <div class="row g-4 mb-4 align-items-stretch">
+                
+                <!-- Employment & Contact Card (Compact 3-column Grid, Wrap Height) -->
+                <div class="col-lg-7 d-flex">
+                    <div class="hrms-card w-100 justify-content-between">
+                        <div>
+                            <div class="hrms-card-header">
+                                <h3 class="hrms-card-title">
+                                    <span class="hrms-card-title-icon"><i class="bi bi-person-vcard"></i></span>
+                                    Employment & Contact
+                                </h3>
+                            </div>
+                            <div class="info-grid-3col">
+                                <div class="info-item">
+                                    <div class="info-item-icon"><i class="bi bi-envelope"></i></div>
+                                    <div class="min-w-0">
+                                        <div class="info-item-label">Email</div>
+                                        <div class="info-item-value text-truncate">{{ employee.email or 'Not set' }}</div>
+                                    </div>
+                                </div>
+                                {% if employee.get('username') and is_hr_view|default(false) %}
+                                <div class="info-item">
+                                    <div class="info-item-icon"><i class="bi bi-key"></i></div>
+                                    <div class="min-w-0">
+                                        <div class="info-item-label">Username</div>
+                                        <div class="info-item-value text-truncate">{{ employee.username }}</div>
+                                    </div>
+                                </div>
+                                {% endif %}
+                                <div class="info-item">
+                                    <div class="info-item-icon"><i class="bi bi-calendar-event"></i></div>
+                                    <div class="min-w-0">
+                                        <div class="info-item-label">Date of Birth</div>
+                                        <div class="info-item-value">{{ employee.date_of_birth[:10] if employee.get('date_of_birth') else 'Not set' }}</div>
+                                    </div>
+                                </div>
+                                <div class="info-item">
+                                    <div class="info-item-icon"><i class="bi bi-calendar-check"></i></div>
+                                    <div class="min-w-0">
+                                        <div class="info-item-label">Joining Date</div>
+                                        <div class="info-item-value">{{ employee.date_of_joining[:10] if employee.get('date_of_joining') else 'Not set' }}</div>
+                                    </div>
+                                </div>
+                                <div class="info-item">
+                                    <div class="info-item-icon"><i class="bi bi-briefcase"></i></div>
+                                    <div class="min-w-0">
+                                        <div class="info-item-label">Employment Type</div>
+                                        <div class="info-item-value text-truncate">{{ employee.employment_type or 'Not set' }}</div>
+                                    </div>
+                                </div>
+                                <div class="info-item">
+                                    <div class="info-item-icon"><i class="bi bi-award"></i></div>
+                                    <div class="min-w-0">
+                                        <div class="info-item-label">Designation</div>
+                                        <div class="info-item-value text-truncate">{{ employee.designation or 'Not set' }}</div>
+                                    </div>
+                                </div>
+                                <div class="info-item">
+                                    <div class="info-item-icon"><i class="bi bi-building"></i></div>
+                                    <div class="min-w-0">
+                                        <div class="info-item-label">Department</div>
+                                        <div class="info-item-value text-truncate">{{ employee.department or 'Not set' }}</div>
+                                    </div>
+                                </div>
+                                <div class="info-item">
+                                    <div class="info-item-icon"><i class="bi bi-person-badge"></i></div>
+                                    <div class="min-w-0">
+                                        <div class="info-item-label">Manager</div>
+                                        <div class="info-item-value text-truncate">{{ (employee.reporting_manager|clean_name) if employee.reporting_manager else 'Not set' }}</div>
+                                    </div>
+                                </div>
+                                <div class="info-item">
+                                    <div class="info-item-icon"><i class="bi bi-sun"></i></div>
+                                    <div class="min-w-0">
+                                        <div class="info-item-label">Leaves</div>
+                                        <div class="info-item-value">
+                                            {{ summary.remaining_leaves|default(0) }} remaining
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                        <div class="col-md-6">
-                            <label class="small text-muted d-block">Bank name</label>
-                            <span id="view_bank" class="fw-medium">{{ bank_details.bank_name if bank_details else '—' }}</span>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="small text-muted d-block">Account number</label>
-                            <div class="d-flex align-items-center gap-2">
-                                <span id="view_account" class="font-monospace fw-medium" data-full="{{ bank_details.account_number if bank_details else '' }}">
-                                    {% if bank_details and bank_details.account_number %}
-                                        ••••••{{ bank_details.account_number[-4:] if bank_details.account_number|length > 4 else bank_details.account_number }}
-                                    {% else %}—{% endif %}
-                                </span>
-                                {% if bank_details %}
-                                <button class="btn btn-sm btn-link p-0 text-muted" type="button" onclick="toggleAccountNumberVisibility()" title="Toggle visibility">
-                                    <i id="toggleEyeIcon" class="bi bi-eye"></i>
+
+                        <!-- Admin Actions bar if HR -->
+                        {% if is_hr_view and session.role in ['hr', 'admin'] %}
+                        <div class="pt-3 mt-3 border-top d-flex align-items-center justify-content-between">
+                            <span class="text-xs fw-semibold text-muted text-uppercase">Admin Quick Actions</span>
+                            <div class="d-flex gap-2">
+                                <a href="{{ url_for('employees.edit_employee', id=employee.id) }}" class="btn btn-sm btn-hrms-outline py-1">
+                                    <i class="bi bi-pencil me-1"></i> Edit
+                                </a>
+                                <button type="button" class="btn btn-sm btn-outline-danger py-1 rounded-2" data-bs-toggle="modal" data-bs-target="#deleteModal" onclick="setDeleteData('{{ employee.id }}', '{{ employee.name }}')">
+                                    <i class="bi bi-trash me-1"></i> Delete
+                                </button>
+                                {% if session.role == 'hr' %}
+                                <button type="button" class="btn btn-sm btn-danger py-1 rounded-2" data-bs-toggle="modal" data-bs-target="#offboardModal" onclick="setOffboardData('{{ employee.id }}', '{{ employee.name }}')">
+                                    <i class="bi bi-box-arrow-right me-1"></i> Offboard
                                 </button>
                                 {% endif %}
                             </div>
                         </div>
-                        <div class="col-md-6">
-                            <label class="small text-muted d-block">IFSC code</label>
-                            <span id="view_ifsc" class="fw-medium">{{ bank_details.ifsc_code if bank_details else '—' }}</span>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="small text-muted d-block">Branch</label>
-                            <span id="view_branch" class="fw-medium">{{ bank_details.branch_name if bank_details else '—' }}</span>
-                        </div>
+                        {% endif %}
                     </div>
-
-                    {% if not is_hr_view and not config.BANK_DETAILS_READ_ONLY %}
-                    <div class="mt-3">
-                        <button type="button" class="btn btn-sm btn-outline-primary" onclick="toggleBankEdit(true)">
-                            <i class="bi bi-pencil me-1"></i>{% if bank_details %}Update bank details{% else %}Add bank details{% endif %}
-                        </button>
-                    </div>
-                    {% endif %}
                 </div>
 
-                <div id="bankFormContainer" class="{% if (bank_details and not editing_bank) or is_hr_view %}d-none{% endif %}">
-                    {% if not bank_details and not is_hr_view %}
-                    <p class="text-muted small mb-3">Add your bank account for payroll. Details are encrypted and verified by HR.</p>
-                    {% endif %}
-                    <form id="bankDetailsForm" class="row g-3">
-                        <div class="col-md-6">
-                            <label class="form-label">Account holder name</label>
-                            <input type="text" name="account_holder_name" required class="form-control"
-                                value="{{ bank_details.account_holder_name if bank_details else '' }}"
-                                {% if config.BANK_DETAILS_READ_ONLY %}readonly disabled{% endif %}>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label">Bank name</label>
-                            <input type="text" name="bank_name" required class="form-control"
-                                value="{{ bank_details.bank_name if bank_details else '' }}"
-                                {% if config.BANK_DETAILS_READ_ONLY %}readonly disabled{% endif %}>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label">Account number</label>
-                            <div class="input-group">
-                                <input type="password" name="account_number" id="bank_account_input" required
-                                    placeholder="Enter full account number" class="form-control"
-                                    value="{{ bank_details.account_number if bank_details else '' }}"
-                                    {% if config.BANK_DETAILS_READ_ONLY %}readonly disabled{% endif %}>
-                                <button class="btn btn-outline-secondary" type="button" onclick="toggleInputVisibility('bank_account_input', this)">
-                                    <i class="bi bi-eye"></i>
-                                </button>
+                <!-- Documents Card -->
+                <div class="col-lg-5 d-flex">
+                    <div class="hrms-card w-100">
+                        <div class="hrms-card-header">
+                            <h3 class="hrms-card-title">
+                                <span class="hrms-card-title-icon"><i class="bi bi-folder2-open"></i></span>
+                                Documents
+                            </h3>
+                            <div class="doc-progress-ring" id="docProgressRing" style="--pct: {{ percent }};">
+                                <span id="docProgressLabel">{{ percent }}%</span>
                             </div>
                         </div>
-                        <div class="col-md-6">
-                            <label class="form-label">IFSC code</label>
-                            <input type="text" name="ifsc_code" required pattern="^[A-Z]{4}0[A-Z0-9]{6}$"
-                                title="Invalid IFSC format (e.g. SBIN0001234)" class="form-control"
-                                value="{{ bank_details.ifsc_code if bank_details else '' }}"
-                                {% if config.BANK_DETAILS_READ_ONLY %}readonly disabled{% endif %}>
-                        </div>
-                        <div class="col-12">
-                            <label class="form-label">Branch name</label>
-                            <input type="text" name="branch_name" required class="form-control"
-                                value="{{ bank_details.branch_name if bank_details else '' }}"
-                                {% if config.BANK_DETAILS_READ_ONLY %}readonly disabled{% endif %}>
-                        </div>
-                        {% if not config.BANK_DETAILS_READ_ONLY %}
-                        <div class="col-12">
-                            <button type="submit" class="btn btn-primary">Submit for verification</button>
-                            {% if bank_details %}
-                            <button type="button" class="btn btn-link text-muted" onclick="toggleBankEdit(false)">Cancel</button>
-                            {% endif %}
-                            <p class="text-muted small mt-2 mb-0"><i class="bi bi-shield-lock me-1"></i>Data is stored securely and sent for verification.</p>
-                        </div>
-                        {% endif %}
-                    </form>
-                </div>
-                {% endif %}
-            </div>
-        </div>
 
-        <!-- Right column: documents -->
-        <div class="col-lg-5">
-            <div class="card-ui profile-docs-card p-4">
-                <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h5 class="profile-section-title mb-0"><i class="bi bi-folder2-open"></i> Documents</h5>
-                    <div class="doc-progress-ring" id="docProgressRing" style="--pct: {{ percent }};">
-                        <span id="docProgressLabel">{{ percent }}%</span>
-                    </div>
-                </div>
-
-                <div class="progress mb-4" style="height: 8px;">
-                    <div class="progress-bar bg-success" id="mainProgressBar" role="progressbar"
-                        style="width: {{ percent }}%;" aria-valuenow="{{ percent }}" aria-valuemin="0" aria-valuemax="100"></div>
-                </div>
-                <p class="text-muted small mb-4">
-                    <span id="docCountText">{{ uploaded_doc_count|default(0) }} of {{ doc_list|length }} documents uploaded</span>
-                </p>
-
-                <div class="profile-docs-list">
-                {% for key, label in doc_list %}
-                <div class="doc-item">
-                    <div class="d-flex justify-content-between align-items-start gap-2 mb-2">
-                        <div class="min-w-0">
-                            <strong class="d-block">{{ label }}</strong>
-                            <small class="text-muted text-capitalize">{{ key|replace('_', ' ') }}</small>
+                        <div class="d-flex justify-content-between align-items-center mb-2 small">
+                            <span class="text-muted" id="docCountText">{{ uploaded_doc_count|default(0) }} of {{ doc_list|length }} uploaded</span>
+                            <span class="fw-semibold text-purple-accent">{{ percent }}% Done</span>
                         </div>
-                        {% if documents and documents.get(key) %}
-                        <span class="doc-status-badge badge bg-success-subtle text-success border border-success-subtle flex-shrink-0">Uploaded</span>
-                        {% else %}
-                        <span class="doc-status-badge badge bg-danger-subtle text-danger border border-danger-subtle flex-shrink-0">Missing</span>
-                        {% endif %}
-                    </div>
-                    <div class="d-flex flex-wrap gap-2 mb-2" id="doc-actions-{{ key }}">
-                        {% if document_view_urls and document_view_urls.get(key) %}
-                        <button type="button" class="btn btn-sm btn-outline-primary doc-view-btn"
-                            data-view-url="{{ document_view_urls[key] }}"
-                            onclick="previewDoc(this.dataset.viewUrl)">
-                            <i class="bi bi-eye me-1"></i>View
-                        </button>
-                        <a href="{{ document_view_urls[key] }}" target="_blank" rel="noopener"
-                        class="btn btn-sm btn-outline-secondary doc-open-link">
-                        <i class="bi bi-box-arrow-up-right me-1"></i>Open
-                        </a>
-                        {% endif %}
-                        {% if not is_hr_view %}
-                        <form method="POST" action="/documents/upload" enctype="multipart/form-data"
-                            class="doc-upload-form">
-                            <input type="hidden" name="type" value="{{ key }}">
-                            <input type="hidden" name="employee_id" value="{{ employee.id }}">
-                            <div class="input-group input-group-sm">
-                                <input type="file" name="file" class="form-control" required aria-label="Choose {{ label }}">
-                                <button type="submit" class="btn btn-primary px-3">
-                                    <i class="bi bi-upload me-1"></i>Upload
-                                </button>
+                        <div class="progress mb-3" style="height: 5px; border-radius: 4px;">
+                            <div class="progress-bar" id="mainProgressBar" role="progressbar" style="width: {{ percent }}%; background-color: var(--hrms-purple-accent);" aria-valuenow="{{ percent }}" aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>
+
+                        <div class="doc-list-scroll">
+                            {% for key, label in doc_list %}
+                            <div class="doc-item-row">
+                                <div class="d-flex justify-content-between align-items-center gap-2 mb-1">
+                                    <div>
+                                        <div class="fw-semibold text-slate-800" style="font-size: 0.85rem;">{{ label }}</div>
+                                    </div>
+                                    {% if documents and documents.get(key) %}
+                                    <span class="doc-status-badge badge rounded-pill badge-soft-success">Uploaded</span>
+                                    {% else %}
+                                    <span class="doc-status-badge badge rounded-pill badge-soft-warning">Missing</span>
+                                    {% endif %}
+                                </div>
+                                <div class="d-flex flex-wrap gap-2 mt-2" id="doc-actions-{{ key }}">
+                                    {% if document_view_urls and document_view_urls.get(key) %}
+                                    <button type="button" class="btn btn-sm btn-hrms-outline doc-view-btn py-1 px-2 style-xs"
+                                        data-view-url="{{ document_view_urls[key] }}"
+                                        onclick="previewDoc(this.dataset.viewUrl)">
+                                        <i class="bi bi-eye me-1"></i>View
+                                    </button>
+                                    <a href="{{ document_view_urls[key] }}" target="_blank" rel="noopener"
+                                    class="btn btn-sm btn-hrms-outline doc-open-link py-1 px-2 style-xs">
+                                    <i class="bi bi-box-arrow-up-right me-1"></i>Open
+                                    </a>
+                                    {% endif %}
+                                    {% if not is_hr_view %}
+                                    <form method="POST" action="/documents/upload" enctype="multipart/form-data" class="doc-upload-form flex-grow-1">
+                                        <input type="hidden" name="type" value="{{ key }}">
+                                        <input type="hidden" name="employee_id" value="{{ employee.id }}">
+                                        <div class="input-group input-group-sm">
+                                            <input type="file" name="file" class="form-control rounded-start" required aria-label="Choose {{ label }}">
+                                            <button type="submit" class="btn btn-hrms-purple rounded-end">
+                                                <i class="bi bi-upload me-1"></i>Upload
+                                            </button>
+                                        </div>
+                                    </form>
+                                    {% endif %}
+                                </div>
                             </div>
-                        </form>
-                        {% endif %}
-                    </div>
-                </div>
-                {% endfor %}
-                </div>
-            </div>
-        </div>
-    </div>
-
-<!-- ── New sections row: Assets / Projects / Activity / Actions ─────────── -->
-<div class="row g-4 mt-1">
-
-    <!-- Assigned Assets -->
-    <div class="col-lg-6">
-        <div class="card-ui p-4 h-100">
-            <h5 class="profile-section-title"><i class="bi bi-laptop"></i> Assigned Assets</h5>
-            {% if assets %}
-            <div class="table-responsive">
-                <table class="table table-sm mb-0">
-                    <thead>
-                        <tr>
-                            <th class="text-muted small fw-normal">Device</th>
-                            <th class="text-muted small fw-normal">Brand</th>
-                            <th class="text-muted small fw-normal">Assigned</th>
-                            <th class="text-muted small fw-normal">Status</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for asset in assets %}
-                        <tr>
-                            <td class="fw-medium">{{ asset.device_name or asset.name or '—' }}</td>
-                            <td class="text-muted">{{ asset.brand or '—' }}</td>
-                            <td class="text-muted small">{{ asset.assigned_at[:10] if asset.assigned_at else '—' }}</td>
-                            <td>
-                                <span class="badge {{ 'bg-success-subtle text-success' if asset.acceptance_status == 'accepted' else 'bg-warning-subtle text-warning' }}">
-                                    {{ asset.acceptance_status or 'pending' }}
-                                </span>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-            {% else %}
-            <div class="text-center text-muted py-4">
-                <i class="bi bi-laptop fs-2 opacity-25 d-block mb-2"></i>
-                No assets assigned
-            </div>
-            {% endif %}
-        </div>
-    </div>
-
-    <!-- Current Projects -->
-    <div class="col-lg-6">
-        <div class="card-ui p-4 h-100">
-            <h5 class="profile-section-title"><i class="bi bi-kanban"></i> Active Projects</h5>
-            {% if employee_projects %}
-            <ul class="list-unstyled mb-0">
-                {% for proj in employee_projects %}
-                <li class="d-flex align-items-start gap-3 mb-3">
-                    <div class="profile-info-icon flex-shrink-0" style="background:#f0fdf4;color:#16a34a;">
-                        <i class="bi bi-folder2-open"></i>
-                    </div>
-                    <div class="min-w-0">
-                        <div class="fw-medium">{{ proj.name or proj.project_name or '—' }}</div>
-                        <div class="text-muted small">
-                            {% set s = proj.status or '' %}
-                            <span class="badge {% if s == 'active' %}bg-success-subtle text-success{% elif s == 'completed' %}bg-secondary-subtle text-secondary{% else %}bg-primary-subtle text-primary{% endif %}">
-                                {{ s | title or 'Active' }}
-                            </span>
-                            {% if proj.deadline %}· Due {{ proj.deadline[:10] }}{% endif %}
+                            {% endfor %}
                         </div>
                     </div>
-                </li>
-                {% endfor %}
-            </ul>
-            {% else %}
-            <div class="text-center text-muted py-4">
-                <i class="bi bi-kanban fs-2 opacity-25 d-block mb-2"></i>
-                No active projects
-            </div>
-            {% endif %}
-        </div>
-    </div>
+                </div>
 
-    <!-- Active Activity Indicators -->
-    <div class="col-lg-{% if is_hr_view and session.role in ['hr', 'admin'] %}8{% else %}12{% endif %}">
-        <div class="card-ui p-4 h-100">
-            <h5 class="profile-section-title"><i class="bi bi-activity"></i> Active Items</h5>
+            </div>
+
+            <!-- Single Modern Tab Container for Assigned Assets, Active Projects, Active Items & Bank Details -->
             {% set total_active = active_leave_count + active_reimbursement_count + active_helpdesk_count %}
-            {% if total_active == 0 %}
-            <div class="text-muted d-flex align-items-center h-100 justify-content-center">
-                <span><i class="bi bi-check-circle text-success me-2"></i>No active items requiring attention</span>
+            <div class="hrms-card p-4">
+                
+                <!-- Pill-Style Nav Tabs -->
+                <ul class="nav nav-pills hrms-tab-nav" id="profileTab" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="assets-tab" data-bs-toggle="tab" data-bs-target="#assets-tab-pane" type="button" role="tab" aria-controls="assets-tab-pane" aria-selected="true">
+                            <i class="bi bi-laptop"></i> Assigned Assets
+                            <span class="badge-count">{{ assets|length if assets else 0 }}</span>
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="projects-tab" data-bs-toggle="tab" data-bs-target="#projects-tab-pane" type="button" role="tab" aria-controls="projects-tab-pane" aria-selected="false">
+                            <i class="bi bi-kanban"></i> Active Projects
+                            <span class="badge-count">{{ employee_projects|length if employee_projects else 0 }}</span>
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="active-items-tab" data-bs-toggle="tab" data-bs-target="#active-items-tab-pane" type="button" role="tab" aria-controls="active-items-tab-pane" aria-selected="false">
+                            <i class="bi bi-activity"></i> Active Items
+                            <span class="badge-count">{{ total_active }}</span>
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="bank-tab" data-bs-toggle="tab" data-bs-target="#bank-tab-pane" type="button" role="tab" aria-controls="bank-tab-pane" aria-selected="false">
+                            <i class="bi bi-bank2"></i> Bank Details
+                            <span class="badge-count">{% if bank_details %}1{% else %}0{% endif %}</span>
+                        </button>
+                    </li>
+                </ul>
+
+                <!-- Tab Panes Content -->
+                <div class="tab-content" id="profileTabContent">
+
+                    <!-- Tab 1: Assigned Assets -->
+                    <div class="tab-pane fade show active" id="assets-tab-pane" role="tabpanel" aria-labelledby="assets-tab" tabindex="0">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <span class="text-muted small">Company equipment & hardware allocated to employee</span>
+                            {% if is_hr_view and session.role in ['hr', 'admin'] %}
+                            <a href="/assets" class="btn btn-sm btn-hrms-purple">
+                                <i class="bi bi-plus-lg me-1"></i> Assign Asset
+                            </a>
+                            {% endif %}
+                        </div>
+
+                        {% if assets %}
+                        <div class="table-responsive border rounded-3 overflow-hidden">
+                            <table class="table table-hover align-middle mb-0" style="font-size: 0.88rem;">
+                                <thead style="background: #F8FAFC;">
+                                    <tr class="text-muted">
+                                        <th class="fw-semibold py-3 px-3">Asset Name</th>
+                                        <th class="fw-semibold py-3 px-3">Asset Type / Brand</th>
+                                        <th class="fw-semibold py-3 px-3">Assigned Date</th>
+                                        <th class="fw-semibold py-3 px-3">Status</th>
+                                        <th class="fw-semibold py-3 px-3 text-end">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for asset in assets %}
+                                    <tr>
+                                        <td class="fw-semibold text-slate-800 px-3 py-3">{{ asset.device_name or asset.name or '—' }}</td>
+                                        <td class="text-muted px-3 py-3">{{ asset.brand or asset.type or 'Hardware' }}</td>
+                                        <td class="text-muted px-3 py-3">{{ asset.assigned_at[:10] if asset.assigned_at else '—' }}</td>
+                                        <td class="px-3 py-3">
+                                            <span class="badge rounded-pill {{ 'badge-soft-success' if asset.acceptance_status == 'accepted' else 'badge-soft-warning' }}">
+                                                {{ asset.acceptance_status or 'pending' }}
+                                            </span>
+                                        </td>
+                                        <td class="px-3 py-3 text-end">
+                                            <a href="/assets" class="btn btn-sm btn-hrms-outline py-1 px-2">
+                                                <i class="bi bi-eye me-1"></i> Details
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        {% else %}
+                        <div class="hrms-empty-state">
+                            <i class="bi bi-laptop"></i>
+                            <div class="fw-semibold text-slate-700">No assets assigned</div>
+                            <small class="text-muted">Company devices and equipment assigned to this employee will appear here.</small>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Tab 2: Active Projects -->
+                    <div class="tab-pane fade" id="projects-tab-pane" role="tabpanel" aria-labelledby="projects-tab" tabindex="0">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <span class="text-muted small">Ongoing internal and client project engagements</span>
+                        </div>
+
+                        {% if employee_projects %}
+                        <div class="table-responsive border rounded-3 overflow-hidden">
+                            <table class="table table-hover align-middle mb-0" style="font-size: 0.88rem;">
+                                <thead style="background: #F8FAFC;">
+                                    <tr class="text-muted">
+                                        <th class="fw-semibold py-3 px-3">Project Name</th>
+                                        <th class="fw-semibold py-3 px-3">Company / Client</th>
+                                        <th class="fw-semibold py-3 px-3">Role</th>
+                                        <th class="fw-semibold py-3 px-3">Start Date / Due</th>
+                                        <th class="fw-semibold py-3 px-3">Status</th>
+                                        <th class="fw-semibold py-3 px-3 text-end">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for proj in employee_projects %}
+                                    <tr>
+                                        <td class="fw-semibold text-slate-800 px-3 py-3">{{ proj.name or proj.project_name or '—' }}</td>
+                                        <td class="text-muted px-3 py-3">{{ proj.client or proj.company or 'Internal' }}</td>
+                                        <td class="text-muted px-3 py-3">{{ proj.role or employee.designation or 'Contributor' }}</td>
+                                        <td class="text-muted px-3 py-3">{{ proj.deadline[:10] if proj.deadline else '—' }}</td>
+                                        <td class="px-3 py-3">
+                                            {% set s = proj.status or '' %}
+                                            <span class="badge rounded-pill {% if s == 'active' %}badge-soft-success{% elif s == 'completed' %}badge-soft-secondary{% else %}badge-soft-primary{% endif %}">
+                                                {{ s | title or 'Active' }}
+                                            </span>
+                                        </td>
+                                        <td class="px-3 py-3 text-end">
+                                            <button class="btn btn-sm btn-hrms-outline py-1 px-2">
+                                                <i class="bi bi-arrow-right me-1"></i> View Project
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        {% else %}
+                        <div class="hrms-empty-state">
+                            <i class="bi bi-kanban"></i>
+                            <div class="fw-semibold text-slate-700">No active projects</div>
+                            <small class="text-muted">Assigned client and internal project tasks will be listed here.</small>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Tab 3: Active Items -->
+                    <div class="tab-pane fade" id="active-items-tab-pane" role="tabpanel" aria-labelledby="active-items-tab" tabindex="0">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <span class="text-muted small">Pending approval requests, tickets, and reimbursements</span>
+                        </div>
+
+                        {% if total_active == 0 %}
+                        <div class="hrms-empty-state">
+                            <i class="bi bi-check-circle text-emerald-500"></i>
+                            <div class="fw-semibold text-slate-700">All caught up</div>
+                            <small class="text-muted">No pending leave requests, open tickets, or active reimbursements.</small>
+                        </div>
+                        {% else %}
+                        <div class="table-responsive border rounded-3 overflow-hidden">
+                            <table class="table table-hover align-middle mb-0" style="font-size: 0.88rem;">
+                                <thead style="background: #F8FAFC;">
+                                    <tr class="text-muted">
+                                        <th class="fw-semibold py-3 px-3">Item Name</th>
+                                        <th class="fw-semibold py-3 px-3">Category</th>
+                                        <th class="fw-semibold py-3 px-3">Assigned / Created</th>
+                                        <th class="fw-semibold py-3 px-3">Status</th>
+                                        <th class="fw-semibold py-3 px-3 text-end">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% if active_leave_count > 0 %}
+                                    <tr>
+                                        <td class="fw-semibold text-slate-800 px-3 py-3">Leave Application</td>
+                                        <td class="text-muted px-3 py-3"><span class="badge badge-soft-warning">Leave Management</span></td>
+                                        <td class="text-muted px-3 py-3">Recent</td>
+                                        <td class="px-3 py-3"><span class="badge badge-soft-warning rounded-pill">{{ active_leave_count }} Pending</span></td>
+                                        <td class="px-3 py-3 text-end">
+                                            <a href="/leaves" class="btn btn-sm btn-hrms-outline py-1 px-2">Review</a>
+                                        </td>
+                                    </tr>
+                                    {% endif %}
+                                    {% if active_reimbursement_count > 0 %}
+                                    <tr>
+                                        <td class="fw-semibold text-slate-800 px-3 py-3">Reimbursement Request</td>
+                                        <td class="text-muted px-3 py-3"><span class="badge badge-soft-primary">Finance Claim</span></td>
+                                        <td class="text-muted px-3 py-3">Recent</td>
+                                        <td class="px-3 py-3"><span class="badge badge-soft-warning rounded-pill">{{ active_reimbursement_count }} Active</span></td>
+                                        <td class="px-3 py-3 text-end">
+                                            <a href="/reimbursements" class="btn btn-sm btn-hrms-outline py-1 px-2">Review</a>
+                                        </td>
+                                    </tr>
+                                    {% endif %}
+                                    {% if active_helpdesk_count > 0 %}
+                                    <tr>
+                                        <td class="fw-semibold text-slate-800 px-3 py-3">Helpdesk Support Ticket</td>
+                                        <td class="text-muted px-3 py-3"><span class="badge badge-soft-secondary">IT / Operations</span></td>
+                                        <td class="text-muted px-3 py-3">Recent</td>
+                                        <td class="px-3 py-3"><span class="badge badge-soft-primary rounded-pill">{{ active_helpdesk_count }} Open</span></td>
+                                        <td class="px-3 py-3 text-end">
+                                            <a href="/helpdesk" class="btn btn-sm btn-hrms-outline py-1 px-2">Review</a>
+                                        </td>
+                                    </tr>
+                                    {% endif %}
+                                </tbody>
+                            </table>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Tab 4: Bank Details -->
+                    <div class="tab-pane fade" id="bank-tab-pane" role="tabpanel" aria-labelledby="bank-tab" tabindex="0">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <span class="text-muted small">Employee bank account information for salary and claims disbursement</span>
+                            <div id="bankStatusBadge">
+                                {% if bank_details %}
+                                    {% if bank_details.status == 'completed' %}
+                                        <span class="badge badge-soft-success rounded-pill"><i class="bi bi-patch-check me-1"></i>Verified</span>
+                                    {% elif bank_details.status == 'rejected' %}
+                                        <span class="badge bg-danger-subtle text-danger border border-danger-subtle rounded-pill"><i class="bi bi-x-circle me-1"></i>Rejected</span>
+                                    {% else %}
+                                        <span class="badge badge-soft-warning rounded-pill"><i class="bi bi-clock-history me-1"></i>Under Review</span>
+                                    {% endif %}
+                                {% else %}
+                                    <span class="badge badge-soft-secondary rounded-pill"><i class="bi bi-exclamation-circle me-1"></i>Not Provided</span>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Read view for Bank Details in Table format -->
+                        <div id="bankView" class="{% if not bank_details or editing_bank %}d-none{% endif %}">
+                            {% if bank_details and bank_details.status == 'submitted' %}
+                            <div class="alert alert-info py-2 px-3 small border-0 mb-3 rounded-3" style="background:#EEF6FF; color:#1D4ED8;">
+                                <i class="bi bi-info-circle-fill me-2"></i> Bank details are currently under review.
+                            </div>
+                            {% elif bank_details and bank_details.status == 'rejected' %}
+                            <div class="alert alert-danger py-2 px-3 small border-0 mb-3 rounded-3">
+                                <i class="bi bi-x-circle-fill me-2"></i> Rejected: {{ bank_details.rejection_reason or 'No reason provided' }}
+                            </div>
+                            {% endif %}
+
+                            {% if config.BANK_DETAILS_READ_ONLY %}
+                            <div class="alert alert-secondary py-2 px-3 small border-0 mb-3 rounded-3">
+                                <i class="bi bi-info-circle-fill me-2"></i> {{ labels.BANK_DETAILS_VIEW_ONLY }}
+                            </div>
+                            {% endif %}
+
+                            <div class="table-responsive border rounded-3 overflow-hidden">
+                                <table class="table align-middle mb-0" style="font-size: 0.88rem;">
+                                    <thead style="background: #F8FAFC;">
+                                        <tr class="text-muted">
+                                            <th class="fw-semibold py-3 px-3">Bank Name</th>
+                                            <th class="fw-semibold py-3 px-3">Account Number</th>
+                                            <th class="fw-semibold py-3 px-3">IFSC Code</th>
+                                            <th class="fw-semibold py-3 px-3">Branch</th>
+                                            <th class="fw-semibold py-3 px-3">Account Type</th>
+                                            <th class="fw-semibold py-3 px-3 text-end">Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td class="fw-semibold text-slate-800 px-3 py-3">{{ bank_details.bank_name if bank_details and bank_details.bank_name else '—' }}</td>
+                                            <td class="px-3 py-3 font-monospace">
+                                                <span id="view_account" data-full="{{ bank_details.account_number if bank_details else '' }}">
+                                                    {% if bank_details and bank_details.account_number %}
+                                                        ••••••{{ bank_details.account_number[-4:] if bank_details.account_number|length > 4 else bank_details.account_number }}
+                                                    {% else %}—{% endif %}
+                                                </span>
+                                                {% if bank_details and bank_details.account_number %}
+                                                <button class="btn btn-sm btn-link p-0 text-muted ms-2" type="button" onclick="toggleAccountNumberVisibility()" title="Toggle visibility">
+                                                    <i id="toggleEyeIcon" class="bi bi-eye"></i>
+                                                </button>
+                                                {% endif %}
+                                            </td>
+                                            <td class="px-3 py-3 text-muted">{{ bank_details.ifsc_code if bank_details and bank_details.ifsc_code else '—' }}</td>
+                                            <td class="px-3 py-3 text-muted">{{ bank_details.branch_name if bank_details and bank_details.branch_name else '—' }}</td>
+                                            <td class="px-3 py-3 text-muted">Savings / Salary</td>
+                                            <td class="px-3 py-3 text-end">
+                                                {% if not is_hr_view and not config.BANK_DETAILS_READ_ONLY %}
+                                                <button type="button" class="btn btn-sm btn-hrms-purple py-1 px-3" onclick="toggleBankEdit(true)">
+                                                    <i class="bi bi-pencil me-1"></i> Edit
+                                                </button>
+                                                {% else %}
+                                                <span class="text-muted small">View Only</span>
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Form view for Bank Details -->
+                        <div id="bankFormContainer" class="{% if (bank_details and not editing_bank) or is_hr_view %}d-none{% endif %} mt-2">
+                            <form id="bankDetailsForm" class="row g-3 bg-light p-3 border rounded-3">
+                                <div class="col-md-6">
+                                    <label class="form-label small fw-semibold">Account Holder Name</label>
+                                    <input type="text" name="account_holder_name" required class="form-control form-control-sm rounded-2"
+                                        value="{{ bank_details.account_holder_name if bank_details else '' }}"
+                                        {% if config.BANK_DETAILS_READ_ONLY %}readonly disabled{% endif %}>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label small fw-semibold">Bank Name</label>
+                                    <input type="text" name="bank_name" required class="form-control form-control-sm rounded-2"
+                                        value="{{ bank_details.bank_name if bank_details else '' }}"
+                                        {% if config.BANK_DETAILS_READ_ONLY %}readonly disabled{% endif %}>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label small fw-semibold">Account Number</label>
+                                    <div class="input-group input-group-sm">
+                                        <input type="password" name="account_number" id="bank_account_input" required
+                                            placeholder="Enter account number" class="form-control rounded-start"
+                                            value="{{ bank_details.account_number if bank_details else '' }}"
+                                            {% if config.BANK_DETAILS_READ_ONLY %}readonly disabled{% endif %}>
+                                        <button class="btn btn-outline-secondary rounded-end" type="button" onclick="toggleInputVisibility('bank_account_input', this)">
+                                            <i class="bi bi-eye"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label small fw-semibold">IFSC Code</label>
+                                    <input type="text" name="ifsc_code" required pattern="^[A-Z]{4}0[A-Z0-9]{6}$"
+                                        title="Invalid IFSC format (e.g. SBIN0001234)" class="form-control form-control-sm rounded-2"
+                                        value="{{ bank_details.ifsc_code if bank_details else '' }}"
+                                        {% if config.BANK_DETAILS_READ_ONLY %}readonly disabled{% endif %}>
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label small fw-semibold">Branch Name</label>
+                                    <input type="text" name="branch_name" required class="form-control form-control-sm rounded-2"
+                                        value="{{ bank_details.branch_name if bank_details else '' }}"
+                                        {% if config.BANK_DETAILS_READ_ONLY %}readonly disabled{% endif %}>
+                                </div>
+                                {% if not config.BANK_DETAILS_READ_ONLY %}
+                                <div class="col-12 mt-3">
+                                    <button type="submit" class="btn btn-sm btn-hrms-purple">Submit for Verification</button>
+                                    {% if bank_details %}
+                                    <button type="button" class="btn btn-sm btn-link text-muted ms-2" onclick="toggleBankEdit(false)">Cancel</button>
+                                    {% endif %}
+                                </div>
+                                {% endif %}
+                            </form>
+                        </div>
+                    </div>
+
+                </div>
+
             </div>
-            {% else %}
-            <div class="d-flex flex-wrap gap-3">
-                {% if active_leave_count > 0 %}
-                <div class="d-flex align-items-center gap-2 rounded-pill px-3 py-2" style="background:#fef9c3;">
-                    <i class="bi bi-calendar-x text-warning"></i>
-                    <span class="fw-medium small">{{ active_leave_count }} pending leave request{{ 's' if active_leave_count != 1 }}</span>
-                </div>
-                {% endif %}
-                {% if active_reimbursement_count > 0 %}
-                <div class="d-flex align-items-center gap-2 rounded-pill px-3 py-2" style="background:#fce7f3;">
-                    <i class="bi bi-receipt text-danger"></i>
-                    <span class="fw-medium small">{{ active_reimbursement_count }} open reimbursement{{ 's' if active_reimbursement_count != 1 }}</span>
-                </div>
-                {% endif %}
-                {% if active_helpdesk_count > 0 %}
-                <div class="d-flex align-items-center gap-2 rounded-pill px-3 py-2" style="background:#ede9fe;">
-                    <i class="bi bi-headset text-purple" style="color:#7c3aed;"></i>
-                    <span class="fw-medium small">{{ active_helpdesk_count }} open helpdesk ticket{{ 's' if active_helpdesk_count != 1 }}</span>
-                </div>
-                {% endif %}
-            </div>
-            {% endif %}
+
         </div>
+
     </div>
-
-    <!-- Actions (HR/Admin only) -->
-    {% if is_hr_view and session.role in ['hr', 'admin'] %}
-    <div class="col-lg-4">
-        <div class="card-ui p-4 h-100">
-            <h5 class="profile-section-title"><i class="bi bi-gear"></i> Actions</h5>
-            <div class="d-flex flex-column gap-2">
-                <a href="{{ url_for('employees.edit_employee', id=employee.id) }}"
-                   class="btn btn-outline-secondary w-100 text-start">
-                    <i class="bi bi-pencil me-2"></i> Edit Employee
-                </a>
-                <button class="btn btn-outline-danger w-100 text-start"
-                    data-bs-toggle="modal" data-bs-target="#deleteModal"
-                    onclick="setDeleteData('{{ employee.id }}', '{{ employee.name }}')">
-                    <i class="bi bi-trash me-2"></i> Delete Employee
-                </button>
-                {% if session.role == 'hr' %}
-                <button class="btn w-100 text-start text-white"
-                    style="background-color:#DC2626;"
-                    data-bs-toggle="modal" data-bs-target="#offboardModal"
-                    onclick="setOffboardData('{{ employee.id }}', '{{ employee.name }}')">
-                    <i class="bi bi-box-arrow-right me-2"></i> Initiate Offboarding
-                </button>
-                {% endif %}
-            </div>
-        </div>
-    </div>
-    {% endif %}
-
-</div>
-
 </div>
 
 <!-- Delete Modal (relocated from all_employees.html) -->

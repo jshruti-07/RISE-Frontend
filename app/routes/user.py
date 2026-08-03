@@ -75,6 +75,36 @@ def _document_view_urls(documents):
             urls[doc_type] = url_for('user.serve_upload', filename=rel)
     return urls
 
+
+def _fetch_active_item_counts(employee_name, headers):
+    """Return pending/open work counts for the self-service profile."""
+    endpoints = (
+        ('leaves', 'leaves', 'pending'),
+        ('reimbursements', 'reimbursements', 'pending'),
+        ('helpdesk', 'tickets', 'open'),
+    )
+    counts = []
+
+    for endpoint, response_key, status in endpoints:
+        count = 0
+        try:
+            response = requests.get(
+                f'{BASE_URL}/{endpoint}',
+                headers=headers,
+                params={'employee_name': employee_name, 'status': status},
+                timeout=5,
+            )
+            if response.status_code == 200:
+                payload = response.json()
+                items = payload.get(response_key, payload.get('data', []))
+                if isinstance(items, list):
+                    count = sum(isinstance(item, dict) for item in items)
+        except Exception as exc:
+            print(f'{endpoint.title()} count fetch failed: {exc}')
+        counts.append(count)
+
+    return tuple(counts)
+
 def _find_employee_by_name(employee_name, headers=None):
     """Look up employee record by system name (prefix-tolerant)."""
     if not employee_name:
@@ -145,6 +175,11 @@ def profile():
     document_view_urls = _document_view_urls(documents)
     uploaded_count = sum(1 for doc_type in DOC_TYPES if documents.get(doc_type))
     percent = int((uploaded_count / len(DOC_TYPES)) * 100) if DOC_TYPES else 0
+    (
+        active_leave_count,
+        active_reimbursement_count,
+        active_helpdesk_count,
+    ) = _fetch_active_item_counts(employee_name, headers)
 
     return render_template(
         "profile.html",
@@ -155,6 +190,9 @@ def profile():
         document_view_urls=document_view_urls,
         percent=percent,
         uploaded_doc_count=uploaded_count,
+        active_leave_count=active_leave_count,
+        active_reimbursement_count=active_reimbursement_count,
+        active_helpdesk_count=active_helpdesk_count,
         is_hr_view=False,
         is_own_profile=True,
         BASE_URL=BASE_URL,
