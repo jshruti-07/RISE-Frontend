@@ -1,293 +1,813 @@
-    <div class="max-w-[1440px] mx-auto">
-        <div class="row g-4 mb-4">
-            <!-- CORE DATA COLUMN (Left - 8 cols) -->
-            <div class="col-xl-8 col-lg-7 d-flex flex-column gap-4">
+    <div style="width: 100%; max-width: 100%; margin: 0 auto;">
+        <!-- Page Header -->
+        <div class="d-flex justify-content-between align-items-center mb-4 pb-2">
+            <div>
+                <h1 class="fw-bold text-dark mb-1" style="font-size: 1.75rem;">Dashboard</h1>
+                <p class="text-muted mb-0" style="font-size: 0.85rem;">Overview of organizational metrics</p>
+            </div>
+        </div>
+
+        <div class="dashboard-main-grid">
+            <!-- CORE DATA COLUMN (Left) -->
+            <div class="d-flex flex-column" style="gap: 24px; min-width: 0;">
                 
                 <!-- KPI GRID -->
                 {% if session.role in ['hr', 'admin'] %}
-                <div class="row g-3">
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 24px; margin-bottom: 24px;">
                     <!-- Total Team -->
-                    <div class="col-sm-6 col-md-3">
-                        <a href="{{ url_for('employees.employee_list') }}" class="text-decoration-none">
-                            <div class="glass-card p-3 h-100 hover-card">
-                                <div class="d-flex justify-content-between align-items-start mb-2">
-                                    <span class="kpi-label">{{ labels.TOTAL_EMPLOYEES }}</span>
-                                    <span class="status-dot bg-dark"></span>
-                                </div>
-                                <div class="d-flex align-items-baseline">
-                                    <p class="kpi-value mb-0">{{ stats.employees }}</p>
-                                    <span class="kpi-subtext">Active</span>
-                                </div>
+                    <a href="{{ url_for('employees.employee_list') }}" class="text-decoration-none">
+                        <div class="glass-card p-3 h-100 hover-card kpi-card">
+                            <div class="kpi-top">
+                                <span class="kpi-label-new">{{ labels.TOTAL_EMPLOYEES }}</span>
+                                <span class="kpi-status-dot kpi-dot-blue" aria-hidden="true"></span>
                             </div>
-                        </a>
-                    </div>
+                            <div class="kpi-value-row">
+                                <p class="kpi-value-new mb-0">{{ stats.employees }}</p>
+                                <span class="kpi-status-text">Active</span>
+                            </div>
+                        </div>
+                    </a>
                     <!-- Timesheets -->
-                    <div class="col-sm-6 col-md-3">
-                        <a href="{{ url_for('work.timesheets_list') }}" class="text-decoration-none">
-                            <div class="glass-card p-3 h-100 hover-card">
-                                <div class="d-flex justify-content-between align-items-start mb-2">
-                                    <span class="kpi-label">Timesheets</span>
-                                    <span class="status-dot" style="background-color: #cbd5e1;"></span>
-                                </div>
-                                <div class="d-flex align-items-baseline">
-                                    <p class="kpi-value mb-0">{{ stats.timesheets }}</p>
-                                    <span class="kpi-subtext">Pending</span>
-                                </div>
+                    <a href="{{ url_for('work.timesheets_list') }}" class="text-decoration-none">
+                        <div class="glass-card p-3 h-100 hover-card kpi-card">
+                            <div class="kpi-top">
+                                <span class="kpi-label-new">Timesheets</span>
+                                <span class="kpi-status-dot kpi-dot-indigo" aria-hidden="true"></span>
                             </div>
-                        </a>
-                    </div>
+                            <div class="kpi-value-row">
+                                <p class="kpi-value-new mb-0">{{ stats.timesheets }}</p>
+                                <span class="kpi-status-text">Pending</span>
+                            </div>
+                        </div>
+                    </a>
                     <!-- Leaves -->
-                    <div class="col-sm-6 col-md-3">
-                        <a href="{{ url_for('work.leaves_list') }}" class="text-decoration-none">
-                            <div class="glass-card p-3 h-100 hover-card">
-                                <div class="d-flex justify-content-between align-items-start mb-2">
-                                    <span class="kpi-label">Leaves</span>
-                                    <span class="status-dot" style="background-color: #cbd5e1;"></span>
-                                </div>
-                                <div class="d-flex align-items-baseline">
-                                    <p class="kpi-value mb-0">{{ stats.leaves }}</p>
-                                    <span class="kpi-subtext">Awaiting</span>
-                                </div>
+                    <a href="{{ url_for('work.leaves_list') }}" class="text-decoration-none">
+                        <div class="glass-card p-3 h-100 hover-card kpi-card">
+                            <div class="kpi-top">
+                                <span class="kpi-label-new">Leaves</span>
+                                <span class="kpi-status-dot kpi-dot-violet" aria-hidden="true"></span>
+                            </div>
+                            <div class="kpi-value-row">
+                                <p class="kpi-value-new mb-0">{{ stats.leaves }}</p>
+                                <span class="kpi-status-text">Awaiting</span>
+                            </div>
+                        </div>
+                    </a>
+                    <!-- Expenses -->
+                    <a href="{{ url_for('admin.reimbursement') }}" class="text-decoration-none">
+                        <div class="glass-card p-3 h-100 hover-card kpi-card">
+                            <div class="kpi-top">
+                                <span class="kpi-label-new">Expenses</span>
+                                <span class="kpi-status-dot kpi-dot-rose" aria-hidden="true"></span>
+                            </div>
+                            <div class="kpi-value-row">
+                                <p class="kpi-value-new mb-0">{{ reimbursement_stats.pending_approval.count if reimbursement_stats and reimbursement_stats.pending_approval else 0 }}</p>
+                                <span class="kpi-status-text">Action Required</span>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+
+                <!-- RENTAL INVOICES OVERVIEW (Admin & HR only) -->
+                <style>
+                    .rio-section { margin-bottom: 28px; }
+                    .rio-header {
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: center;
+                        margin-bottom: 20px;
+                    }
+                    .rio-header-title {
+                        display: flex;
+                        align-items: center;
+                        gap: 12px;
+                        font-size: 1.25rem;
+                        font-weight: 700;
+                        color: #0f172a;
+                    }
+                    .rio-header-title .rio-icon {
+                        width: 36px;
+                        height: 36px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        background: #eff6ff;
+                        color: #3b82f6;
+                        border-radius: 10px;
+                        font-size: 1.1rem;
+                    }
+                    .rio-manage-btn {
+                        border: 1.5px solid #3b82f6;
+                        color: #3b82f6;
+                        background: transparent;
+                        border-radius: 20px;
+                        padding: 7px 20px;
+                        font-size: 0.82rem;
+                        font-weight: 600;
+                        text-decoration: none;
+                        display: inline-flex;
+                        align-items: center;
+                        gap: 6px;
+                        transition: all 0.2s ease;
+                    }
+                    .rio-manage-btn:hover {
+                        background: #3b82f6;
+                        color: #fff;
+                    }
+
+                    /* Stat Cards Container */
+                    .rio-stats-grid {
+                        display: grid;
+                        grid-template-columns: repeat(4, 1fr);
+                        gap: 0;
+                        background: #fff;
+                        border: 1px solid #e8ecf4;
+                        border-radius: 16px;
+                        overflow: hidden;
+                        box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+                        margin-bottom: 24px;
+                    }
+                    .rio-stat-card {
+                        padding: 24px 20px;
+                        display: flex;
+                        align-items: flex-start;
+                        gap: 14px;
+                        border-right: 1px solid #f1f5f9;
+                        transition: background 0.15s ease;
+                        text-decoration: none;
+                        color: inherit;
+                    }
+                    .rio-stat-card:last-child { border-right: none; }
+                    .rio-stat-card:hover { background: #f8fafc; }
+                    .rio-stat-icon {
+                        width: 44px;
+                        height: 44px;
+                        border-radius: 50%;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        font-size: 1.15rem;
+                        flex-shrink: 0;
+                    }
+                    .rio-stat-icon.upcoming { background: #eff6ff; color: #3b82f6; }
+                    .rio-stat-icon.overdue { background: #fef2f2; color: #ef4444; }
+                    .rio-stat-icon.monthly { background: #eff6ff; color: #1e40af; }
+                    .rio-stat-icon.pending { background: #f0fdf4; color: #16a34a; }
+                    .rio-stat-body { display: flex; flex-direction: column; min-width: 0; }
+                    .rio-stat-label {
+                        font-size: 0.72rem;
+                        font-weight: 600;
+                        color: #64748b;
+                        text-transform: uppercase;
+                        letter-spacing: 0.04em;
+                        margin-bottom: 4px;
+                        white-space: nowrap;
+                    }
+                    .rio-stat-value {
+                        font-size: 1.75rem;
+                        font-weight: 700;
+                        color: #0f172a;
+                        line-height: 1.15;
+                    }
+                    .rio-stat-value.overdue-val { color: #ef4444; }
+                    .rio-stat-sub {
+                        font-size: 0.72rem;
+                        color: #64748b;
+                        margin-top: 2px;
+                        font-weight: 500;
+                    }
+                    .rio-stat-sub.overdue-sub { color: #ef4444; font-weight: 600; }
+
+                    /* Payment List Cards */
+                    .rio-lists-grid {
+                        display: grid;
+                        grid-template-columns: 1fr 1fr;
+                        gap: 24px;
+                        margin-bottom: 24px;
+                    }
+                    .rio-list-card {
+                        background: #fff;
+                        border: 1px solid #e8ecf4;
+                        border-radius: 16px;
+                        box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+                        display: flex;
+                        flex-direction: column;
+                        overflow: hidden;
+                    }
+                    .rio-list-header {
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: center;
+                        padding: 18px 20px 14px;
+                    }
+                    .rio-list-title {
+                        display: flex;
+                        align-items: center;
+                        gap: 10px;
+                        font-size: 0.92rem;
+                        font-weight: 700;
+                        color: #0f172a;
+                    }
+                    .rio-list-title .rio-list-icon {
+                        width: 28px;
+                        height: 28px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        border-radius: 6px;
+                        font-size: 0.85rem;
+                    }
+                    .rio-list-title .rio-list-icon.overdue-icon { background: #fef2f2; color: #ef4444; }
+                    .rio-list-title .rio-list-icon.upcoming-icon { background: #fff7ed; color: #f59e0b; }
+                    .rio-list-count {
+                        background: #eff6ff;
+                        color: #2563eb;
+                        font-size: 0.72rem;
+                        font-weight: 700;
+                        border-radius: 12px;
+                        padding: 3px 10px;
+                        min-width: 28px;
+                        text-align: center;
+                    }
+                    .rio-list-body {
+                        flex: 1;
+                        padding: 0 20px;
+                        max-height: 220px;
+                        overflow-y: auto;
+                        scrollbar-width: thin;
+                        scrollbar-color: #e2e8f0 transparent;
+                    }
+                    .rio-list-item {
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: center;
+                        padding: 14px 0;
+                        border-bottom: 1px solid #f1f5f9;
+                        text-decoration: none;
+                        color: inherit;
+                        transition: background 0.12s ease;
+                    }
+                    .rio-list-item:last-child { border-bottom: none; }
+                    .rio-list-item:hover { opacity: 0.85; }
+                    .rio-item-name {
+                        font-size: 0.88rem;
+                        font-weight: 600;
+                        color: #0f172a;
+                        margin-bottom: 2px;
+                    }
+                    .rio-item-meta {
+                        font-size: 0.75rem;
+                        color: #94a3b8;
+                        font-weight: 400;
+                    }
+                    .rio-item-amount {
+                        font-size: 0.82rem;
+                        font-weight: 700;
+                        color: #ef4444;
+                        white-space: nowrap;
+                    }
+                    .rio-list-footer {
+                        padding: 12px 20px;
+                        text-align: right;
+                        border-top: 1px solid #f1f5f9;
+                    }
+                    .rio-see-all {
+                        color: #3b82f6;
+                        font-weight: 600;
+                        font-size: 0.82rem;
+                        text-decoration: none;
+                        display: inline-flex;
+                        align-items: center;
+                        gap: 4px;
+                        transition: color 0.15s ease;
+                    }
+                    .rio-see-all:hover { color: #1d4ed8; }
+
+                    @media (max-width: 991px) {
+                        .rio-stats-grid { grid-template-columns: repeat(2, 1fr); }
+                        .rio-stat-card:nth-child(2) { border-right: none; }
+                        .rio-stat-card:nth-child(1),
+                        .rio-stat-card:nth-child(2) { border-bottom: 1px solid #f1f5f9; }
+                        .rio-lists-grid { grid-template-columns: 1fr; }
+                    }
+                    @media (max-width: 575px) {
+                        .rio-stats-grid { grid-template-columns: 1fr; }
+                        .rio-stat-card { border-right: none; border-bottom: 1px solid #f1f5f9; }
+                        .rio-stat-card:last-child { border-bottom: none; }
+                    }
+                </style>
+
+                <div class="rio-section animate__animated animate__fadeIn">
+                    <!-- Header -->
+                    <div class="rio-header">
+                        <div class="rio-header-title">
+                            <span class="rio-icon"><i class="bi bi-receipt-cutoff"></i></span>
+                            Rental Invoices Overview
+                        </div>
+                        <a href="/assets?tab=rentals" class="rio-manage-btn">
+                            Manage Rentals <i class="bi bi-arrow-right"></i>
+                        </a>
+                    </div>
+
+                    <!-- Stats Row -->
+                    <div class="rio-stats-grid" id="rentalInvoiceWidgetGrid">
+                        <a href="/assets?tab=rentals&filter=upcoming_rentals" class="rio-stat-card">
+                            <div class="rio-stat-icon upcoming">
+                                <i class="bi bi-calendar-event"></i>
+                            </div>
+                            <div class="rio-stat-body">
+                                <span class="rio-stat-label">Upcoming Payments</span>
+                                <span class="rio-stat-value" id="widgetUpcomingCount">0</span>
+                                <span class="rio-stat-sub">Due in 7 days</span>
+                            </div>
+                        </a>
+                        <a href="/assets?tab=rentals" class="rio-stat-card" id="widgetOverdueCard">
+                            <div class="rio-stat-icon overdue">
+                                <i class="bi bi-exclamation-triangle-fill"></i>
+                            </div>
+                            <div class="rio-stat-body">
+                                <span class="rio-stat-label">Overdue Payments</span>
+                                <span class="rio-stat-value overdue-val" id="widgetOverdueCount">0</span>
+                                <span class="rio-stat-sub overdue-sub">Action Required</span>
+                            </div>
+                        </a>
+                        <a href="/assets?tab=rentals" class="rio-stat-card">
+                            <div class="rio-stat-icon monthly">
+                                <i class="bi bi-file-earmark-text"></i>
+                            </div>
+                            <div class="rio-stat-body">
+                                <span class="rio-stat-label">Total Monthly Rental Cost</span>
+                                <span class="rio-stat-value" id="widgetMonthlyCost">₹0</span>
+                                <span class="rio-stat-sub">Active Contracts</span>
+                            </div>
+                        </a>
+                        <a href="/assets?tab=rentals" class="rio-stat-card">
+                            <div class="rio-stat-icon pending">
+                                <i class="bi bi-clipboard-data"></i>
+                            </div>
+                            <div class="rio-stat-body">
+                                <span class="rio-stat-label">Pending Invoice Amount</span>
+                                <span class="rio-stat-value" id="widgetPendingAmount">₹0</span>
+                                <span class="rio-stat-sub">To Be Settled</span>
                             </div>
                         </a>
                     </div>
-                    <!-- Expenses -->
-                    <div class="col-sm-6 col-md-3">
-                        <a href="{{ url_for('admin.reimbursement') }}" class="text-decoration-none">
-                            <div class="glass-card p-3 h-100 hover-card">
-                                <div class="d-flex justify-content-between align-items-start mb-2">
-                                    <span class="kpi-label">Expenses</span>
-                                    <span class="status-dot bg-danger"></span>
+
+                    <!-- Payment Lists -->
+                    <div class="rio-lists-grid" id="rentalListsRow">
+                        <!-- Overdue Payments Card -->
+                        <div class="rio-list-card">
+                            <div class="rio-list-header">
+                                <div class="rio-list-title">
+                                    <span class="rio-list-icon overdue-icon"><i class="bi bi-exclamation-triangle-fill"></i></span>
+                                    Overdue Payments
                                 </div>
-                                <div class="d-flex align-items-baseline">
-                                    <p class="kpi-value mb-0">{{ reimbursement_stats.pending_approval.count if reimbursement_stats and reimbursement_stats.pending_approval else 0 }}</p>
-                                    <span class="kpi-subtext">Action Required</span>
-                                </div>
+                                <span class="rio-list-count" id="widgetOverdueListBadge">0</span>
                             </div>
-                        </a>
+                            <div class="rio-list-body" id="widgetOverdueList">
+                                <div class="text-muted text-center py-4" style="font-size: 0.85rem;">No overdue payments</div>
+                            </div>
+                            <div class="rio-list-footer">
+                                <a href="/assets?tab=rentals" class="rio-see-all">See all <i class="bi bi-arrow-right"></i></a>
+                            </div>
+                        </div>
+
+                        <!-- Upcoming Payments Card -->
+                        <div class="rio-list-card">
+                            <div class="rio-list-header">
+                                <div class="rio-list-title">
+                                    <span class="rio-list-icon upcoming-icon"><i class="bi bi-clock-history"></i></span>
+                                    Upcoming Payments
+                                </div>
+                                <span class="rio-list-count" id="widgetUpcomingListBadge">0</span>
+                            </div>
+                            <div class="rio-list-body" id="widgetUpcomingList">
+                                <div class="text-muted text-center py-4" style="font-size: 0.85rem;">No upcoming payments</div>
+                            </div>
+                            <div class="rio-list-footer">
+                                <a href="/assets?tab=rentals&filter=upcoming_rentals" class="rio-see-all">See all <i class="bi bi-arrow-right"></i></a>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 {% elif session.role == 'employee' %}
-                <div class="row g-3">
-                    <div class="col-md-6">
-                        <div class="glass-card h-100 p-3 d-flex flex-column hover-card">
-                            <div class="d-flex justify-content-between align-items-start mb-4">
-                                <h6 class="fw-bold mb-0 text-dark"><i class="bi bi-clock-history text-warning me-2 fs-5"></i>Pending Timesheets</h6>
-                                <i class="bi bi-clock text-muted"></i>
-                            </div>
-                            <div class="flex-grow-1 d-flex flex-column justify-content-center align-items-center text-center">
-                                {% if pending_timesheets_count and pending_timesheets_count|int > 0 %}
-                                <p class="text-dark fw-bold mb-1" style="font-size: 0.9rem;">You have {{ pending_timesheets_count }} pending timesheets.</p>
-                                <p class="text-muted small mb-4">Please submit them as soon as possible.</p>
-                                {% else %}
-                                <p class="text-muted small mb-1">No pending timesheets to submit.</p>
-                                <p class="text-muted small mb-4">You're all caught up!</p>
-                                {% endif %}
-                                <a href="{{ url_for('work.add_timesheet') }}" class="btn btn-primary rounded-pill px-4 py-2 w-100 mt-auto shadow-sm text-white fw-semibold">
-                                    <i class="bi bi-plus"></i> Add New Timesheet
-                                </a>
-                            </div>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; margin-bottom: 24px;">
+                    <div class="glass-card h-100 p-3 d-flex flex-column hover-card">
+                        <div class="d-flex justify-content-between align-items-start mb-4">
+                            <h6 class="fw-bold mb-0 text-dark"><i class="bi bi-clock-history text-warning me-2 fs-5"></i>Pending Timesheets</h6>
+                            <i class="bi bi-clock text-muted"></i>
+                        </div>
+                        <div class="flex-grow-1 d-flex flex-column justify-content-center align-items-center text-center">
+                            {% if pending_timesheets_count and pending_timesheets_count|int > 0 %}
+                            <p class="text-dark fw-bold mb-1" style="font-size: 0.9rem;">You have {{ pending_timesheets_count }} pending timesheets.</p>
+                            <p class="text-muted small mb-4">Please submit them as soon as possible.</p>
+                            {% else %}
+                            <p class="text-muted small mb-1">No pending timesheets to submit.</p>
+                            <p class="text-muted small mb-4">You're all caught up!</p>
+                            {% endif %}
+                            <a href="{{ url_for('work.add_timesheet') }}" class="btn btn-primary rounded-pill px-4 py-2 w-100 mt-auto shadow-sm text-white fw-semibold">
+                                <i class="bi bi-plus"></i> Add New Timesheet
+                            </a>
                         </div>
                     </div>
-                    <div class="col-md-6">
-                        <div class="glass-card h-100 p-3 hover-card">
-                            <div class="d-flex justify-content-between align-items-center mb-3">
-                                <h6 class="mb-0 fw-bold text-dark"><i class="bi bi-folder2-open me-2 text-primary"></i>My Projects</h6>
-                                <div class="d-flex align-items-center gap-2">
-                                    <span class="badge bg-primary bg-opacity-25 text-primary rounded-pill px-3">{{ my_projects|length }} Active</span>
-                                    <a href="{{ url_for('projects.projects_list') }}" class="btn btn-sm btn-outline-primary rounded-pill px-3 py-1" style="font-size: 0.75rem;">View All <i class="bi bi-arrow-right small ms-1"></i></a>
-                                </div>
+                    <div class="glass-card h-100 p-3 hover-card">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h6 class="mb-0 fw-bold text-dark"><i class="bi bi-folder2-open me-2 text-primary"></i>My Projects</h6>
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="badge bg-primary bg-opacity-25 text-primary rounded-pill px-3">{{ my_projects|length }} Active</span>
+                                <a href="{{ url_for('projects.projects_list') }}" class="btn btn-sm btn-outline-primary rounded-pill px-3 py-1" style="font-size: 0.75rem;">View All <i class="bi bi-arrow-right small ms-1"></i></a>
                             </div>
-                            {% if my_projects %}
-                            <div class="no-scrollbar" style="max-height: 120px; overflow-y: auto;">
-                                <div class="list-group list-group-flush">
-                                    {% for proj in my_projects %}
-                                    <div class="list-group-item px-2 py-2 bg-transparent border-bottom hover-row-bg d-flex justify-content-between align-items-center">
-                                        <div class="fw-semibold text-dark"><i class="bi bi-folder-fill text-primary me-2"></i>{{ proj.name }}</div>
-                                        <div>
-                                            <span class="badge bg-success bg-opacity-25 text-success rounded-pill px-2 me-1">Active</span>
-                                            <button class="btn btn-sm text-primary py-0 px-1 btn-view-project" data-id="{{ proj.id }}"><i class="bi bi-eye"></i></button>
-                                        </div>
-                                    </div>
-                                    {% endfor %}
-                                </div>
-                            </div>
-                            {% else %}
-                            <div class="text-center py-4 text-muted"><i class="bi bi-folder-x fs-2 d-block mb-2"></i><p class="mb-0 small">No active projects yet.</p></div>
-                            {% endif %}
                         </div>
+                        {% if my_projects %}
+                        <div class="no-scrollbar" style="max-height: 120px; overflow-y: auto;">
+                            <div class="list-group list-group-flush">
+                                {% for proj in my_projects %}
+                                <div class="list-group-item px-2 py-2 bg-transparent border-bottom hover-row-bg d-flex justify-content-between align-items-center">
+                                    <div class="fw-semibold text-dark"><i class="bi bi-folder-fill text-primary me-2"></i>{{ proj.name }}</div>
+                                    <div>
+                                        <span class="badge bg-success bg-opacity-25 text-success rounded-pill px-2 me-1">Active</span>
+                                        <button class="btn btn-sm text-primary py-0 px-1 btn-view-project" data-id="{{ proj.id }}"><i class="bi bi-eye"></i></button>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% else %}
+                        <div class="text-center py-4 text-muted"><i class="bi bi-folder-x fs-2 d-block mb-2"></i><p class="mb-0 small">No active projects yet.</p></div>
+                        {% endif %}
                     </div>
                 </div>
                 {% elif session.role == 'manager' %}
-                <div class="row g-3">
-                    <div class="col-xl-4 col-md-6">
-                        <div class="glass-card p-3 mb-3 h-100 hover-card">
-                            <div class="d-flex justify-content-between align-items-center mb-3">
-                                <h6 class="mb-0 fw-bold text-dark">Active Projects</h6>
-                                <span class="badge bg-primary bg-opacity-25 text-primary rounded-pill px-2">{{ projects|length if projects else 0 }}</span>
-                            </div>
-                            <div class="no-scrollbar" style="max-height:120px; overflow-y:auto; overflow-x:hidden; font-size: 0.75rem;">
-                                {% if projects %}
-                                <div class="list-group list-group-flush">
-                                    {% for project in projects %}
-                                    <div class="list-group-item px-2 py-2 bg-transparent border-bottom hover-row-bg d-flex justify-content-between align-items-center">
-                                        <div class="fw-semibold text-dark">{{ project.name }}</div>
-                                        <button class="btn btn-sm text-primary py-0 px-1 btn-view-project" data-id="{{ project.id }}"><i class="bi bi-eye"></i></button>
-                                    </div>
-                                    {% endfor %}
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 24px; margin-bottom: 24px;">
+                    <div class="glass-card p-3 h-100 hover-card">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h6 class="mb-0 fw-bold text-dark">Active Projects</h6>
+                            <span class="badge bg-primary bg-opacity-25 text-primary rounded-pill px-2">{{ projects|length if projects else 0 }}</span>
+                        </div>
+                        <div class="no-scrollbar" style="max-height:120px; overflow-y:auto; overflow-x:hidden; font-size: 0.75rem;">
+                            {% if projects %}
+                            <div class="list-group list-group-flush">
+                                {% for project in projects %}
+                                <div class="list-group-item px-2 py-2 bg-transparent border-bottom hover-row-bg d-flex justify-content-between align-items-center">
+                                    <div class="fw-semibold text-dark">{{ project.name }}</div>
+                                    <button class="btn btn-sm text-primary py-0 px-1 btn-view-project" data-id="{{ project.id }}"><i class="bi bi-eye"></i></button>
                                 </div>
-                                {% else %}
-                                <div class="text-muted text-center py-4"><i class="bi bi-folder-x fs-3 d-block mb-2"></i>No active projects</div>
-                                {% endif %}
+                                {% endfor %}
                             </div>
+                            {% else %}
+                            <div class="text-muted text-center py-4"><i class="bi bi-folder-x fs-3 d-block mb-2"></i>No active projects</div>
+                            {% endif %}
                         </div>
                     </div>
-                    <div class="col-xl-4 col-md-6">
-                        <div class="glass-card p-3 mb-3 h-100 hover-card">
+                    <div class="glass-card p-3 h-100 hover-card">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h6 class="mb-0 fw-bold text-dark">{{ labels.TEAM_PENDING_TIMESHEETS }}</h6>
+                            <span class="badge bg-warning bg-opacity-25 text-warning rounded-pill px-2">{{ team_pending_timesheets|length }}</span>
+                        </div>
+                        <div class="no-scrollbar" style="max-height: 120px; overflow-y: auto; font-size: 0.75rem;">
+                            {% if team_pending_timesheets %}
+                            <div class="list-group list-group-flush">
+                                {% for t in team_pending_timesheets %}
+                                <div class="list-group-item px-2 py-2 bg-transparent border-bottom hover-row-bg d-flex justify-content-between align-items-center">
+                                    <div class="fw-semibold text-dark">{{ t.employee_name }}</div>
+                                    <div class="text-muted">{{ t.start_date[:10] }}</div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            {% else %}
+                            <div class="text-center py-4 text-muted"><i class="bi bi-check-all fs-3 d-block mb-2 text-success"></i>All team timesheets submitted</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <a href="{{ url_for('work.leaves_list') }}" class="text-decoration-none">
+                        <div class="glass-card p-3 h-100 hover-card">
                             <div class="d-flex justify-content-between align-items-center mb-3">
-                                <h6 class="mb-0 fw-bold text-dark">{{ labels.TEAM_PENDING_TIMESHEETS }}</h6>
-                                <span class="badge bg-warning bg-opacity-25 text-warning rounded-pill px-2">{{ team_pending_timesheets|length }}</span>
+                                <h6 class="mb-0 fw-bold text-dark">{{ labels.TEAM_LEAVES }}</h6>
+                                <span class="badge bg-info bg-opacity-25 text-info rounded-pill px-2">{{ team_leaves|length }}</span>
                             </div>
                             <div class="no-scrollbar" style="max-height: 120px; overflow-y: auto; font-size: 0.75rem;">
-                                {% if team_pending_timesheets %}
+                                {% if team_leaves %}
                                 <div class="list-group list-group-flush">
-                                    {% for t in team_pending_timesheets %}
-                                    <div class="list-group-item px-2 py-2 bg-transparent border-bottom hover-row-bg d-flex justify-content-between align-items-center">
-                                        <div class="fw-semibold text-dark">{{ t.employee_name }}</div>
-                                        <div class="text-muted">{{ t.start_date[:10] }}</div>
+                                    {% for l in team_leaves %}
+                                    <div class="list-group-item px-2 py-2 bg-transparent border-bottom hover-row-bg">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <div>
+                                                <div class="fw-semibold text-dark">{{ l.employee_name }}</div>
+                                                <div class="text-muted small" style="font-size: 0.65rem;">{{ l.start_date[:10] }} <i class="bi bi-arrow-right mx-1"></i> {{ l.end_date[:10] }}</div>
+                                            </div>
+                                            <div>
+                                                {% if l.status|lower == 'pending' %}
+                                                <span class="badge bg-warning bg-opacity-25 text-warning rounded-pill" style="font-size: 0.6rem;">Pending</span>
+                                                {% elif l.status|lower == 'approved' %}
+                                                <span class="badge bg-success bg-opacity-25 text-success rounded-pill" style="font-size: 0.6rem;">Approved</span>
+                                                {% else %}
+                                                <span class="badge bg-secondary bg-opacity-25 text-secondary rounded-pill" style="font-size: 0.6rem;">{{ l.status }}</span>
+                                                {% endif %}
+                                            </div>
+                                        </div>
                                     </div>
                                     {% endfor %}
                                 </div>
                                 {% else %}
-                                <div class="text-center py-4 text-muted"><i class="bi bi-check-all fs-3 d-block mb-2 text-success"></i>All team timesheets submitted</div>
+                                <div class="text-center py-4 text-muted"><i class="bi bi-calendar-x fs-3 d-block mb-2"></i> No recent team leaves</div>
                                 {% endif %}
                             </div>
                         </div>
-                    </div>
-                    <div class="col-xl-4 col-md-12">
-                        <a href="{{ url_for('work.leaves_list') }}" class="text-decoration-none">
-                            <div class="glass-card p-3 mb-3 h-100 hover-card">
-                                <div class="d-flex justify-content-between align-items-center mb-3">
-                                    <h6 class="mb-0 fw-bold text-dark">{{ labels.TEAM_LEAVES }}</h6>
-                                    <span class="badge bg-info bg-opacity-25 text-info rounded-pill px-2">{{ team_leaves|length }}</span>
-                                </div>
-                                <div class="no-scrollbar" style="max-height: 120px; overflow-y: auto; font-size: 0.75rem;">
-                                    {% if team_leaves %}
-                                    <div class="list-group list-group-flush">
-                                        {% for l in team_leaves %}
-                                        <div class="list-group-item px-2 py-2 bg-transparent border-bottom hover-row-bg">
-                                            <div class="d-flex justify-content-between align-items-center">
-                                                <div>
-                                                    <div class="fw-semibold text-dark">{{ l.employee_name }}</div>
-                                                    <div class="text-muted small" style="font-size: 0.65rem;">{{ l.start_date[:10] }} <i class="bi bi-arrow-right mx-1"></i> {{ l.end_date[:10] }}</div>
-                                                </div>
-                                                <div>
-                                                    {% if l.status|lower == 'pending' %}
-                                                    <span class="badge bg-warning bg-opacity-25 text-warning rounded-pill" style="font-size: 0.6rem;">Pending</span>
-                                                    {% elif l.status|lower == 'approved' %}
-                                                    <span class="badge bg-success bg-opacity-25 text-success rounded-pill" style="font-size: 0.6rem;">Approved</span>
-                                                    {% else %}
-                                                    <span class="badge bg-secondary bg-opacity-25 text-secondary rounded-pill" style="font-size: 0.6rem;">{{ l.status }}</span>
-                                                    {% endif %}
-                                                </div>
-                                            </div>
-                                        </div>
-                                        {% endfor %}
-                                    </div>
-                                    {% else %}
-                                    <div class="text-center py-4 text-muted"><i class="bi bi-calendar-x fs-3 d-block mb-2"></i> No recent team leaves</div>
-                                    {% endif %}
-                                </div>
-                            </div>
-                        </a>
-                    </div>
+                    </a>
                 </div>
                 {% endif %}
 
                 <!-- HELP DESK & REIMBURSEMENT TABS -->
                 {% if session.role in ['hr', 'admin'] %}
-                <div class="glass-card overflow-hidden">
-                    <div class="border-bottom px-3 pt-3 bg-light bg-opacity-50">
-                        <ul class="nav nav-tabs nav-tabs-custom border-0" id="dashboardTabs" role="tablist">
-                            <li class="nav-item" role="presentation">
-                                <button class="nav-link active" id="helpdesk-tab" data-bs-toggle="tab" data-bs-target="#helpdesk-pane" type="button" role="tab">Help Desk</button>
-                            </li>
-                            <li class="nav-item" role="presentation">
-                                <button class="nav-link" id="reimbursement-tab" data-bs-toggle="tab" data-bs-target="#reimbursement-pane" type="button" role="tab">Reimbursements</button>
-                            </li>
-                        </ul>
-                    </div>
-                    <div class="tab-content p-4" id="dashboardTabsContent">
+                <style>
+                    .hd-dashboard-card {
+                        background: #FFFFFF;
+                        border: 1px solid #E8ECF4;
+                        border-radius: 16px;
+                        box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.04);
+                        padding: 0;
+                        overflow: hidden;
+                    }
+                    .hd-nav-tabs {
+                        border-bottom: 1px solid #E8ECF4;
+                        padding: 12px 24px 0 24px;
+                        background: #FAFAFC;
+                        display: flex;
+                        gap: 24px;
+                    }
+                    .hd-nav-tabs .nav-link {
+                        border: none;
+                        background: transparent;
+                        color: #64748B;
+                        font-weight: 600;
+                        font-size: 0.9rem;
+                        padding: 10px 4px 14px 4px;
+                        position: relative;
+                        transition: color 0.2s ease;
+                    }
+                    .hd-nav-tabs .nav-link:hover {
+                        color: #6C63FF;
+                    }
+                    .hd-nav-tabs .nav-link.active {
+                        color: #6C63FF;
+                        background: transparent;
+                    }
+                    .hd-nav-tabs .nav-link.active::after {
+                        content: '';
+                        position: absolute;
+                        bottom: -1px;
+                        left: 0;
+                        right: 0;
+                        height: 2px;
+                        background-color: #6C63FF;
+                        border-radius: 2px;
+                    }
+                    .hd-stat-box {
+                        background: #FFFFFF;
+                        border: 1px solid #E8ECF4;
+                        border-radius: 14px;
+                        padding: 18px 20px;
+                        transition: all 0.2s ease;
+                        height: 100%;
+                        cursor: pointer;
+                    }
+                    .hd-stat-box:hover {
+                        border-color: rgba(108, 99, 255, 0.3);
+                        box-shadow: 0 6px 16px rgba(15, 23, 42, 0.05);
+                    }
+                    .hd-icon-circle {
+                        width: 36px;
+                        height: 36px;
+                        border-radius: 50%;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        font-size: 0.9rem;
+                    }
+                    .btn-view-all {
+                        border: 1px solid #6C63FF;
+                        color: #6C63FF;
+                        border-radius: 20px;
+                        padding: 6px 18px;
+                        font-size: 0.82rem;
+                        font-weight: 600;
+                        transition: all 0.2s ease;
+                        text-decoration: none;
+                        display: inline-flex;
+                        align-items: center;
+                        gap: 6px;
+                    }
+                    .btn-view-all:hover {
+                        background: #6C63FF;
+                        color: #FFFFFF;
+                    }
+                    .hd-summary-banner {
+                        background: #F8FAFC;
+                        border-top: 1px solid #E8ECF4;
+                        padding: 16px 24px;
+                    }
+                </style>
+
+                <div class="hd-dashboard-card mb-4">
+                    <!-- Tab Header -->
+                    <ul class="nav hd-nav-tabs" id="dashboardTabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="helpdesk-tab" data-bs-toggle="tab" data-bs-target="#helpdesk-pane" type="button" role="tab">Help Desk</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="reimbursement-tab" data-bs-toggle="tab" data-bs-target="#reimbursement-pane" type="button" role="tab">Reimbursements</button>
+                        </li>
+                    </ul>
+
+                    <div class="tab-content" id="dashboardTabsContent">
+                        
                         <!-- Help Desk Tab -->
                         <div class="tab-pane fade show active" id="helpdesk-pane" role="tabpanel">
-                            <div class="d-flex justify-content-between align-items-center mb-4">
-                                <h6 class="mb-0 fw-bold text-dark">Help Desk Tickets</h6>
-                                <a href="{{ url_for('admin.helpdesk') }}" class="btn btn-sm btn-outline-primary rounded-pill px-3 py-1">View All <i class="bi bi-arrow-right ms-1"></i></a>
-                            </div>
+                            {% set hd_open = hd_stats.by_status.get('open', 0) if hd_stats and hd_stats.by_status else 0 %}
+                            {% set hd_progress = hd_stats.by_status.get('in_progress', 0) if hd_stats and hd_stats.by_status else 0 %}
+                            {% set hd_closed = hd_stats.by_status.get('closed', 0) if hd_stats and hd_stats.by_status else 0 %}
+                            {% set hd_total = hd_open + hd_progress + hd_closed %}
                             
-                            <div class="mb-4">
-                                <div class="d-flex justify-content-between align-items-end mb-1">
-                                    <span class="fw-semibold text-dark">Open</span>
-                                    <span class="fs-5 fw-bold text-danger">{{ hd_stats.by_status.get('open', 0) if hd_stats.by_status else 0 }}</span>
+                            {% set pct_open = ((hd_open / hd_total * 100)|round|int) if hd_total > 0 else 0 %}
+                            {% set pct_progress = ((hd_progress / hd_total * 100)|round|int) if hd_total > 0 else 0 %}
+                            {% set pct_closed = ((hd_closed / hd_total * 100)|round|int) if hd_total > 0 else 0 %}
+
+                            <div class="p-4">
+                                <div class="d-flex justify-content-between align-items-center mb-4">
+                                    <div>
+                                        <h5 class="fw-bold text-slate-900 mb-0" style="font-size: 1.1rem;">Help Desk Tickets</h5>
+                                        <small class="text-muted">Overview of ticket status</small>
+                                    </div>
+                                    <a href="{{ url_for('admin.helpdesk') }}" class="btn-view-all">
+                                        View All <i class="bi bi-arrow-right"></i>
+                                    </a>
                                 </div>
-                                <div class="progress" style="height: 4px;">
-                                    <div class="progress-bar bg-danger" style="width: 100%"></div>
+
+                                                                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 24px; margin-bottom: 24px;">
+                                    <!-- Open Card -->
+                                    <a href="/admin/helpdesk?status=open" class="text-decoration-none">
+                                        <div class="hd-stat-box">
+                                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                                <div class="d-flex align-items-center gap-2">
+                                                    <span class="rounded-circle d-inline-block" style="width:10px; height:10px; background-color:#10B981;"></span>
+                                                    <span class="fw-semibold text-slate-800" style="font-size: 0.9rem;">Open</span>
+                                                </div>
+                                                <div class="hd-icon-circle" style="background:#EBFDF5; color:#10B981;">
+                                                    <i class="bi bi-inbox"></i>
+                                                </div>
+                                            </div>
+                                            <div class="fw-bold text-slate-900" style="font-size: 1.8rem; line-height: 1;">{{ hd_open }}</div>
+                                            <div class="text-muted mt-2" style="font-size: 0.78rem;">{{ pct_open }}% of total</div>
+                                        </div>
+                                    </a>
+
+                                    <!-- In Progress Card -->
+                                    <a href="/admin/helpdesk?status=in_progress" class="text-decoration-none">
+                                        <div class="hd-stat-box">
+                                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                                <div class="d-flex align-items-center gap-2">
+                                                    <span class="rounded-circle d-inline-block" style="width:10px; height:10px; background-color:#6C63FF;"></span>
+                                                    <span class="fw-semibold text-slate-800" style="font-size: 0.9rem;">In Progress</span>
+                                                </div>
+                                                <div class="hd-icon-circle" style="background:#F3F1FF; color:#6C63FF;">
+                                                    <i class="bi bi-clock"></i>
+                                                </div>
+                                            </div>
+                                            <div class="fw-bold text-slate-900" style="font-size: 1.8rem; line-height: 1;">{{ hd_progress }}</div>
+                                            <div class="text-muted mt-2" style="font-size: 0.78rem;">{{ pct_progress }}% of total</div>
+                                        </div>
+                                    </a>
+
+                                    <!-- Closed Card -->
+                                    <a href="/admin/helpdesk?status=closed" class="text-decoration-none">
+                                        <div class="hd-stat-box">
+                                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                                <div class="d-flex align-items-center gap-2">
+                                                    <span class="rounded-circle d-inline-block" style="width:10px; height:10px; background-color:#FF5A5F;"></span>
+                                                    <span class="fw-semibold text-slate-800" style="font-size: 0.9rem;">Closed</span>
+                                                </div>
+                                                <div class="hd-icon-circle" style="background:#FFF0F0; color:#FF5A5F;">
+                                                    <i class="bi bi-check-circle"></i>
+                                                </div>
+                                            </div>
+                                            <div class="fw-bold text-slate-900" style="font-size: 1.8rem; line-height: 1;">{{ hd_closed }}</div>
+                                            <div class="text-muted mt-2" style="font-size: 0.78rem;">{{ pct_closed }}% of total</div>
+                                        </div>
+                                    </a>
                                 </div>
                             </div>
-                            <div class="mb-4">
-                                <div class="d-flex justify-content-between align-items-end mb-1">
-                                    <span class="fw-semibold text-dark">In Progress</span>
-                                    <span class="fs-5 fw-bold text-primary">{{ hd_stats.by_status.get('in_progress', 0) if hd_stats.by_status else 0 }}</span>
+
+                            <div class="hd-summary-banner d-flex align-items-center gap-3">
+                                <div class="hd-icon-circle" style="background:#F3F1FF; color:#6C63FF; width:42px; height:42px; font-size:1.1rem;">
+                                    <i class="bi bi-ticket-perforated"></i>
                                 </div>
-                                <div class="progress" style="height: 4px;">
-                                    <div class="progress-bar bg-primary" style="width: 100%"></div>
+                                <div class="me-4">
+                                    <div class="text-muted small fw-medium" style="font-size: 0.75rem; text-transform: uppercase;">Total Tickets</div>
+                                    <div class="fw-bold text-slate-900" style="font-size: 1.2rem; line-height: 1.1;">{{ hd_total }}</div>
                                 </div>
-                            </div>
-                            <div>
-                                <div class="d-flex justify-content-between align-items-end mb-1">
-                                    <span class="fw-semibold text-dark">Closed</span>
-                                    <span class="fs-5 fw-bold text-success">{{ hd_stats.by_status.get('closed', 0) if hd_stats.by_status else 0 }}</span>
-                                </div>
-                                <div class="progress" style="height: 4px;">
-                                    <div class="progress-bar bg-success" style="width: 100%"></div>
+                                <div class="border-start ps-4 text-muted small">
+                                    This includes all tickets raised across the organization.
                                 </div>
                             </div>
                         </div>
 
                         <!-- Reimbursement Tab -->
                         <div class="tab-pane fade" id="reimbursement-pane" role="tabpanel">
-                            <div class="d-flex justify-content-between align-items-center mb-4">
-                                <h6 class="mb-0 fw-bold text-dark">Reimbursement Requests</h6>
-                                <a href="{{ url_for('admin.reimbursement') }}" class="btn btn-sm btn-outline-primary rounded-pill px-3 py-1">View All <i class="bi bi-arrow-right ms-1"></i></a>
+                            {% set rm_pending = reimbursement_stats.pending_approval.count if reimbursement_stats and reimbursement_stats.pending_approval else 0 %}
+                            {% set rm_approved = reimbursement_stats.by_status.approved.count if reimbursement_stats and reimbursement_stats.by_status and reimbursement_stats.by_status.approved else 0 %}
+                            {% set rm_rejected = reimbursement_stats.by_status.rejected.count if reimbursement_stats and reimbursement_stats.by_status and reimbursement_stats.by_status.rejected else 0 %}
+                            {% set rm_total = rm_pending + rm_approved + rm_rejected %}
+                            
+                            {% set r_pct_pending = ((rm_pending / rm_total * 100)|round|int) if rm_total > 0 else 0 %}
+                            {% set r_pct_approved = ((rm_approved / rm_total * 100)|round|int) if rm_total > 0 else 0 %}
+                            {% set r_pct_rejected = ((rm_rejected / rm_total * 100)|round|int) if rm_total > 0 else 0 %}
+
+                            <div class="p-4">
+                                <div class="d-flex justify-content-between align-items-center mb-4">
+                                    <div>
+                                        <h5 class="fw-bold text-slate-900 mb-0" style="font-size: 1.1rem;">Reimbursement Requests</h5>
+                                        <small class="text-muted">Overview of reimbursement status</small>
+                                    </div>
+                                    <a href="{{ url_for('admin.reimbursement') }}" class="btn-view-all">
+                                        View All <i class="bi bi-arrow-right"></i>
+                                    </a>
+                                </div>
+
+                                <div class="row g-3 mb-2">
+                                    <!-- Pending Card -->
+                                    <div class="col-md-4">
+                                        <a href="{{ url_for('admin.reimbursement') }}?status=pending" class="text-decoration-none">
+                                            <div class="hd-stat-box">
+                                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                                    <div class="d-flex align-items-center gap-2">
+                                                        <span class="rounded-circle d-inline-block" style="width:10px; height:10px; background-color:#FF5A5F;"></span>
+                                                        <span class="fw-semibold text-slate-800" style="font-size: 0.9rem;">Pending</span>
+                                                    </div>
+                                                    <div class="hd-icon-circle" style="background:#FFF0F0; color:#FF5A5F;">
+                                                        <i class="bi bi-clock-history"></i>
+                                                    </div>
+                                                </div>
+                                                <div class="fw-bold text-slate-900" style="font-size: 1.8rem; line-height: 1;">{{ rm_pending }}</div>
+                                                <div class="text-muted mt-2" style="font-size: 0.78rem;">{{ r_pct_pending }}% of total</div>
+                                            </div>
+                                        </a>
+                                    </div>
+
+                                    <!-- Approved Card -->
+                                    <div class="col-md-4">
+                                        <a href="{{ url_for('admin.reimbursement') }}?status=approved" class="text-decoration-none">
+                                            <div class="hd-stat-box">
+                                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                                    <div class="d-flex align-items-center gap-2">
+                                                        <span class="rounded-circle d-inline-block" style="width:10px; height:10px; background-color:#10B981;"></span>
+                                                        <span class="fw-semibold text-slate-800" style="font-size: 0.9rem;">Approved</span>
+                                                    </div>
+                                                    <div class="hd-icon-circle" style="background:#ECFDF5; color:#10B981;">
+                                                        <i class="bi bi-patch-check"></i>
+                                                    </div>
+                                                </div>
+                                                <div class="fw-bold text-slate-900" style="font-size: 1.8rem; line-height: 1;">{{ rm_approved }}</div>
+                                                <div class="text-muted mt-2" style="font-size: 0.78rem;">{{ r_pct_approved }}% of total</div>
+                                            </div>
+                                        </a>
+                                    </div>
+
+                                    <!-- Rejected Card -->
+                                    <div class="col-md-4">
+                                        <a href="{{ url_for('admin.reimbursement') }}?status=rejected" class="text-decoration-none">
+                                            <div class="hd-stat-box">
+                                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                                    <div class="d-flex align-items-center gap-2">
+                                                        <span class="rounded-circle d-inline-block" style="width:10px; height:10px; background-color:#64748B;"></span>
+                                                        <span class="fw-semibold text-slate-800" style="font-size: 0.9rem;">Rejected</span>
+                                                    </div>
+                                                    <div class="hd-icon-circle" style="background:#F1F5F9; color:#64748B;">
+                                                        <i class="bi bi-x-circle"></i>
+                                                    </div>
+                                                </div>
+                                                <div class="fw-bold text-slate-900" style="font-size: 1.8rem; line-height: 1;">{{ rm_rejected }}</div>
+                                                <div class="text-muted mt-2" style="font-size: 0.78rem;">{{ r_pct_rejected }}% of total</div>
+                                            </div>
+                                        </a>
+                                    </div>
+                                </div>
                             </div>
-                            <div class="mb-4">
-                                <div class="d-flex justify-content-between align-items-end mb-1">
-                                    <span class="fw-semibold text-dark">Pending</span>
-                                    <span class="fs-5 fw-bold text-danger">{{ reimbursement_stats.pending_approval.count if reimbursement_stats and reimbursement_stats.pending_approval else 0 }}</span>
+
+                            <!-- Summary Bottom Banner -->
+                            <div class="hd-summary-banner d-flex align-items-center gap-3">
+                                <div class="hd-icon-circle" style="background:#F3F1FF; color:#6C63FF; width:42px; height:42px; font-size:1.1rem;">
+                                    <i class="bi bi-receipt"></i>
                                 </div>
-                                <div class="progress" style="height: 4px;">
-                                    <div class="progress-bar bg-danger" style="width: 100%"></div>
+                                <div class="me-4">
+                                    <div class="text-muted small fw-medium" style="font-size: 0.75rem; text-transform: uppercase;">Total Requests</div>
+                                    <div class="fw-bold text-slate-900" style="font-size: 1.2rem; line-height: 1.1;">{{ rm_total }}</div>
                                 </div>
-                            </div>
-                            <div class="mb-4">
-                                <div class="d-flex justify-content-between align-items-end mb-1">
-                                    <span class="fw-semibold text-dark">Approved</span>
-                                    <span class="fs-5 fw-bold text-success">{{ reimbursement_stats.by_status.approved.count if reimbursement_stats and reimbursement_stats.by_status and reimbursement_stats.by_status.approved else 0 }}</span>
-                                </div>
-                                <div class="progress" style="height: 4px;">
-                                    <div class="progress-bar bg-success" style="width: 100%"></div>
-                                </div>
-                            </div>
-                            <div>
-                                <div class="d-flex justify-content-between align-items-end mb-1">
-                                    <span class="fw-semibold text-dark">Rejected</span>
-                                    <span class="fs-5 fw-bold text-secondary">{{ reimbursement_stats.by_status.rejected.count if reimbursement_stats and reimbursement_stats.by_status and reimbursement_stats.by_status.rejected else 0 }}</span>
-                                </div>
-                                <div class="progress" style="height: 4px;">
-                                    <div class="progress-bar bg-secondary" style="width: 100%"></div>
+                                <div class="border-start ps-4 text-muted small">
+                                    This includes all expense claims submitted for approval.
                                 </div>
                             </div>
                         </div>
+
                     </div>
                 </div>
                 {% endif %}
@@ -346,8 +866,8 @@
 
             </div>
 
-            <!-- SIDEBAR COLUMN (Right - 4 cols) -->
-            <div class="col-xl-4 col-lg-5 d-flex flex-column gap-4">
+            <!-- SIDEBAR COLUMN (Right) -->
+            <div class="d-flex flex-column" style="gap: 24px; min-width: 0;">
                 
                 <!-- QUICK MANAGEMENT -->
                 <div class="quick-mgmt-card shadow">
@@ -394,6 +914,12 @@
                             <!-- JS Populates this -->
                         </div>
                     </div>
+                </div>
+
+                <!-- QUOTE CARD -->
+                <div class="p-4 text-center" style="background-color: #f5f3ff; border-radius: 16px;">
+                    <p class="fst-italic text-dark mb-2" style="font-size: 0.9rem; font-family: 'Inter', sans-serif; font-weight: 500;">"Empowering the world's most dynamic teams."</p>
+                    <small class="text-uppercase fw-bold" style="font-size: 0.65rem; letter-spacing: 0.05em; color: #6366f1;">Powered by Altzor Core</small>
                 </div>
 
 <script>
@@ -532,6 +1058,149 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     renderTimeline();
+
+    // Fetch and populate rental invoice widgets for Admin and HR
+    {% if session.role in ['hr', 'admin'] %}
+    const token = {{ session.token | tojson }};
+    if (token) {
+        fetch('/api/rentals/invoices/dashboard-widgets', {
+            headers: {
+                'Authorization': 'Bearer ' + token,
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                document.getElementById('widgetUpcomingCount').textContent = data.upcoming_count;
+                document.getElementById('widgetOverdueCount').textContent = data.overdue_count;
+                document.getElementById('widgetMonthlyCost').textContent = '₹' + Number(data.total_monthly_cost).toLocaleString('en-IN', {maximumFractionDigits: 0});
+                document.getElementById('widgetPendingAmount').textContent = '₹' + Number(data.pending_amount).toLocaleString('en-IN', {maximumFractionDigits: 0});
+                
+                document.getElementById('widgetOverdueListBadge').textContent = data.overdue_count;
+                document.getElementById('widgetUpcomingListBadge').textContent = data.upcoming_count;
+
+                // Highlight Overdue Card if > 0
+                if (data.overdue_count > 0) {
+                    const overdueCard = document.getElementById('widgetOverdueCard');
+                    if (overdueCard) {
+                        overdueCard.style.setProperty('border-color', '#f87171', 'important');
+                        overdueCard.style.setProperty('background-color', '#fef2f2', 'important');
+                    }
+                }
+
+                // Populate Overdue List
+                const overdueContainer = document.getElementById('widgetOverdueList');
+                if (data.overdue_payments && data.overdue_payments.length > 0) {
+                    overdueContainer.innerHTML = data.overdue_payments.map(item => `
+                        <a href="/assets?tab=rentals" class="rio-list-item">
+                            <div>
+                                <div class="rio-item-name">${item.asset_name}</div>
+                                <div class="rio-item-meta">Vendor: ${item.vendor_name}  |  Due: ${item.due_date}</div>
+                            </div>
+                            <div class="rio-item-amount">₹${Number(item.total_amount).toLocaleString('en-IN')}</div>
+                        </a>
+                    `).join('');
+                } else {
+                    overdueContainer.innerHTML = '<div class="text-center py-4 text-muted" style="font-size: 0.85rem;"><i class="bi bi-check-circle text-success fs-4 d-block mb-1"></i>No overdue payments</div>';
+                }
+
+                // Populate Upcoming List
+                const upcomingContainer = document.getElementById('widgetUpcomingList');
+                if (data.upcoming_payments && data.upcoming_payments.length > 0) {
+                    upcomingContainer.innerHTML = data.upcoming_payments.map(item => `
+                        <a href="/assets?tab=rentals" class="rio-list-item">
+                            <div>
+                                <div class="rio-item-name">${item.asset_name}</div>
+                                <div class="rio-item-meta">Vendor: ${item.vendor_name}  |  Due: ${item.due_date}</div>
+                            </div>
+                            <div class="rio-item-amount">₹${Number(item.total_amount).toLocaleString('en-IN')}</div>
+                        </a>
+                    `).join('');
+                } else {
+                    upcomingContainer.innerHTML = '<div class="text-center py-4 text-muted" style="font-size: 0.85rem;"><i class="bi bi-check-circle text-success fs-4 d-block mb-1"></i>No upcoming payments</div>';
+                }
+
+                // Show popup on right below corner regarding due payments and pending amount
+                showRentalPopup(data.overdue_count, data.pending_amount);
+            }
+        })
+        .catch(err => console.error('Failed to load rental widgets:', err));
+
+        function showRentalPopup(overdueCount, pendingAmount) {
+            // Only show if there actually are overdue payments
+            if (Number(overdueCount) <= 0) return;
+            // Check session storage so it only pops up once per browser session/login
+            if (sessionStorage.getItem('rental_popup_shown')) return;
+            
+            const popup = document.createElement('div');
+            popup.id = 'rentalDuePopup';
+            popup.style.cssText = `
+                position: fixed;
+                bottom: 32px;
+                right: 32px;
+                background: rgba(255, 255, 255, 0.98);
+                backdrop-filter: blur(12px);
+                -webkit-backdrop-filter: blur(12px);
+                border: 1px solid rgba(226, 232, 240, 0.9);
+                border-radius: 16px;
+                box-shadow: 0 20px 40px -15px rgba(15, 23, 42, 0.2), 0 2px 6px rgba(15, 23, 42, 0.06);
+                padding: 24px;
+                z-index: 9999;
+                width: 380px;
+                display: flex;
+                flex-direction: column;
+                gap: 16px;
+                font-family: 'Inter', sans-serif;
+                animation: slideInUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            `;
+
+            popup.innerHTML = `
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div style="display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 1.05rem; color: #0f172a;">
+                        <div style="width: 30px; height: 30px; border-radius: 50%; background: #fef2f2; color: #ef4444; display: flex; align-items: center; justify-content: center; font-size: 0.9rem;">
+                            <i class="bi bi-exclamation-triangle-fill"></i>
+                        </div>
+                        Pending Rental Dues
+                    </div>
+                    <button id="closeRentalPopupBtn" style="border: none; background: transparent; color: #94a3b8; cursor: pointer; font-size: 1.25rem; padding: 6px; display: flex; align-items: center; justify-content: center; border-radius: 6px; transition: all 0.2s;" onmouseover="this.style.background='#f1f5f9'; this.style.color='#475569'" onmouseout="this.style.background='transparent'; this.style.color='#94a3b8'">&times;</button>
+                </div>
+                <div style="font-size: 0.92rem; color: #475569; line-height: 1.6; padding-left: 2px;">
+                    You have <strong style="color: #ef4444; font-weight: 700;">${overdueCount} overdue payments</strong>. Total pending amount to settle is <strong style="color: #0f172a; font-weight: 700;">₹${Number(pendingAmount).toLocaleString('en-IN')}</strong>.
+                </div>
+                <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 6px;">
+                    <button id="snoozeRentalPopupBtn" style="border: 1px solid #e2e8f0; background: #fff; color: #475569; font-size: 0.8rem; font-weight: 600; padding: 8px 16px; border-radius: 8px; cursor: pointer; transition: background 0.15s;" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='#fff'">Dismiss</button>
+                    <a href="/assets?tab=rentals" style="background: #2563eb; color: #fff; font-size: 0.8rem; font-weight: 600; padding: 8px 16px; border-radius: 8px; text-decoration: none; display: inline-block; transition: background 0.15s;" onmouseover="this.style.background='#1d4ed8'" onmouseout="this.style.background='#2563eb'">Settle Now</a>
+                </div>
+            `;
+
+            document.body.appendChild(popup);
+
+            // Style for slide-in animation
+            const style = document.createElement('style');
+            style.innerHTML = `
+                @keyframes slideInUp {
+                    from { transform: translateY(100px); opacity: 0; }
+                    to { transform: translateY(0); opacity: 1; }
+                }
+                @keyframes fadeOut {
+                    from { opacity: 1; transform: scale(1); }
+                    to { opacity: 0; transform: scale(0.95); }
+                }
+            `;
+            document.head.appendChild(style);
+
+            const closePopup = () => {
+                popup.style.animation = 'fadeOut 0.25s ease forwards';
+                setTimeout(() => popup.remove(), 250);
+                sessionStorage.setItem('rental_popup_shown', 'true');
+            };
+
+            document.getElementById('closeRentalPopupBtn').addEventListener('click', closePopup);
+            document.getElementById('snoozeRentalPopupBtn').addEventListener('click', closePopup);
+        }
+    }
+    {% endif %}
 });
 </script>
 

@@ -63,41 +63,32 @@
 
         /* Glass sidebar scrollbar — blue-tinted to match theme */
         .sidebar .menu {
+            flex: 1;
             overflow-y: auto;
+            overflow-x: hidden;
             padding-right: 0;
         }
 
-        .sidebar .menu::-webkit-scrollbar {
-            width: 4px;
-        }
-
-        .sidebar .menu::-webkit-scrollbar-track {
-            background: transparent;
-            border-radius: 10px;
-        }
-
-        .sidebar .menu::-webkit-scrollbar-thumb {
-            background: rgba(59, 130, 246, 0.18);
-            border-radius: 10px;
-        }
-
-        .sidebar .menu::-webkit-scrollbar-thumb:hover {
-            background: rgba(59, 130, 246, 0.32);
-        }
-
-        .sidebar .menu {
-            scrollbar-width: thin;
-            scrollbar-color: rgba(59, 130, 246, 0.18) transparent;
-        }
 
         /* Mobile: slide in from left, keep glass card look */
         @media (max-width: 992px) {
             .sidebar {
-                transform: translateX(calc(-100% - 20px));
+                transform: translateX(-100%);
                 transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                border-radius: 0 !important;
+                left: 0 !important;
+                top: 0 !important;
+                height: 100vh !important;
+                width: 248px !important;
             }
+
             .sidebar.show-mobile {
                 transform: translateX(0);
+            }
+
+            .main {
+                margin-left: 0 !important;
+                width: 100% !important;
             }
         }
 
@@ -134,12 +125,20 @@
     <div class="sidebar" id="sidebar">
 
         <div class="sidebar-header">
-            <div style="display: flex; align-items: center; gap: 12px; text-decoration: none;">
-                <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Logo" style="height: 25px; width: auto; object-fit: contain; border-radius: 6px;">
-                <div class="logo-text" style="display: flex; flex-direction: column; line-height: 1.2;">
-                    <span style="font-weight: 600; color: #0f172a; font-size: 15px;">Altzor</span>
-                    <span style="font-size: 11px; color: #94a3b8;">The Ultimate RISE app</span>
+            <div
+                style="display: flex; width: 100%; align-items: center; justify-content: space-between; gap: 12px; text-decoration: none;">
+                <div style="display: flex; align-items: center; gap: 12px; min-width: 0;">
+                    <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Logo"
+                        style="height: 25px; width: auto; object-fit: contain; border-radius: 6px;">
+                    <div class="logo-text" style="display: flex; flex-direction: column; line-height: 1.2;">
+                        <span style="font-weight: 600; color: #0f172a; font-size: 15px;">Altzor</span>
+                        <span style="font-size: 11px; color: #94a3b8;">The Ultimate RISE app</span>
+                    </div>
                 </div>
+                <button type="button" onclick="toggleSidebar()" class="sidebar-top-collapse" title="Collapse sidebar"
+                    aria-label="Collapse sidebar">
+                    <i class="bi bi-chevron-double-left collapse-icon"></i>
+                </button>
             </div>
         </div>
 
@@ -147,9 +146,11 @@
 
             <!-- ACCESS CONTROL -->
             {% if session.role == 'superadmin' %}
-            <a class="ribbon-left" style="margin-bottom: 0; display: block;" href="{{ url_for('superadmin.access_control') }}">
+            <a class="ribbon-left" style="margin-bottom: 0; display: block;"
+                href="{{ url_for('superadmin.access_control') }}">
                 <div class="ribbon-inner">
-                    <div class="ribbon-accent-left" style="background: linear-gradient(to bottom, #93C5FD, #3B82F6);"></div>
+                    <div class="ribbon-accent-left" style="background: linear-gradient(to bottom, #93C5FD, #3B82F6);">
+                    </div>
                     <div class="ribbon-content">
                         <div class="ribbon-icon"><i class="bi bi-shield-lock"></i></div>
                         <div class="ribbon-text">
@@ -163,9 +164,11 @@
 
             {% if session.role != 'superadmin' %}
             <!-- DASHBOARD -->
-            <a class="ribbon-left" style="margin-bottom: 0; display: block;" href="{{ url_for('dashboard.dashboard') }}">
+            <a class="ribbon-left" style="margin-bottom: 0; display: block;"
+                href="{{ url_for('dashboard.dashboard') }}">
                 <div class="ribbon-inner">
-                    <div class="ribbon-accent-left" style="background: linear-gradient(to bottom, #93C5FD, #3B82F6);"></div>
+                    <div class="ribbon-accent-left" style="background: linear-gradient(to bottom, #93C5FD, #3B82F6);">
+                    </div>
                     <div class="ribbon-content">
                         <div class="ribbon-icon"><i class="bi bi-house"></i></div>
                         <div class="ribbon-text">
@@ -178,9 +181,11 @@
 
             <!-- TEAM MEMBERS -->
             {% if session.role in ['hr', 'manager', 'admin'] %}
-            <a class="ribbon-left" style="margin-bottom: 0; display: block;" href="{{ url_for('employees.employee_list') }}">
+            <a class="ribbon-left" style="margin-bottom: 0; display: block;"
+                href="{{ url_for('employees.employee_list') }}">
                 <div class="ribbon-inner">
-                    <div class="ribbon-accent-left" style="background: linear-gradient(to bottom, #93C5FD, #3B82F6);"></div>
+                    <div class="ribbon-accent-left" style="background: linear-gradient(to bottom, #93C5FD, #3B82F6);">
+                    </div>
                     <div class="ribbon-content">
                         <div class="ribbon-icon"><i class="bi bi-people"></i></div>
                         <div class="ribbon-text">
@@ -194,9 +199,11 @@
 
             <!-- TIMESHEETS -->
             {% if session.role in ['employee','manager','hr','admin'] %}
-            <a class="ribbon-left" style="margin-bottom: 0; display: block;" href="{{ url_for('work.timesheets_list') }}">
+            <a class="ribbon-left" style="margin-bottom: 0; display: block;"
+                href="{{ url_for('work.timesheets_list') }}">
                 <div class="ribbon-inner">
-                    <div class="ribbon-accent-left" style="background: linear-gradient(to bottom, #93C5FD, #3B82F6);"></div>
+                    <div class="ribbon-accent-left" style="background: linear-gradient(to bottom, #93C5FD, #3B82F6);">
+                    </div>
                     <div class="ribbon-content">
                         <div class="ribbon-icon"><i class="bi bi-clock"></i></div>
                         <div class="ribbon-text">
@@ -212,7 +219,8 @@
             {% if session.role in ['employee','hr','manager','admin'] %}
             <a class="ribbon-left" style="margin-bottom: 0; display: block;" href="{{ url_for('work.leaves_list') }}">
                 <div class="ribbon-inner">
-                    <div class="ribbon-accent-left" style="background: linear-gradient(to bottom, #93C5FD, #3B82F6);"></div>
+                    <div class="ribbon-accent-left" style="background: linear-gradient(to bottom, #93C5FD, #3B82F6);">
+                    </div>
                     <div class="ribbon-content">
                         <div class="ribbon-icon"><i class="bi bi-calendar"></i></div>
                         <div class="ribbon-text">
@@ -225,9 +233,11 @@
             {% endif %}
 
             <!-- PROJECTS -->
-            <a class="ribbon-left" style="margin-bottom: 0; display: block;" href="{{ url_for('projects.projects_list') }}">
+            <a class="ribbon-left" style="margin-bottom: 0; display: block;"
+                href="{{ url_for('projects.projects_list') }}">
                 <div class="ribbon-inner">
-                    <div class="ribbon-accent-left" style="background: linear-gradient(to bottom, #93C5FD, #3B82F6);"></div>
+                    <div class="ribbon-accent-left" style="background: linear-gradient(to bottom, #93C5FD, #3B82F6);">
+                    </div>
                     <div class="ribbon-content">
                         <div class="ribbon-icon"><i class="bi bi-folder"></i></div>
                         <div class="ribbon-text">
@@ -239,9 +249,11 @@
             </a>
 
             <!-- REIMBURSEMENTS -->
-            <a class="ribbon-left" style="margin-bottom: 0; display: block;" href="{{ url_for('admin.reimbursement') }}">
+            <a class="ribbon-left" style="margin-bottom: 0; display: block;"
+                href="{{ url_for('admin.reimbursement') }}">
                 <div class="ribbon-inner">
-                    <div class="ribbon-accent-left" style="background: linear-gradient(to bottom, #93C5FD, #3B82F6);"></div>
+                    <div class="ribbon-accent-left" style="background: linear-gradient(to bottom, #93C5FD, #3B82F6);">
+                    </div>
                     <div class="ribbon-content">
                         <div class="ribbon-icon"><i class="bi bi-receipt"></i></div>
                         <div class="ribbon-text">
@@ -254,9 +266,11 @@
 
             <!-- REPORTS -->
             {% if session.role in ['hr', 'manager', 'admin'] %}
-            <a class="ribbon-left" style="margin-bottom: 0; display: block;" href="{{ url_for('work.hr_missing_timesheets') }}">
+            <a class="ribbon-left" style="margin-bottom: 0; display: block;"
+                href="{{ url_for('work.hr_missing_timesheets') }}">
                 <div class="ribbon-inner">
-                    <div class="ribbon-accent-left" style="background: linear-gradient(to bottom, #93C5FD, #3B82F6);"></div>
+                    <div class="ribbon-accent-left" style="background: linear-gradient(to bottom, #93C5FD, #3B82F6);">
+                    </div>
                     <div class="ribbon-content">
                         <div class="ribbon-icon"><i class="bi bi-file-earmark-bar-graph"></i></div>
                         <div class="ribbon-text">
@@ -272,7 +286,8 @@
             {% if session.role in ['manager','employee'] %}
             <a class="ribbon-left" style="margin-bottom: 0; display: block;" href="{{ url_for('user.payslips') }}">
                 <div class="ribbon-inner">
-                    <div class="ribbon-accent-left" style="background: linear-gradient(to bottom, #93C5FD, #3B82F6);"></div>
+                    <div class="ribbon-accent-left" style="background: linear-gradient(to bottom, #93C5FD, #3B82F6);">
+                    </div>
                     <div class="ribbon-content">
                         <div class="ribbon-icon"><i class="bi bi-file-earmark-text"></i></div>
                         <div class="ribbon-text">
@@ -286,9 +301,11 @@
 
             <!-- BANK VERIFICATION -->
             {% if session.role in ['hr', 'admin'] %}
-            <a class="ribbon-left" style="margin-bottom: 0; display: block;" href="{{ url_for('user.bank_verification') }}">
+            <a class="ribbon-left" style="margin-bottom: 0; display: block;"
+                href="{{ url_for('user.bank_verification') }}">
                 <div class="ribbon-inner">
-                    <div class="ribbon-accent-left" style="background: linear-gradient(to bottom, #93C5FD, #3B82F6);"></div>
+                    <div class="ribbon-accent-left" style="background: linear-gradient(to bottom, #93C5FD, #3B82F6);">
+                    </div>
                     <div class="ribbon-content">
                         <div class="ribbon-icon"><i class="bi bi-credit-card"></i></div>
                         <div class="ribbon-text">
@@ -304,7 +321,8 @@
             {% if session.role in ['hr', 'admin'] %}
             <a class="ribbon-left" style="margin-bottom: 0; display: block;" href="{{ url_for('admin.assets') }}">
                 <div class="ribbon-inner">
-                    <div class="ribbon-accent-left" style="background: linear-gradient(to bottom, #93C5FD, #3B82F6);"></div>
+                    <div class="ribbon-accent-left" style="background: linear-gradient(to bottom, #93C5FD, #3B82F6);">
+                    </div>
                     <div class="ribbon-content">
                         <div class="ribbon-icon"><i class="bi bi-laptop"></i></div>
                         <div class="ribbon-text">
@@ -318,9 +336,11 @@
 
             <!-- ONBOARDING -->
             {% if session.role == 'hr' %}
-            <a class="ribbon-left" style="margin-bottom: 0; display: block;" href="{{ url_for('onboarding.dashboard') }}">
+            <a class="ribbon-left" style="margin-bottom: 0; display: block;"
+                href="{{ url_for('onboarding.dashboard') }}">
                 <div class="ribbon-inner">
-                    <div class="ribbon-accent-left" style="background: linear-gradient(to bottom, #93C5FD, #3B82F6);"></div>
+                    <div class="ribbon-accent-left" style="background: linear-gradient(to bottom, #93C5FD, #3B82F6);">
+                    </div>
                     <div class="ribbon-content">
                         <div class="ribbon-icon"><i class="bi bi-door-open"></i></div>
                         <div class="ribbon-text">
@@ -334,9 +354,11 @@
 
             <!-- OFFBOARDING (ribbon-left: rose accent) -->
             {% if session.role in ['hr', 'manager', 'accounts'] %}
-            <a class="ribbon-left" style="margin-bottom: 0; display: block;" href="{{ url_for('offboarding_ui.dashboard') }}">
+            <a class="ribbon-left" style="margin-bottom: 0; display: block;"
+                href="{{ url_for('offboarding_ui.dashboard') }}">
                 <div class="ribbon-inner">
-                    <div class="ribbon-accent-left" style="background: linear-gradient(to bottom, #FCA5A5, #DC2626);"></div>
+                    <div class="ribbon-accent-left" style="background: linear-gradient(to bottom, #FCA5A5, #DC2626);">
+                    </div>
                     <div class="ribbon-content">
                         <div class="ribbon-icon"><i class="bi bi-door-closed"></i></div>
                         <div class="ribbon-text">
@@ -351,7 +373,8 @@
             <!-- POLICIES -->
             <a class="ribbon-left" style="margin-bottom: 0; display: block;" href="{{ url_for('admin.policies') }}">
                 <div class="ribbon-inner">
-                    <div class="ribbon-accent-left" style="background: linear-gradient(to bottom, #93C5FD, #3B82F6);"></div>
+                    <div class="ribbon-accent-left" style="background: linear-gradient(to bottom, #93C5FD, #3B82F6);">
+                    </div>
                     <div class="ribbon-content">
                         <div class="ribbon-icon"><i class="bi bi-file-text"></i></div>
                         <div class="ribbon-text">
@@ -365,7 +388,8 @@
             <!-- HELP DESK -->
             <a class="ribbon-left" style="margin-bottom: 0; display: block;" href="{{ url_for('admin.helpdesk') }}">
                 <div class="ribbon-inner">
-                    <div class="ribbon-accent-left" style="background: linear-gradient(to bottom, #93C5FD, #3B82F6);"></div>
+                    <div class="ribbon-accent-left" style="background: linear-gradient(to bottom, #93C5FD, #3B82F6);">
+                    </div>
                     <div class="ribbon-content">
                         <div class="ribbon-icon"><i class="bi bi-headset"></i></div>
                         <div class="ribbon-text">
@@ -402,15 +426,8 @@
                 <i class="bi bi-file-earmark-plus icon-blue"></i> <span>Request Reimbursement</span>
             </a>
             {% endif %}
-
         </div>
 
-        <div class="collapse-container" style="padding: 10px 12px 14px; border-top: 1px solid rgba(203,213,225,0.5); margin-top: auto;">
-            <a href="#" onclick="toggleSidebar(); return false;" class="collapse-btn" style="display: flex; align-items: center; gap: 8px; color: #64748b; text-decoration: none; font-size: 0.82rem; font-weight: 600; padding: 9px 14px; background: rgba(241,245,249,0.8); border-radius: 50px; border: 1px solid rgba(203,213,225,0.5); transition: background 0.18s ease;">
-                <i class="bi bi-chevron-double-left collapse-icon" style="font-size: 0.85rem; transition: transform 0.3s;"></i>
-                <span class="collapse-text">Collapse</span>
-            </a>
-        </div>
     </div>
 
     <!-- MAIN -->
@@ -420,70 +437,76 @@
 
 
         <!-- TOPBAR -->
-        <div class="topbar" style="border-bottom: 1px solid #e2e8f0;">
-
+        <div class="topbar" style="border-bottom: 1px solid #e2e8f0; display: flex; align-items: center; justify-content: space-between; gap: 24px;">
             <!-- LEFT -->
-            <div class="topbar-left d-flex align-items-center">
+            <div class="topbar-left d-flex align-items-center" style="flex-shrink: 0;">
                 <button onclick="toggleSidebar()" class="btn border-0 p-1 me-2 d-lg-none" title="Toggle Sidebar">
                     <i class="bi bi-list" style="font-size: 1.5rem;"></i>
                 </button>
-                <h5 class="m-0 text-dark fw-bold" style="font-size: 1.1rem;">{% block page_title %}Dashboard{% endblock %}</h5>
             </div>
-            
-            <!-- CENTER SEARCH & RIGHT -->
-            <div class="topbar-right d-flex align-items-center gap-4 ms-auto">
-                
-                <!-- SEARCH -->
-                <div class="position-relative d-none d-md-block" style="width: 300px;">
-                    <div class="input-group" style="background: #f8fafc; border-radius: 8px; overflow: hidden; border: 1px solid transparent; transition: all 0.2s;">
-                        <span class="input-group-text bg-transparent border-0 text-slate-400 ps-3 pe-2">
-                            <i class="bi bi-search" style="color: #94a3b8;"></i>
-                        </span>
-                        <input type="text" id="globalSearchInput" class="form-control border-0 shadow-none bg-transparent" placeholder="Search operations..." style="font-size: 0.85rem; padding-left: 0;">
-                        <span class="input-group-text bg-transparent border-0 text-slate-400 pe-3">
-                        </span>
-                    </div>
+
+            <!-- CENTER SEARCH -->
+            <div class="position-relative d-none d-md-block" style="width: 100%; max-width: 800px; flex-grow: 1; flex-shrink: 1;">
+                <div class="input-group"
+                    style="background: #f8fafc; border-radius: 8px; overflow: hidden; border: 1px solid transparent; transition: all 0.2s;">
+                    <span class="input-group-text bg-transparent border-0 text-slate-400 ps-3 pe-2">
+                        <i class="bi bi-search" style="color: #94a3b8;"></i>
+                    </span>
+                    <input type="text" id="globalSearchInput"
+                        class="form-control border-0 shadow-none bg-transparent" placeholder="Search operations..."
+                        style="font-size: 0.85rem; padding-left: 0;">
+                    <span class="input-group-text bg-transparent border-0 text-slate-400 pe-3"></span>
+                </div>
+            </div>
+
+            <!-- RIGHT -->
+            <div class="topbar-right d-flex align-items-center gap-3" style="flex-shrink: 0;">
+
+                <!-- NOTIFICATIONS -->
+                {% if session.role in ['employee','hr','manager', 'admin'] %}
+                <a href="#" onclick="loadNotificationsPage(); return false;"
+                    class="text-secondary position-relative text-decoration-none">
+                    <i class="bi bi-bell" style="font-size: 1.2rem; color: #475569;"></i>
+                    <span id="notificationBadge"
+                        class="position-absolute top-0 start-100 translate-middle p-1 bg-danger border border-light rounded-circle"
+                        style="display: none; width: 8px; height: 8px; padding: 0 !important;">
+                        <span class="visually-hidden">New alerts</span>
+                    </span>
+                </a>
+                {% endif %}
+
+                {% set display_name = session.display_name or session.full_name or session.original_name or
+                (session.employee_name | clean_name if session.employee_name else None) or 'User' %}
+                <div style="display: flex; flex-direction: column; align-items: flex-end; line-height: 1.2; flex-shrink: 0; text-align: right;">
+                    <span style="font-size: 0.85rem; font-weight: 600; color: #0f172a;">Good Day, {{ display_name }}!</span>
+                    <span style="font-size: 0.75rem; color: #64748b;">
+                        {% if session.role == 'employee' %}
+                        {{ labels.EMPLOYEE if labels else 'Employee' }}
+                        {% else %}
+                        {{ session.role | capitalize if session.role else 'Role' }}
+                        {% endif %}
+                    </span>
                 </div>
 
-                <!-- PROFILE & NOTIFICATIONS -->
-                <div class="d-flex align-items-center gap-4">
-                    <div class="d-flex align-items-center gap-3">
-                        {% set display_name = session.display_name or session.full_name or session.original_name or (session.employee_name | clean_name if session.employee_name else None) or 'User' %}
-                        <div style="display: flex; flex-direction: column; align-items: flex-end; line-height: 1.2;">
-                            <span style="font-size: 0.85rem; font-weight: 600; color: #0f172a;">Good Day, {{ display_name }}!</span>
-                            <span style="font-size: 0.75rem; color: #64748b;">
-                                {% if session.role == 'employee' %}
-                                    {{ labels.EMPLOYEE if labels else 'Employee' }}
-                                {% else %}
-                                    {{ session.role | capitalize if session.role else 'Role' }}
-                                {% endif %}
-                            </span>
+                <!-- PROFILE -->
+                <div class="dropdown">
+                    <button class="btn p-0 border-0 shadow-none bg-transparent d-flex align-items-center" type="button"
+                        data-bs-toggle="dropdown" aria-expanded="false" id="topbarUserDropdown">
+                        <div
+                            style="width: 34px; height: 34px; background: #0d9488; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; font-size: 0.85rem; overflow: hidden; border: 1px solid #e2e8f0;">
+                            {{ display_name[:2]|upper }}
                         </div>
-                        
-                        {% if session.role in ['employee','hr','manager', 'admin'] %}
-                        <a href="#" onclick="loadNotificationsPage(); return false;" class="text-secondary position-relative text-decoration-none">
-                            <i class="bi bi-bell" style="font-size: 1.2rem; color: #475569;"></i>
-                            <span id="notificationBadge" class="position-absolute top-0 start-100 translate-middle p-1 bg-danger border border-light rounded-circle" style="display: none; width: 8px; height: 8px; padding: 0 !important;">
-                                <span class="visually-hidden">New alerts</span>
-                            </span>
-                        </a>
-                        {% endif %}
-                    </div>
-
-                    <div class="dropdown">
-                        <button class="btn p-0 border-0 shadow-none bg-transparent d-flex align-items-center" type="button" data-bs-toggle="dropdown" aria-expanded="false" id="topbarUserDropdown">
-                            <div style="width: 34px; height: 34px; background: #0d9488; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; font-size: 0.85rem; overflow: hidden; border: 1px solid #e2e8f0;">
-                                {{ display_name[:2]|upper }}
-                            </div>
-                        </button>
-                        <ul class="dropdown-menu dropdown-menu-end shadow border-0" style="border-radius: 8px; margin-top: 10px;">
-                            <li><a class="dropdown-item" href="{{ url_for('user.profile') }}">👤 Profile</a></li>
-                            <li><a class="dropdown-item" href="#">⚙︁ Settings</a></li>
-                            <li><a class="dropdown-item" href="#">❁ Help</a></li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item text-danger" href="/logout">Logout</a></li>
-                        </ul>
-                    </div>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end shadow border-0"
+                        style="border-radius: 8px; margin-top: 10px;">
+                        <li><a class="dropdown-item" href="{{ url_for('user.profile') }}">👤 Profile</a></li>
+                        <li><a class="dropdown-item" href="#">⚙︁ Settings</a></li>
+                        <li><a class="dropdown-item" href="#">❁ Help</a></li>
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
+                        <li><a class="dropdown-item text-danger" href="/logout">Logout</a></li>
+                    </ul>
                 </div>
 
             </div>
@@ -508,7 +531,9 @@
             {% endif %}
             {% endwith %}
 
-            {% block content %}{% endblock %}
+            <div class="content-fill">
+                {% block content %}{% endblock %}
+            </div>
         </div>
 
 
@@ -527,7 +552,7 @@
             var imgs = document.querySelectorAll('.user-avatar-img');
 
             function applyPhoto(url) {
-                imgs.forEach(function(img) {
+                imgs.forEach(function (img) {
                     img.onerror = function () { this.onerror = null; };
                     img.src = url;
                 });
@@ -856,13 +881,13 @@
             if (!table) return;
             const tbody = table.querySelector('tbody');
             if (!tbody) return;
-            
+
             // Only select rows that don't have .no-paginate class
             const rows = Array.from(tbody.querySelectorAll('tr')).filter(tr => !tr.classList.contains('no-paginate'));
-            
+
             let currentPage = 1;
             const totalPages = Math.ceil(rows.length / rowsPerPage);
-            
+
             if (totalPages <= 1) return; // No pagination needed
 
             // Find or create pagination container inside the table's parent container
@@ -872,7 +897,7 @@
                 paginationContainer.className = 'custom-pagination-container d-flex justify-content-end mt-3';
                 table.parentNode.appendChild(paginationContainer);
             }
-            paginationContainer.innerHTML = ''; 
+            paginationContainer.innerHTML = '';
 
             const btnGroup = document.createElement('div');
             btnGroup.className = 'btn-group shadow-sm';
@@ -885,7 +910,7 @@
             prevBtn.style.borderBottomLeftRadius = '8px';
             // prevBtn.style.marginBottom = '15px';
             // prevBtn.style.marginRight = '15px';
-            
+
             const nextBtn = document.createElement('button');
             nextBtn.className = 'btn btn-outline-primary btn-sm';
             nextBtn.innerHTML = '<i class="bi bi-chevron-right"></i>';
@@ -908,7 +933,7 @@
                         tr.style.display = 'none';
                     }
                 });
-                
+
                 prevBtn.disabled = page === 1;
                 nextBtn.disabled = page === totalPages;
             }
@@ -986,7 +1011,7 @@
             let activeIndex = -1;
 
             // Load data once when the search bar is focused
-            searchInput.addEventListener('focus', function() {
+            searchInput.addEventListener('focus', function () {
                 if (!dataLoaded && token) {
                     const headers = {
                         "Authorization": "Bearer " + token,
@@ -1015,14 +1040,14 @@
                                 .then(joinData => {
                                     joinees = joinData.joinees || joinData.data || (Array.isArray(joinData) ? joinData : []);
                                 })
-                                .catch(() => {});
+                                .catch(() => { });
                         }
                     });
                 }
             });
 
             // Perform filtering and render dropdown
-            searchInput.addEventListener('input', function() {
+            searchInput.addEventListener('input', function () {
                 const query = this.value.trim().toLowerCase();
 
                 // If on list pages, filter table rows client-side instantly
@@ -1041,7 +1066,7 @@
             });
 
             // Handle keyboard navigation (ArrowUp, ArrowDown, Enter, Escape)
-            searchInput.addEventListener('keydown', function(e) {
+            searchInput.addEventListener('keydown', function (e) {
                 const items = searchResults.querySelectorAll('.search-item');
                 if (!items.length) return;
 
@@ -1100,24 +1125,24 @@
             // Render result items
             function renderSearchResults(query) {
                 let html = '';
-                
+
                 // Match projects
-                const matchedProj = projects.filter(p => 
-                    (p.name || '').toLowerCase().includes(query) || 
+                const matchedProj = projects.filter(p =>
+                    (p.name || '').toLowerCase().includes(query) ||
                     (p.project_id || '').toLowerCase().includes(query) ||
                     (p.customer_name || '').toLowerCase().includes(query)
                 );
 
                 // Match employees
-                const matchedEmp = employees.filter(e => 
-                    (e.name || '').toLowerCase().includes(query) || 
+                const matchedEmp = employees.filter(e =>
+                    (e.name || '').toLowerCase().includes(query) ||
                     (e.email || '').toLowerCase().includes(query) ||
                     (e.designation || '').toLowerCase().includes(query)
                 );
 
                 // Match candidates
-                const matchedJoin = joinees.filter(j => 
-                    (j.full_name || '').toLowerCase().includes(query) || 
+                const matchedJoin = joinees.filter(j =>
+                    (j.full_name || '').toLowerCase().includes(query) ||
                     (j.personal_email || '').toLowerCase().includes(query)
                 );
 
@@ -1140,8 +1165,8 @@
                     matchedProj.forEach(p => {
                         const pid = p.id || p.project_id;
                         const manager = p.assigned_manager_name || p.manager_name || p.assigned_manager || p.manager || 'Not Set';
-                        const url = window.location.pathname.endsWith('/projects') ? 
-                            `javascript:viewProjectDetails(${pid})` : 
+                        const url = window.location.pathname.endsWith('/projects') ?
+                            `javascript:viewProjectDetails(${pid})` :
                             `/projects?open=${pid}`;
                         html += `
                             <a href="${url}" class="search-item" onclick="document.getElementById('globalSearchResults').classList.add('d-none')">
@@ -1195,7 +1220,7 @@
             }
 
             // Close search results dropdown on clicking outside
-            document.addEventListener('click', function(e) {
+            document.addEventListener('click', function (e) {
                 if (!searchInput.contains(e.target) && !searchResults.contains(e.target)) {
                     searchResults.classList.add('d-none');
                 }

@@ -50,7 +50,7 @@
 {% block scripts %}
 <script>
 // Load and display notifications
-function loadNotifications() {
+async function loadNotifications() {
     const currentUser = '{{ session.employee_name }}';
     if (!currentUser) {
         document.getElementById('notificationsContainer').innerHTML = `
@@ -62,49 +62,107 @@ function loadNotifications() {
         return;
     }
 
-    const notifications = JSON.parse(localStorage.getItem('timesheetNotifications') || '[]');
-    const userNotifications = notifications.filter(n => n.employeeName === currentUser);
+    let dbNotifications = [];
+    try {
+        const res = await fetch('/api/notifications');
+        const data = await res.json();
+        if (data.success) {
+            dbNotifications = data.notifications || [];
+        }
+    } catch (e) {
+        console.error('Failed to load DB notifications:', e);
+    }
+
+    const localNotifications = JSON.parse(localStorage.getItem('timesheetNotifications') || '[]');
+    const userLocalNotifications = localNotifications.filter(n => n.employeeName === currentUser);
+
+    const allNotifications = [];
     
-    // Sort by timestamp (newest first)
-    userNotifications.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-    
-    if (userNotifications.length === 0) {
+    userLocalNotifications.forEach(n => {
+        allNotifications.push({
+            id: n.timestamp,
+            title: n.action === 'approved' ? 'Timesheet Approved' : 'Timesheet Rejected',
+            message: `Your timesheet has been ${n.action.toLowerCase()}.${n.comments ? ' Comments: ' + n.comments : ''}`,
+            timestamp: new Date(n.timestamp),
+            isRead: n.read,
+            type: 'timesheet',
+            original: n
+        });
+    });
+
+    dbNotifications.forEach(n => {
+        allNotifications.push({
+            id: n.id,
+            title: n.title,
+            message: n.message,
+            timestamp: new Date(n.created_at || n.timestamp),
+            isRead: n.is_read,
+            type: n.type || 'system',
+            link: n.link,
+            original: n
+        });
+    });
+
+    allNotifications.sort((a, b) => b.timestamp - a.timestamp);
+
+    if (allNotifications.length === 0) {
         document.getElementById('notificationsContainer').innerHTML = `
             <div class="text-center text-muted py-5">
                 <i class="bi bi-bell-slash" style="font-size: 3rem;"></i>
                 <p class="mt-3">No notifications found</p>
-                <small class="text-muted">You'll see notifications here when your timesheets are approved or rejected</small>
             </div>
         `;
         return;
     }
 
-    const notificationsHtml = userNotifications.map(notification => {
-        const date = new Date(notification.timestamp);
+    const notificationsHtml = allNotifications.map(n => {
+        const date = n.timestamp;
         const formattedDate = date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
-        const isRead = notification.read;
-        const actionIcon = notification.action === 'approved' ? 'check-circle-fill text-success' : 'x-circle-fill text-warning';
-        const actionText = notification.action === 'approved' ? 'Approved' : 'Rejected';
+        let icon = 'info-circle-fill text-primary';
         
+        if (n.type === 'timesheet') {
+            const action = n.original.action;
+            icon = action === 'approved' ? 'check-circle-fill text-success' : 'x-circle-fill text-warning';
+        } else if (n.type === 'rental_invoice') {
+            icon = 'file-earmark-text-fill text-warning';
+        } else if (n.type === 'device_return') {
+            icon = 'arrow-return-left text-info';
+        } else if (n.type === 'device_assignment') {
+            icon = 'laptop text-primary';
+        }
+
+        let actionButton = '';
+        if (n.type === 'rental_invoice') {
+            const match = n.message.match(/RNT-\d+-\d+/);
+            const invNum = match ? match[0] : '';
+            if (invNum) {
+                actionButton = `
+                    <div class="mt-2">
+                        <a href="/assets?tab=rentals&view_invoice=${invNum}" class="btn btn-sm btn-primary rounded-pill px-3 fw-bold">
+                            <i class="bi bi-receipt"></i> View Invoice
+                        </a>
+                    </div>
+                `;
+            }
+        }
+
         return `
-            <div class="card mb-3 ${isRead ? 'opacity-75' : ''}" onclick="showNotificationDetails('${notification.timestamp}')" style="cursor: pointer;">
+            <div class="card mb-3 ${n.isRead ? 'opacity-75' : ''}" style="border-radius:12px; border:1px solid #f1f5f9; box-shadow:0 1px 3px rgba(0,0,0,0.05); cursor: pointer;" onclick="handleNotificationClick('${n.id}', '${n.type}', '${(n.type === 'timesheet' ? n.id : '')}')">
                 <div class="card-body">
                     <div class="d-flex align-items-start">
                         <div class="me-3">
-                            <i class="bi bi-${actionIcon}" style="font-size: 1.5rem;"></i>
+                            <i class="bi bi-${icon}" style="font-size: 1.5rem;"></i>
                         </div>
                         <div class="flex-grow-1">
                             <div class="d-flex justify-content-between align-items-start">
                                 <div>
-                                    <h6 class="card-title mb-1">Timesheet ${actionText}</h6>
-                                    <p class="card-text mb-2">
-                                        Your timesheet has been ${notification.action.toLowerCase()}.
-                                        ${notification.comments ? '<br><strong>Comments:</strong> ' + notification.comments : ''}
-                                    </p>
+                                    <h6 class="card-title mb-1 fw-bold text-dark">${n.title}</h6>
+                                    <p class="card-text mb-1 text-muted small">${n.message}</p>
+                                    ${actionButton}
                                 </div>
                                 <div class="text-end">
-                                    <small class="text-muted">${formattedDate}</small>
-                                    ${!isRead ? '<span class="badge bg-primary ms-2">New</span>' : ''}
+                                    <small class="text-muted" style="font-size:0.75rem;">${formattedDate}</small>
+                                    ${!n.isRead ? '<span class="badge bg-primary ms-2 rounded-pill">New</span>' : ''}
                                 </div>
                             </div>
                         </div>
@@ -115,12 +173,31 @@ function loadNotifications() {
     }).join('');
 
     document.getElementById('notificationsContainer').innerHTML = notificationsHtml;
-    
-    // Mark all as read
-    userNotifications.forEach(notification => {
-        notification.read = true;
-    });
-    localStorage.setItem('timesheetNotifications', JSON.stringify(notifications));
+}
+
+function handleNotificationClick(id, type, localId) {
+    if (type === 'timesheet') {
+        showNotificationDetails(localId);
+    } else {
+        // Mark database notification as read
+        fetch('/api/notifications/' + id + '/read', { method: 'PUT' })
+            .then(res => res.json())
+            .then(data => {
+                loadNotifications();
+                if (typeof loadTopbarNotifications === 'function') loadTopbarNotifications();
+            })
+            .catch(err => console.error(err));
+    }
+}
+
+function escapeHtml(text) {
+    if (!text) return '';
+    return text.toString()
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
 }
 
 // Show notification details
@@ -174,7 +251,9 @@ function clearAllNotifications() {
     localStorage.setItem('timesheetNotifications', JSON.stringify(filteredNotifications));
     loadNotifications();
     
-    showToast('Notifications Cleared', 'All notifications have been cleared', 'info');
+    if (typeof showToast === 'function') {
+        showToast('Notifications Cleared', 'All notifications have been cleared', 'info');
+    }
 }
 
 // Load notifications on page load

@@ -173,8 +173,15 @@
     }
 
     @keyframes fadeUp {
-        from { opacity: 0; transform: translateY(8px); }
-        to   { opacity: 1; transform: translateY(0); }
+        from {
+            opacity: 0;
+            transform: translateY(8px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
     }
 
     /* ── Table (matches onboarding-panel table) ── */
@@ -293,7 +300,7 @@
     }
 
     /* ── Ownership Toggles ── */
-    .btn-check + .btn-outline-primary {
+    .btn-check+.btn-outline-primary {
         border-radius: 999px;
         font-weight: 600;
         font-size: 0.85rem;
@@ -303,7 +310,7 @@
         transition: all 0.2s;
     }
 
-    .btn-check:checked + .btn-outline-primary {
+    .btn-check:checked+.btn-outline-primary {
         background: #4f46e5;
         border-color: #4f46e5;
         color: #fff;
@@ -400,12 +407,25 @@
         font-size: 0.875rem;
     }
 
-    .autocomplete-item:hover { background: #f8fafc; }
+    .autocomplete-item:hover {
+        background: #f8fafc;
+    }
 
     /* ── Status Badges ── */
-    .status-available { background: #dcfce7; color: #166534; }
-    .status-assigned   { background: #e0f2fe; color: #0369a1; }
-    .status-maintenance{ background: #fee2e2; color: #b91c1c; }
+    .status-available {
+        background: #dcfce7;
+        color: #166534;
+    }
+
+    .status-assigned {
+        background: #e0f2fe;
+        color: #0369a1;
+    }
+
+    .status-maintenance {
+        background: #fee2e2;
+        color: #b91c1c;
+    }
 
     /* ── History Timeline ── */
     .history-item {
@@ -418,14 +438,18 @@
     .history-item::before {
         content: '';
         position: absolute;
-        left: -7px; top: 0;
-        width: 12px; height: 12px;
+        left: -7px;
+        top: 0;
+        width: 12px;
+        height: 12px;
         border-radius: 50%;
         background: white;
         border: 2px solid #6366f1;
     }
 
-    .history-item:last-child { border-left-color: transparent; }
+    .history-item:last-child {
+        border-left-color: transparent;
+    }
 
     /* ── Detail Modal ── */
     .modal-split-detail .modal-dialog {
@@ -437,7 +461,7 @@
         border: 0;
         border-radius: 20px;
         overflow: hidden;
-        box-shadow: 0 25px 50px rgba(0,0,0,0.15);
+        box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
     }
 
     .modal-split-detail .detail-pane,
@@ -446,9 +470,13 @@
         max-height: min(82vh, 820px);
     }
 
-    .modal-split-detail .detail-pane { scrollbar-gutter: stable; }
+    .modal-split-detail .detail-pane {
+        scrollbar-gutter: stable;
+    }
 
-    .modal-split-detail .detail-section { margin-bottom: 1rem; }
+    .modal-split-detail .detail-section {
+        margin-bottom: 1rem;
+    }
 
     .modal-split-detail .detail-card {
         background: #fff;
@@ -457,7 +485,9 @@
         padding: 1rem;
     }
 
-    .modal-split-detail .detail-card + .detail-card { margin-top: 1rem; }
+    .modal-split-detail .detail-card+.detail-card {
+        margin-top: 1rem;
+    }
 
     .modal-split-detail .asset-detail-grid {
         display: grid;
@@ -469,7 +499,9 @@
         grid-template-columns: repeat(3, minmax(0, 1fr));
     }
 
-    .modal-split-detail .asset-detail-item { min-width: 0; }
+    .modal-split-detail .asset-detail-item {
+        min-width: 0;
+    }
 
     .modal-split-detail .asset-detail-value {
         display: block;
@@ -500,6 +532,7 @@
     }
 
     @media (max-width: 1199.98px) {
+
         .modal-split-detail .asset-detail-grid,
         .modal-split-detail .asset-detail-grid.three-up {
             grid-template-columns: 1fr;
@@ -510,7 +543,7 @@
     #returnAssetModal .modal-content {
         border-radius: 18px;
         border: 0;
-        box-shadow: 0 20px 40px rgba(0,0,0,0.12);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12);
     }
 
     /* ── Custom Toast Notification ── */
@@ -540,23 +573,48 @@
         border-left: 4px solid #4f46e5;
     }
 
-    .custom-toast.toast-success { border-left-color: #16a34a; }
-    .custom-toast.toast-error   { border-left-color: #dc2626; }
-    .custom-toast.toast-warning { border-left-color: #d97706; }
-    .custom-toast.toast-info    { border-left-color: #4f46e5; }
+    .custom-toast.toast-success {
+        border-left-color: #16a34a;
+    }
+
+    .custom-toast.toast-error {
+        border-left-color: #dc2626;
+    }
+
+    .custom-toast.toast-warning {
+        border-left-color: #d97706;
+    }
+
+    .custom-toast.toast-info {
+        border-left-color: #4f46e5;
+    }
 
     .custom-toast.toast-out {
         animation: toastOut 0.3s ease forwards;
     }
 
     @keyframes toastIn {
-        from { opacity: 0; transform: translateX(24px); }
-        to   { opacity: 1; transform: translateX(0); }
+        from {
+            opacity: 0;
+            transform: translateX(24px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
     }
 
     @keyframes toastOut {
-        from { opacity: 1; transform: translateX(0); }
-        to   { opacity: 0; transform: translateX(24px); }
+        from {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        to {
+            opacity: 0;
+            transform: translateX(24px);
+        }
     }
 
     .toast-icon {
@@ -570,10 +628,25 @@
         font-size: 0.95rem;
     }
 
-    .toast-success .toast-icon { background: #dcfce7; color: #16a34a; }
-    .toast-error   .toast-icon { background: #fee2e2; color: #dc2626; }
-    .toast-warning .toast-icon { background: #fef9c3; color: #d97706; }
-    .toast-info    .toast-icon { background: #eef2ff; color: #4f46e5; }
+    .toast-success .toast-icon {
+        background: #dcfce7;
+        color: #16a34a;
+    }
+
+    .toast-error .toast-icon {
+        background: #fee2e2;
+        color: #dc2626;
+    }
+
+    .toast-warning .toast-icon {
+        background: #fef9c3;
+        color: #d97706;
+    }
+
+    .toast-info .toast-icon {
+        background: #eef2ff;
+        color: #4f46e5;
+    }
 
     .toast-body-text {
         flex: 1;
@@ -597,7 +670,9 @@
         transition: color 0.15s;
     }
 
-    .toast-close:hover { color: #475569; }
+    .toast-close:hover {
+        color: #475569;
+    }
 
     /* ── Custom Confirm Dialog ── */
     .confirm-overlay {
@@ -625,7 +700,7 @@
         width: 100%;
         max-width: 420px;
         padding: 2rem;
-        box-shadow: 0 25px 50px rgba(0,0,0,0.15);
+        box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
         transform: translateY(16px) scale(0.98);
         transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
     }
@@ -679,7 +754,10 @@
         transition: all 0.15s;
     }
 
-    .btn-confirm-cancel:hover { background: #f1f5f9; border-color: #cbd5e1; }
+    .btn-confirm-cancel:hover {
+        background: #f1f5f9;
+        border-color: #cbd5e1;
+    }
 
     .btn-confirm-ok {
         padding: 0.55rem 1.25rem;
@@ -693,12 +771,23 @@
         transition: all 0.15s;
     }
 
-    .btn-confirm-ok:hover { background: #b91c1c; border-color: #b91c1c; }
+    .btn-confirm-ok:hover {
+        background: #b91c1c;
+        border-color: #b91c1c;
+    }
 
     /* ── Return Confirm Modal styled ── */
-    #returnAssetModal .modal-header { padding: 1.5rem 1.5rem 0.5rem; }
-    #returnAssetModal .modal-body   { padding: 1rem 1.5rem; }
-    #returnAssetModal .modal-footer { padding: 0.5rem 1.5rem 1.5rem; }
+    #returnAssetModal .modal-header {
+        padding: 1.5rem 1.5rem 0.5rem;
+    }
+
+    #returnAssetModal .modal-body {
+        padding: 1rem 1.5rem;
+    }
+
+    #returnAssetModal .modal-footer {
+        padding: 0.5rem 1.5rem 1.5rem;
+    }
 
     .return-icon-wrap {
         width: 48px;
@@ -739,7 +828,10 @@
         color: #fff;
     }
 
-    .btn-primary-indigo:disabled { opacity: 0.65; cursor: not-allowed; }
+    .btn-primary-indigo:disabled {
+        opacity: 0.65;
+        cursor: not-allowed;
+    }
 
     .btn-light-cancel {
         background: #f1f5f9;
@@ -752,7 +844,10 @@
         transition: all 0.15s;
     }
 
-    .btn-light-cancel:hover { background: #e2e8f0; color: #334155; }
+    .btn-light-cancel:hover {
+        background: #e2e8f0;
+        color: #334155;
+    }
 
     /* Empty state */
     .empty-state {
@@ -775,16 +870,41 @@
     }
 
     @media (max-width: 768px) {
-        .asset-hero { padding: 1.25rem; }
-        .asset-hero .d-flex { flex-direction: column; align-items: flex-start !important; gap: 1rem; }
-        .asset-tabs-bar { padding: 0.75rem 0.75rem 0; }
-        .view-section { padding: 1rem 0.75rem; }
-        .confirm-box { margin: 1rem; }
+        .asset-hero {
+            padding: 1.25rem;
+        }
+
+        .asset-hero .d-flex {
+            flex-direction: column;
+            align-items: flex-start !important;
+            gap: 1rem;
+        }
+
+        .asset-tabs-bar {
+            padding: 0.75rem 0.75rem 0;
+        }
+
+        .view-section {
+            padding: 1rem 0.75rem;
+        }
+
+        .confirm-box {
+            margin: 1rem;
+        }
     }
 
     /* ── Enhanced Asset Detail Modal ── */
-    #assetDetailModal .modal-dialog { max-width: 720px; width: 95vw; }
-    #assetDetailModal .modal-content { border: 0; border-radius: 20px; overflow: hidden; box-shadow: 0 24px 60px rgba(15,23,42,0.18); }
+    #assetDetailModal .modal-dialog {
+        max-width: 720px;
+        width: 95vw;
+    }
+
+    #assetDetailModal .modal-content {
+        border: 0;
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: 0 24px 60px rgba(15, 23, 42, 0.18);
+    }
 
     .adm-header {
         background: linear-gradient(135deg, #4f46e5 0%, #6366f1 60%, #818cf8 100%);
@@ -792,124 +912,217 @@
         position: relative;
         overflow: hidden;
     }
+
     .adm-header::after {
         content: '';
         position: absolute;
-        width: 220px; height: 220px;
+        width: 220px;
+        height: 220px;
         border-radius: 50%;
-        background: rgba(255,255,255,0.07);
-        top: -80px; right: -60px;
+        background: rgba(255, 255, 255, 0.07);
+        top: -80px;
+        right: -60px;
         pointer-events: none;
     }
+
     .adm-header-icon {
-        width: 52px; height: 52px;
+        width: 52px;
+        height: 52px;
         border-radius: 14px;
-        background: rgba(255,255,255,0.18);
+        background: rgba(255, 255, 255, 0.18);
         backdrop-filter: blur(8px);
-        border: 1px solid rgba(255,255,255,0.25);
-        display: flex; align-items: center; justify-content: center;
-        font-size: 1.5rem; color: #fff;
+        border: 1px solid rgba(255, 255, 255, 0.25);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        color: #fff;
         flex-shrink: 0;
     }
+
     .adm-header-title {
-        font-size: 1.2rem; font-weight: 700;
-        color: #fff; margin: 0; line-height: 1.3;
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: #fff;
+        margin: 0;
+        line-height: 1.3;
     }
+
     .adm-header-sub {
-        font-size: 0.78rem; color: rgba(255,255,255,0.75);
+        font-size: 0.78rem;
+        color: rgba(255, 255, 255, 0.75);
         margin: 0.15rem 0 0;
     }
+
     .adm-status-pill {
-        display: inline-flex; align-items: center; gap: 0.35rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
         padding: 0.3rem 0.85rem;
         border-radius: 999px;
-        font-size: 0.72rem; font-weight: 700;
-        letter-spacing: 0.04em; text-transform: uppercase;
-        border: 1px solid rgba(255,255,255,0.3);
-        background: rgba(255,255,255,0.15);
+        font-size: 0.72rem;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        background: rgba(255, 255, 255, 0.15);
         color: #fff;
     }
+
     .adm-close-btn {
-        position: absolute; top: 1rem; right: 1rem;
-        width: 32px; height: 32px;
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        width: 32px;
+        height: 32px;
         border-radius: 8px;
-        background: rgba(255,255,255,0.15);
-        border: 1px solid rgba(255,255,255,0.2);
-        color: #fff; font-size: 0.85rem;
-        display: flex; align-items: center; justify-content: center;
-        cursor: pointer; transition: background 0.2s;
+        background: rgba(255, 255, 255, 0.15);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        color: #fff;
+        font-size: 0.85rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: background 0.2s;
     }
-    .adm-close-btn:hover { background: rgba(255,255,255,0.28); }
+
+    .adm-close-btn:hover {
+        background: rgba(255, 255, 255, 0.28);
+    }
+
     .adm-edit-btn {
-        position: absolute; top: 1rem; right: 3.25rem;
-        display: inline-flex; align-items: center; gap: 0.3rem;
+        position: absolute;
+        top: 1rem;
+        right: 3.25rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.3rem;
         padding: 0.28rem 0.8rem;
         border-radius: 8px;
-        background: rgba(255,255,255,0.15);
-        border: 1px solid rgba(255,255,255,0.25);
-        color: #fff; font-size: 0.75rem; font-weight: 600;
-        cursor: pointer; transition: background 0.2s;
+        background: rgba(255, 255, 255, 0.15);
+        border: 1px solid rgba(255, 255, 255, 0.25);
+        color: #fff;
+        font-size: 0.75rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background 0.2s;
     }
-    .adm-edit-btn:hover { background: rgba(255,255,255,0.28); color: #fff; }
 
-    .adm-body { padding: 1.5rem 1.75rem 1.75rem; background: #f8fafc; overflow-y: auto; max-height: 72vh; }
+    .adm-edit-btn:hover {
+        background: rgba(255, 255, 255, 0.28);
+        color: #fff;
+    }
 
-    .adm-section { margin-bottom: 1.1rem; }
+    .adm-body {
+        padding: 1.5rem 1.75rem 1.75rem;
+        background: #f8fafc;
+        overflow-y: auto;
+        max-height: 72vh;
+    }
+
+    .adm-section {
+        margin-bottom: 1.1rem;
+    }
+
     .adm-section-label {
-        display: flex; align-items: center; gap: 0.5rem;
-        font-size: 0.68rem; font-weight: 700;
-        color: #64748b; text-transform: uppercase; letter-spacing: 0.07em;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.68rem;
+        font-weight: 700;
+        color: #64748b;
+        text-transform: uppercase;
+        letter-spacing: 0.07em;
         margin-bottom: 0.65rem;
     }
+
     .adm-section-label i {
-        font-size: 0.8rem; color: #4f46e5;
+        font-size: 0.8rem;
+        color: #4f46e5;
     }
+
     .adm-card {
         background: #fff;
         border: 1px solid #e5e7eb;
         border-radius: 14px;
         padding: 1.1rem 1.25rem;
-        box-shadow: 0 1px 4px rgba(15,23,42,0.04);
+        box-shadow: 0 1px 4px rgba(15, 23, 42, 0.04);
     }
+
     .adm-grid {
         display: grid;
         grid-template-columns: 1fr 1fr;
         gap: 1rem 1.5rem;
     }
-    .adm-grid.three { grid-template-columns: repeat(3,1fr); }
-    .adm-field-label {
-        font-size: 0.67rem; font-weight: 700;
-        color: #94a3b8; text-transform: uppercase;
-        letter-spacing: 0.06em; margin-bottom: 0.2rem; display: block;
+
+    .adm-grid.three {
+        grid-template-columns: repeat(3, 1fr);
     }
+
+    .adm-field-label {
+        font-size: 0.67rem;
+        font-weight: 700;
+        color: #94a3b8;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        margin-bottom: 0.2rem;
+        display: block;
+    }
+
     .adm-field-value {
-        font-size: 0.92rem; font-weight: 600;
-        color: #0f172a; line-height: 1.4;
+        font-size: 0.92rem;
+        font-weight: 600;
+        color: #0f172a;
+        line-height: 1.4;
         word-break: break-word;
     }
-    .adm-field-value.muted { color: #94a3b8; font-weight: 500; font-style: italic; }
-    .adm-divider { height: 1px; background: #f1f5f9; margin: 0.9rem 0; }
+
+    .adm-field-value.muted {
+        color: #94a3b8;
+        font-weight: 500;
+        font-style: italic;
+    }
+
+    .adm-divider {
+        height: 1px;
+        background: #f1f5f9;
+        margin: 0.9rem 0;
+    }
+
     .adm-owner-card {
-        display: flex; align-items: center; gap: 0.85rem;
+        display: flex;
+        align-items: center;
+        gap: 0.85rem;
         background: #eef2ff;
         border: 1px solid #c7d2fe;
         border-radius: 12px;
         padding: 0.85rem 1.1rem;
     }
+
     .adm-owner-avatar {
-        width: 42px; height: 42px;
+        width: 42px;
+        height: 42px;
         border-radius: 50%;
-        background: linear-gradient(135deg,#4f46e5,#6366f1);
-        display: flex; align-items: center; justify-content: center;
-        color: #fff; font-size: 1.1rem; flex-shrink: 0;
+        background: linear-gradient(135deg, #4f46e5, #6366f1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #fff;
+        font-size: 1.1rem;
+        flex-shrink: 0;
     }
+
     .adm-available-card {
-        display: flex; align-items: center; gap: 0.85rem;
+        display: flex;
+        align-items: center;
+        gap: 0.85rem;
         background: #f0fdf4;
         border: 1px solid #bbf7d0;
         border-radius: 12px;
         padding: 0.85rem 1.1rem;
     }
+
     .adm-note-box {
         background: #f8fafc;
         border: 1px solid #e2e8f0;
@@ -920,27 +1133,74 @@
         line-height: 1.6;
         word-break: break-word;
     }
+
     .adm-image-wrap {
-        border-radius: 12px; overflow: hidden;
+        border-radius: 12px;
+        overflow: hidden;
         max-height: 200px;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
     }
+
     .adm-assign-row {
-        display: flex; gap: 0.6rem; align-items: center;
+        display: flex;
+        gap: 0.6rem;
+        align-items: center;
     }
+
     .adm-assign-row .form-select {
-        border-radius: 10px; font-size: 0.85rem;
-        border-color: #e2e8f0; flex: 1;
+        border-radius: 10px;
+        font-size: 0.85rem;
+        border-color: #e2e8f0;
+        flex: 1;
     }
+
     .adm-agreement-badge {
-        display: inline-flex; align-items: center; gap: 0.4rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
         padding: 0.45rem 1rem;
         border-radius: 999px;
-        font-size: 0.78rem; font-weight: 700;
+        font-size: 0.78rem;
+        font-weight: 700;
     }
+
     @media (max-width: 600px) {
-        .adm-grid, .adm-grid.three { grid-template-columns: 1fr; }
-        .adm-body { padding: 1.1rem; }
+
+        .adm-grid,
+        .adm-grid.three {
+            grid-template-columns: 1fr;
+        }
+
+        .adm-body {
+            padding: 1.1rem;
+        }
+    }
+
+    /* ── Invoice Drawer Backdrop Overlay (Root / Portal Level Blur) ── */
+    .offcanvas-backdrop {
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        bottom: 0 !important;
+        width: 200vw !important;
+        height: 200vh !important;
+        min-width: 100vw !important;
+        min-height: 100vh !important;
+        background-color: rgba(15, 23, 42, 0.45) !important;
+        backdrop-filter: blur(8px) !important;
+        -webkit-backdrop-filter: blur(8px) !important;
+        z-index: 99990 !important;
+        transform: translate3d(0, 0, 0) !important;
+    }
+
+    .offcanvas-backdrop.show {
+        opacity: 1 !important;
+    }
+
+    #vendorInvoiceDrawer,
+    #invoiceDrawer {
+        z-index: 99999 !important;
     }
 </style>
 
@@ -987,17 +1247,25 @@
                     <span class="hero-stat-value" id="heroStatFree">—</span>
                     <span class="hero-stat-label">Available</span>
                 </div>
-                <div class="input-group ms-2" style="width: 250px; background: rgba(255,255,255,0.7); border-radius: 8px; overflow: hidden; border: 1px solid rgba(0,0,0,0.1);">
-                    <span class="input-group-text bg-transparent border-0"><i class="bi bi-search text-muted"></i></span>
-                    <input type="text" id="assetSearchInput" class="form-control border-0 bg-transparent shadow-none" placeholder="Search assets..." oninput="applyFilters()">
+                <div class="input-group ms-2"
+                    style="width: 250px; background: rgba(255,255,255,0.7); border-radius: 8px; overflow: hidden; border: 1px solid rgba(0,0,0,0.1);">
+                    <span class="input-group-text bg-transparent border-0"><i
+                            class="bi bi-search text-muted"></i></span>
+                    <input type="text" id="assetSearchInput" class="form-control border-0 bg-transparent shadow-none"
+                        placeholder="Search assets..." oninput="applyFilters()">
                 </div>
-                <button class="btn btn-light shadow-sm ms-2 position-relative" style="border-radius: 8px; font-weight: 500;" onclick="toggleFilterPanel()" title="Filters">
+                <button class="btn btn-light shadow-sm ms-2 position-relative"
+                    style="border-radius: 8px; font-weight: 500;" onclick="toggleFilterPanel()" title="Filters">
                     <i class="bi bi-funnel text-secondary"></i> Filters
-                    <span id="filterCountBadge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="display: none; font-size: 0.65rem;">
+                    <span id="filterCountBadge"
+                        class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
+                        style="display: none; font-size: 0.65rem;">
                         0
                     </span>
                 </button>
-                <button class="btn btn-light shadow-sm ms-2" style="border-radius: 8px; font-weight: 500; color: #4f46e5;" id="btnExportModal" onclick="openExportModal()" title="Export Assets to Excel">
+                <button class="btn btn-light shadow-sm ms-2"
+                    style="border-radius: 8px; font-weight: 500; color: #4f46e5;" id="btnExportModal"
+                    onclick="openExportModal()" title="Export Assets to Excel">
                     <i class="bi bi-download me-1"></i> Export
                 </button>
                 <button class="btn-hero-action ms-2" id="tabAddAsset" onclick="switchTab('add')">
@@ -1075,11 +1343,13 @@
                 <div class="d-flex gap-2">
                     <div class="flex-grow-1">
                         <label class="form-label small text-muted mb-1">Purchase Date</label>
-                        <input type="date" id="filterPurchaseFrom" class="form-control form-control-sm" placeholder="From" onchange="applyFilters()" title="Purchase Date From">
+                        <input type="date" id="filterPurchaseFrom" class="form-control form-control-sm"
+                            placeholder="From" onchange="applyFilters()" title="Purchase Date From">
                     </div>
                     <div class="flex-grow-1">
                         <label class="form-label small text-muted mb-1">&nbsp;</label>
-                        <input type="date" id="filterPurchaseTo" class="form-control form-control-sm" placeholder="To" onchange="applyFilters()" title="Purchase Date To">
+                        <input type="date" id="filterPurchaseTo" class="form-control form-control-sm" placeholder="To"
+                            onchange="applyFilters()" title="Purchase Date To">
                     </div>
                 </div>
             </div>
@@ -1087,11 +1357,13 @@
                 <div class="d-flex gap-2">
                     <div class="flex-grow-1">
                         <label class="form-label small text-muted mb-1">Warranty Expires</label>
-                        <input type="date" id="filterWarrantyFrom" class="form-control form-control-sm" placeholder="From" onchange="applyFilters()" title="Warranty Expiry From">
+                        <input type="date" id="filterWarrantyFrom" class="form-control form-control-sm"
+                            placeholder="From" onchange="applyFilters()" title="Warranty Expiry From">
                     </div>
                     <div class="flex-grow-1">
                         <label class="form-label small text-muted mb-1">&nbsp;</label>
-                        <input type="date" id="filterWarrantyTo" class="form-control form-control-sm" placeholder="To" onchange="applyFilters()" title="Warranty Expiry To">
+                        <input type="date" id="filterWarrantyTo" class="form-control form-control-sm" placeholder="To"
+                            onchange="applyFilters()" title="Warranty Expiry To">
                     </div>
                 </div>
             </div>
@@ -1101,15 +1373,17 @@
     <!-- ── Main Panel ── -->
     <div class="asset-panel">
         <!-- Tabs -->
-        <div class="asset-tabs-bar">
-            <button class="asset-tab-pill active" id="tabInventory" onclick="switchTab('inventory')">
-                <i class="bi bi-list-ul"></i> Asset Inventory
-            </button>
+        <div class="asset-tabs-bar d-flex align-items-center justify-content-between">
+            <div class="d-flex align-items-center gap-2">
+                <button class="asset-tab-pill active" id="tabInventory" onclick="switchTab('inventory')">
+                    <i class="bi bi-list-ul"></i> Asset Inventory
+                </button>
+                <button class="asset-tab-pill" id="tabRentals" onclick="switchTab('rentals')">
+                    <i class="bi bi-cash-coin"></i> Rental Management
+                </button>
+            </div>
             <button class="asset-tab-pill" id="tabAddAsset" onclick="switchTab('add')">
                 <i class="bi bi-plus-circle"></i> Add New Asset
-            </button>
-            <button class="asset-tab-pill" id="tabRentals" onclick="switchTab('rentals')">
-                <i class="bi bi-cash-coin"></i> Rental Management
             </button>
         </div>
 
@@ -1143,7 +1417,8 @@
                 <div class="row g-3 mb-5">
                     <div class="col-md-6">
                         <label class="detail-label">Device Name</label>
-                        <input type="text" class="form-control" name="device_name" required placeholder="e.g. MacBook Pro">
+                        <input type="text" class="form-control" name="device_name" required
+                            placeholder="e.g. MacBook Pro">
                     </div>
                     <div class="col-md-6">
                         <label class="detail-label">Device Type</label>
@@ -1185,12 +1460,15 @@
                     </div>
                     <div class="col-md-12">
                         <label class="detail-label">Notes</label>
-                        <textarea class="form-control" name="notes" rows="2" placeholder="Additional details..."></textarea>
+                        <textarea class="form-control" name="notes" rows="2"
+                            placeholder="Additional details..."></textarea>
                     </div>
                     <div class="col-md-12">
                         <label class="detail-label">Asset Images</label>
-                        <input type="file" class="form-control" id="assetImage" accept="image/*" style="padding: 8px 16px;" multiple>
-                        <small class="text-muted mt-1 d-block">Optional: Upload one or more photos of the device.</small>
+                        <input type="file" class="form-control" id="assetImage" accept="image/*"
+                            style="padding: 8px 16px;" multiple>
+                        <small class="text-muted mt-1 d-block">Optional: Upload one or more photos of the
+                            device.</small>
                     </div>
                 </div>
 
@@ -1221,7 +1499,8 @@
                 <div class="row g-3 mb-5 d-none" id="vendorDetailsSection">
                     <div class="col-md-6">
                         <label class="detail-label">Vendor Name <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" name="vendor_name" placeholder="e.g. Rentomojo, CloudLease Pvt Ltd">
+                        <input type="text" class="form-control" name="vendor_name"
+                            placeholder="e.g. Rentomojo, CloudLease Pvt Ltd">
                     </div>
                     <div class="col-md-6">
                         <label class="detail-label">Vendor Contact</label>
@@ -1239,7 +1518,8 @@
                         <label class="detail-label">Rental Cost</label>
                         <div class="input-group">
                             <span class="input-group-text">₹</span>
-                            <input type="number" min="0" step="0.01" class="form-control" name="rental_cost" placeholder="0.00">
+                            <input type="number" min="0" step="0.01" class="form-control" name="rental_cost"
+                                placeholder="0.00">
                         </div>
                     </div>
                     <div class="col-md-6">
@@ -1267,7 +1547,8 @@
             <!-- Summary Cards -->
             <div class="row g-3 mb-4" id="rentalStatsRow">
                 <div class="col-6 col-md-3">
-                    <div class="card border-0 shadow-sm h-100" style="background:linear-gradient(135deg,#dbeafe,#eff6ff);">
+                    <div class="card border-0 shadow-sm h-100"
+                        style="background:linear-gradient(135deg,#dbeafe,#eff6ff);">
                         <div class="card-body text-center py-3">
                             <div class="fs-1 fw-bold text-primary" id="statTotalAssets">–</div>
                             <div class="small text-muted">Total Rental Assets</div>
@@ -1275,7 +1556,8 @@
                     </div>
                 </div>
                 <div class="col-6 col-md-3">
-                    <div class="card border-0 shadow-sm h-100" style="background:linear-gradient(135deg,#d1fae5,#ecfdf5);">
+                    <div class="card border-0 shadow-sm h-100"
+                        style="background:linear-gradient(135deg,#d1fae5,#ecfdf5);">
                         <div class="card-body text-center py-3">
                             <div class="fs-1 fw-bold text-success" id="statMonthlyCost">–</div>
                             <div class="small text-muted">Total Monthly Cost</div>
@@ -1283,7 +1565,8 @@
                     </div>
                 </div>
                 <div class="col-6 col-md-3">
-                    <div class="card border-0 shadow-sm h-100" style="background:linear-gradient(135deg,#fef3c7,#fffbeb);">
+                    <div class="card border-0 shadow-sm h-100"
+                        style="background:linear-gradient(135deg,#fef3c7,#fffbeb);">
                         <div class="card-body text-center py-3">
                             <div class="fs-1 fw-bold text-warning" id="statActiveVendors">–</div>
                             <div class="small text-muted">Active Vendors</div>
@@ -1291,7 +1574,8 @@
                     </div>
                 </div>
                 <div class="col-6 col-md-3">
-                    <div class="card border-0 shadow-sm h-100" style="background:linear-gradient(135deg,#fee2e2,#fff5f5);">
+                    <div class="card border-0 shadow-sm h-100"
+                        style="background:linear-gradient(135deg,#fee2e2,#fff5f5);">
                         <div class="card-body text-center py-3">
                             <div class="fs-1 fw-bold text-danger" id="statUpcomingRenewals">–</div>
                             <div class="small text-muted">Renewals (30 days)</div>
@@ -1302,30 +1586,58 @@
 
             <!-- Filters Bar -->
             <div class="d-flex flex-wrap align-items-center gap-2 mb-3">
-                <input type="text" id="rentalSearch" class="form-control" placeholder="Search asset, vendor..." style="max-width:200px;" oninput="rentalFiltersChanged()">
-                <select id="rentalFilterVendor" class="form-select" style="max-width:160px;" onchange="rentalFiltersChanged()">
+                <input type="text" id="rentalSearch" class="form-control" placeholder="Search asset, vendor..."
+                    style="max-width:200px;" oninput="rentalFiltersChanged()">
+                <select id="rentalFilterVendor" class="form-select" style="max-width:160px;"
+                    onchange="rentalFiltersChanged()">
                     <option value="">All Vendors</option>
                 </select>
-                <select id="rentalFilterType" class="form-select" style="max-width:160px;" onchange="rentalFiltersChanged()">
+                <select id="rentalFilterType" class="form-select" style="max-width:160px;"
+                    onchange="rentalFiltersChanged()">
                     <option value="">All Categories</option>
-                    <option>Laptop</option><option>Desktop</option><option>Mobile</option><option>Tablet</option><option>Peripherals</option>
+                    <option>Laptop</option>
+                    <option>Desktop</option>
+                    <option>Mobile</option>
+                    <option>Tablet</option>
+                    <option>Peripherals</option>
                 </select>
-                <select id="rentalFilterYear" class="form-select" style="max-width:110px;" onchange="rentalFiltersChanged()">
+                <select id="rentalFilterYear" class="form-select" style="max-width:110px;"
+                    onchange="rentalFiltersChanged()">
                 </select>
-                <select id="rentalFilterMonth" class="form-select" style="max-width:130px;" onchange="rentalFiltersChanged()">
+                <select id="rentalFilterMonth" class="form-select" style="max-width:130px;"
+                    onchange="rentalFiltersChanged()">
                     <option value="">All Months</option>
-                    <option>Apr</option><option>May</option><option>Jun</option><option>Jul</option>
-                    <option>Aug</option><option>Sep</option><option>Oct</option><option>Nov</option>
-                    <option>Dec</option><option>Jan</option><option>Feb</option><option>Mar</option>
+                    <option>Apr</option>
+                    <option>May</option>
+                    <option>Jun</option>
+                    <option>Jul</option>
+                    <option>Aug</option>
+                    <option>Sep</option>
+                    <option>Oct</option>
+                    <option>Nov</option>
+                    <option>Dec</option>
+                    <option>Jan</option>
+                    <option>Feb</option>
+                    <option>Mar</option>
+                </select>
+                <select id="rentalInvoiceFilter" class="form-select" style="max-width:150px;"
+                    onchange="rentalFiltersChanged()">
+                    <option value="">All Invoices</option>
+                    <option value="Pending">Pending Invoices</option>
+                    <option value="Paid">Paid Invoices</option>
+                    <option value="Upcoming">Upcoming Invoices (7d)</option>
+                    <option value="Overdue">Overdue Invoices</option>
                 </select>
                 <div class="ms-auto d-flex gap-2">
-                    <button class="btn btn-sm btn-outline-secondary" onclick="clearRentalFilters()"><i class="bi bi-x-circle"></i> Clear</button>
-                    <button class="btn btn-sm btn-outline-success" onclick="exportRentals()"><i class="bi bi-file-earmark-excel"></i> Export</button>
+                    <button class="btn btn-sm btn-outline-secondary" onclick="clearRentalFilters()"><i
+                            class="bi bi-x-circle"></i> Clear</button>
+                    <button class="btn btn-sm btn-outline-success" onclick="exportRentals()"><i
+                            class="bi bi-file-earmark-excel"></i> Export</button>
                 </div>
             </div>
 
             <div class="row g-3">
-                <!-- Left Rail: Vendor Summary -->
+                <!-- Left Rail: Vendor Summary (COMMENTED OUT)
                 <div class="col-md-3">
                     <div class="card border-0 shadow-sm mb-3">
                         <div class="card-header fw-bold small">Vendor Summary</div>
@@ -1336,32 +1648,41 @@
                     <div class="card border-0 shadow-sm">
                         <div class="card-header fw-bold small">Quick Filters</div>
                         <div class="card-body p-2 d-flex flex-column gap-1">
-                            <button class="btn btn-sm btn-outline-primary" onclick="setQuickFilter('active_only')"><i class="bi bi-check-circle"></i> Active Rentals</button>
-                            <button class="btn btn-sm btn-outline-warning" onclick="setQuickFilter('expiring_soon')"><i class="bi bi-clock-history"></i> Expiring Soon (30d)</button>
+                            <button class="btn btn-sm btn-outline-primary" onclick="setQuickFilter('active_only')"><i
+                                    class="bi bi-check-circle"></i> Active Rentals</button>
+                            <button class="btn btn-sm btn-outline-warning" onclick="setQuickFilter('expiring_soon')"><i
+                                    class="bi bi-clock-history"></i> Expiring Soon (30d)</button>
                         </div>
                     </div>
                 </div>
+                END COMMENTED OUT -->
+                <!-- Hidden vendorSummaryList target so JS doesn't error -->
+                <div id="vendorSummaryList" style="display:none;"></div>
 
-                <!-- Center: Month Strip + Matrix -->
-                <div class="col-md-9">
+                <!-- Matrix (Full Width) -->
+                <div class="col-md-12">
                     <!-- Month Strip -->
                     <div class="d-flex gap-2 mb-3 overflow-auto pb-1" id="monthStrip" style="min-width:0;"></div>
 
                     <!-- Legend -->
-                    <div class="d-flex gap-3 mb-2 flex-wrap">
+                    <div id="rentalLegend" class="d-flex gap-3 mb-2 flex-wrap">
                         <span class="badge" style="background:#d1fae5;color:#065f46;">&#9632; Paid</span>
                         <span class="badge" style="background:#fef3c7;color:#92400e;">&#9632; Due This Month</span>
                         <span class="badge" style="background:#dbeafe;color:#1e40af;">&#9632; Upcoming</span>
                         <span class="badge" style="background:#f3f4f6;color:#374151;">&#9632; Not Applicable</span>
                     </div>
 
-                    <!-- Rental Matrix Table -->
-                    <div style="overflow-x:auto;">
-                        <table class="table table-bordered table-sm align-middle" style="min-width:1200px;font-size:0.82rem;">
-                            <thead id="rentalMatrixHead" class="table-dark"></thead>
+                    <!-- Rental Matrix Table Wrapper -->
+                    <div id="rentalMatrixTableWrapper" style="overflow-x:auto;">
+                        <table class="table table-bordered table-sm align-middle"
+                            style="min-width:1200px;font-size:0.82rem;">
+                            <thead id="rentalMatrixHead" class="table-light" style="color: #0f172a;"></thead>
                             <tbody id="rentalMatrixBody"></tbody>
                         </table>
                     </div>
+
+                    <!-- Rental Matrix Vendor Boxes -->
+                    <div id="rentalMatrixVendorBoxes" style="display:none;"></div>
 
                     <!-- Pagination -->
                     <div class="d-flex justify-content-between align-items-center mt-2" id="rentalPagination">
@@ -1402,10 +1723,12 @@
                 <div id="detailImageContainer" class="mb-4 text-center" style="display: none;">
                     <div id="imageCarousel" class="carousel slide" data-bs-ride="carousel">
                         <div class="carousel-inner rounded-4 shadow-sm" id="carouselInner"></div>
-                        <button class="carousel-control-prev" type="button" data-bs-target="#imageCarousel" data-bs-slide="prev">
+                        <button class="carousel-control-prev" type="button" data-bs-target="#imageCarousel"
+                            data-bs-slide="prev">
                             <span class="carousel-control-prev-icon"></span>
                         </button>
-                        <button class="carousel-control-next" type="button" data-bs-target="#imageCarousel" data-bs-slide="next">
+                        <button class="carousel-control-next" type="button" data-bs-target="#imageCarousel"
+                            data-bs-slide="next">
                             <span class="carousel-control-next-icon"></span>
                         </button>
                     </div>
@@ -1526,7 +1849,8 @@
                     <div class="adm-section-label"><i class="bi bi-person-badge"></i> Assignment</div>
                     <div id="detailOwnerSection">
                         <div class="adm-available-card">
-                            <div style="width:42px;height:42px;border-radius:50%;background:#dcfce7;border:2px solid #bbf7d0;display:flex;align-items:center;justify-content:center;color:#16a34a;font-size:1.1rem;flex-shrink:0;">
+                            <div
+                                style="width:42px;height:42px;border-radius:50%;background:#dcfce7;border:2px solid #bbf7d0;display:flex;align-items:center;justify-content:center;color:#16a34a;font-size:1.1rem;flex-shrink:0;">
                                 <i class="bi bi-check-circle-fill"></i>
                             </div>
                             <div>
@@ -1535,7 +1859,8 @@
                             </div>
                         </div>
                         <div id="returnAssetContainer" class="mt-2" style="display:none;">
-                            <button type="button" class="btn btn-sm btn-outline-danger rounded-pill fw-bold" onclick="promptReturnAsset()">
+                            <button type="button" class="btn btn-sm btn-outline-danger rounded-pill fw-bold"
+                                onclick="promptReturnAsset()">
                                 <i class="bi bi-arrow-return-left me-1"></i> Return Asset
                             </button>
                         </div>
@@ -1556,7 +1881,8 @@
                     <div class="adm-section-label"><i class="bi bi-person-gear"></i> Update Owner</div>
                     <div class="adm-assign-row">
                         <select class="form-select" id="reassignSelect"></select>
-                        <button type="button" class="btn-primary-indigo" style="white-space:nowrap;" onclick="reassignAsset()">Save</button>
+                        <button type="button" class="btn-primary-indigo" style="white-space:nowrap;"
+                            onclick="reassignAsset()">Save</button>
                     </div>
                 </div>
 
@@ -1568,7 +1894,8 @@
 <!-- ── Edit Asset Modal ── -->
 <div class="modal fade" id="editAssetModal" tabindex="-1">
     <div class="modal-dialog modal-lg modal-dialog-centered">
-        <div class="modal-content" style="border-radius: 20px; overflow: hidden; border: 0; box-shadow: 0 25px 50px rgba(0,0,0,0.15);">
+        <div class="modal-content"
+            style="border-radius: 20px; overflow: hidden; border: 0; box-shadow: 0 25px 50px rgba(0,0,0,0.15);">
             <!-- Gradient Header -->
             <div class="adm-header">
                 <div class="d-flex align-items-center gap-3">
@@ -1584,7 +1911,7 @@
                     <i class="bi bi-x-lg"></i>
                 </button>
             </div>
-            
+
             <div class="modal-body p-4 bg-light">
                 <form id="editAssetForm">
                     <!-- Device Identity -->
@@ -1593,7 +1920,8 @@
                         <div class="row g-3">
                             <div class="col-md-6">
                                 <label class="detail-label">Device Name</label>
-                                <input type="text" class="form-control" id="editDeviceName" placeholder="e.g. MacBook Pro">
+                                <input type="text" class="form-control" id="editDeviceName"
+                                    placeholder="e.g. MacBook Pro">
                             </div>
                             <div class="col-md-6">
                                 <label class="detail-label">Device Type / Category</label>
@@ -1609,7 +1937,8 @@
                             </div>
                             <div class="col-md-6">
                                 <label class="detail-label">Asset Tag / ID</label>
-                                <input type="text" class="form-control" id="editAssetId" placeholder="e.g. LT-2026-VASANTH">
+                                <input type="text" class="form-control" id="editAssetId"
+                                    placeholder="e.g. LT-2026-VASANTH">
                                 <small class="text-muted mt-1 d-block">Must be unique across all assets.</small>
                             </div>
                             <div class="col-md-6">
@@ -1625,7 +1954,8 @@
 
                     <!-- Hardware Specs -->
                     <div class="adm-section bg-white rounded-4 p-4 shadow-sm mb-4">
-                        <div class="adm-section-label mb-3"><i class="bi bi-memory text-primary"></i> Hardware Specs</div>
+                        <div class="adm-section-label mb-3"><i class="bi bi-memory text-primary"></i> Hardware Specs
+                        </div>
                         <div class="row g-3">
                             <div class="col-md-4">
                                 <label class="detail-label">Processor</label>
@@ -1644,7 +1974,8 @@
 
                     <!-- Ownership Details -->
                     <div class="adm-section bg-white rounded-4 p-4 shadow-sm mb-4">
-                        <div class="adm-section-label mb-3"><i class="bi bi-shield-check text-primary"></i> Ownership Details</div>
+                        <div class="adm-section-label mb-3"><i class="bi bi-shield-check text-primary"></i> Ownership
+                            Details</div>
                         <div class="row g-3 mb-3">
                             <div class="col-md-6">
                                 <label class="detail-label">Status</label>
@@ -1657,13 +1988,14 @@
                             </div>
                             <div class="col-md-6">
                                 <label class="detail-label">Ownership Type</label>
-                                <select class="form-select" id="editOwnershipType" onchange="toggleEditOwnershipFields()">
+                                <select class="form-select" id="editOwnershipType"
+                                    onchange="toggleEditOwnershipFields()">
                                     <option value="Purchased">Purchased</option>
                                     <option value="Rented">Rented</option>
                                 </select>
                             </div>
                         </div>
-                        
+
                         <!-- Purchased Fields -->
                         <div id="editPurchasedFields" class="row g-3">
                             <div class="col-md-6">
@@ -1681,11 +2013,13 @@
                             <div class="row g-3 mb-3">
                                 <div class="col-md-6">
                                     <label class="detail-label">Vendor Name</label>
-                                    <input type="text" class="form-control" id="editVendorName" placeholder="e.g. Tech Rentals Inc">
+                                    <input type="text" class="form-control" id="editVendorName"
+                                        placeholder="e.g. Tech Rentals Inc">
                                 </div>
                                 <div class="col-md-6">
                                     <label class="detail-label">Vendor Contact</label>
-                                    <input type="text" class="form-control" id="editVendorContact" placeholder="e.g. contact@vendor.com">
+                                    <input type="text" class="form-control" id="editVendorContact"
+                                        placeholder="e.g. contact@vendor.com">
                                 </div>
                             </div>
                             <div class="row g-3">
@@ -1699,7 +2033,8 @@
                                 </div>
                                 <div class="col-md-6">
                                     <label class="detail-label">Rental Cost</label>
-                                    <input type="number" step="0.01" class="form-control" id="editRentalCost" placeholder="e.g. 500.00">
+                                    <input type="number" step="0.01" class="form-control" id="editRentalCost"
+                                        placeholder="e.g. 500.00">
                                 </div>
                                 <div class="col-md-6">
                                     <label class="detail-label">Billing Frequency</label>
@@ -1718,15 +2053,17 @@
                     <div class="adm-section bg-white rounded-4 p-4 shadow-sm mb-4">
                         <div class="adm-section-label mb-3"><i class="bi bi-journal-text text-primary"></i> Notes</div>
                         <div>
-                            <textarea class="form-control" id="editNotes" rows="3" placeholder="Any condition notes..."></textarea>
+                            <textarea class="form-control" id="editNotes" rows="3"
+                                placeholder="Any condition notes..."></textarea>
                         </div>
                     </div>
                 </form>
             </div>
-            
+
             <div class="modal-footer border-0 bg-white" style="border-radius: 0 0 20px 20px;">
                 <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-primary rounded-pill px-4 fw-bold" id="btnSaveEdit" onclick="saveAssetEdits()">
+                <button type="button" class="btn btn-primary rounded-pill px-4 fw-bold" id="btnSaveEdit"
+                    onclick="saveAssetEdits()">
                     <i class="bi bi-check2 me-1"></i> Save Changes
                 </button>
             </div>
@@ -1751,10 +2088,12 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body pt-1">
-                <p class="text-muted small">Are you sure you want to return this asset? The current owner assignment will be removed and the asset will become available for future allocation.</p>
+                <p class="text-muted small">Are you sure you want to return this asset? The current owner assignment
+                    will be removed and the asset will become available for future allocation.</p>
                 <div class="return-confirm-check">
                     <div class="form-check">
-                        <input class="form-check-input" type="checkbox" id="confirmReturnCheck" onchange="toggleReturnButton()">
+                        <input class="form-check-input" type="checkbox" id="confirmReturnCheck"
+                            onchange="toggleReturnButton()">
                         <label class="form-check-label fw-medium text-dark small" for="confirmReturnCheck">
                             I confirm this asset has been physically returned.
                         </label>
@@ -1763,7 +2102,8 @@
             </div>
             <div class="modal-footer border-0 pt-2">
                 <button type="button" class="btn-light-cancel" data-bs-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-danger rounded-pill px-4 fw-bold" id="btnConfirmReturn" disabled onclick="confirmReturnAsset()">
+                <button type="button" class="btn btn-danger rounded-pill px-4 fw-bold" id="btnConfirmReturn" disabled
+                    onclick="confirmReturnAsset()">
                     <i class="bi bi-arrow-return-left me-1"></i> Return Asset
                 </button>
             </div>
@@ -1776,7 +2116,8 @@
     <div class="modal-dialog modal-dialog-centered" style="max-width: 500px;">
         <div class="modal-content border-0 rounded-4 shadow">
             <div class="modal-header border-0 pb-0 px-4 pt-4">
-                <h5 class="fw-bold m-0"><i class="bi bi-file-earmark-excel text-success me-2"></i>Export Asset Inventory</h5>
+                <h5 class="fw-bold m-0"><i class="bi bi-file-earmark-excel text-success me-2"></i>Export Asset Inventory
+                </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body px-4 pt-4 pb-4">
@@ -1793,7 +2134,7 @@
                             <option value="retired">Only Retired</option>
                         </select>
                     </div>
-                    
+
                     <div class="row g-3 mb-3">
                         <div class="col-6">
                             <label class="form-label fw-semibold text-muted small">Category Filter</label>
@@ -1819,7 +2160,7 @@
                             </select>
                         </div>
                     </div>
-                    
+
                     <div class="row g-3 mb-4">
                         <div class="col-6">
                             <label class="form-label fw-semibold text-muted small">Sort By</label>
@@ -1845,9 +2186,521 @@
             </div>
             <div class="modal-footer border-0 pt-0 px-4 pb-4">
                 <button type="button" class="btn btn-light px-4 rounded-pill" data-bs-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-success px-4 rounded-pill fw-bold" id="btnSubmitExport" onclick="submitExportAssets()">
+                <button type="button" class="btn btn-success px-4 rounded-pill fw-bold" id="btnSubmitExport"
+                    onclick="submitExportAssets()">
                     <i class="bi bi-download me-1"></i> <span id="exportBtnText">Download Excel</span>
                 </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Right-side Drawer / Offcanvas for Invoice Details -->
+<div class="offcanvas offcanvas-end" tabindex="-1" id="invoiceDrawer" aria-labelledby="invoiceDrawerLabel"
+    style="width: 500px; border-radius: 20px 0 0 20px; border: 0; box-shadow: -10px 0 30px rgba(15,23,42,0.1);">
+    <div class="offcanvas-header bg-light border-bottom">
+        <h5 class="offcanvas-title fw-bold" id="invoiceDrawerLabel"><i
+                class="bi bi-file-earmark-text text-primary me-2"></i>Invoice Details</h5>
+        <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body p-4" id="invoiceDrawerContent">
+        <!-- Invoice Details populated dynamically -->
+    </div>
+</div>
+
+<!-- Mark as Paid Modal -->
+<div class="modal fade" id="payInvoiceModal" tabindex="-1" aria-hidden="true" style="z-index: 1060;">
+    <div class="modal-dialog modal-dialog-centered" style="max-width: 400px;">
+        <div class="modal-content" style="border-radius: 16px; border: 0; box-shadow: 0 10px 30px rgba(0,0,0,0.15);">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title fw-bold"><i class="bi bi-cash-coin me-2"></i>Mark as Paid</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                    aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4">
+                <form id="payInvoiceForm">
+                    <input type="hidden" id="payInvoiceId">
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold text-muted small">Payment Date</label>
+                        <input type="date" class="form-control" id="payPaymentDate" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold text-muted small">Payment Mode</label>
+                        <select class="form-select" id="payPaymentMode" required>
+                            <option value="Bank Transfer">Bank Transfer</option>
+                            <option value="UPI">UPI</option>
+                            <option value="Cash">Cash</option>
+                            <option value="Cheque">Cheque</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold text-muted small">Reference Number</label>
+                        <input type="text" class="form-control" id="payRefNum" placeholder="e.g. TXN12345678">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold text-muted small">Remarks</label>
+                        <textarea class="form-control" id="payRemarks" rows="2"
+                            placeholder="Optional notes..."></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer border-0">
+                <button type="button" class="btn btn-light px-4 rounded-pill" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-success px-4 rounded-pill fw-bold"
+                    onclick="confirmInvoicePayment()">Confirm</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Asset Invoice & Payment History Modal -->
+<div class="modal fade" id="assetInvoiceHistoryModal" tabindex="-1" aria-hidden="true" style="z-index: 1050;">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content border-0 rounded-4 shadow">
+            <div class="modal-header border-0 pb-0 px-4 pt-4">
+                <h5 class="modal-title fw-bold" id="assetHistoryModalTitle">
+                    <i class="bi bi-clock-history text-primary me-2"></i>Invoice History
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4 bg-light bg-opacity-50 mt-3" style="border-radius: 0 0 16px 16px;">
+                <div class="row g-3">
+                    <div class="col-md-7">
+                        <div class="card border-0 shadow-sm p-3 h-100" style="border-radius: 12px;">
+                            <h6 class="fw-bold text-muted mb-3" style="font-size:0.85rem;"><i
+                                    class="bi bi-receipt me-1"></i>Invoices</h6>
+                            <div class="table-responsive" style="max-height: 250px;">
+                                <table class="table table-sm table-hover align-middle" style="font-size: 0.8rem;">
+                                    <thead>
+                                        <tr>
+                                            <th>Invoice No.</th>
+                                            <th>Due Date</th>
+                                            <th>Amount</th>
+                                            <th>Status</th>
+                                            <th class="text-center">Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="assetHistoryInvoicesBody"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-5">
+                        <div class="card border-0 shadow-sm p-3 h-100" style="border-radius: 12px;">
+                            <h6 class="fw-bold text-muted mb-3" style="font-size:0.85rem;"><i
+                                    class="bi bi-credit-card me-1"></i>Payments</h6>
+                            <div class="table-responsive" style="max-height: 250px;">
+                                <table class="table table-sm table-hover align-middle" style="font-size: 0.8rem;">
+                                    <thead>
+                                        <tr>
+                                            <th>Date</th>
+                                            <th>Amount</th>
+                                            <th>Mode</th>
+                                            <th>Ref. No.</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="assetHistoryPaymentsBody"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ═══════════ Vendor Invoice Right Drawer ═══════════ -->
+<div class="offcanvas offcanvas-end" tabindex="-1" id="vendorInvoiceDrawer" aria-labelledby="vidDrawerTitle"
+     style="width:min(720px,96vw);z-index:1065;">
+    <div class="offcanvas-header border-0 px-4 pt-4 pb-3"
+         style="background:linear-gradient(135deg,#1e3a5f 0%,#2563eb 100%);">
+        <div class="d-flex align-items-center gap-3 w-100">
+            <div style="background:rgba(255,255,255,0.18);border-radius:10px;padding:10px 13px;flex-shrink:0;">
+                <i class="bi bi-file-earmark-invoice fs-5 text-white"></i>
+            </div>
+            <div class="flex-grow-1 overflow-hidden">
+                <h6 class="offcanvas-title fw-bold text-white mb-0" id="vidDrawerTitle">Vendor Invoice</h6>
+                <small class="text-white opacity-75 text-truncate d-block" id="vidDrawerSubtitle">Loading…</small>
+            </div>
+            <button type="button" class="btn-close btn-close-white flex-shrink-0" data-bs-dismiss="offcanvas"></button>
+        </div>
+    </div>
+
+    <!-- Top Tab Bar Switcher -->
+    <div class="px-4 pt-3 pb-3 bg-white border-bottom shadow-sm">
+        <ul class="nav nav-pills nav-justified gap-2 p-1 bg-light rounded-3" style="font-size:0.85rem;font-weight:600;">
+            <li class="nav-item">
+                <button class="nav-link active py-2 rounded-2 d-flex align-items-center justify-content-center gap-2"
+                        id="vidTabSystemBtn" type="button" onclick="switchVidDrawerTab('system')">
+                    <i class="bi bi-file-earmark-calculator"></i>
+                    <span>System Generated Invoice</span>
+                </button>
+            </li>
+            <li class="nav-item">
+                <button class="nav-link py-2 rounded-2 d-flex align-items-center justify-content-center gap-2 text-secondary"
+                        id="vidTabVendorBtn" type="button" onclick="switchVidDrawerTab('vendor')">
+                    <i class="bi bi-paperclip"></i>
+                    <span>Vendor Uploaded Invoice</span>
+                    <span id="vidVendorFileBadge" class="badge rounded-pill bg-success ms-1 d-none" style="font-size:0.65rem;">Attached</span>
+                </button>
+            </li>
+        </ul>
+    </div>
+
+    <div class="offcanvas-body p-0" style="background:#f1f5f9;overflow-y:auto;">
+        <!-- Loading spinner -->
+        <div id="vidDrawerLoading" class="d-flex align-items-center justify-content-center py-5">
+            <span class="spinner-border text-primary me-2"></span><span class="text-muted">Loading invoice…</span>
+        </div>
+
+        <!-- Main content -->
+        <div id="vidDrawerContent" style="display:none;">
+
+            <!-- ══════════ SYSTEM GENERATED INVOICE TAB CONTENT ══════════ -->
+            <div id="vidTabSystemContent">
+                <!-- Top Summary Header Card -->
+                <div class="px-4 pt-4 pb-3">
+                    <div class="card border-0 shadow-sm" style="border-radius:14px;overflow:hidden;">
+                        <div class="card-body p-4">
+                            <!-- Top Meta Header -->
+                            <div class="d-flex align-items-start justify-content-between mb-3 flex-wrap gap-2 pb-3 border-bottom">
+                                <div>
+                                    <div class="text-muted" style="font-size:0.74rem;text-transform:uppercase;letter-spacing:.04em;">Invoice Number</div>
+                                    <div class="fw-bold text-primary d-flex align-items-center gap-2 mt-1"
+                                         style="font-size:1.15rem;font-family:monospace;">
+                                        <span id="vidDrawerInvNum">—</span>
+                                        <input id="vidDrawerInvNumInput" type="text"
+                                               class="form-control form-control-sm d-none"
+                                               style="font-family:monospace;font-size:0.9rem;max-width:180px;">
+                                        <button id="vidDrawerEditNumBtn" class="btn btn-sm btn-outline-primary py-0 px-2 border-0"
+                                                title="Edit Invoice Number" onclick="vidDrawerToggleEditNum()">
+                                            <i class="bi bi-pencil" style="font-size:0.75rem;"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="text-end">
+                                    <div class="text-muted" style="font-size:0.74rem;text-transform:uppercase;letter-spacing:.04em;">Invoice Status</div>
+                                    <div id="vidDrawerStatusBadge" class="mt-1"></div>
+                                </div>
+                            </div>
+
+                            <!-- Vendor & Date Info -->
+                            <div class="row g-3">
+                                <div class="col-6 col-md-4">
+                                    <div class="text-muted" style="font-size:0.74rem;text-transform:uppercase;letter-spacing:.04em;">Vendor Name</div>
+                                    <div class="fw-bold text-dark small mt-1" id="vidDrawerVendor">—</div>
+                                </div>
+                                <div class="col-6 col-md-4">
+                                    <div class="text-muted" style="font-size:0.74rem;text-transform:uppercase;letter-spacing:.04em;">Invoice Date</div>
+                                    <div class="fw-semibold text-dark small mt-1" id="vidDrawerInvDate">—</div>
+                                </div>
+                                <div class="col-6 col-md-4">
+                                    <div class="text-muted" style="font-size:0.74rem;text-transform:uppercase;letter-spacing:.04em;">Due Date</div>
+                                    <div class="fw-semibold text-dark small mt-1" id="vidDrawerDueDate">—</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Financial & Asset Metrics Summary Tiles -->
+                <div class="px-4 pb-3">
+                    <div class="row g-2 mb-2">
+                        <div class="col-4">
+                            <div class="card border-0 shadow-sm text-center p-2" style="border-radius:10px;background:#ffffff;">
+                                <div class="text-muted" style="font-size:0.68rem;text-transform:uppercase;letter-spacing:.03em;">Total Assets</div>
+                                <div class="fw-bold text-dark fs-6" id="vidDrawerTotalAssets">0</div>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="card border-0 shadow-sm text-center p-2" style="border-radius:10px;background:#f0fdf4;">
+                                <div class="text-muted" style="font-size:0.68rem;text-transform:uppercase;letter-spacing:.03em;color:#166534;">Paid Assets</div>
+                                <div class="fw-bold text-success fs-6" id="vidDrawerPaidAssets">0</div>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="card border-0 shadow-sm text-center p-2" style="border-radius:10px;background:#fef2f2;">
+                                <div class="text-muted" style="font-size:0.68rem;text-transform:uppercase;letter-spacing:.03em;color:#991b1b;">Unpaid Assets</div>
+                                <div class="fw-bold text-danger fs-6" id="vidDrawerUnpaidAssets">0</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row g-2">
+                        <div class="col-6">
+                            <div class="card border-0 shadow-sm text-center p-3" style="border-radius:12px;background:#ffffff;">
+                                <div class="text-muted" style="font-size:0.7rem;text-transform:uppercase;letter-spacing:.04em;">Total Payable Amount</div>
+                                <div class="fw-bold text-primary mt-1" style="font-size:1.1rem;" id="vidDrawerTotalPayable">₹0</div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="card border-0 shadow-sm text-center p-3" style="border-radius:12px;background:#ffffff;">
+                                <div class="text-muted" style="font-size:0.7rem;text-transform:uppercase;letter-spacing:.04em;">Remaining Amount</div>
+                                <div class="fw-bold text-danger mt-1" style="font-size:1.1rem;" id="vidDrawerRemaining">₹0</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Asset Table -->
+                <div class="px-4 pb-4">
+                    <div class="card border-0 shadow-sm" style="border-radius:14px;overflow:hidden;">
+                        <div class="card-header bg-white border-0 px-4 py-3 d-flex align-items-center justify-content-between">
+                            <h6 class="fw-bold text-dark mb-0">
+                                <i class="bi bi-laptop me-2 text-primary"></i>Assets in this Invoice
+                            </h6>
+                            <span class="badge bg-primary rounded-pill" id="vidDrawerAssetCount">0</span>
+                        </div>
+                        <div style="overflow-x:auto;">
+                            <table class="table table-sm table-hover align-middle mb-0" style="font-size:0.82rem;min-width:520px;">
+                                <thead class="table-light" style="position:sticky;top:0;">
+                                    <tr>
+                                        <th class="px-3">#</th>
+                                        <th>Asset Name</th>
+                                        <th>Category</th>
+                                        <th class="text-end">Monthly Amount</th>
+                                        <th>Start Date</th>
+                                        <th class="text-center">Payment Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="vidDrawerAssetBody">
+                                    <tr><td colspan="6" class="text-center text-muted py-3">No assets.</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div><!-- /vidTabSystemContent -->
+
+            <!-- ══════════ VENDOR UPLOADED INVOICE TAB CONTENT ══════════ -->
+            <div id="vidTabVendorContent" style="display:none;" class="p-4">
+                <input type="file" id="vidVendorFileInput" accept=".pdf,.jpg,.jpeg,.png" style="display:none;" onchange="handleVidFileUpload(this)">
+
+                <!-- State A: Upload Dropzone Card -->
+                <div id="vidUploadDropzoneCard" class="card border-0 shadow-sm text-center p-5" style="border-radius:18px;background:#ffffff;border:2px dashed #cbd5e1 !important;">
+                    <div class="mb-3">
+                        <div class="mx-auto d-flex align-items-center justify-content-center" style="width:68px;height:68px;border-radius:50%;background:#eef2ff;color:#4f46e5;">
+                            <i class="bi bi-cloud-arrow-up fs-2"></i>
+                        </div>
+                    </div>
+                    <h6 class="fw-bold text-dark mb-1 fs-5">Upload Vendor Invoice Document</h6>
+                    <p class="text-muted small mb-4 mx-auto" style="max-width:380px;">
+                        Attach an official invoice PDF or image scan provided by your vendor for record keeping.
+                    </p>
+
+                    <div class="d-flex justify-content-center gap-2 mb-3">
+                        <button type="button" class="btn btn-primary rounded-pill px-4 py-2 fw-semibold d-inline-flex align-items-center gap-2"
+                                onclick="document.getElementById('vidVendorFileInput').click()">
+                            <i class="bi bi-upload"></i> Select Document
+                        </button>
+                    </div>
+                    <small class="text-muted opacity-75" style="font-size:0.75rem;">
+                        Supported Formats: <strong>PDF, JPG, PNG</strong>
+                    </small>
+
+                    <div id="vidUploadProgress" class="mt-4 d-none">
+                        <div class="spinner-border spinner-border-sm text-primary me-2"></div>
+                        <span class="text-muted small">Uploading invoice document…</span>
+                    </div>
+                </div>
+
+                <!-- State B: Attached File Card -->
+                <div id="vidFileDetailsCard" class="d-none">
+                    <div class="card border-0 shadow-sm mb-4" style="border-radius:16px;overflow:hidden;background:#ffffff;">
+                        <div class="card-header bg-white border-bottom p-3 px-4 d-flex align-items-center justify-content-between">
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="badge bg-success bg-opacity-10 text-success rounded-pill px-3 py-1 fw-semibold" style="font-size:0.75rem;">
+                                    <i class="bi bi-check-circle-fill me-1"></i>Vendor Document Attached
+                                </span>
+                            </div>
+                            <small class="text-muted" id="vidFileUploadTime">—</small>
+                        </div>
+                        <div class="card-body p-4">
+                            <div class="d-flex align-items-center gap-3">
+                                <div id="vidFileIconBox" class="d-flex align-items-center justify-content-center flex-shrink-0"
+                                     style="width:56px;height:56px;border-radius:14px;background:#fee2e2;color:#dc2626;">
+                                    <i class="bi bi-file-earmark-pdf fs-2" id="vidFileIcon"></i>
+                                </div>
+                                <div class="flex-grow-1 overflow-hidden">
+                                    <div class="fw-bold text-dark text-truncate" id="vidFileName" style="font-size:1rem;">Invoice.pdf</div>
+                                    <div class="text-muted small mt-1 d-flex align-items-center gap-3">
+                                        <span id="vidFileSize">0 KB</span>
+                                        <span class="badge bg-light text-dark border" id="vidFileType">PDF</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Document Action Buttons -->
+                            <div class="d-flex align-items-center gap-2 mt-4 pt-3 border-top flex-wrap">
+                                <button type="button" class="btn btn-sm btn-primary rounded-pill px-3 fw-semibold d-flex align-items-center gap-1"
+                                        onclick="viewVidVendorFile()">
+                                    <i class="bi bi-eye"></i> View Document
+                                </button>
+                                <a id="vidFileDownloadAnchor" class="btn btn-sm btn-outline-primary rounded-pill px-3 fw-semibold d-flex align-items-center gap-1"
+                                   target="_blank" download>
+                                    <i class="bi bi-download"></i> Download
+                                </a>
+                                <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3 fw-semibold d-flex align-items-center gap-1"
+                                        onclick="document.getElementById('vidVendorFileInput').click()">
+                                    <i class="bi bi-arrow-repeat"></i> Replace File
+                                </button>
+                                <button type="button" class="btn btn-sm btn-outline-danger rounded-pill px-3 fw-semibold d-flex align-items-center gap-1 ms-auto"
+                                        onclick="deleteVidVendorFile()">
+                                    <i class="bi bi-trash"></i> Delete
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Inline Preview Card -->
+                    <div class="card border-0 shadow-sm" style="border-radius:16px;overflow:hidden;">
+                        <div class="card-header bg-white border-bottom p-3 px-4 d-flex align-items-center justify-content-between">
+                            <h6 class="fw-bold text-dark mb-0"><i class="bi bi-file-earmark-text me-2 text-primary"></i>Document Preview</h6>
+                            <button type="button" class="btn btn-sm btn-link text-decoration-none p-0" onclick="viewVidVendorFile()">Full Screen <i class="bi bi-box-arrow-up-right ms-1"></i></button>
+                        </div>
+                        <div class="card-body p-0 text-center bg-dark" style="min-height:350px;" id="vidPreviewContainer">
+                            <!-- Preview element -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        <!-- Error -->
+        <div id="vidDrawerError" class="alert alert-danger mx-4 mt-3 d-none"></div>
+    </div><!-- /offcanvas-body -->
+
+    <!-- Action Buttons Footer -->
+    <div class="offcanvas-footer px-4 py-3 bg-white border-top d-flex gap-2 align-items-center flex-wrap justify-content-between">
+        <div class="d-flex gap-2 align-items-center flex-wrap">
+            <button type="button" class="btn btn-sm btn-primary rounded-pill px-3 fw-semibold d-flex align-items-center gap-1" id="vidDrawerSaveBtn" onclick="vidDrawerSaveNum()">
+                <i class="bi bi-save"></i> Save Changes
+            </button>
+            <button type="button" class="btn btn-sm btn-success rounded-pill px-3 fw-semibold d-flex align-items-center gap-1" id="vidDrawerPayAllBtn" onclick="payAllVendorAssets()">
+                <i class="bi bi-check-all"></i> Mark Entire Invoice Paid
+            </button>
+        </div>
+        <div class="d-flex gap-2 align-items-center flex-wrap">
+            <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3 d-flex align-items-center gap-1" onclick="downloadInvoicePDF()">
+                <i class="bi bi-file-earmark-pdf"></i> Download PDF
+            </button>
+            <button type="button" class="btn btn-sm btn-outline-dark rounded-pill px-3 d-flex align-items-center gap-1" onclick="printInvoice()">
+                <i class="bi bi-printer"></i> Print Invoice
+            </button>
+            <button type="button" class="btn btn-sm btn-light rounded-pill px-3" data-bs-dismiss="offcanvas">Close</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    (function portalInvoiceDrawers() {
+        ['vendorInvoiceDrawer', 'invoiceDrawer'].forEach(function (id) {
+            var el = document.getElementById(id);
+            if (el && el.parentElement !== document.body) {
+                document.body.appendChild(el);
+            }
+        });
+    })();
+</script>
+
+<!-- ═══════════ Vendor Invoice Details Modal ═══════════ -->
+<div class="modal fade" id="vendorInvoiceDetailsModal" tabindex="-1" aria-hidden="true" style="z-index:1060;">
+    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content border-0 rounded-4 shadow-lg">
+            <!-- Header -->
+            <div class="modal-header border-0 px-4 pt-4 pb-2" style="background:linear-gradient(135deg,#1e3a5f 0%,#2563eb 100%);border-radius:16px 16px 0 0;">
+                <div class="d-flex align-items-center gap-3">
+                    <div style="background:rgba(255,255,255,0.15);border-radius:10px;padding:10px 12px;">
+                        <i class="bi bi-file-earmark-text fs-4 text-white"></i>
+                    </div>
+                    <div>
+                        <h5 class="modal-title fw-bold text-white mb-0" id="vidModalTitle">Invoice Details</h5>
+                        <small class="text-white opacity-75" id="vidModalSubtitle">Vendor Master Invoice</small>
+                    </div>
+                </div>
+                <button type="button" class="btn-close btn-close-white ms-auto" data-bs-dismiss="modal"></button>
+            </div>
+            <!-- Body -->
+            <div class="modal-body p-4" style="background:#f8fafc;">
+                <!-- Summary cards -->
+                <div class="row g-3 mb-4" id="vidSummaryCards">
+                    <div class="col-6 col-md-3">
+                        <div class="card border-0 shadow-sm h-100 text-center p-3" style="border-radius:12px;">
+                            <div class="text-muted small mb-1">Invoice No.</div>
+                            <div class="fw-bold text-primary" id="vidInvoiceNumber" style="font-size:1rem;font-family:monospace;">—</div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <div class="card border-0 shadow-sm h-100 text-center p-3" style="border-radius:12px;">
+                            <div class="text-muted small mb-1">Total Assets</div>
+                            <div class="fw-bold text-dark fs-4" id="vidTotalAssets">—</div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <div class="card border-0 shadow-sm h-100 text-center p-3" style="border-radius:12px;">
+                            <div class="text-muted small mb-1">Total Payable</div>
+                            <div class="fw-bold text-success fs-5" id="vidTotalPayable">—</div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <div class="card border-0 shadow-sm h-100 text-center p-3" style="border-radius:12px;">
+                            <div class="text-muted small mb-1">Status</div>
+                            <div id="vidStatus">—</div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Meta row -->
+                <div class="row g-3 mb-4">
+                    <div class="col-md-4">
+                        <div class="card border-0 shadow-sm p-3" style="border-radius:12px;">
+                            <div class="text-muted small mb-1"><i class="bi bi-shop me-1"></i>Vendor</div>
+                            <div class="fw-semibold text-dark" id="vidVendorName">—</div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card border-0 shadow-sm p-3" style="border-radius:12px;">
+                            <div class="text-muted small mb-1"><i class="bi bi-calendar-check me-1"></i>Invoice Date</div>
+                            <div class="fw-semibold text-dark" id="vidInvoiceDate">—</div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card border-0 shadow-sm p-3" style="border-radius:12px;">
+                            <div class="text-muted small mb-1"><i class="bi bi-calendar-x me-1"></i>Earliest Due Date</div>
+                            <div class="fw-semibold text-dark" id="vidDueDate">—</div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Asset table -->
+                <div class="card border-0 shadow-sm" style="border-radius:12px;">
+                    <div class="card-header bg-white border-0 px-4 pt-3 pb-2">
+                        <h6 class="fw-bold text-dark mb-0"><i class="bi bi-laptop me-2 text-primary"></i>Assets Included in This Invoice</h6>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive" style="max-height:320px;">
+                            <table class="table table-sm table-hover align-middle mb-0" style="font-size:0.83rem;">
+                                <thead class="table-light" style="position:sticky;top:0;">
+                                    <tr>
+                                        <th class="px-3">#</th>
+                                        <th>Asset Name</th>
+                                        <th>Type</th>
+                                        <th>Serial No.</th>
+                                        <th>Start Date</th>
+                                        <th>End Date</th>
+                                        <th class="text-end px-3">Rate/Mo</th>
+                                        <th>Assigned To</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="vidAssetTableBody">
+                                    <tr><td colspan="8" class="text-center text-muted py-4">Loading…</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <!-- Error state -->
+                <div id="vidError" class="alert alert-danger mt-3 d-none"></div>
+            </div>
+            <div class="modal-footer border-0 px-4 pb-4">
+                <button type="button" class="btn btn-light px-4 rounded-pill" data-bs-dismiss="modal">Close</button>
             </div>
         </div>
     </div>
@@ -1864,9 +2717,9 @@
     function showToast(message, type = 'info', duration = 4000) {
         const icons = {
             success: 'bi-check-circle-fill',
-            error:   'bi-x-circle-fill',
+            error: 'bi-x-circle-fill',
             warning: 'bi-exclamation-triangle-fill',
-            info:    'bi-info-circle-fill'
+            info: 'bi-info-circle-fill'
         };
 
         const container = document.getElementById('toastContainer');
@@ -1910,7 +2763,7 @@
     }
 
     // Close confirm on overlay click
-    document.getElementById('confirmOverlay').addEventListener('click', function(e) {
+    document.getElementById('confirmOverlay').addEventListener('click', function (e) {
         if (e.target === this) closeConfirm();
     });
 
@@ -1949,16 +2802,18 @@
     let rentalCurrentPage = 1;
     let rentalTotalPages = 1;
     let rentalActiveQuickFilter = null;
-    const MONTH_ORDER = ['Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec','Jan','Feb','Mar'];
+    const MONTH_ORDER = ['Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec', 'Jan', 'Feb', 'Mar'];
     const STATUS_STYLE = {
-        'Paid':           {bg:'#d1fae5', color:'#065f46'},
-        'Due This Month': {bg:'#fef3c7', color:'#92400e'},
-        'Upcoming':       {bg:'#dbeafe', color:'#1e40af'},
-        'Not Applicable': {bg:'#f3f4f6', color:'#6b7280'},
+        'Paid': { bg: '#d1fae5', color: '#065f46' },
+        'Due This Month': { bg: '#fef3c7', color: '#92400e' },
+        'Due Next Month': { bg: '#e0e7ff', color: '#3730a3' },
+        'Overdue': { bg: '#fee2e2', color: '#991b1b' },
+        'Upcoming': { bg: '#dbeafe', color: '#1e40af' },
+        'Not Applicable': { bg: '#f3f4f6', color: '#6b7280' },
     };
 
     // Populate year dropdown
-    (function() {
+    (function () {
         const sel = document.getElementById('rentalFilterYear');
         const thisYear = new Date().getFullYear();
         sel.innerHTML = '';
@@ -1971,6 +2826,7 @@
     })();
 
     function getRentalFilters() {
+        const urlParams = new URLSearchParams(window.location.search);
         const f = {
             search: document.getElementById('rentalSearch').value.trim(),
             vendor: document.getElementById('rentalFilterVendor').value,
@@ -1980,12 +2836,15 @@
         };
         if (rentalActiveQuickFilter === 'active_only') f.active_only = 'true';
         if (rentalActiveQuickFilter === 'expiring_soon') f.expiring_soon = 'true';
+        if (rentalActiveQuickFilter === 'upcoming_rentals' || urlParams.get('filter') === 'upcoming_rentals') {
+            f.upcoming_rentals = 'true';
+        }
         return f;
     }
 
     function buildRentalQueryString(filters, extra) {
-        const p = {...filters, ...extra};
-        return new URLSearchParams(Object.fromEntries(Object.entries(p).filter(([,v]) => v))).toString();
+        const p = { ...filters, ...extra };
+        return new URLSearchParams(Object.fromEntries(Object.entries(p).filter(([, v]) => v))).toString();
     }
 
     async function loadRentalDashboard() {
@@ -2001,12 +2860,12 @@
             if (data.success) {
                 document.getElementById('statTotalAssets').textContent = data.total_rental_assets ?? '–';
                 document.getElementById('statMonthlyCost').textContent = data.total_monthly_cost != null
-                    ? '₹' + Number(data.total_monthly_cost).toLocaleString('en-IN', {maximumFractionDigits: 0})
+                    ? '₹' + Number(data.total_monthly_cost).toLocaleString('en-IN', { maximumFractionDigits: 0 })
                     : '–';
                 document.getElementById('statActiveVendors').textContent = data.active_vendors ?? '–';
                 document.getElementById('statUpcomingRenewals').textContent = data.upcoming_renewals ?? '–';
             }
-        } catch(e) { console.error('Rental stats error:', e); }
+        } catch (e) { console.error('Rental stats error:', e); }
     }
 
     async function loadRentalVendors() {
@@ -2031,7 +2890,7 @@
                     row.innerHTML = `<div class="small fw-semibold">${v.vendor_name || 'Unknown'}</div>
                         <div class="small text-end">
                             <span class="badge bg-primary-subtle text-primary">${v.asset_count}</span>
-                            <div class="text-success fw-bold">₹${Number(v.total_monthly_amount).toLocaleString('en-IN', {maximumFractionDigits:0})}</div>
+                            <div class="text-success fw-bold">₹${Number(v.total_monthly_amount).toLocaleString('en-IN', { maximumFractionDigits: 0 })}</div>
                         </div>`;
                     row.onclick = () => {
                         document.getElementById('rentalFilterVendor').value = v.vendor_name;
@@ -2043,7 +2902,7 @@
             } else {
                 el.innerHTML = '<div class="text-muted text-center small py-3">No vendors found</div>';
             }
-        } catch(e) { el.innerHTML = '<div class="text-danger text-center small py-2">Error loading vendors</div>'; }
+        } catch (e) { el.innerHTML = '<div class="text-danger text-center small py-2">Error loading vendors</div>'; }
     }
 
     async function loadRentalMonthStrip() {
@@ -2062,7 +2921,7 @@
                     card.style = `min-width:80px;cursor:pointer;${isActive ? 'outline:2px solid #6366f1;' : ''}`;
                     card.innerHTML = `<div class="card-body p-2">
                         <div class="fw-bold small">${m.month}</div>
-                        <div class="text-success fw-bold" style="font-size:0.75rem;">₹${Number(m.total_cost).toLocaleString('en-IN', {maximumFractionDigits:0})}</div>
+                        <div class="text-success fw-bold" style="font-size:0.75rem;">₹${Number(m.total_cost).toLocaleString('en-IN', { maximumFractionDigits: 0 })}</div>
                         <div class="text-muted" style="font-size:0.7rem;">${m.asset_count} assets</div>
                     </div>`;
                     card.onclick = () => {
@@ -2072,14 +2931,118 @@
                     strip.appendChild(card);
                 });
             }
-        } catch(e) { strip.innerHTML = '<span class="text-danger small">Error loading month summary</span>'; }
+        } catch (e) { strip.innerHTML = '<span class="text-danger small">Error loading month summary</span>'; }
     }
 
-    async function loadRentalMatrix(page) {
+    let rentalInvoices = [];
+
+    async function loadRentalInvoices(page) {
         rentalCurrentPage = page || 1;
         const tbody = document.getElementById('rentalMatrixBody');
         const thead = document.getElementById('rentalMatrixHead');
-        tbody.innerHTML = '<tr><td colspan="20" class="text-center py-4 text-muted">Loading\u2026</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="8" class="text-center py-4 text-muted">Loading Invoices&hellip;</td></tr>';
+        try {
+            const search = document.getElementById('rentalSearch').value;
+            const vendor = document.getElementById('rentalFilterVendor').value;
+            const status = document.getElementById('rentalInvoiceFilter').value;
+
+            let url = `/api/rentals/invoices?status=${status}&search=${encodeURIComponent(search)}`;
+            if (vendor) url += `&vendor=${encodeURIComponent(vendor)}`;
+
+            const res = await fetch(url, { headers: getHeaders() });
+            const data = await res.json();
+            if (!data.success) { throw new Error(data.error || 'API error'); }
+
+            rentalInvoices = data.invoices || [];
+
+            thead.innerHTML = `<tr>
+                <th style="color:#0f172a;font-weight:bold;text-transform:uppercase;background:#f1f5f9;">Invoice No.</th>
+                <th style="color:#0f172a;font-weight:bold;text-transform:uppercase;background:#f1f5f9;">Asset Name</th>
+                <th style="color:#0f172a;font-weight:bold;text-transform:uppercase;background:#f1f5f9;">Vendor</th>
+                <th style="color:#0f172a;font-weight:bold;text-transform:uppercase;background:#f1f5f9;">Period</th>
+                <th style="color:#0f172a;font-weight:bold;text-transform:uppercase;background:#f1f5f9;">Amount</th>
+                <th style="color:#0f172a;font-weight:bold;text-transform:uppercase;background:#f1f5f9;">Due Date</th>
+                <th style="color:#0f172a;font-weight:bold;text-transform:uppercase;background:#f1f5f9;">Status</th>
+                <th style="color:#0f172a;font-weight:bold;text-transform:uppercase;background:#f1f5f9;text-align:center;">Action</th>
+            </tr>`;
+
+            if (!rentalInvoices.length) {
+                tbody.innerHTML = '<tr><td colspan="8" class="text-center py-4 text-muted">No matching invoices found.</td></tr>';
+                document.getElementById('rentalPaginationInfo').textContent = 'No invoices';
+                document.getElementById('rentalPaginationBtns').innerHTML = '';
+                return;
+            }
+
+            tbody.innerHTML = rentalInvoices.map(inv => {
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                const due = new Date(inv.due_date);
+                due.setHours(0, 0, 0, 0);
+                const diffTime = due - today;
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+                let highlightStyle = '';
+                let badgeClass = 'bg-secondary bg-opacity-10 text-secondary';
+
+                if (inv.status === 'Pending') {
+                    if (diffDays < 0) {
+                        highlightStyle = 'background-color: #fff1f2; color: #9f1239;';
+                        badgeClass = 'bg-danger text-white';
+                    } else if (diffDays <= 7) {
+                        highlightStyle = 'background-color: #fffbeb; color: #b45309;';
+                        badgeClass = 'bg-warning text-dark';
+                    } else {
+                        badgeClass = 'bg-warning bg-opacity-25 text-warning';
+                    }
+                } else if (inv.status === 'Paid') {
+                    badgeClass = 'bg-success bg-opacity-25 text-success';
+                }
+
+                return `<tr style="${highlightStyle}">
+                    <td class="fw-bold">${inv.invoice_number}</td>
+                    <td>${inv.asset_name}</td>
+                    <td>${inv.vendor_name}</td>
+                    <td>${inv.rental_start_date} to ${inv.rental_end_date}</td>
+                    <td class="fw-semibold">₹${Number(inv.total_amount).toLocaleString('en-IN')}</td>
+                    <td class="fw-bold">${inv.due_date}</td>
+                    <td><span class="badge ${badgeClass}">${inv.status}</span></td>
+                    <td class="text-center">
+                        <button class="btn btn-sm btn-primary rounded-pill px-3 py-1" onclick="openInvoiceDrawer(${inv.id})">
+                            <i class="bi bi-eye"></i> View
+                        </button>
+                    </td>
+                </tr>`;
+            }).join('');
+
+            document.getElementById('rentalPaginationInfo').textContent = `Total ${rentalInvoices.length} invoices found`;
+            document.getElementById('rentalPaginationBtns').innerHTML = '';
+        } catch (e) {
+            tbody.innerHTML = `<tr><td colspan="8" class="text-danger text-center py-4">Error: ${e.message}</td></tr>`;
+        }
+    }
+
+    async function loadRentalMatrix(page) {
+        const invFilter = document.getElementById('rentalInvoiceFilter') ? document.getElementById('rentalInvoiceFilter').value : '';
+        const legend = document.getElementById('rentalLegend');
+        const monthStrip = document.getElementById('monthStrip');
+        const tableWrapper = document.getElementById('rentalMatrixTableWrapper');
+        const vendorBoxes = document.getElementById('rentalMatrixVendorBoxes');
+
+        if (invFilter) {
+            if (legend) legend.style.display = 'none';
+            if (monthStrip) monthStrip.style.display = 'none';
+            if (tableWrapper) tableWrapper.style.display = 'block';
+            if (vendorBoxes) vendorBoxes.style.display = 'none';
+            return loadRentalInvoices(page);
+        } else {
+            if (legend) legend.style.display = 'flex';
+            if (monthStrip) monthStrip.style.display = 'flex';
+            if (tableWrapper) tableWrapper.style.display = 'none';
+            if (vendorBoxes) vendorBoxes.style.display = 'block';
+        }
+
+        rentalCurrentPage = page || 1;
+        vendorBoxes.innerHTML = '<div class="text-center py-4 text-muted"><span class="spinner-border spinner-border-sm me-2"></span>Loading&hellip;</div>';
         try {
             const qs = buildRentalQueryString(getRentalFilters(), { page: rentalCurrentPage, page_size: 25 });
             const res = await fetch(`/api/rentals/matrix?${qs}`, { headers: getHeaders() });
@@ -2088,52 +3051,833 @@
 
             rentalTotalPages = data.total_pages || 1;
 
-            // Render header
-            thead.innerHTML = `<tr>
-                <th style="position:sticky;left:0;z-index:2;background:#1f2937;min-width:160px;">Asset Name</th>
-                <th>Vendor</th>
-                <th>Category</th>
-                <th>Start Date</th>
-                <th>End Date</th>
-                <th>Rate/Mo</th>
-                ${MONTH_ORDER.map(m => `<th class="text-center">${m}</th>`).join('')}
-                <th class="text-center">Status</th>
-            </tr>`;
-
             if (!data.rows || !data.rows.length) {
-                tbody.innerHTML = '<tr><td colspan="20" class="text-center py-4 text-muted">No rental assets found.</td></tr>';
+                vendorBoxes.innerHTML = '<div class="text-center py-4 text-muted bg-white rounded-3 shadow-sm py-5">No rental assets found.</div>';
                 renderRentalPagination(data);
                 return;
             }
 
-            tbody.innerHTML = data.rows.map(r => {
-                const months = r.months || {};
-                const assetName = [r.brand, r.model].filter(Boolean).join(' ') || r.serial_number || '–';
-                const statusStyle = STATUS_STYLE[r.current_status_label] || STATUS_STYLE['Not Applicable'];
-                return `<tr>
-                    <td style="position:sticky;left:0;z-index:1;background:#fff;font-weight:600;">${assetName}</td>
-                    <td>${r.vendor_name || '–'}</td>
-                    <td>${r.device_type || '–'}</td>
-                    <td>${r.rental_start_date || '–'}</td>
-                    <td>${r.rental_end_date || '–'}</td>
-                    <td>₹${Number(r.rental_cost || 0).toLocaleString('en-IN', {maximumFractionDigits:0})}</td>
-                    ${MONTH_ORDER.map(m => {
-                        const cell = months[m] || {status:'Not Applicable', amount:0};
+            // Group rows by vendor
+            const groups = {};
+            data.rows.forEach(r => {
+                const v = r.vendor_name || 'Other / Unassigned';
+                if (!groups[v]) groups[v] = [];
+                groups[v].push(r);
+            });
+
+            let html = `<div class="d-flex align-items-center px-3 py-2 mb-2 border-bottom" style="font-weight:700;font-size:0.8rem;text-transform:uppercase;color:#64748b;letter-spacing:0.06em;">
+                <div style="flex:2;">Vendor</div>
+                <div style="flex:1;text-align:center;">Total Assets</div>
+                <div style="flex:1;text-align:center;">Total Payable Amount</div>
+                <div style="flex:1;text-align:center;">Invoice No.</div>
+                <div style="flex:1;text-align:center;">Status</div>
+                <div style="width:40px;text-align:center;">Action</div>
+            </div>`;
+            let idx = 0;
+            for (const [vendor, rows] of Object.entries(groups)) {
+                idx++;
+                const vendorId = 'vendor_collapse_' + vendor.replace(/[^a-zA-Z0-9]/g, '_') + '_' + idx;
+                const totalCost = rows.reduce((sum, r) => sum + parseFloat(r.rental_cost || 0), 0);
+                const vendorInvoiceNumber = (rows[0] && rows[0].vendor_invoice_number) ? rows[0].vendor_invoice_number : '&mdash;';
+                // Use the persisted vendor-level invoice status (from vendor_invoices table)
+                const vendorInvoiceStatus = (rows[0] && rows[0].vendor_invoice_status) ? rows[0].vendor_invoice_status : 'Pending';
+                const VENDOR_STATUS_OPTIONS = ['Pending', 'Due This Month', 'Overdue', 'Paid', 'Settled'];
+                const VENDOR_STATUS_STYLE = {
+                    'Pending':        { bg: '#fef3c7', color: '#92400e' },
+                    'Due This Month': { bg: '#fef3c7', color: '#92400e' },
+                    'Overdue':        { bg: '#fee2e2', color: '#991b1b' },
+                    'Paid':           { bg: '#d1fae5', color: '#065f46' },
+                    'Settled':        { bg: '#ede9fe', color: '#5b21b6' },
+                };
+                const vendorStatusStyle = VENDOR_STATUS_STYLE[vendorInvoiceStatus] || VENDOR_STATUS_STYLE['Pending'];
+                const statusOptions = VENDOR_STATUS_OPTIONS.map(s =>
+                    `<option value="${s}" ${s === vendorInvoiceStatus ? 'selected' : ''}>${s}</option>`
+                ).join('');
+
+                const tableRows = rows.map(r => {
+                    const months = r.months || {};
+                    const assetName = [r.brand, r.model].filter(Boolean).join(' ') || r.serial_number || '&ndash;';
+                    const statusStyle = STATUS_STYLE[r.current_status_label] || STATUS_STYLE['Not Applicable'];
+                    return `<tr>
+                        <td class="fw-semibold" style="padding: 10px;">${assetName}</td>
+                        <td>${r.rental_start_date || '&ndash;'}</td>
+                        <td>₹${Number(r.rental_cost || 0).toLocaleString('en-IN', { maximumFractionDigits: 0 })}</td>
+                        ${MONTH_ORDER.map(m => {
+                        const cell = months[m] || { status: 'Not Applicable', amount: 0 };
                         const s = STATUS_STYLE[cell.status] || STATUS_STYLE['Not Applicable'];
                         const label = cell.status !== 'Not Applicable'
-                            ? `₹${Number(cell.amount).toLocaleString('en-IN', {maximumFractionDigits:0})}`
-                            : '–';
+                            ? `₹${Number(cell.amount).toLocaleString('en-IN', { maximumFractionDigits: 0 })}`
+                            : '&ndash;';
                         return `<td class="text-center" style="background:${s.bg};color:${s.color};">${label}</td>`;
                     }).join('')}
-                    <td class="text-center">
-                        <span class="badge rounded-pill" style="background:${statusStyle.bg};color:${statusStyle.color};">${r.current_status_label || '–'}</span>
-                    </td>
-                </tr>`;
-            }).join('');
+                        <td class="text-center">
+                            <span class="badge rounded-pill" style="background:${statusStyle.bg};color:${statusStyle.color};">${r.current_status_label || '&ndash;'}</span>
+                        </td>
+                    </tr>`;
+                }).join('');
+
+                html += `
+                    <div class="card border-0 shadow-sm mb-2" style="border-radius: 10px; overflow: hidden;">
+                    <div class="card-header bg-white py-3 px-3 d-flex align-items-center" 
+                         style="cursor:pointer; user-select: none;" 
+                         data-bs-toggle="collapse" 
+                         data-bs-target="#${vendorId}">
+                        <div style="flex:2;" class="d-flex align-items-center gap-2">
+                            <i class="bi bi-shop text-primary"></i>
+                            <span class="fw-bold text-dark">${vendor}</span>
+                        </div>
+                        <div style="flex:1;text-align:center;" class="fw-semibold">${rows.length}</div>
+                        <div style="flex:1;text-align:center;" class="fw-bold">₹${Number(totalCost).toLocaleString('en-IN', {maximumFractionDigits:0})}</div>
+                        <div style="flex:1;text-align:center;" class="d-flex align-items-center justify-content-center gap-1">
+                            <span class="badge rounded-pill px-3 py-1" id="inv-badge-${vendorId}" style="background:#eff6ff;color:#1d4ed8;font-size:0.78rem;font-weight:600;letter-spacing:0.03em;border:1px solid #bfdbfe;">
+                                <i class="bi bi-file-earmark-text me-1" style="font-size:0.7rem;"></i><span class="inv-number-text">${vendorInvoiceNumber}</span>
+                            </span>
+                            <button class="btn btn-sm p-0 border-0 text-secondary" title="Edit invoice number"
+                                onclick="editInvoiceNumber(event, '${vendor.replace(/'/g, "\\'")}', '${vendorInvoiceNumber}', '${vendorId}')"
+                                style="line-height:1;font-size:0.8rem;background:transparent;">
+                                <i class="bi bi-pencil-square"></i>
+                            </button>
+                        </div>
+                        <div style="flex:1;text-align:center;" id="vendor-status-cell-${vendorId}">
+                            <select class="form-select form-select-sm rounded-pill text-center fw-semibold"
+                                id="vendor-status-sel-${vendorId}"
+                                style="background:${vendorStatusStyle.bg};color:${vendorStatusStyle.color};border:1px solid ${vendorStatusStyle.color}40;font-size:0.78rem;cursor:pointer;max-width:150px;margin:auto;"
+                                onchange="changeVendorStatus(event, '${vendor.replace(/'/g, "\\'")}')"
+                                onclick="event.stopPropagation()">
+                                ${statusOptions}
+                            </select>
+                        </div>
+                        <div style="width:40px;text-align:center;">
+                            <i class="bi bi-chevron-down fs-5" style="transition: transform 0.3s ease; color:#0f172a;"></i>
+                        </div>
+                    </div>
+                    <div id="${vendorId}" class="collapse">
+                        <div class="card-body p-0 border-top">
+                            <div style="overflow-x:auto;">
+                                <table class="table table-sm align-middle mb-0" style="min-width:1100px;font-size:0.82rem;">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th style="color:#0f172a;font-weight:bold;text-transform:uppercase;padding: 10px;">Asset Name</th>
+                                            <th style="color:#0f172a;font-weight:bold;text-transform:uppercase;">Start Date</th>
+                                            <th style="color:#0f172a;font-weight:bold;text-transform:uppercase;">Rate/Mo</th>
+                                            ${MONTH_ORDER.map(m => `<th class="text-center" style="color:#0f172a;font-weight:bold;text-transform:uppercase;">${m}</th>`).join('')}
+                                            <th class="text-center" style="color:#0f172a;font-weight:bold;text-transform:uppercase;">Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        ${tableRows}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>`;
+            }
+            vendorBoxes.innerHTML = html;
+
+            // Chevron rotation on expand/collapse
+            vendorBoxes.querySelectorAll('.collapse').forEach(col => {
+                col.addEventListener('show.bs.collapse', function() {
+                    const hdr = this.previousElementSibling;
+                    if (hdr) { const c = hdr.querySelector('.bi-chevron-down'); if (c) c.style.transform = 'rotate(180deg)'; }
+                });
+                col.addEventListener('hide.bs.collapse', function() {
+                    const hdr = this.previousElementSibling;
+                    if (hdr) { const c = hdr.querySelector('.bi-chevron-down'); if (c) c.style.transform = 'rotate(0deg)'; }
+                });
+            });
 
             renderRentalPagination(data);
-        } catch(e) {
-            tbody.innerHTML = `<tr><td colspan="20" class="text-danger text-center py-4">Error: ${e.message}</td></tr>`;
+        } catch (e) {
+            vendorBoxes.innerHTML = `<div class="alert alert-danger">Error: ${e.message}</div>`;
+        }
+    }
+
+    function openInvoiceDrawer(invoiceId) {
+        const inv = rentalInvoices.find(x => x.id === invoiceId);
+        if (!inv) return;
+
+        const drawerEl = document.getElementById('invoiceDrawer');
+        if (drawerEl && drawerEl.parentElement !== document.body) {
+            document.body.appendChild(drawerEl);
+        }
+        const drawer = bootstrap.Offcanvas.getInstance(drawerEl) || new bootstrap.Offcanvas(drawerEl);
+
+        let paymentDetails = '';
+        if (inv.status === 'Paid') {
+            paymentDetails = `
+                <div class="mt-4 p-3 bg-success bg-opacity-10 rounded-3">
+                    <h6 class="fw-bold text-success mb-2"><i class="bi bi-check-circle-fill me-1"></i>Payment Information</h6>
+                    <div class="small text-muted mb-1">Paid Date: <strong>${inv.payment_date}</strong></div>
+                    <div class="small text-muted mb-1">Mode: <strong>${inv.payment_mode}</strong></div>
+                    <div class="small text-muted mb-1">Reference: <strong>${inv.reference_number || 'N/A'}</strong></div>
+                    <div class="small text-muted">Remarks: <strong>${inv.remarks || 'None'}</strong></div>
+                </div>
+            `;
+        } else {
+            paymentDetails = `
+                <div class="mt-4">
+                    <button class="btn btn-success w-100 fw-bold rounded-pill py-2" onclick="triggerPayInvoice(${inv.id})">
+                        <i class="bi bi-cash-coin me-1"></i> Mark as Paid
+                    </button>
+                </div>
+            `;
+        }
+
+        document.getElementById('invoiceDrawerContent').innerHTML = `
+            <div id="invoicePrintArea" class="bg-white p-3">
+                <style>
+                    @media print {
+                        body * { visibility: hidden; }
+                        #invoicePrintArea, #invoicePrintArea * { visibility: visible; }
+                        #invoicePrintArea { position: absolute; left: 0; top: 0; width: 100%; }
+                    }
+                </style>
+                <div class="d-flex justify-content-between align-items-start border-bottom pb-3 mb-3">
+                    <div>
+                        <h4 class="fw-bold text-primary mb-1">RENTAL INVOICE</h4>
+                        <span class="badge ${inv.status === 'Paid' ? 'bg-success bg-opacity-25 text-success' : 'bg-warning bg-opacity-25 text-warning'}">${inv.status}</span>
+                    </div>
+                    <div class="text-end">
+                        <div class="fw-bold text-dark">${inv.invoice_number}</div>
+                        <div class="small text-muted">Date: ${inv.generated_date}</div>
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <h6 class="fw-bold text-muted text-uppercase mb-1" style="font-size:0.7rem; letter-spacing:0.05em;">Vendor</h6>
+                    <div class="fw-semibold text-dark">${inv.vendor_name}</div>
+                </div>
+
+                <div class="mb-4">
+                    <h6 class="fw-bold text-muted text-uppercase mb-1" style="font-size:0.7rem; letter-spacing:0.05em;">Asset Details</h6>
+                    <div class="fw-semibold text-dark">${inv.asset_name}</div>
+                    <div class="small text-muted">Category: ${inv.device_type}</div>
+                    <div class="small text-muted">Serial No: ${inv.serial_number || 'N/A'}</div>
+                    <div class="small text-muted">Billing Cycle: ${inv.rental_start_date} to ${inv.rental_end_date}</div>
+                </div>
+
+                <div class="card bg-light border-0 p-3 mb-3" style="border-radius:12px;">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted small">Monthly Rental Amount</span>
+                        <span class="fw-semibold text-dark">₹${Number(inv.monthly_rental_amount).toLocaleString('en-IN')}</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted small">GST (18%)</span>
+                        <span class="fw-semibold text-dark">₹${Number(inv.gst_amount).toLocaleString('en-IN')}</span>
+                    </div>
+                    <hr class="my-2">
+                    <div class="d-flex justify-content-between fw-bold text-dark fs-5">
+                        <span>Total Amount</span>
+                        <span>₹${Number(inv.total_amount).toLocaleString('en-IN')}</span>
+                    </div>
+                </div>
+
+                <div class="text-danger fw-bold small mb-3">
+                    Due Date: ${inv.due_date}
+                </div>
+
+                ${paymentDetails}
+            </div>
+            
+            <div class="mt-4 pt-3 border-top">
+                <button class="btn btn-outline-secondary w-100 rounded-pill" onclick="printInvoice()"><i class="bi bi-printer me-1"></i> Print / PDF</button>
+            </div>
+        `;
+        drawer.show();
+    }
+
+    function triggerPayInvoice(invoiceId) {
+        document.getElementById('payInvoiceId').value = invoiceId;
+        document.getElementById('payPaymentDate').value = new Date().toISOString().substring(0, 10);
+        document.getElementById('payPaymentMode').value = 'Bank Transfer';
+        document.getElementById('payRefNum').value = '';
+        document.getElementById('payRemarks').value = '';
+
+        const payModal = new bootstrap.Modal(document.getElementById('payInvoiceModal'));
+        payModal.show();
+    }
+
+    async function confirmInvoicePayment() {
+        const invoiceId = document.getElementById('payInvoiceId').value;
+        const data = {
+            payment_date: document.getElementById('payPaymentDate').value,
+            payment_mode: document.getElementById('payPaymentMode').value,
+            reference_number: document.getElementById('payRefNum').value,
+            remarks: document.getElementById('payRemarks').value
+        };
+
+        try {
+            const res = await fetch(`/api/rentals/invoices/${invoiceId}/pay`, {
+                method: 'POST',
+                headers: {
+                    ...getHeaders(),
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            });
+            const result = await res.json();
+            if (result.success) {
+                const payModal = bootstrap.Modal.getInstance(document.getElementById('payInvoiceModal'));
+                if (payModal) payModal.hide();
+
+                const drawerEl = document.getElementById('invoiceDrawer');
+                const drawer = bootstrap.Offcanvas.getInstance(drawerEl);
+                if (drawer) drawer.hide();
+
+                showToast('Success', `Invoice marked as paid. Next due date is ${result.next_due_date}`);
+                loadRentalMatrix(rentalCurrentPage);
+
+                if (typeof loadTopbarNotifications === 'function') {
+                    loadTopbarNotifications();
+                }
+            } else {
+                alert('Error: ' + result.error);
+            }
+        } catch (err) {
+            alert('Failed to process payment: ' + err.message);
+        }
+    }
+
+    function printInvoice() {
+        window.print();
+    }
+
+    async function openInvoiceHistoryModal(deviceId, assetName) {
+        document.getElementById('assetHistoryModalTitle').innerHTML = `<i class="bi bi-clock-history text-primary me-2"></i>Invoice History: ${assetName}`;
+        const invBody = document.getElementById('assetHistoryInvoicesBody');
+        const payBody = document.getElementById('assetHistoryPaymentsBody');
+
+        invBody.innerHTML = '<tr><td colspan="5" class="text-center text-muted">Loading...</td></tr>';
+        payBody.innerHTML = '<tr><td colspan="4" class="text-center text-muted">Loading...</td></tr>';
+
+        const modal = new bootstrap.Modal(document.getElementById('assetInvoiceHistoryModal'));
+        modal.show();
+
+        try {
+            const res = await fetch(`/api/rentals/invoices/history/${deviceId}`, { headers: getHeaders() });
+            const data = await res.json();
+            if (data.success) {
+                rentalInvoices = data.invoices || [];
+
+                if (!data.invoices || !data.invoices.length) {
+                    invBody.innerHTML = '<tr><td colspan="5" class="text-center text-muted">No invoices found.</td></tr>';
+                } else {
+                    invBody.innerHTML = data.invoices.map(inv => `
+                        <tr>
+                            <td><strong>${inv.invoice_number}</strong></td>
+                            <td>${inv.due_date}</td>
+                            <td>₹${Number(inv.total_amount).toLocaleString('en-IN')}</td>
+                            <td><span class="badge ${inv.status === 'Paid' ? 'bg-success bg-opacity-25 text-success' : 'bg-warning bg-opacity-25 text-warning'}">${inv.status}</span></td>
+                            <td class="text-center">
+                                <button class="btn btn-sm btn-outline-primary py-0 px-2" onclick="openInvoiceDrawer(${inv.id})" style="font-size:0.7rem;">View</button>
+                            </td>
+                        </tr>
+                    `).join('');
+                }
+
+                if (!data.payments || !data.payments.length) {
+                    payBody.innerHTML = '<tr><td colspan="4" class="text-center text-muted">No payment records.</td></tr>';
+                } else {
+                    payBody.innerHTML = data.payments.map(p => `
+                        <tr>
+                            <td>${p.payment_date}</td>
+                            <td>₹${Number(p.amount).toLocaleString('en-IN')}</td>
+                            <td>${p.payment_mode}</td>
+                            <td>${p.reference_number || '&ndash;'}</td>
+                        </tr>
+                    `).join('');
+                }
+            } else {
+                invBody.innerHTML = `<tr><td colspan="5" class="text-danger">Error: ${data.error}</td></tr>`;
+                payBody.innerHTML = `<tr><td colspan="4" class="text-danger">Error: ${data.error}</td></tr>`;
+            }
+        } catch (err) {
+            invBody.innerHTML = `<tr><td colspan="5" class="text-danger">Failed: ${err.message}</td></tr>`;
+            payBody.innerHTML = `<tr><td colspan="4" class="text-danger">Failed: ${err.message}</td></tr>`;
+        }
+    }
+
+    // Track the vendor currently open in the drawer
+    let _vidDrawerVendor = null;
+    let _vidDrawerVendorId = null;
+
+    const VID_STATUS_STYLE = {
+        'Pending':        { bg: '#fef3c7', color: '#92400e' },
+        'Due This Month': { bg: '#fef3c7', color: '#92400e' },
+        'Overdue':        { bg: '#fee2e2', color: '#991b1b' },
+        'Paid':           { bg: '#d1fae5', color: '#065f46' },
+        'Settled':        { bg: '#ede9fe', color: '#5b21b6' },
+    };
+
+    function fmt(n) { return '₹' + Number(n || 0).toLocaleString('en-IN', { maximumFractionDigits: 0 }); }
+
+    /* Opens the Vendor Invoice drawer – replaces the old small popup */
+    async function editInvoiceNumber(evt, vendor, _currentNumber, vendorId) {
+        evt.stopPropagation();
+        _vidDrawerVendor   = vendor;
+        _vidDrawerVendorId = vendorId;
+
+        // Reset drawer to loading state
+        document.getElementById('vidDrawerSubtitle').textContent  = vendor;
+        const initLoadingEl = document.getElementById('vidDrawerLoading');
+        if (initLoadingEl) {
+            initLoadingEl.style.removeProperty('display');
+            initLoadingEl.classList.remove('d-none');
+        }
+        const initContentEl = document.getElementById('vidDrawerContent');
+        if (initContentEl) {
+            initContentEl.style.setProperty('display', 'none', 'important');
+            initContentEl.classList.add('d-none');
+        }
+        document.getElementById('vidDrawerError').classList.add('d-none');
+        vidDrawerCancelEditNum();   // hide edit controls if previously open
+
+        const drawerEl = document.getElementById('vendorInvoiceDrawer');
+        if (drawerEl && drawerEl.parentElement !== document.body) {
+            document.body.appendChild(drawerEl);
+        }
+        const drawer = bootstrap.Offcanvas.getInstance(drawerEl) || new bootstrap.Offcanvas(drawerEl);
+        drawer.show();
+
+        try {
+            const res  = await fetch(`/api/rentals/vendor-invoice/${encodeURIComponent(vendor)}`, { headers: getHeaders() });
+            const data = await res.json();
+            if (!data.success) throw new Error(data.error || 'Failed to load.');
+
+            const inv    = data.invoice;
+            const assets = data.assets || [];
+            const st     = VID_STATUS_STYLE[inv.status] || VID_STATUS_STYLE['Pending'];
+
+            // Fill header card
+            document.getElementById('vidDrawerInvNum').textContent    = inv.invoice_number || '—';
+            document.getElementById('vidDrawerInvNumInput').value     = inv.invoice_number || '';
+            document.getElementById('vidDrawerVendor').textContent    = inv.vendor_name || vendor;
+            document.getElementById('vidDrawerInvDate').textContent   = inv.created_at ? inv.created_at.substring(0,10) : '—';
+            document.getElementById('vidDrawerDueDate').textContent   = inv.due_date || '—';
+            document.getElementById('vidDrawerStatusBadge').innerHTML =
+                `<span class="badge rounded-pill px-3 py-2 fw-semibold" style="background:${st.bg};color:${st.color};font-size:0.82rem;">${inv.status}</span>`;
+
+            // Calculate paid vs unpaid asset count
+            const paidCount = assets.filter(a => a.payment_status === 'Paid').length;
+            const unpaidCount = assets.length - paidCount;
+
+            // Fill summary metrics
+            document.getElementById('vidDrawerTotalAssets').textContent  = inv.total_assets ?? assets.length;
+            document.getElementById('vidDrawerPaidAssets').textContent   = paidCount;
+            document.getElementById('vidDrawerUnpaidAssets').textContent = unpaidCount;
+            document.getElementById('vidDrawerTotalPayable').textContent = fmt(inv.total_payable);
+            document.getElementById('vidDrawerRemaining').textContent    = fmt(inv.remaining_amount);
+            document.getElementById('vidDrawerAssetCount').textContent   = assets.length;
+
+            // Fill asset table
+            if (!assets.length) {
+                document.getElementById('vidDrawerAssetBody').innerHTML =
+                    '<tr><td colspan="6" class="text-center text-muted py-4">No assets for this vendor.</td></tr>';
+            } else {
+                document.getElementById('vidDrawerAssetBody').innerHTML = assets.map((a, i) => {
+                    const name  = [a.brand, a.model].filter(Boolean).join(' ') || a.serial_number || '—';
+                    const isPaid = a.payment_status === 'Paid';
+                    return `<tr>
+                        <td class="px-3 text-muted">${i+1}</td>
+                        <td class="fw-semibold">${name}</td>
+                        <td><span class="badge bg-light text-dark border" style="font-size:0.75rem;">${a.device_type || '—'}</span></td>
+                        <td class="text-end fw-semibold">${fmt(a.rental_cost)}</td>
+                        <td style="white-space:nowrap;">${a.rental_start_date || '—'}</td>
+                        <td class="text-center">
+                            <select class="form-select form-select-sm rounded-pill text-center fw-semibold py-0 px-2"
+                                style="font-size:0.75rem;max-width:110px;margin:auto;${isPaid ? 'background:#d1fae5;color:#065f46;border:1px solid #a7f3d0;' : 'background:#fee2e2;color:#991b1b;border:1px solid #fca5a5;'}"
+                                onchange="toggleAssetPayment(${a.id}, this.value)">
+                                <option value="Unpaid" ${!isPaid ? 'selected' : ''}>✗ Unpaid</option>
+                                <option value="Paid" ${isPaid ? 'selected' : ''}>✓ Paid</option>
+                            </select>
+                        </td>
+                    </tr>`;
+                }).join('');
+            }
+
+            // Render Vendor Uploaded Invoice state & default tab
+            renderVidVendorFileState(inv.uploaded_invoice);
+            switchVidDrawerTab('system');
+
+            const loadingEl = document.getElementById('vidDrawerLoading');
+            if (loadingEl) {
+                loadingEl.style.setProperty('display', 'none', 'important');
+                loadingEl.classList.add('d-none');
+            }
+            const contentEl = document.getElementById('vidDrawerContent');
+            if (contentEl) {
+                contentEl.style.setProperty('display', 'block', 'important');
+                contentEl.classList.remove('d-none');
+            }
+        } catch (err) {
+            const loadingEl = document.getElementById('vidDrawerLoading');
+            if (loadingEl) {
+                loadingEl.style.setProperty('display', 'none', 'important');
+                loadingEl.classList.add('d-none');
+            }
+            const errEl = document.getElementById('vidDrawerError');
+            errEl.textContent = 'Error: ' + err.message;
+            errEl.classList.remove('d-none');
+        }
+    }
+
+    /* ─── Vendor Invoice File & Tab Switcher Handlers ─── */
+    let _vidUploadedInvoice = null;
+
+    function switchVidDrawerTab(tab) {
+        const sysBtn = document.getElementById('vidTabSystemBtn');
+        const venBtn = document.getElementById('vidTabVendorBtn');
+        const sysContent = document.getElementById('vidTabSystemContent');
+        const venContent = document.getElementById('vidTabVendorContent');
+
+        if (tab === 'vendor') {
+            sysBtn.classList.remove('active');
+            sysBtn.classList.add('text-secondary');
+            venBtn.classList.add('active');
+            venBtn.classList.remove('text-secondary');
+            sysContent.style.display = 'none';
+            venContent.style.display = 'block';
+        } else {
+            venBtn.classList.remove('active');
+            venBtn.classList.add('text-secondary');
+            sysBtn.classList.add('active');
+            sysBtn.classList.remove('text-secondary');
+            venContent.style.display = 'none';
+            sysContent.style.display = 'block';
+        }
+    }
+
+    function renderVidVendorFileState(uploaded) {
+        _vidUploadedInvoice = uploaded;
+        const badge = document.getElementById('vidVendorFileBadge');
+        const dropzone = document.getElementById('vidUploadDropzoneCard');
+        const details = document.getElementById('vidFileDetailsCard');
+
+        if (uploaded) {
+            badge.classList.remove('d-none');
+            dropzone.classList.add('d-none');
+            details.classList.remove('d-none');
+
+            document.getElementById('vidFileName').textContent = uploaded.file_name || 'Vendor_Invoice';
+            const sizeKb = uploaded.file_size ? (uploaded.file_size / 1024).toFixed(1) + ' KB' : '—';
+            document.getElementById('vidFileSize').textContent = sizeKb;
+            document.getElementById('vidFileUploadTime').textContent = uploaded.uploaded_at ? ('Uploaded: ' + String(uploaded.uploaded_at).substring(0, 16).replace('T', ' ')) : '';
+
+            const filename = (uploaded.file_name || '').toLowerCase();
+            const filetype = (uploaded.file_type || '').toLowerCase();
+            const isPdf = filename.endsWith('.pdf') || filetype.includes('pdf');
+            const iconEl = document.getElementById('vidFileIcon');
+            const iconBox = document.getElementById('vidFileIconBox');
+            const typeBadge = document.getElementById('vidFileType');
+
+            if (isPdf) {
+                iconEl.className = 'bi bi-file-earmark-pdf fs-2';
+                iconBox.style.background = '#fee2e2';
+                iconBox.style.color = '#dc2626';
+                typeBadge.textContent = 'PDF Document';
+            } else {
+                iconEl.className = 'bi bi-file-earmark-image fs-2';
+                iconBox.style.background = '#e0f2fe';
+                iconBox.style.color = '#0284c7';
+                typeBadge.textContent = 'Image Document';
+            }
+
+            const viewUrl = uploaded.view_url || `/api/rentals/vendor-invoice/${encodeURIComponent(_vidDrawerVendor)}/file`;
+            const dlUrl = uploaded.download_url || `/api/rentals/vendor-invoice/${encodeURIComponent(_vidDrawerVendor)}/download`;
+
+            const dlAnchor = document.getElementById('vidFileDownloadAnchor');
+            if (dlAnchor) {
+                dlAnchor.href = dlUrl;
+            }
+
+            const container = document.getElementById('vidPreviewContainer');
+            if (isPdf) {
+                container.innerHTML = `<iframe src="${viewUrl}" style="width:100%;height:450px;border:none;"></iframe>`;
+            } else {
+                container.innerHTML = `<img src="${viewUrl}" style="max-width:100%;max-height:450px;object-fit:contain;padding:12px;" alt="Vendor Invoice Preview">`;
+            }
+        } else {
+            badge.classList.add('d-none');
+            dropzone.classList.remove('d-none');
+            details.classList.add('d-none');
+        }
+    }
+
+    async function handleVidFileUpload(input) {
+        if (!input.files || !input.files[0] || !_vidDrawerVendor) return;
+        const file = input.files[0];
+        const prog = document.getElementById('vidUploadProgress');
+        if (prog) prog.classList.remove('d-none');
+
+        const formData = new FormData();
+        formData.append('file', file);
+
+        try {
+            const token = document.getElementById('sessionToken')?.value || localStorage.getItem('token');
+            const res = await fetch(`/api/rentals/vendor-invoice/${encodeURIComponent(_vidDrawerVendor)}/upload`, {
+                method: 'POST',
+                headers: { 'Authorization': 'Bearer ' + token },
+                body: formData
+            });
+            const data = await res.json();
+            if (prog) prog.classList.add('d-none');
+            input.value = '';
+
+            if (data.success) {
+                showToast('Vendor invoice document uploaded successfully!', 'success');
+                renderVidVendorFileState(data.uploaded_invoice);
+            } else {
+                showToast(data.error || 'Failed to upload vendor invoice', 'error');
+            }
+        } catch (err) {
+            if (prog) prog.classList.add('d-none');
+            input.value = '';
+            showToast('Upload error: ' + err.message, 'error');
+        }
+    }
+
+    function viewVidVendorFile() {
+        if (!_vidDrawerVendor) return;
+        const url = `/api/rentals/vendor-invoice/${encodeURIComponent(_vidDrawerVendor)}/file`;
+        window.open(url, '_blank');
+    }
+
+    async function deleteVidVendorFile() {
+        if (!_vidDrawerVendor) return;
+        if (!confirm(`Are you sure you want to delete the uploaded vendor invoice for ${_vidDrawerVendor}?`)) return;
+
+        try {
+            const res = await fetch(`/api/rentals/vendor-invoice/${encodeURIComponent(_vidDrawerVendor)}/upload`, {
+                method: 'DELETE',
+                headers: getHeaders()
+            });
+            const data = await res.json();
+            if (data.success) {
+                showToast('Uploaded vendor invoice removed.', 'info');
+                renderVidVendorFileState(null);
+            } else {
+                showToast(data.error || 'Failed to delete file', 'error');
+            }
+        } catch (err) {
+            showToast('Delete error: ' + err.message, 'error');
+        }
+    }
+
+    /* ─── Toggle Payment Status for an Individual Asset ─── */
+    async function toggleAssetPayment(deviceId, newStatus) {
+        if (!_vidDrawerVendor) return;
+        try {
+            const res = await fetch(`/api/rentals/vendor-invoice/${encodeURIComponent(_vidDrawerVendor)}/asset-payment`, {
+                method: 'PUT',
+                headers: { ...getHeaders(), 'Content-Type': 'application/json' },
+                body: JSON.stringify({ device_id: deviceId, status: newStatus })
+            });
+            const data = await res.json();
+            if (data.success) {
+                showToast(`Asset marked as <strong>${newStatus}</strong>`, 'success');
+                // Refresh drawer to recalculate summary & update vendor status dropdown in matrix
+                editInvoiceNumber({ stopPropagation: () => {} }, _vidDrawerVendor, null, _vidDrawerVendorId);
+                fetchRentalMatrix(currentRentalPage);
+            } else {
+                showToast(data.error || 'Failed to update asset payment status', 'error');
+            }
+        } catch (err) {
+            showToast('Network error: ' + err.message, 'error');
+        }
+    }
+
+    /* ─── Mark Entire Invoice as Paid ─── */
+    async function payAllVendorAssets() {
+        if (!_vidDrawerVendor) return;
+        const btn = document.getElementById('vidDrawerPayAllBtn');
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Processing...';
+        try {
+            const res = await fetch(`/api/rentals/vendor-invoice/${encodeURIComponent(_vidDrawerVendor)}/pay-all`, {
+                method: 'POST',
+                headers: getHeaders()
+            });
+            const data = await res.json();
+            if (data.success) {
+                showToast(`Entire invoice for <strong>${_vidDrawerVendor}</strong> marked as Paid`, 'success');
+                editInvoiceNumber({ stopPropagation: () => {} }, _vidDrawerVendor, null, _vidDrawerVendorId);
+                fetchRentalMatrix(currentRentalPage);
+            } else {
+                showToast(data.error || 'Failed to mark entire invoice as paid', 'error');
+            }
+        } catch (err) {
+            showToast('Network error: ' + err.message, 'error');
+        }
+        btn.disabled = false;
+        btn.innerHTML = '<i class="bi bi-check-all"></i> Mark Entire Invoice Paid';
+    }
+
+    /* ─── Print & PDF Actions ─── */
+    function printInvoice() {
+        window.print();
+    }
+
+    function downloadInvoicePDF() {
+        showToast('Preparing invoice PDF for download...', 'info');
+        window.print();
+    }
+
+    /* ─── Drawer invoice-number inline edit helpers ─── */
+    function vidDrawerToggleEditNum() {
+        document.getElementById('vidDrawerInvNum').classList.add('d-none');
+        document.getElementById('vidDrawerInvNumInput').classList.remove('d-none');
+        document.getElementById('vidDrawerEditNumBtn').classList.add('d-none');
+        document.getElementById('vidDrawerSaveNumBtn').classList.remove('d-none');
+        document.getElementById('vidDrawerCancelNumBtn').classList.remove('d-none');
+        document.getElementById('vidDrawerInvNumInput').focus();
+        document.getElementById('vidDrawerInvNumInput').select();
+    }
+    function vidDrawerCancelEditNum() {
+        const numSpan = document.getElementById('vidDrawerInvNum');
+        if (numSpan) numSpan.classList.remove('d-none');
+        const inp = document.getElementById('vidDrawerInvNumInput');
+        if (inp) inp.classList.add('d-none');
+        const eb = document.getElementById('vidDrawerEditNumBtn');
+        if (eb) eb.classList.remove('d-none');
+        const sb = document.getElementById('vidDrawerSaveNumBtn');
+        if (sb) sb.classList.add('d-none');
+        const cb = document.getElementById('vidDrawerCancelNumBtn');
+        if (cb) cb.classList.add('d-none');
+    }
+    async function vidDrawerSaveNum() {
+        const newNum = (document.getElementById('vidDrawerInvNumInput').value || '').trim();
+        if (!newNum) { showToast('Invoice number cannot be empty.', 'error'); return; }
+        const saveBtn = document.getElementById('vidDrawerSaveNumBtn');
+        saveBtn.disabled = true;
+        saveBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>';
+        try {
+            const res  = await fetch(`/api/rentals/vendor-invoice/${encodeURIComponent(_vidDrawerVendor)}`, {
+                method: 'PUT',
+                headers: { ...getHeaders(), 'Content-Type': 'application/json' },
+                body: JSON.stringify({ invoice_number: newNum })
+            });
+            const data = await res.json();
+            if (data.success) {
+                document.getElementById('vidDrawerInvNum').textContent = data.invoice_number;
+                // Update badge on vendor card
+                if (_vidDrawerVendorId) {
+                    const badge = document.getElementById('inv-badge-' + _vidDrawerVendorId);
+                    if (badge) { const sp = badge.querySelector('.inv-number-text'); if (sp) sp.textContent = data.invoice_number; }
+                }
+                vidDrawerCancelEditNum();
+                showToast('Invoice number updated to <strong>' + data.invoice_number + '</strong>', 'success');
+            } else {
+                showToast(data.error || 'Update failed.', 'error');
+            }
+        } catch (err) {
+            showToast('Network error: ' + err.message, 'error');
+        }
+        saveBtn.disabled = false;
+        saveBtn.innerHTML = '<i class="bi bi-check2" style="font-size:0.75rem;"></i> Save';
+    }
+
+    /* ─── Change Vendor-Level Invoice Status ─── */
+    async function changeVendorStatus(evt, vendor) {
+        evt.stopPropagation();
+        const sel = evt.currentTarget;
+        const newStatus = sel.value;
+        const VENDOR_STATUS_STYLE = {
+            'Pending':        { bg: '#fef3c7', color: '#92400e' },
+            'Due This Month': { bg: '#fef3c7', color: '#92400e' },
+            'Overdue':        { bg: '#fee2e2', color: '#991b1b' },
+            'Paid':           { bg: '#d1fae5', color: '#065f46' },
+            'Settled':        { bg: '#ede9fe', color: '#5b21b6' },
+        };
+        sel.disabled = true;
+        try {
+            const res = await fetch(`/api/rentals/vendor-invoice/${encodeURIComponent(vendor)}`, {
+                method: 'PUT',
+                headers: { ...getHeaders(), 'Content-Type': 'application/json' },
+                body: JSON.stringify({ status: newStatus })
+            });
+            const data = await res.json();
+            if (data.success) {
+                const st = VENDOR_STATUS_STYLE[newStatus] || VENDOR_STATUS_STYLE['Pending'];
+                sel.style.background = st.bg;
+                sel.style.color = st.color;
+                sel.style.borderColor = st.color + '40';
+                showToast(`Status updated to <strong>${newStatus}</strong>`, 'success');
+            } else {
+                showToast(data.error || 'Status update failed.', 'error');
+            }
+        } catch (err) {
+            showToast('Network error: ' + err.message, 'error');
+        }
+        sel.disabled = false;
+    }
+
+    /* ─── Open Vendor Invoice Details Modal ─── */
+    async function openVendorInvoiceDetails(evt, vendor) {
+        evt.stopPropagation();
+        const VENDOR_STATUS_STYLE = {
+            'Pending':        { bg: '#fef3c7', color: '#92400e' },
+            'Due This Month': { bg: '#fef3c7', color: '#92400e' },
+            'Overdue':        { bg: '#fee2e2', color: '#991b1b' },
+            'Paid':           { bg: '#d1fae5', color: '#065f46' },
+            'Settled':        { bg: '#ede9fe', color: '#5b21b6' },
+        };
+
+        // Show modal immediately with loading state
+        const modal = new bootstrap.Modal(document.getElementById('vendorInvoiceDetailsModal'));
+        document.getElementById('vidModalTitle').textContent = 'Invoice Details';
+        document.getElementById('vidModalSubtitle').textContent = vendor;
+        document.getElementById('vidInvoiceNumber').textContent = '—';
+        document.getElementById('vidTotalAssets').textContent = '—';
+        document.getElementById('vidTotalPayable').textContent = '—';
+        document.getElementById('vidStatus').innerHTML = '—';
+        document.getElementById('vidVendorName').textContent = vendor;
+        document.getElementById('vidInvoiceDate').textContent = '—';
+        document.getElementById('vidDueDate').textContent = '—';
+        document.getElementById('vidAssetTableBody').innerHTML = '<tr><td colspan="8" class="text-center text-muted py-4"><span class="spinner-border spinner-border-sm me-2"></span>Loading…</td></tr>';
+        document.getElementById('vidError').classList.add('d-none');
+        modal.show();
+
+        try {
+            const res = await fetch(`/api/rentals/vendor-invoice/${encodeURIComponent(vendor)}`, { headers: getHeaders() });
+            const data = await res.json();
+            if (!data.success) throw new Error(data.error || 'Failed to load invoice details.');
+
+            const inv = data.invoice;
+            const assets = data.assets || [];
+            const st = VENDOR_STATUS_STYLE[inv.status] || VENDOR_STATUS_STYLE['Pending'];
+
+            document.getElementById('vidModalTitle').textContent = inv.invoice_number || 'Invoice Details';
+            document.getElementById('vidInvoiceNumber').textContent = inv.invoice_number || '—';
+            document.getElementById('vidTotalAssets').textContent = inv.total_assets ?? assets.length;
+            document.getElementById('vidTotalPayable').textContent = '₹' + Number(inv.total_payable || 0).toLocaleString('en-IN', { maximumFractionDigits: 0 });
+            document.getElementById('vidStatus').innerHTML = `<span class="badge rounded-pill px-3 py-2 fw-semibold" style="background:${st.bg};color:${st.color};font-size:0.85rem;">${inv.status}</span>`;
+            document.getElementById('vidVendorName').textContent = inv.vendor_name || vendor;
+            document.getElementById('vidInvoiceDate').textContent = inv.created_at ? inv.created_at.substring(0, 10) : '—';
+            document.getElementById('vidDueDate').textContent = inv.due_date || '—';
+
+            if (!assets.length) {
+                document.getElementById('vidAssetTableBody').innerHTML = '<tr><td colspan="8" class="text-center text-muted py-4">No assets found for this vendor.</td></tr>';
+            } else {
+                document.getElementById('vidAssetTableBody').innerHTML = assets.map((a, i) => {
+                    const name = [a.brand, a.model].filter(Boolean).join(' ') || a.serial_number || '—';
+                    return `<tr>
+                        <td class="px-3 text-muted">${i + 1}</td>
+                        <td class="fw-semibold">${name}</td>
+                        <td><span class="badge bg-light text-dark border">${a.device_type || '—'}</span></td>
+                        <td style="font-family:monospace;font-size:0.78rem;">${a.serial_number || '—'}</td>
+                        <td>${a.rental_start_date || '—'}</td>
+                        <td>${a.rental_end_date || '—'}</td>
+                        <td class="text-end px-3 fw-semibold">₹${Number(a.rental_cost || 0).toLocaleString('en-IN', { maximumFractionDigits: 0 })}</td>
+                        <td>${a.assigned_to || '<span class="text-muted">Unassigned</span>'}</td>
+                    </tr>`;
+                }).join('');
+            }
+        } catch (err) {
+            const errEl = document.getElementById('vidError');
+            errEl.textContent = 'Error: ' + err.message;
+            errEl.classList.remove('d-none');
+            document.getElementById('vidAssetTableBody').innerHTML = '';
         }
     }
 
@@ -2181,6 +3925,14 @@
         document.getElementById('rentalFilterType').value = '';
         document.getElementById('rentalFilterYear').value = new Date().getFullYear();
         document.getElementById('rentalFilterMonth').value = '';
+        if (document.getElementById('rentalInvoiceFilter')) {
+            document.getElementById('rentalInvoiceFilter').value = '';
+        }
+        const url = new URL(window.location);
+        if (url.searchParams.has('filter')) {
+            url.searchParams.delete('filter');
+            window.history.pushState({}, '', url);
+        }
         rentalActiveQuickFilter = null;
         loadRentalDashboard();
     }
@@ -2199,7 +3951,7 @@
             const link = document.createElement('a');
             link.href = `/api/rentals/export?${qs}`;
             link.click();
-        } catch(e) { alert('Export failed: ' + e.message); }
+        } catch (e) { alert('Export failed: ' + e.message); }
     }
 
 
@@ -2212,10 +3964,37 @@
     }
 
     document.addEventListener('DOMContentLoaded', () => {
+        ['vendorInvoiceDrawer', 'invoiceDrawer'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el && el.parentElement !== document.body) {
+                document.body.appendChild(el);
+            }
+        });
         const urlParams = new URLSearchParams(window.location.search);
         loadEmployees().then(() => {
             if (urlParams.get('action') === 'add' || urlParams.get('action') === 'assign') {
                 switchTab('add');
+            } else if (urlParams.get('tab') === 'rentals') {
+                switchTab('rentals');
+                const viewInvoiceNum = urlParams.get('view_invoice');
+                if (viewInvoiceNum) {
+                    const filterDropdown = document.getElementById('rentalInvoiceFilter');
+                    if (filterDropdown) {
+                        filterDropdown.value = 'Pending';
+                        loadRentalInvoices().then(() => {
+                            const inv = rentalInvoices.find(x => x.invoice_number === viewInvoiceNum);
+                            if (inv) {
+                                openInvoiceDrawer(inv.id);
+                            } else {
+                                filterDropdown.value = '';
+                                loadRentalInvoices().then(() => {
+                                    const invAll = rentalInvoices.find(x => x.invoice_number === viewInvoiceNum);
+                                    if (invAll) openInvoiceDrawer(invAll.id);
+                                });
+                            }
+                        });
+                    }
+                }
             } else {
                 loadAssets();
             }
@@ -2234,9 +4013,9 @@
 
         if (start > today) return null; // future-dated
 
-        let years  = today.getFullYear() - start.getFullYear();
-        let months = today.getMonth()     - start.getMonth();
-        let days   = today.getDate()      - start.getDate();
+        let years = today.getFullYear() - start.getFullYear();
+        let months = today.getMonth() - start.getMonth();
+        let days = today.getDate() - start.getDate();
 
         if (days < 0) {
             months -= 1;
@@ -2248,9 +4027,9 @@
         if (years === 0 && months === 0 && days === 0) return 'Today';
 
         const parts = [];
-        if (years  > 0) parts.push(`${years}  yr${years  !== 1 ? 's' : ''}`);
+        if (years > 0) parts.push(`${years}  yr${years !== 1 ? 's' : ''}`);
         if (months > 0) parts.push(`${months} mo${months !== 1 ? 's' : ''}`);
-        if (years  === 0 && days > 0) parts.push(`${days} day${days !== 1 ? 's' : ''}`);
+        if (years === 0 && days > 0) parts.push(`${days} day${days !== 1 ? 's' : ''}`);
 
         return parts.join(' ');
     }
@@ -2377,31 +4156,31 @@
                 const searchStr = `${a.device_name || ''} ${a.brand || ''} ${a.model || ''} ${a.serial_number || ''} ${a.asset_id || ''}`.toLowerCase();
                 if (!searchStr.includes(searchQuery)) return false;
             }
-            
+
             // Category
             if (category && (a.device_type !== category)) return false;
-            
+
             // Status
             if (status && (a.status !== status)) return false;
-            
+
             // Ownership
             if (ownership && (a.ownership_type !== ownership)) return false;
-            
+
             // Allotment
             const empId = a.employee_id || a.assigned_to || a.user_id || a.emp_id || a.allotted_to || a.allotted_id;
             const isAssigned = (a.status && (a.status.toLowerCase() === 'assigned' || a.status.toLowerCase() === 'allotted')) || !!empId;
             if (allotment === 'Assigned' && !isAssigned) return false;
             if (allotment === 'Available' && isAssigned) return false;
-            
+
             // Vendor
             if (vendor && (a.vendor_name !== vendor)) return false;
-            
+
             // Location
             if (location && (a.location !== location)) return false;
-            
+
             // Allotted To
             if (allottedTo && (String(empId) !== String(allottedTo))) return false;
-            
+
             // Purchase Date
             if (purchaseFrom || purchaseTo) {
                 if (!a.purchase_date) return false;
@@ -2413,7 +4192,7 @@
                     if (pDate > toDate) return false;
                 }
             }
-            
+
             // Warranty Expiry
             if (warrantyFrom || warrantyTo) {
                 const wDateStr = a.warranty_expiry || a.warranty_end;
@@ -2426,7 +4205,7 @@
                     if (wDate > toDate) return false;
                 }
             }
-            
+
             return true;
         });
 
@@ -2437,14 +4216,14 @@
         const tbody = document.getElementById('assetsTableBody');
 
         // Update hero stats from allAssets to remain consistent when filtering
-        const total    = allAssets ? allAssets.length : 0;
+        const total = allAssets ? allAssets.length : 0;
         const assigned = allAssets ? allAssets.filter(a => {
             const empId = a.employee_id || a.assigned_to || a.user_id || a.emp_id || a.allotted_to || a.allotted_id;
             return (a.status && (a.status.toLowerCase() === 'assigned' || a.status.toLowerCase() === 'allotted')) || !!empId;
         }).length : 0;
-        document.getElementById('heroStatTotal').textContent    = total;
+        document.getElementById('heroStatTotal').textContent = total;
         document.getElementById('heroStatAssigned').textContent = assigned;
-        document.getElementById('heroStatFree').textContent     = total - assigned;
+        document.getElementById('heroStatFree').textContent = total - assigned;
 
         if (!assets || assets.length === 0) {
             tbody.innerHTML = `
@@ -2460,9 +4239,9 @@
 
 
         tbody.innerHTML = assets.map(a => {
-            const deviceName   = a.device_name || a.brand || 'Unknown';
-            const deviceId     = a.id || a.device_id || 'N/A';
-            const deviceType   = a.device_type || 'N/A';
+            const deviceName = a.device_name || a.brand || 'Unknown';
+            const deviceId = a.id || a.device_id || 'N/A';
+            const deviceType = a.device_type || 'N/A';
             const serialNumber = a.serial_number || 'N/A';
 
             const empId = a.employee_id || a.assigned_to || a.user_id || a.emp_id || a.allotted_to || a.allotted_id;
@@ -2485,7 +4264,7 @@
             let durationDisplay = '<span class="text-muted small">&mdash;</span>';
             if (isAssigned) {
                 const durationStart = a.rental_start_date || a.assigned_date;
-                const durationText  = calculateAssignmentDuration(durationStart);
+                const durationText = calculateAssignmentDuration(durationStart);
                 durationDisplay = durationText
                     ? `<span class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill px-2 py-1" style="font-size:0.72rem;">${durationText}</span>`
                     : '<span class="text-muted small">N/A</span>';
@@ -2796,14 +4575,14 @@
         const deviceName = a.device_name || a.brand || a.name || 'Unknown Device';
         document.getElementById('detailAssetTag').innerText = deviceName;
         document.getElementById('detailDeviceName').innerText = deviceName;
-        document.getElementById('detailModel').innerText   = a.model || a.device_type || a.type || 'N/A';
-        document.getElementById('detailSerial').innerText  = a.serial_number || a.serialNumber || a.sn || 'N/A';
+        document.getElementById('detailModel').innerText = a.model || a.device_type || a.type || 'N/A';
+        document.getElementById('detailSerial').innerText = a.serial_number || a.serialNumber || a.sn || 'N/A';
         const deviceIdEl = document.getElementById('detailDeviceId');
         if (deviceIdEl) deviceIdEl.innerText = a.id || a.device_id || a.asset_id || a.asset_tag || 'N/A';
 
         document.getElementById('detailProcessor').innerText = a.processor || a.cpu || a.chip || a.processor_info || 'N/A';
-        document.getElementById('detailRam').innerText       = a.ram || a.memory || a.ram_gb || 'N/A';
-        document.getElementById('detailStorage').innerText   = a.storage || a.disk || a.hdd || a.ssd || a.storage_gb || 'N/A';
+        document.getElementById('detailRam').innerText = a.ram || a.memory || a.ram_gb || 'N/A';
+        document.getElementById('detailStorage').innerText = a.storage || a.disk || a.hdd || a.ssd || a.storage_gb || 'N/A';
 
         const customAssetEl = document.getElementById('detailCustomAssetId');
         if (customAssetEl) {
@@ -2840,8 +4619,8 @@
             if (purchasedFields) purchasedFields.style.display = '';
             if (rentedFields) rentedFields.style.display = 'none';
 
-            document.getElementById('detailPurchaseDate').innerText  = a.purchase_date   ? new Date(a.purchase_date).toLocaleDateString()   : 'N/A';
-            document.getElementById('detailWarranty').innerText       = (a.warranty_expiry || a.warranty_end) ? new Date(a.warranty_expiry || a.warranty_end).toLocaleDateString() : 'N/A';
+            document.getElementById('detailPurchaseDate').innerText = a.purchase_date ? new Date(a.purchase_date).toLocaleDateString() : 'N/A';
+            document.getElementById('detailWarranty').innerText = (a.warranty_expiry || a.warranty_end) ? new Date(a.warranty_expiry || a.warranty_end).toLocaleDateString() : 'N/A';
         }
 
         const notesCont = document.getElementById('detailNotes');
@@ -2908,8 +4687,8 @@
 
         // --- AGREEMENT STATUS ---
         const agSection = document.getElementById('detailAgreementSection');
-        const agStatus  = document.getElementById('detailAgreementStatus');
-        const agAction  = document.getElementById('detailAgreementAction');
+        const agStatus = document.getElementById('detailAgreementStatus');
+        const agAction = document.getElementById('detailAgreementAction');
 
         if (isAssigned && (a.id || a.device_id)) {
             agSection.style.display = 'block';
@@ -2938,7 +4717,7 @@
         }
 
         const imgCont = document.getElementById('detailImageContainer');
-        const inner   = document.getElementById('carouselInner');
+        const inner = document.getElementById('carouselInner');
         const backendBase = document.getElementById('backendBaseUrl').value;
 
         const imagesRaw = a.image_urls || a.images || a.photos || a.image_url || a.image || a.picture;
@@ -2974,7 +4753,7 @@
         currentAssetId = id;
         const modalEl = document.getElementById('editAssetModal');
         const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
-        
+
         // Prefill immediately from the cache so form is never blank
         const cached = allAssets.find(x => String(x.id || x.device_id) === String(id));
         if (cached) {
@@ -2993,8 +4772,8 @@
                     // The backend returns { success, device: {...} }, so the actual
                     // device object is at data.asset.device (or data.asset if it's flat).
                     const device = (data.asset && data.asset.device) ? data.asset.device
-                                 : (data.asset && data.asset.brand)  ? data.asset
-                                 : null;
+                        : (data.asset && data.asset.brand) ? data.asset
+                            : null;
                     if (device) populateEditForm(device);
                 } else if (!cached) {
                     showToast('Failed to load asset details for editing.', 'error');
@@ -3013,13 +4792,13 @@
     function populateEditForm(a) {
         document.getElementById('editAssetSubtitle').innerText = a.device_name || a.brand || 'Edit Asset Details';
 
-        document.getElementById('editDeviceName').value  = a.device_name  || a.brand || '';
-        document.getElementById('editAssetId').value     = a.asset_id     || '';
-        document.getElementById('editModel').value       = a.model || a.device_type || '';
-        document.getElementById('editSerial').value      = a.serial_number || a.serialNumber || '';
-        document.getElementById('editProcessor').value   = a.processor || a.cpu || '';
-        document.getElementById('editRam').value         = a.ram || a.memory || '';
-        document.getElementById('editStorage').value     = a.storage || a.disk || '';
+        document.getElementById('editDeviceName').value = a.device_name || a.brand || '';
+        document.getElementById('editAssetId').value = a.asset_id || '';
+        document.getElementById('editModel').value = a.model || a.device_type || '';
+        document.getElementById('editSerial').value = a.serial_number || a.serialNumber || '';
+        document.getElementById('editProcessor').value = a.processor || a.cpu || '';
+        document.getElementById('editRam').value = a.ram || a.memory || '';
+        document.getElementById('editStorage').value = a.storage || a.disk || '';
 
         const ownership = a.ownership_type || 'Purchased';
         document.getElementById('editOwnershipType').value = ownership;
@@ -3038,14 +4817,14 @@
 
         // Ownership-specific fields
         if (ownership === 'Rented') {
-            document.getElementById('editVendorName').value     = a.vendor_name  || '';
-            document.getElementById('editVendorContact').value  = a.vendor_contact || '';
-            document.getElementById('editRentalStart').value    = a.rental_start_date ? a.rental_start_date.split('T')[0] : '';
-            document.getElementById('editRentalEnd').value      = a.rental_end_date   ? a.rental_end_date.split('T')[0]   : '';
-            document.getElementById('editRentalCost').value     = a.rental_cost  || '';
+            document.getElementById('editVendorName').value = a.vendor_name || '';
+            document.getElementById('editVendorContact').value = a.vendor_contact || '';
+            document.getElementById('editRentalStart').value = a.rental_start_date ? a.rental_start_date.split('T')[0] : '';
+            document.getElementById('editRentalEnd').value = a.rental_end_date ? a.rental_end_date.split('T')[0] : '';
+            document.getElementById('editRentalCost').value = a.rental_cost || '';
             document.getElementById('editRentalFrequency').value = a.rental_cost_frequency || 'Monthly';
         } else {
-            document.getElementById('editPurchaseDate').value   = a.purchase_date   ? a.purchase_date.split('T')[0]   : '';
+            document.getElementById('editPurchaseDate').value = a.purchase_date ? a.purchase_date.split('T')[0] : '';
             document.getElementById('editWarrantyExpiry').value = (a.warranty_expiry || a.warranty_end) ? (a.warranty_expiry || a.warranty_end).split('T')[0] : '';
         }
 
@@ -3057,7 +4836,7 @@
     function toggleEditOwnershipFields() {
         const ownership = document.getElementById('editOwnershipType').value;
         document.getElementById('editPurchasedFields').style.display = (ownership === 'Purchased') ? '' : 'none';
-        document.getElementById('editRentedFields').style.display    = (ownership === 'Rented')    ? '' : 'none';
+        document.getElementById('editRentedFields').style.display = (ownership === 'Rented') ? '' : 'none';
     }
 
     function saveAssetEdits() {
@@ -3066,15 +4845,15 @@
 
         const ownership = document.getElementById('editOwnershipType').value;
         const payload = {
-            device_name:   document.getElementById('editDeviceName').value.trim(),
-            asset_id:      document.getElementById('editAssetId').value.trim()   || null,
-            device_type:   document.getElementById('editDeviceType').value,
-            model:         document.getElementById('editModel').value.trim(),
+            device_name: document.getElementById('editDeviceName').value.trim(),
+            asset_id: document.getElementById('editAssetId').value.trim() || null,
+            device_type: document.getElementById('editDeviceType').value,
+            model: document.getElementById('editModel').value.trim(),
             serial_number: document.getElementById('editSerial').value.trim(),
-            processor:     document.getElementById('editProcessor').value.trim(),
-            ram:           document.getElementById('editRam').value.trim(),
-            storage:       document.getElementById('editStorage').value.trim(),
-            status:        document.getElementById('editStatus').value,
+            processor: document.getElementById('editProcessor').value.trim(),
+            ram: document.getElementById('editRam').value.trim(),
+            storage: document.getElementById('editStorage').value.trim(),
+            status: document.getElementById('editStatus').value,
             ownership_type: ownership,
             condition_notes: document.getElementById('editNotes').value.trim()
         };
@@ -3085,14 +4864,14 @@
         }
 
         if (ownership === 'Purchased') {
-            payload.purchase_date   = document.getElementById('editPurchaseDate').value   || null;
+            payload.purchase_date = document.getElementById('editPurchaseDate').value || null;
             payload.warranty_expiry = document.getElementById('editWarrantyExpiry').value || null;
         } else {
-            payload.vendor_name          = document.getElementById('editVendorName').value.trim()     || null;
-            payload.vendor_contact       = document.getElementById('editVendorContact').value.trim()  || null;
-            payload.rental_start_date    = document.getElementById('editRentalStart').value           || null;
-            payload.rental_end_date      = document.getElementById('editRentalEnd').value             || null;
-            payload.rental_cost          = document.getElementById('editRentalCost').value            || null;
+            payload.vendor_name = document.getElementById('editVendorName').value.trim() || null;
+            payload.vendor_contact = document.getElementById('editVendorContact').value.trim() || null;
+            payload.rental_start_date = document.getElementById('editRentalStart').value || null;
+            payload.rental_end_date = document.getElementById('editRentalEnd').value || null;
+            payload.rental_cost = document.getElementById('editRentalCost').value || null;
             payload.rental_cost_frequency = document.getElementById('editRentalFrequency').value;
         }
 
@@ -3107,31 +4886,31 @@
             headers: { ...getHeaders(), 'Content-Type': 'application/json' },
             body: JSON.stringify(payload)
         })
-        .then(res => res.json())
-        .then(data => {
-            if (data.success) {
-                showToast('Asset updated successfully!', 'success');
-                const editModalEl = document.getElementById('editAssetModal');
-                bootstrap.Modal.getOrCreateInstance(editModalEl).hide();
-                
-                // If the read-only Detail modal is open for this same asset, refresh it too
-                const detailModalEl = document.getElementById('assetDetailModal');
-                if (detailModalEl.classList.contains('show')) {
-                    viewAsset(currentAssetId);
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    showToast('Asset updated successfully!', 'success');
+                    const editModalEl = document.getElementById('editAssetModal');
+                    bootstrap.Modal.getOrCreateInstance(editModalEl).hide();
+
+                    // If the read-only Detail modal is open for this same asset, refresh it too
+                    const detailModalEl = document.getElementById('assetDetailModal');
+                    if (detailModalEl.classList.contains('show')) {
+                        viewAsset(currentAssetId);
+                    }
+
+                    loadAssets(); // refresh the table
+                } else {
+                    throw new Error(data.error || 'Update failed.');
                 }
-                
-                loadAssets(); // refresh the table
-            } else {
-                throw new Error(data.error || 'Update failed.');
-            }
-        })
-        .catch(err => {
-            showToast(err.message || 'Failed to save changes.', 'error');
-        })
-        .finally(() => {
-            btn.disabled = false;
-            btn.innerHTML = '<i class="bi bi-check2 me-1"></i> Save Changes';
-        });
+            })
+            .catch(err => {
+                showToast(err.message || 'Failed to save changes.', 'error');
+            })
+            .finally(() => {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="bi bi-check2 me-1"></i> Save Changes';
+            });
     }
 
     function reassignAsset() {
@@ -3163,19 +4942,19 @@
                     method: 'DELETE',
                     headers: getHeaders()
                 })
-                .then(res => res.json())
-                .then(data => {
-                    if (data.success) {
-                        showToast('Device deleted successfully.', 'success');
-                        loadAssets();
-                    } else {
-                        showToast('Error deleting device: ' + data.error, 'error');
-                    }
-                })
-                .catch(err => {
-                    console.error('Delete Error:', err);
-                    showToast('Failed to delete device.', 'error');
-                });
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.success) {
+                            showToast('Device deleted successfully.', 'success');
+                            loadAssets();
+                        } else {
+                            showToast('Error deleting device: ' + data.error, 'error');
+                        }
+                    })
+                    .catch(err => {
+                        console.error('Delete Error:', err);
+                        showToast('Failed to delete device.', 'error');
+                    });
             },
             'Delete Device'
         );
@@ -3209,29 +4988,29 @@
             method: 'POST',
             headers: getHeaders()
         })
-        .then(res => res.json())
-        .then(data => {
-            if (data.success) {
-                const modalEl = document.getElementById('returnAssetModal');
-                const modal = bootstrap.Modal.getInstance(modalEl);
-                if (modal) modal.hide();
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    const modalEl = document.getElementById('returnAssetModal');
+                    const modal = bootstrap.Modal.getInstance(modalEl);
+                    if (modal) modal.hide();
 
-                showToast(data.message || 'Asset returned successfully.', 'success');
+                    showToast(data.message || 'Asset returned successfully.', 'success');
 
-                viewAsset(currentAssetId);
-                loadAssets();
-            } else {
-                throw new Error(data.error || 'Failed to return asset.');
-            }
-        })
-        .catch(err => {
-            console.error('Return Error:', err);
-            showToast(err.message || 'Unable to return asset. Please try again.', 'error');
-        })
-        .finally(() => {
-            btn.innerHTML = '<i class="bi bi-arrow-return-left me-1"></i> Return Asset';
-            toggleReturnButton();
-        });
+                    viewAsset(currentAssetId);
+                    loadAssets();
+                } else {
+                    throw new Error(data.error || 'Failed to return asset.');
+                }
+            })
+            .catch(err => {
+                console.error('Return Error:', err);
+                showToast(err.message || 'Unable to return asset. Please try again.', 'error');
+            })
+            .finally(() => {
+                btn.innerHTML = '<i class="bi bi-arrow-return-left me-1"></i> Return Asset';
+                toggleReturnButton();
+            });
     }
 
     /* ════════════════════════════════════════
@@ -3256,15 +5035,15 @@
 
         // Gather form values
         const exportType = document.getElementById('exportType').value;
-        const category   = document.getElementById('exportCategory').value;
-        const status     = document.getElementById('exportStatus').value;
-        const sortBy     = document.getElementById('exportSortBy').value;
-        const sortDir    = document.getElementById('exportSortDir').value;
+        const category = document.getElementById('exportCategory').value;
+        const status = document.getElementById('exportStatus').value;
+        const sortBy = document.getElementById('exportSortBy').value;
+        const sortDir = document.getElementById('exportSortDir').value;
 
         // Build query string
         const params = new URLSearchParams({ export_type: exportType, sort_by: sortBy, sort_dir: sortDir });
         if (category) params.append('category', category);
-        if (status)   params.append('status', status);
+        if (status) params.append('status', status);
 
         // Loading state
         btn.disabled = true;
@@ -3275,49 +5054,49 @@
             method: 'GET',
             headers: getHeaders()
         })
-        .then(response => {
-            if (response.ok) {
-                // Extract filename from Content-Disposition header if available
-                const disposition = response.headers.get('Content-Disposition');
-                let filename = `Asset_Inventory_${new Date().toISOString().slice(0,16).replace(/[-T:]/g, '_')}.xlsx`;
-                if (disposition) {
-                    const match = disposition.match(/filename[^;=\n]*=["']?([^'";\n]+)["']?/);
-                    if (match && match[1]) filename = match[1].trim();
+            .then(response => {
+                if (response.ok) {
+                    // Extract filename from Content-Disposition header if available
+                    const disposition = response.headers.get('Content-Disposition');
+                    let filename = `Asset_Inventory_${new Date().toISOString().slice(0, 16).replace(/[-T:]/g, '_')}.xlsx`;
+                    if (disposition) {
+                        const match = disposition.match(/filename[^;=\n]*=["']?([^'";\n]+)["']?/);
+                        if (match && match[1]) filename = match[1].trim();
+                    }
+                    return response.blob().then(blob => ({ blob, filename }));
+                } else {
+                    return response.json().then(err => {
+                        throw new Error(err.error || `Export failed (${response.status})`);
+                    });
                 }
-                return response.blob().then(blob => ({ blob, filename }));
-            } else {
-                return response.json().then(err => {
-                    throw new Error(err.error || `Export failed (${response.status})`);
-                });
-            }
-        })
-        .then(({ blob, filename }) => {
-            // Trigger browser file download
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.style.display = 'none';
-            a.href = url;
-            a.download = filename;
-            document.body.appendChild(a);
-            a.click();
-            window.URL.revokeObjectURL(url);
-            a.remove();
+            })
+            .then(({ blob, filename }) => {
+                // Trigger browser file download
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.style.display = 'none';
+                a.href = url;
+                a.download = filename;
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                a.remove();
 
-            // Close modal & show success toast
-            const modalEl = document.getElementById('exportAssetsModal');
-            const modal = bootstrap.Modal.getInstance(modalEl);
-            if (modal) modal.hide();
+                // Close modal & show success toast
+                const modalEl = document.getElementById('exportAssetsModal');
+                const modal = bootstrap.Modal.getInstance(modalEl);
+                if (modal) modal.hide();
 
-            showToast('Asset inventory exported successfully!', 'success');
-        })
-        .catch(err => {
-            console.error('Export Error:', err);
-            showToast(err.message || 'Failed to export assets. Please try again.', 'error');
-        })
-        .finally(() => {
-            btn.disabled = false;
-            btn.innerHTML = '<i class="bi bi-download me-1"></i> <span id="exportBtnText">Download Excel</span>';
-        });
+                showToast('Asset inventory exported successfully!', 'success');
+            })
+            .catch(err => {
+                console.error('Export Error:', err);
+                showToast(err.message || 'Failed to export assets. Please try again.', 'error');
+            })
+            .finally(() => {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="bi bi-download me-1"></i> <span id="exportBtnText">Download Excel</span>';
+            });
     }
 </script>
 {% endblock %}
