@@ -118,95 +118,77 @@
         </div>
     </div>
 
-    <!-- Calendar Section (Everyone) -->
-    <div class="row">
-        <div class="col-12">
-            <div class="card border-0 shadow-sm">
-                <div class="card-body p-4">
-                    <h5 class="card-title mb-4 fw-semibold">Leave Calendar</h5>
-                    <div id="calendar" style="background: white; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.05);"></div>
-                    
-                    <!-- Calendar Legend -->
-                    <div class="mt-3 d-flex flex-wrap gap-2 justify-content-center pb-2">
-                        <div class="calendar-legend-item">
-                            <span class="legend-dot" style="background-color: #22c55e;"></span>
-                            Approved
-                        </div>
-                        <div class="calendar-legend-item">
-                            <span class="legend-dot" style="background-color: #eab308;"></span>
-                            Pending
-                        </div>
-                        <div class="calendar-legend-item">
-                            <span class="legend-dot" style="background-color: #ef4444;"></span>
-                            Rejected
-                        </div>
-                        <div class="calendar-legend-item">
-                            <span class="legend-dot" style="background-color: #f97316;"></span>
-                            Half Day
-                        </div>
-                        <div class="calendar-legend-item">
-                            <span class="legend-dot" style="background-color: #3b82f6;"></span>
-                            Holiday
-                        </div>
-                        <div class="calendar-legend-item">
-                            <span class="legend-dot" style="background-color: #94a3b8;"></span>
-                            Weekend
+    <!-- Calendar & Holidays Joint Card -->
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body p-4">
+            <div class="row g-4">
+                <!-- Left Section: Leave Calendar -->
+                <div class="col-lg-6 d-flex flex-column pe-lg-4" style="border-right: 1px solid #f1f5f9; min-width: 0;">
+                    <div class="d-flex align-items-center mb-3" style="height: 38px;">
+                        <h5 class="card-title mb-0 fw-semibold">Leave Calendar</h5>
+                    </div>
+                    <div class="flex-grow-1 d-flex flex-column justify-content-between">
+                        <div id="calendar" style="background: #ffffff; border: 2px solid rgba(99, 102, 241, 0.18); border-radius: 12px; box-shadow: 0 8px 24px rgba(99, 102, 241, 0.08); flex-grow: 1; width: 100%; padding: 12px;"></div>
+                        
+                        <!-- Calendar Legend -->
+                        <div class="mt-3 d-flex flex-wrap gap-2 justify-content-center pb-2">
+                            <div class="calendar-legend-item">
+                                <span class="legend-dot" style="background-color: #22c55e;"></span>
+                                Approved
+                            </div>
+                            <div class="calendar-legend-item">
+                                <span class="legend-dot" style="background-color: #eab308;"></span>
+                                Pending
+                            </div>
+                            <div class="calendar-legend-item">
+                                <span class="legend-dot" style="background-color: #ef4444;"></span>
+                                Rejected
+                            </div>
+                            <div class="calendar-legend-item">
+                                <span class="legend-dot" style="background-color: #f97316;"></span>
+                                Half Day
+                            </div>
+                            <div class="calendar-legend-item">
+                                <span class="legend-dot" style="background-color: #3b82f6;"></span>
+                                Holiday
+                            </div>
+                            <div class="calendar-legend-item">
+                                <span class="legend-dot" style="background-color: #94a3b8;"></span>
+                                Weekend
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-        </div>
-    </div>
 
-    <!-- Company Holidays Section -->
-    <div class="row mt-4" id="holidaysSection">
-        <div class="col-12">
-            <div class="card border-0 shadow-sm">
-                <div class="card-body p-4">
-                    <div class="d-flex justify-content-between align-items-center mb-3">
+                <!-- Right Section: Company Holidays -->
+                <div class="col-lg-6 d-flex flex-column ps-lg-4" id="holidaysSection">
+                    <div class="d-flex justify-content-between align-items-center mb-3" style="height: 38px;">
                         <h5 class="card-title mb-0 fw-semibold">
-                            <i class="bi bi-calendar-event text-primary me-2"></i>Company Holidays
+                            Company Holidays
                         </h5>
                         {% if session.role == 'hr' %}
                         <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#addHolidayModal">
-                            <i class="bi bi-plus-lg me-1"></i> Add Holiday
+                            Add Holiday
                         </button>
                         {% endif %}
                     </div>
-                    <div class="table-responsive">
-                        <table class="table table-hover align-middle mb-0" id="holidaysTable">
-                            <thead class="table-light">
+                    <div class="table-responsive flex-grow-1" style="overflow-y: hidden; margin-top: 14px;">
+                        <table class="table table-hover align-middle mb-0 w-100" id="holidaysTable" style="table-layout: fixed; border-collapse: separate; border-spacing: 0 20px;">
+                            <thead class="table-light" style="position: sticky; top: 0; z-index: 2;">
                                 <tr>
-                                    <th>Date</th>
-                                    <th>Holiday Name</th>
-                                    <th>Type</th>
-                                    <th>Description</th>
+                                    <th style="width: 25%; font-size: 1.05rem; font-weight: 800; border-bottom: 1px solid #E5E7EB !important; border-top: none; color: #0f172a;">Date</th>
+                                    <th style="width: 30%; font-size: 1.05rem; font-weight: 800; border-bottom: 1px solid #E5E7EB !important; border-top: none; color: #0f172a;">Holiday Name</th>
+                                    <th style="width: 15%; font-size: 1.05rem; font-weight: 800; border-bottom: 1px solid #E5E7EB !important; border-top: none; color: #0f172a;">Type</th>
+                                    <th style="width: 30%; font-size: 1.05rem; font-weight: 800; border-bottom: 1px solid #E5E7EB !important; border-top: none; color: #0f172a;">Description</th>
                                 </tr>
                             </thead>
                             <tbody id="holidaysTableBody">
-                                {% if holidays %}
-                                    {% for h in holidays %}
-                                    <tr>
-                                        <td class="fw-semibold text-primary" style="white-space: nowrap;">
-                                            <i class="bi bi-calendar3 me-1 opacity-75"></i>{{ h.date[:10] if h.date else '—' }}
-                                        </td>
-                                        <td class="fw-bold">{{ h.name }}</td>
-                                        <td>
-                                            <span class="badge {% if h.type == 'public' %}bg-primary{% elif h.type == 'optional' %}bg-info text-dark{% else %}bg-secondary{% endif %} text-uppercase" style="font-size: 0.7rem;">
-                                                {{ h.type or 'public' }}
-                                            </span>
-                                        </td>
-                                        <td class="text-muted small">{{ h.description or '—' }}</td>
-                                    </tr>
-                                    {% endfor %}
-                                {% else %}
-                                    <tr id="noHolidaysRow">
-                                        <td colspan="4" class="text-center text-muted py-3">No company holidays scheduled.</td>
-                                    </tr>
-                                {% endif %}
+                                <tr><td colspan="4" class="text-center text-muted py-3">Loading holidays...</td></tr>
                             </tbody>
                         </table>
                     </div>
+                    <!-- Holidays Pagination -->
+                    <div id="holidaysPagination" class="d-flex justify-content-center align-items-center gap-1 pt-2" style="flex-shrink: 0;"></div>
                 </div>
             </div>
         </div>
@@ -410,7 +392,9 @@
     }
     
     /* Premium Calendar Styling */
-    .fc { background: transparent !important; font-family: 'Inter', sans-serif !important; border: none !important; }
+    .fc { width: 100% !important; max-width: 100% !important; background: transparent !important; font-family: 'Inter', sans-serif !important; border: none !important; }
+    /* Let FullCalendar calculate its internal table widths instead of constraining each child. */
+    #calendar .fc-view-harness, #calendar .fc-scrollgrid, #calendar .fc-daygrid-body, #calendar .fc-daygrid-body table { width: 100% !important; }
     .fc-theme-standard td, .fc-theme-standard th { border: 1px solid #f1f5f9 !important; }
     .fc-toolbar { margin-bottom: 1rem !important; padding: 0 10px !important; }
     .fc-button-group { background: #f1f5f9; padding: 4px; border-radius: 12px; }
@@ -418,11 +402,11 @@
     .fc-button-primary.fc-button-active, .fc-button-primary:hover { background: white !important; color: #4f46e5 !important; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1) !important; }
     .fc-today-button { background: white !important; border: 1px solid #e2e8f0 !important; color: #4f46e5 !important; border-radius: 10px !important; margin-left: 12px !important; font-weight: 700 !important; }
     .fc-col-header { background: #f8fafc; border-radius: 12px 12px 0 0; overflow: hidden; }
-    .fc-col-header-cell { padding: 8px 0 !important; border: none !important; }
-    .fc-col-header-cell-cushion { font-size: 0.75rem !important; font-weight: 700 !important; color: #94a3b8 !important; letter-spacing: 0.1em; }
+    .fc-col-header-cell { padding: 8px 0 !important; border: none !important; text-align: center !important; }
+    .fc-col-header-cell-cushion { display: inline-block !important; font-size: 0.75rem !important; font-weight: 700 !important; color: #000000 !important; letter-spacing: 0.1em; text-align: center !important; width: 100% !important; text-decoration: none !important; }
     .fc-daygrid-day { transition: all 0.2s ease; border: 1px solid #f1f5f9 !important; }
-    .fc-daygrid-day-top { flex-direction: row !important; padding: 4px 8px !important; }
-    .fc-daygrid-day-number { font-size: 0.85rem !important; font-weight: 700 !important; color: #1e293b !important; text-decoration: none !important; padding: 2px !important; }
+    .fc-daygrid-day-top { display: flex !important; justify-content: center !important; align-items: center !important; padding: 4px 0 !important; }
+    .fc-daygrid-day-number { display: inline-block !important; font-size: 0.85rem !important; font-weight: 700 !important; color: #1e293b !important; text-decoration: none !important; padding: 2px !important; text-align: center !important; width: 100% !important; }
     .day-weekend { background-color: #fbfcfe !important; }
     .day-today { background-color: #f0f7ff !important; border: 2px solid #3b82f6 !important; z-index: 1; }
     .fc-day-other { background-color: #f8fafc !important; opacity: 0.3 !important; pointer-events: none !important; }
@@ -444,9 +428,33 @@
 </style>
 
 <script>
+const DAY_FULL   = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+const MONTH_ABBR = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+function ordinalSuffix(n) {
+    const s = ['th','st','nd','rd'];
+    const v = n % 100;
+    return n + (s[(v - 20) % 10] || s[v] || s[0]);
+}
+
+function formatHolidayDate(value) {
+    const datePart = String(value || '').trim().slice(0, 10);
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(datePart)) return '—';
+    const [year, month, day] = datePart.split('-').map(Number);
+    if (month < 1 || month > 12 || day < 1 || day > 31) return '—';
+    const date = new Date(Date.UTC(year, month - 1, day));
+    if (Number.isNaN(date.getTime())) return '—';
+    const dayName = DAY_FULL[date.getUTCDay()];
+    const mon     = MONTH_ABBR[date.getUTCMonth()];
+    return `${dayName}, ${ordinalSuffix(day)} ${mon}`;   // e.g. "Thursday, 2nd Jan"
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     const isEmployee = '{{ session.role }}' === 'employee';
-    
+
+    // Populate holidays table via JS API (reliable date fetching)
+    refreshHolidaysList();
+
     // Load Leave Balance for all roles
     loadLeaveBalance();
     
@@ -627,6 +635,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
         calendar.render();
+        setTimeout(() => { calendar.updateSize(); }, 150);
         window.inlineCalendar = calendar;
     }
 });
@@ -646,46 +655,97 @@ function updateLeave(leaveId, status, btn) {
     .catch(err => { alert(err.message || "Error updating leave"); });
 }
 
+// ── Holiday table state ──────────────────────────────────────────────────────
+let _allHolidays = [];
+let _holPage     = 1;
+const HOL_PAGE_SIZE = 10;
+
 function refreshHolidaysList() {
     fetch('/api/holidays')
         .then(res => res.json())
         .then(data => {
             if (data.success && data.holidays) {
-                const tbody = document.getElementById('holidaysTableBody');
-                if (!tbody) return;
-                
-                if (data.holidays.length === 0) {
-                    tbody.innerHTML = '<tr id="noHolidaysRow"><td colspan="4" class="text-center text-muted py-3">No company holidays scheduled.</td></tr>';
-                    return;
-                }
-                
-                let html = '';
-                data.holidays.forEach(h => {
-                    const dateStr = h.date ? String(h.date).substring(0, 10) : '—';
-                    const hType = h.type || 'public';
-                    let badgeClass = 'bg-primary';
-                    if (hType === 'optional') badgeClass = 'bg-info text-dark';
-                    else if (hType === 'restricted') badgeClass = 'bg-secondary';
-                    
-                    html += `
-                        <tr>
-                            <td class="fw-semibold text-primary" style="white-space: nowrap;">
-                                <i class="bi bi-calendar3 me-1 opacity-75"></i>${dateStr}
-                            </td>
-                            <td class="fw-bold">${escapeHtml(h.name || '')}</td>
-                            <td>
-                                <span class="badge ${badgeClass} text-uppercase" style="font-size: 0.7rem;">
-                                    ${escapeHtml(hType)}
-                                </span>
-                            </td>
-                            <td class="text-muted small">${escapeHtml(h.description || '—')}</td>
-                        </tr>
-                    `;
-                });
-                tbody.innerHTML = html;
+                _allHolidays = data.holidays;
+            } else {
+                _allHolidays = [];
             }
+            _holPage = 1;
+            renderHolidayPage();
         })
-        .catch(err => console.error('Error refreshing holidays list:', err));
+        .catch(err => {
+            console.error('Error refreshing holidays list:', err);
+            _allHolidays = [];
+            renderHolidayPage();
+        });
+}
+
+function renderHolidayPage() {
+    const tbody = document.getElementById('holidaysTableBody');
+    const pager = document.getElementById('holidaysPagination');
+    if (!tbody) return;
+
+    if (_allHolidays.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="4" class="text-center text-muted py-3">No company holidays scheduled.</td></tr>';
+        if (pager) pager.innerHTML = '';
+        return;
+    }
+
+    const totalPages = Math.ceil(_allHolidays.length / HOL_PAGE_SIZE);
+    _holPage = Math.max(1, Math.min(_holPage, totalPages));
+
+    const start = (_holPage - 1) * HOL_PAGE_SIZE;
+    const pageItems = _allHolidays.slice(start, start + HOL_PAGE_SIZE);
+
+    // Use fixed padding now that we have 20px row gaps via border-spacing
+    const rowPad = 12;
+
+    // Render rows — no border between them
+    let html = '';
+    pageItems.forEach(h => {
+        const dateStr = formatHolidayDate(h.date);
+        const hType = h.type || 'public';
+        // Determine type color — plain text, no badge
+        let typeColor = '#1d4ed8';       // public  → dark blue
+        if (hType === 'optional')                               typeColor = '#0e7490'; // dark cyan
+        else if (hType === 'restricted' || hType === 'company') typeColor = '#374151'; // dark gray
+
+        html += `
+            <tr style="border: none;">
+                <td class="fw-semibold" style="white-space: nowrap; border: none; color: #64748b; padding: ${rowPad}px 12px;">${dateStr}</td>
+                <td class="fw-bold" style="border: none; padding: ${rowPad}px 12px;">${escapeHtml(h.name || '')}</td>
+                <td style="border: none; padding: ${rowPad}px 12px;">
+                    <span style="font-weight:600; color:${typeColor}; text-transform:uppercase; font-size:0.78rem; letter-spacing:0.04em;">${escapeHtml(hType)}</span>
+                </td>
+                <td style="border: none; padding: ${rowPad}px 12px; color: #64748b; font-size: 0.875rem;">${escapeHtml(h.description || '—')}</td>
+            </tr>`;
+    });
+    tbody.innerHTML = html;
+
+    // Render pagination controls
+    if (pager) {
+        if (totalPages <= 1) { pager.innerHTML = ''; return; }
+        const btnBase = 'style="min-width:32px; height:32px; padding:0 8px; font-size:0.78rem; border-radius:8px; border:1px solid #e2e8f0; background:#fff; cursor:pointer; display:inline-flex; align-items:center; justify-content:center;"';
+        const activeStyle = 'style="min-width:32px; height:32px; padding:0 8px; font-size:0.78rem; border-radius:8px; border:1px solid #6366f1; background:#6366f1; color:#fff; cursor:pointer; display:inline-flex; align-items:center; justify-content:center; font-weight:700;"';
+        let pHtml = `<button ${btnBase} onclick="_holPage--; renderHolidayPage();" ${_holPage===1?'disabled':''}>&lsaquo;</button>`;
+        for (let p = 1; p <= totalPages; p++) {
+            pHtml += `<button ${p===_holPage ? activeStyle : btnBase} onclick="_holPage=${p}; renderHolidayPage();">${p}</button>`;
+        }
+        pHtml += `<button ${btnBase} onclick="_holPage++; renderHolidayPage();" ${_holPage===totalPages?'disabled':''}>&rsaquo;</button>`;
+        pager.innerHTML = pHtml;
+    }
+}
+
+function formatHolidayDate(dateVal) {
+    if (!dateVal) return '—';
+    const datePart = String(dateVal).trim().slice(0, 10);
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(datePart)) return '—';
+    const [year, month, day] = datePart.split('-').map(Number);
+    if (month < 1 || month > 12 || day < 1 || day > 31) return '—';
+    const date = new Date(Date.UTC(year, month - 1, day));
+    if (Number.isNaN(date.getTime())) return '—';
+    const dayName = DAY_FULL[date.getUTCDay()];
+    const mon     = MONTH_ABBR[date.getUTCMonth()];
+    return `${dayName}, ${ordinalSuffix(day)} ${mon}`;
 }
 
 function escapeHtml(str) {

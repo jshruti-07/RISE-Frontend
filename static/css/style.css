@@ -2975,3 +2975,35 @@ body.app-modal-open {
     backdrop-filter: blur(8px) !important;
     -webkit-backdrop-filter: blur(8px) !important;
 }
+
+/* ===== FULLCALENDAR FIXES ===== */
+/* Ensure the outer wrapper respects the full layout dimensions */
+#calendar {
+  width: 100% !important;
+}
+
+/* Force FullCalendar tables to calculate dimensions strictly and evenly */
+#calendar .fc-col-header,
+#calendar .fc-scrollgrid-sync-table {
+  width: 100% !important;
+  table-layout: fixed !important;
+}
+
+/* Center-align text labels inside the day cells to anchor them cleanly */
+#calendar .fc-col-header-cell-cushion {
+  display: inline-block !important;
+  text-align: center !important;
+  width: 100% !important;
+  padding: 8px 0 !important;
+}
+
+/* Fix for newer FullCalendar versions utilizing Flexbox row containers */
+#calendar .fc-header-row {
+  display: flex !important;
+  width: 100% !important;
+}
+
+#calendar .fc-col-header-cell {
+  flex: 1 1 0% !important;
+  text-align: center !important;
+}

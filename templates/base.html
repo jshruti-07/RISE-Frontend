@@ -801,16 +801,11 @@
 
                     var notifications = data.notifications || [];
 
-                    // Update notification badge
+                    // Update notification badge (dot only — no count)
                     var unreadCount = notifications.filter(function (n) { return !n.is_read; }).length;
                     var badge = document.getElementById('notificationBadge');
                     if (badge) {
-                        if (unreadCount > 0) {
-                            badge.textContent = unreadCount;
-                            badge.style.display = 'block';
-                        } else {
-                            badge.style.display = 'none';
-                        }
+                        badge.style.display = unreadCount > 0 ? 'block' : 'none';
                     }
                 })
                 .catch(error => console.error('Error loading notifications:', error));
