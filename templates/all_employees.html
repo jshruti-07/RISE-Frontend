@@ -32,8 +32,8 @@
         <thead>
             <tr>
                 <th style="text-align: left;">Name</th>
-                <th>Role</th>
-                <th>Email</th>
+                <th style="text-align: left;">Role</th>
+                <th style="text-align: left;">Email</th>
                 <th>Joining Date</th>
             </tr>
         </thead>
@@ -56,10 +56,10 @@
                 </td>
 
                 <td><span class="d-flex flex-column justify-content-center"
-                        style="font-size: 0.8rem; color: slategray; text-align: center;">{{ labels.EMPLOYEE.upper() if
+                        style="font-size: 0.8rem; color: slategray; text-align: left;">{{ labels.EMPLOYEE.upper() if
                         emp.role == 'employee' else emp.role | upper }}</span></td>
                 <td><span class="d-flex flex-column justify-content-center"
-                        style="font-size: 0.8rem; color: slategray; text-align: center;">{{ emp.email }}</span></td>
+                        style="font-size: 0.8rem; color: slategray; text-align: left;">{{ emp.email }}</span></td>
                 <td><span class="d-flex flex-column justify-content-center"
                         style="font-size: 0.8rem; color: slategray; text-align: center;">{{ emp.date_of_joining[:11] if
                         emp.date_of_joining else '' }}</span></td>

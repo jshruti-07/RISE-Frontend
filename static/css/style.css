@@ -358,7 +358,7 @@ body {
     font-weight: inherit;
     color: inherit;
     transition: background 0.18s ease, transform 0.18s ease;
-    margin: 1px 8px;
+    margin: 0px 8px;
     border-radius: 10px;
 }
 
@@ -366,7 +366,7 @@ body {
 .menu a .ribbon-inner {
     display: flex;
     align-items: center;
-    height: 42px;
+    height: 36px;
     position: relative;
     background: transparent !important;
     margin: 0;
@@ -472,7 +472,7 @@ body {
     color: #94a3b8;
     text-transform: uppercase;
     letter-spacing: 0.08em;
-    margin: 8px 20px 4px;
+    margin: 4px 20px 2px;
     display: block;
 }
 
