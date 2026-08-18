@@ -13,7 +13,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const inputDateOfJoining = document.querySelector('input[name="date_of_joining"]');
     const selectRole = document.querySelector('select[name="role"]');
     const selectDepartment = document.querySelector('select[name="department"]');
-    const selectDesignation = document.querySelector('select[name="designation"]');
+    const elemDesignation = document.querySelector('[name="designation"]');
 
     // Helper: Auth Header
     const getHeaders = () => {
@@ -92,7 +92,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
             setSelectVal(selectRole, joinee.assigned_role);
             setSelectVal(selectDepartment, joinee.assigned_department);
-            setSelectVal(selectDesignation, joinee.assigned_designation || joinee.assigned_role);
+            if (elemDesignation) {
+                if (elemDesignation.tagName === 'SELECT') {
+                    setSelectVal(elemDesignation, joinee.assigned_designation || joinee.assigned_role);
+                } else {
+                    elemDesignation.value = joinee.assigned_designation || joinee.assigned_role || '';
+                }
+            }
 
             // Banners
             successBanner.classList.remove('d-none');

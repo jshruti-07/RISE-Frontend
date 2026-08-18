@@ -18,6 +18,32 @@ admin_bp = Blueprint('admin', __name__)
 def helpdesk():
     return render_template('helpdesk.html', BASE_URL=BASE_URL)
 
+# --- SOFTWARE ---
+@admin_bp.route('/software')
+@role_required(['admin', 'employee', 'hr', 'manager'])
+def software():
+    return render_template('software.html', BASE_URL=BASE_URL)
+
+@admin_bp.route('/api/software', methods=['GET', 'POST'])
+@role_required(['admin'])
+def api_software():
+    if request.method == 'POST':
+        res = requests.post(f"{BASE_URL}/software", json=request.get_json(), headers=get_headers())
+    else:
+        res = requests.get(f"{BASE_URL}/software", headers=get_headers())
+    return jsonify(res.json()), res.status_code
+
+@admin_bp.route('/api/software/<int:software_id>', methods=['GET', 'PUT', 'DELETE'])
+@role_required(['admin'])
+def api_software_detail(software_id):
+    if request.method == 'PUT':
+        res = requests.put(f"{BASE_URL}/software/{software_id}", json=request.get_json(), headers=get_headers())
+    elif request.method == 'DELETE':
+        res = requests.delete(f"{BASE_URL}/software/{software_id}", headers=get_headers())
+    else:
+        res = requests.get(f"{BASE_URL}/software/{software_id}", headers=get_headers())
+    return jsonify(res.json()), res.status_code
+
 @admin_bp.route('/api/helpdesk/', methods=['GET', 'POST'])
 def api_helpdesk_list():
     if request.method == 'POST':

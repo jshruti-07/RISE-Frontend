@@ -311,12 +311,13 @@ function loadReimbursements() {
     fetch(`/api/reimbursements?${queryString}`)
         .then(res => res.json())
         .then(data => {
-            if (!data.success) throw new Error(data.error);
+            if (!data.success) throw new Error(data.error || 'Failed to load data');
             renderReimbursements(data.reimbursements);
         })
         .catch(err => {
             console.error('Error loading reimbursements:', err);
-            tbody.innerHTML = '<tr><td colspan="8" class="text-center py-4 text-danger">Failed to load reimbursements</td></tr>';
+            const errMsg = err.message ? `: ${err.message}` : '';
+            tbody.innerHTML = `<tr><td colspan="8" class="text-center py-4 text-danger">Failed to load reimbursements${errMsg}</td></tr>`;
         });
 }
 

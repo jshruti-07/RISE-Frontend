@@ -13,60 +13,80 @@
                 
                 <!-- KPI GRID -->
                 {% if session.role in ['hr', 'admin'] %}
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 24px; margin-bottom: 24px;">
-                    <!-- Total Team -->
-                    <a href="{{ url_for('employees.employee_list') }}" class="text-decoration-none">
-                        <div class="glass-card p-3 h-100 hover-card kpi-card">
-                            <div class="kpi-top">
-                                <span class="kpi-label-new">{{ labels.TOTAL_EMPLOYEES }}</span>
-                                <span class="kpi-status-dot kpi-dot-blue" aria-hidden="true"></span>
+                    {% if session.role == 'hr' %}
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 24px; margin-bottom: 24px;">
+                        <!-- Total Team -->
+                        <a href="{{ url_for('employees.employee_list') }}" class="text-decoration-none">
+                            <div class="glass-card p-3 h-100 hover-card kpi-card">
+                                <div class="kpi-top">
+                                    <span class="kpi-label-new">{{ labels.TOTAL_EMPLOYEES }}</span>
+                                    <span class="kpi-status-dot kpi-dot-blue" aria-hidden="true"></span>
+                                </div>
+                                <div class="kpi-value-row">
+                                    <p class="kpi-value-new mb-0">{{ stats.employees }}</p>
+                                    <span class="kpi-status-text">Active</span>
+                                </div>
                             </div>
-                            <div class="kpi-value-row">
-                                <p class="kpi-value-new mb-0">{{ stats.employees }}</p>
-                                <span class="kpi-status-text">Active</span>
+                        </a>
+                        <!-- Timesheets -->
+                        <a href="{{ url_for('work.timesheets_list') }}" class="text-decoration-none">
+                            <div class="glass-card p-3 h-100 hover-card kpi-card">
+                                <div class="kpi-top">
+                                    <span class="kpi-label-new">Timesheets</span>
+                                    <span class="kpi-status-dot kpi-dot-indigo" aria-hidden="true"></span>
+                                </div>
+                                <div class="kpi-value-row">
+                                    <p class="kpi-value-new mb-0">{{ stats.timesheets }}</p>
+                                    <span class="kpi-status-text">Pending</span>
+                                </div>
                             </div>
-                        </div>
-                    </a>
-                    <!-- Timesheets -->
-                    <a href="{{ url_for('work.timesheets_list') }}" class="text-decoration-none">
-                        <div class="glass-card p-3 h-100 hover-card kpi-card">
-                            <div class="kpi-top">
-                                <span class="kpi-label-new">Timesheets</span>
-                                <span class="kpi-status-dot kpi-dot-indigo" aria-hidden="true"></span>
+                        </a>
+                        <!-- Leaves -->
+                        <a href="{{ url_for('work.leaves_list') }}" class="text-decoration-none">
+                            <div class="glass-card p-3 h-100 hover-card kpi-card">
+                                <div class="kpi-top">
+                                    <span class="kpi-label-new">Leaves</span>
+                                    <span class="kpi-status-dot kpi-dot-violet" aria-hidden="true"></span>
+                                </div>
+                                <div class="kpi-value-row">
+                                    <p class="kpi-value-new mb-0">{{ stats.leaves }}</p>
+                                    <span class="kpi-status-text">Awaiting</span>
+                                </div>
                             </div>
-                            <div class="kpi-value-row">
-                                <p class="kpi-value-new mb-0">{{ stats.timesheets }}</p>
-                                <span class="kpi-status-text">Pending</span>
+                        </a>
+                        <!-- Expenses -->
+                        <a href="{{ url_for('admin.reimbursement') }}" class="text-decoration-none">
+                            <div class="glass-card p-3 h-100 hover-card kpi-card">
+                                <div class="kpi-top">
+                                    <span class="kpi-label-new">Expenses</span>
+                                    <span class="kpi-status-dot kpi-dot-rose" aria-hidden="true"></span>
+                                </div>
+                                <div class="kpi-value-row">
+                                    <p class="kpi-value-new mb-0">{{ reimbursement_stats.pending_approval.count if reimbursement_stats and reimbursement_stats.pending_approval else 0 }}</p>
+                                    <span class="kpi-status-text">Action Required</span>
+                                </div>
                             </div>
-                        </div>
-                    </a>
-                    <!-- Leaves -->
-                    <a href="{{ url_for('work.leaves_list') }}" class="text-decoration-none">
-                        <div class="glass-card p-3 h-100 hover-card kpi-card">
-                            <div class="kpi-top">
-                                <span class="kpi-label-new">Leaves</span>
-                                <span class="kpi-status-dot kpi-dot-violet" aria-hidden="true"></span>
+                        </a>
+                    </div>
+                    {% else %}
+                    <!-- KPI GRID (Admin) — Leaves only -->
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 24px; margin-bottom: 24px;">
+                        <!-- Leaves -->
+                        <a href="{{ url_for('work.leaves_list') }}" class="text-decoration-none">
+                            <div class="glass-card p-3 h-100 hover-card kpi-card">
+                                <div class="kpi-top">
+                                    <span class="kpi-label-new">Leaves</span>
+                                    <span class="kpi-status-dot kpi-dot-violet" aria-hidden="true"></span>
+                                </div>
+                                <div class="kpi-value-row">
+                                    <p class="kpi-value-new mb-0">{{ stats.leaves }}</p>
+                                    <span class="kpi-status-text">Awaiting</span>
+                                </div>
                             </div>
-                            <div class="kpi-value-row">
-                                <p class="kpi-value-new mb-0">{{ stats.leaves }}</p>
-                                <span class="kpi-status-text">Awaiting</span>
-                            </div>
-                        </div>
-                    </a>
-                    <!-- Expenses -->
-                    <a href="{{ url_for('admin.reimbursement') }}" class="text-decoration-none">
-                        <div class="glass-card p-3 h-100 hover-card kpi-card">
-                            <div class="kpi-top">
-                                <span class="kpi-label-new">Expenses</span>
-                                <span class="kpi-status-dot kpi-dot-rose" aria-hidden="true"></span>
-                            </div>
-                            <div class="kpi-value-row">
-                                <p class="kpi-value-new mb-0">{{ reimbursement_stats.pending_approval.count if reimbursement_stats and reimbursement_stats.pending_approval else 0 }}</p>
-                                <span class="kpi-status-text">Action Required</span>
-                            </div>
-                        </div>
-                    </a>
-                </div>
+                        </a>
+                    </div>
+                    {% endif %}
+
 
                 <!-- RENTAL INVOICES OVERVIEW (Admin & HR only) -->
                 <style>
@@ -610,6 +630,7 @@
 
                 <div class="hd-dashboard-card mb-4">
                     <!-- Tab Header -->
+                    {% if session.role != 'admin' %}
                     <ul class="nav hd-nav-tabs" id="dashboardTabs" role="tablist">
                         <li class="nav-item" role="presentation">
                             <button class="nav-link active" id="helpdesk-tab" data-bs-toggle="tab" data-bs-target="#helpdesk-pane" type="button" role="tab">Help Desk</button>
@@ -618,6 +639,7 @@
                             <button class="nav-link" id="reimbursement-tab" data-bs-toggle="tab" data-bs-target="#reimbursement-pane" type="button" role="tab">Reimbursements</button>
                         </li>
                     </ul>
+                    {% endif %}
 
                     <div class="tab-content" id="dashboardTabsContent">
                         
@@ -712,6 +734,7 @@
                         </div>
 
                         <!-- Reimbursement Tab -->
+                        {% if session.role != 'admin' %}
                         <div class="tab-pane fade" id="reimbursement-pane" role="tabpanel">
                             {% set rm_pending = reimbursement_stats.pending_approval.count if reimbursement_stats and reimbursement_stats.pending_approval else 0 %}
                             {% set rm_approved = reimbursement_stats.by_status.approved.count if reimbursement_stats and reimbursement_stats.by_status and reimbursement_stats.by_status.approved else 0 %}
@@ -807,7 +830,58 @@
                                 </div>
                             </div>
                         </div>
+                        {% endif %}
 
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- ADMIN: TEAM OVERVIEW PANEL -->
+                {% if session.role == 'admin' %}
+                <div class="hd-dashboard-card mb-4" style="margin-top: 4px;">
+                    <div class="p-4">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <div>
+                                <h5 class="fw-bold text-dark mb-0" style="font-size:1.1rem;">Team Leaves</h5>
+                                <small class="text-muted">Pending and approved leave requests</small>
+                            </div>
+                            <a href="{{ url_for('work.leaves_list') }}" class="btn-view-all">
+                                View All <i class="bi bi-arrow-right"></i>
+                            </a>
+                        </div>
+                        {% if team_leaves %}
+                        <div class="no-scrollbar" style="max-height: 220px; overflow-y: auto;">
+                            <div class="list-group list-group-flush">
+                                {% for l in team_leaves[:10] %}
+                                <div class="list-group-item px-0 py-3 border-bottom bg-transparent d-flex justify-content-between align-items-center">
+                                    <div class="d-flex align-items-center gap-3">
+                                        <div style="width:36px; height:36px; background:#fff7ed; border-radius:50%; display:flex; align-items:center; justify-content:center; color:#f59e0b; font-size:0.85rem; font-weight:700; flex-shrink:0;">
+                                            {{ (l.employee_name or 'U')[:1]|upper }}
+                                        </div>
+                                        <div>
+                                            <div class="fw-semibold text-dark" style="font-size:0.88rem;">{{ l.employee_name or 'Unknown' }}</div>
+                                            <div class="text-muted" style="font-size:0.75rem;">
+                                                {{ l.start_date[:10] if l.start_date else '—' }}
+                                                {% if l.end_date %}<i class="bi bi-arrow-right mx-1"></i>{{ l.end_date[:10] }}{% endif %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <span class="badge rounded-pill px-2 py-1" style="font-size:0.7rem;
+                                        {% if l.status|lower == 'pending' %}background:#fef3c7; color:#92400e;
+                                        {% elif l.status|lower == 'approved' %}background:#dcfce7; color:#166534;
+                                        {% else %}background:#f1f5f9; color:#475569;{% endif %}">
+                                        {{ l.status|capitalize }}
+                                    </span>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% else %}
+                        <div class="text-center py-5 text-muted">
+                            <i class="bi bi-calendar-x fs-2 d-block mb-2"></i>
+                            <span style="font-size:0.9rem;">No recent team leaves</span>
+                        </div>
+                        {% endif %}
                     </div>
                 </div>
                 {% endif %}
@@ -869,26 +943,7 @@
             <!-- SIDEBAR COLUMN (Right) -->
             <div class="d-flex flex-column" style="gap: 24px; min-width: 0;">
                 
-                <!-- QUICK MANAGEMENT -->
-                <div class="quick-mgmt-card shadow">
-                    <h6 class="fw-bold mb-3 text-white" style="font-size: 0.85rem; letter-spacing: 0.05em; text-transform: uppercase;">Quick Management</h6>
-                    <div class="d-flex flex-column">
-                        <a href="{{ url_for('work.add_leave') }}" class="quick-mgmt-item">
-                            New Leave Request <i class="bi bi-arrow-right"></i>
-                        </a>
-                        <a href="{{ url_for('work.add_timesheet') }}" class="quick-mgmt-item">
-                            Submit Timesheet <i class="bi bi-arrow-right"></i>
-                        </a>
-                        {% if session.role in ['hr', 'manager', 'admin'] %}
-                        <a href="{{ url_for('projects.create_project') }}" class="quick-mgmt-item">
-                            New Project <i class="bi bi-arrow-right"></i>
-                        </a>
-                        {% endif %}
-                        <a href="{{ url_for('admin.reimbursement') }}" class="quick-mgmt-item">
-                            Request Reimbursement <i class="bi bi-arrow-right"></i>
-                        </a>
-                    </div>
-                </div>
+
 
                 <!-- TIMELINE -->
                 <div class="glass-card p-4 d-flex flex-column timeline-card" style="max-height: 380px;">

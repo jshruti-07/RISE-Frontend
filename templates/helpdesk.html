@@ -263,6 +263,7 @@
                 <tr>
                     <th class="border-0 rounded-start-3">Reference</th>
                     <th class="border-0">Title</th>
+                    <th class="border-0" id="empHeaderTh" style="display:none;">Employee</th>
                     <th class="border-0">Category</th>
                     <th class="border-0">Priority</th>
                     <th class="border-0">Status</th>
@@ -319,10 +320,21 @@
                         </div>
 
                         <div class="detail-card detail-item">
-                            <div class="detail-label">Assignee</div>
-                            <div class="detail-value d-flex align-items-center gap-2">
-                                <i class="bi bi-person-circle text-primary"></i>
-                                <span id="ticketAssigned"></span>
+                            <div class="row g-3">
+                                <div class="col-6">
+                                    <div class="detail-label">Raised By</div>
+                                    <div class="detail-value d-flex align-items-center gap-2">
+                                        <i class="bi bi-person text-secondary"></i>
+                                        <span id="ticketEmployee"></span>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="detail-label">Assignee</div>
+                                    <div class="detail-value d-flex align-items-center gap-2">
+                                        <i class="bi bi-person-circle text-primary"></i>
+                                        <span id="ticketAssigned"></span>
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
@@ -537,9 +549,16 @@
     function renderTickets(tickets) {
         const tbody = document.getElementById('ticketsTableBody');
         const role = document.getElementById('userRole').value;
+        const isAdmin = role === 'admin';
+
+        const empHeader = document.getElementById('empHeaderTh');
+        if (empHeader) {
+            empHeader.style.display = isAdmin ? '' : 'none';
+        }
 
         if (!tickets || tickets.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="7" class="text-center py-5 text-muted">No tickets found in this category.</td></tr>`;
+            const colSpan = isAdmin ? 8 : 7;
+            tbody.innerHTML = `<tr><td colspan="${colSpan}" class="text-center py-5 text-muted">No tickets found in this category.</td></tr>`;
             return;
         }
 
@@ -547,6 +566,7 @@
             <tr>
                 <td><span class="fw-bold text-primary">#${t.ticket_ref}</span></td>
                 <td class="fw-medium">${t.title}</td>
+                ${isAdmin ? `<td class="fw-semibold text-dark"><i class="bi bi-person me-1 text-muted"></i>${t.employee_name || 'N/A'}</td>` : ''}
                 <td><span class="badge bg-light text-dark fw-normal">${t.category.replace('_', ' ')}</span></td>
                 <td><span class="badge-soft priority-${t.priority}">${t.priority}</span></td>
                 <td><span class="badge-soft status-${t.status}">${t.status.replace('_', ' ')}</span></td>
@@ -554,7 +574,7 @@
                 <td class="text-end">
                     <div class="d-flex justify-content-end gap-1">
                         <button class="btn btn-sm btn-outline-primary px-3 rounded-pill" onclick="viewTicket(${t.id})">View</button>
-                        ${['hr', 'admin'].includes(role) && t.status !== 'closed' ? `<button class="btn btn-sm btn-outline-success px-3 rounded-pill" onclick="quickResolve(${t.id})">Done</button>` : ''}
+                        ${isAdmin && t.status !== 'closed' ? `<button class="btn btn-sm btn-outline-success px-3 rounded-pill" onclick="quickResolve(${t.id})">Done</button>` : ''}
                     </div>
                 </td>
             </tr>
@@ -573,7 +593,7 @@
             .then(res => res.json())
             .then(data => {
                 if (data.success) {
-                    displayTicket(data.ticket);
+                    displayTicket(data.ticket, data.history);
                     renderHistory(data.history);
                     bootstrap.Modal.getOrCreateInstance(document.getElementById('ticketDetailsModal')).show();
                     loadMessages(id, true);
@@ -584,19 +604,27 @@
             .catch(err => alert('Failed to load ticket details.'));
     }
 
-    function displayTicket(t) {
+    function displayTicket(t, history = []) {
         document.getElementById('ticketModalTitle').textContent = `Ticket #${t.ticket_ref}`;
         document.getElementById('ticketTitle').textContent = t.title;
         document.getElementById('ticketDescription').textContent = t.description;
         document.getElementById('ticketStatus').innerHTML = `<span class="badge-soft status-${t.status}">${t.status.replace('_', ' ')}</span>`;
         document.getElementById('ticketPriority').innerHTML = `<span class="badge-soft priority-${t.priority}">${t.priority}</span>`;
         document.getElementById('ticketCategory').textContent = t.category.replace('_', ' ');
-        document.getElementById('ticketAssigned').textContent = t.assigned_to || 'Unassigned';
+        document.getElementById('ticketEmployee').textContent = t.employee_name || 'Unknown';
+        
+        const isReassigned = history && history.some(h => h.field === 'assigned_to');
+        if (isReassigned) {
+            document.getElementById('ticketAssigned').innerHTML = `${t.assigned_to || 'Unassigned'} <span class="badge bg-warning text-dark ms-1" style="font-size:0.68rem; vertical-align: middle;">Reassigned</span>`;
+        } else {
+            document.getElementById('ticketAssigned').textContent = t.assigned_to || 'Unassigned';
+        }
+
         document.getElementById('ticketCreated').textContent = new Date(t.created_at).toLocaleString();
         document.getElementById('ticketResolved').textContent = t.resolved_at ? new Date(t.resolved_at).toLocaleString() : 'Pending';
 
         const role = document.getElementById('userRole').value;
-        if (['hr', 'admin'].includes(role)) {
+        if (role === 'admin') {
             document.getElementById('resolverActions').style.display = 'block';
             document.getElementById('updateStatusSelect').value = t.status;
             document.getElementById('assignToInput').value = t.assigned_to || '';

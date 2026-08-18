@@ -4,198 +4,211 @@
 
 {% block content %}
 
-<div class="form-card">
+<style>
+    .add-employee-container {
+        width: 100%;
+        padding-bottom: 40px;
+    }
 
-    <!-- HEADER -->
-    <div class="d-flex align-items-center mb-4">
-        <div class="me-3">
-            <i class="bi bi-person-plus-fill fs-3"></i>
+    .add-employee-card {
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.98) 0%, rgba(248, 250, 252, 0.95) 100%);
+        border-radius: 20px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08), 0 6px 20px rgba(0, 0, 0, 0.06);
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(99, 102, 241, 0.1);
+        padding: 30px;
+        position: relative;
+    }
+
+    .add-employee-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 24px;
+        padding-bottom: 16px;
+        border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+    }
+</style>
+
+<div class="add-employee-container">
+
+    <div class="form-card add-employee-card">
+
+        <!-- HEADER -->
+        <div class="add-employee-header">
+            <div class="d-flex align-items-center">
+                <div class="me-3 text-primary">
+                    <i class="bi bi-person-plus-fill fs-3"></i>
+                </div>
+                <div>
+                    <h5 class="mb-0 fw-semibold">{{ labels.NEW_EMPLOYEE }}</h5>
+                    <small class="text-muted">Fill in details</small>
+                </div>
+            </div>
+            <a href="{{ url_for('employees.employee_list') }}" class="btn btn-outline-secondary btn-sm d-flex align-items-center gap-1" style="border-radius: 8px;">
+                <i class="bi bi-arrow-left"></i> Back to Records
+            </a>
         </div>
-        <div>
-            <h5 class="mb-0">{{ labels.NEW_EMPLOYEE }}</h5>
-            <small class="text-muted">Fill in details</small>
+
+        <!-- IMPORT FROM ONBOARDING -->
+        <div class="import-from-onboarding mb-4 p-3 border rounded" style="background-color: #f0f7ff; border-color: #cce3fd !important;">
+            <h6 class="mb-3 d-flex align-items-center">
+                Import from Onboarding 
+                <span class="badge bg-secondary ms-2" style="font-size: 0.65rem; font-weight: normal;">Optional</span>
+            </h6>
+            <div class="row g-2 align-items-center mb-2">
+                <div class="col-md-6">
+                    <input type="text" id="prefill-joinee-id" class="form-control form-control-sm" placeholder="Enter Person ID or Joinee ID">
+                </div>
+                <div class="col-md-auto">
+                    <button type="button" id="prefill-fetch-btn" class="btn btn-sm btn-primary">Fetch Details</button>
+                </div>
+                <div class="col-md-auto">
+                    <span id="prefill-spinner" class="spinner-border spinner-border-sm text-primary d-none" role="status"></span>
+                </div>
+            </div>
+            <div id="prefill-success-banner" class="alert alert-success py-1 px-2 mb-0 mt-2 d-none" style="font-size: 0.8rem;">
+                <i class="bi bi-check-circle me-1"></i> Details imported from onboarding. Please verify and complete remaining fields.
+            </div>
+            <div id="prefill-warning-banner" class="alert alert-warning py-1 px-2 mb-0 mt-2 d-none" style="font-size: 0.8rem;">
+                <i class="bi bi-exclamation-triangle me-1"></i> This joinee has not completed onboarding verification.
+            </div>
+            <div id="prefill-error-banner" class="alert alert-danger py-1 px-2 mb-0 mt-2 d-none" style="font-size: 0.8rem;"></div>
         </div>
+
+        <!-- FORM -->
+        <form action="{{ url_for('employees.add_employee') }}" method="POST" enctype="multipart/form-data">
+
+            <!-- Personal Info -->
+            <h6 class="mb-3 fw-semibold">Personal Information</h6>
+
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label class="form-label">Full Name</label>
+                    <input type="text" name="name" class="form-control" required>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Role</label>
+                    <select name="role" class="form-select" required>
+                        <option value="" disabled selected>Select Role</option>
+                        <option value="admin">Admin</option>
+                        <option value="superadmin">Super Admin</option>
+                        <option value="accounts">Accounts</option>
+                        <option value="hr">HR</option>
+                        <option value="manager">Manager</option>
+                        <option value="employee">Team Member</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label class="form-label">Date of Birth</label>
+                    <input type="date" name="date_of_birth" class="form-control" required>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Date of Joining</label>
+                    <input type="date" name="date_of_joining" class="form-control" required>
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label class="form-label">Gender</label>
+                    <select name="gender" class="form-select" required>
+                        <option value="" disabled selected>Select Gender</option>
+                        <option value="Male">Male</option>
+                        <option value="Female">Female</option>
+                        <option value="Other">Other</option>
+                        <option value="Prefer not to say">Prefer not to say</option>
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Address</label>
+                    <input type="text" name="address" class="form-control" required>
+                </div>
+            </div>
+
+            <!-- Contact -->
+            <h6 class="mb-3 fw-semibold">Contact Details</h6>
+
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label class="form-label">Email</label>
+                    <input type="email" name="email" class="form-control" required>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Phone</label>
+                    <input type="text" name="phone" class="form-control" required>
+                </div>
+            </div>
+
+            <!-- Employement Details -->
+            <h6 class="mb-3 fw-semibold">Employement Details</h6>
+
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label class="form-label">Employement Type</label>
+                    <select name="employment_type" class="form-select" required>
+                        <option value="" disabled selected>Select Employement Type</option>
+                        <option value="Full Time">Full Time</option>
+                        <option value="Part Time">Part Time</option>
+                        <option value="Contract">Contract</option>
+                        <option value="Intern">Intern</option>
+                        <option value="Freelancer">Freelancer</option>
+                        <option value="Temporary">Temporary</option>
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Designation</label>
+                    <input type="text" name="designation" class="form-control" placeholder="Enter Designation" required>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Department</label>
+                    <select name="department" class="form-select" required>
+                        <option value="" disabled selected>Select Department</option>
+                        <option value="Engineering">Engineering</option>
+                        <option value="HR">HR</option>
+                        <option value="Finance">Finance</option>
+                        <option value="Recruitment">Recruitment</option>
+                        <option value="Operations">Operations</option>
+                        <option value="Marketing">Marketing</option>
+                        <option value="Sales">Sales</option>
+                        <option value="Legal">Legal</option>
+                        <option value="IT">IT</option>
+                        <option value="Administration">Administration</option>
+                        <option value="Product">Product</option>
+                        <option value="Design">Design</option>
+                        <option value="Quality Assurance">Quality Assurance</option>
+                        <option value="Customer Support">Customer Support</option>
+                        <option value="Research & Development">Research & Development</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Documents -->
+            <h6 class="mb-3 fw-semibold">Documents <small class="text-muted fw-normal">(optional)</small></h6>
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label class="form-label">Resume / CV (PDF)</label>
+                    <input type="file" name="pdf_file" class="form-control" accept=".pdf">
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Offer Letter / Contract (DOCX)</label>
+                    <input type="file" name="docx_file" class="form-control" accept=".doc,.docx">
+                </div>
+            </div>
+
+            <!-- ACTIONS -->
+            <div class="d-flex gap-2 mt-4 pt-2">
+                <button type="submit" class="btn btn-primary">Submit</button>
+                <button type="reset" class="btn btn-light" style="background-color: rgb(184, 183, 183); color: rgb(0, 0, 0); border-radius: 10px;">Reset</button>
+                <a href="{{ url_for('employees.employee_list') }}" class="btn btn-light" style="background-color: rgb(255, 173, 173); color: rgb(0, 0, 0); border-radius: 10px;">Cancel</a>
+            </div>
+
+        </form>
+
     </div>
-
-    <!-- FORM -->
-    <div class="import-from-onboarding mb-4 p-3 border rounded" style="background-color: #f0f7ff; border-color: #cce3fd !important;">
-        <h6 class="mb-3 d-flex align-items-center">
-            Import from Onboarding 
-            <span class="badge bg-secondary ms-2" style="font-size: 0.65rem; font-weight: normal;">Optional</span>
-        </h6>
-        <div class="row g-2 align-items-center mb-2">
-            <div class="col-md-6">
-                <input type="text" id="prefill-joinee-id" class="form-control form-control-sm" placeholder="Enter Person ID or Joinee ID">
-            </div>
-            <div class="col-md-auto">
-                <button type="button" id="prefill-fetch-btn" class="btn btn-sm btn-primary">Fetch Details</button>
-            </div>
-            <div class="col-md-auto">
-                <span id="prefill-spinner" class="spinner-border spinner-border-sm text-primary d-none" role="status"></span>
-            </div>
-        </div>
-        <div id="prefill-success-banner" class="alert alert-success py-1 px-2 mb-0 mt-2 d-none" style="font-size: 0.8rem;">
-            <i class="bi bi-check-circle me-1"></i> Details imported from onboarding. Please verify and complete remaining fields.
-        </div>
-        <div id="prefill-warning-banner" class="alert alert-warning py-1 px-2 mb-0 mt-2 d-none" style="font-size: 0.8rem;">
-            <i class="bi bi-exclamation-triangle me-1"></i> This joinee has not completed onboarding verification.
-        </div>
-        <div id="prefill-error-banner" class="alert alert-danger py-1 px-2 mb-0 mt-2 d-none" style="font-size: 0.8rem;"></div>
-    </div>
-
-    <form action="{{ url_for('employees.add_employee') }}" method="POST" enctype="multipart/form-data">
-
-        <!-- Personal Info -->
-        <h6 class="mb-3">Personal Information</h6>
-
-        <div class="row mb-3">
-            <div class="col-md-6">
-                <label>Full Name</label>
-                <input type="text" name="name" class="form-control" required>
-            </div>
-            <div class="col-md-6">
-                <label>Role</label>
-                <select name="role" class="form-select" required>
-                    <option value="" disabled selected>Select Role</option>
-                    {% if session.role == 'superadmin' %}
-                    <option value="superadmin">Super Admin</option>
-                    <option value="accounts">Accounts</option>
-                    <option value="admin">Admin</option>
-                    {% endif %}
-                    <option value="hr">HR</option>
-                    <option value="manager">Manager</option>
-                    <option value="employee">Team Member</option>
-                </select>
-            </div>
-        </div>
-
-        <div class="row mb-3">
-            <div class="col-md-6">
-                <label>Date of Birth</label>
-                <input type="date" name="date_of_birth" class="form-control" required>
-            </div>
-            <div class="col-md-6">
-                <label>Date of Joining</label>
-                <input type="date" name="date_of_joining" class="form-control" required>
-            </div>
-        </div>
-
-        <div class="row mb-3">
-            <div class="col-md-6">
-                <label>Gender</label>
-                <select name="gender" class="form-select" required>
-                    <option value="" disabled selected>Select Gender</option>
-                    <option value="Male">Male</option>
-                    <option value="Female">Female</option>
-                    <option value="Other">Other</option>
-                    <option value="Prefer not to say">Prefer not to say</option>
-                </select>
-            </div>
-            <div class="col-md-6">
-                <label>Address</label>
-                <input type="text" name="address" class="form-control" required>
-            </div>
-        </div>
-
-        <!-- Contact -->
-        <h6 class="mb-3">Contact Details</h6>
-
-        <div class="row mb-3">
-            <div class="col-md-6">
-                <label>Email</label>
-                <input type="email" name="email" class="form-control" required>
-            </div>
-            <div class="col-md-6">
-                <label>Phone</label>
-                <input type="text" name="phone" class="form-control" required>
-            </div>
-        </div>
-
-        <!-- Employement Details -->
-        <h6 class="mb-3">Employement Details</h6>
-
-        <div class="row mb-3">
-            <div class="col-md-6">
-                <label>Employement Type</label>
-                <select name="employment_type" class="form-select" required>
-                    <option value="" disabled selected>Select Employement Type</option>
-                    <option value="Full Time">Full Time</option>
-                    <option value="Part Time">Part Time</option>
-                    <option value="Contract">Contract</option>
-                    <option value="Intern">Intern</option>
-                    <option value="Freelancer">Freelancer</option>
-                    <option value="Temporary">Temporary</option>
-                </select>
-            </div>
-            <div class="col-md-6">
-                <label>Designation</label>
-                <select name="designation" class="form-select" required>
-                    <option value="" disabled selected>Select Designation</option>
-                    <option value="Software Engineer">Software Engineer</option>
-                    <option value="Senior Software Engineer">Senior Software Engineer</option>
-                    <option value="HR Executive">HR Executive</option>
-                    <option value="HR Manager">HR Manager</option>
-                    <option value="Project Manager">Project Manager</option>
-                    <option value="Recruiter">Recruiter</option>
-                    <option value="Senior Developer">Senior Developer</option>
-                    <option value="Team Lead">Team Lead</option>
-                    <option value="QA Engineer">QA Engineer</option>
-                    <option value="DevOps Engineer">DevOps Engineer</option>
-                    <option value="Business Analyst">Business Analyst</option>
-                    <option value="Product Manager">Product Manager</option>
-                    <option value="Technical Lead">Technical Lead</option>
-                    <option value="Data Analyst">Data Analyst</option>
-                    <option value="UI/UX Designer">UI/UX Designer</option>
-                    <option value="System Administrator">System Administrator</option>
-                    <option value="Intern">Intern</option>
-                    <option value="Trainee">Trainee</option>
-                </select>
-            </div>
-            <div class="col-md-6">
-                <label>Department</label>
-                <select name="department" class="form-select" required>
-                    <option value="" disabled selected>Select Department</option>
-                    <option value="Engineering">Engineering</option>
-                    <option value="HR">HR</option>
-                    <option value="Finance">Finance</option>
-                    <option value="Recruitment">Recruitment</option>
-                    <option value="Operations">Operations</option>
-                    <option value="Marketing">Marketing</option>
-                    <option value="Sales">Sales</option>
-                    <option value="Legal">Legal</option>
-                    <option value="IT">IT</option>
-                    <option value="Administration">Administration</option>
-                    <option value="Product">Product</option>
-                    <option value="Design">Design</option>
-                    <option value="Quality Assurance">Quality Assurance</option>
-                    <option value="Customer Support">Customer Support</option>
-                    <option value="Research & Development">Research & Development</option>
-                </select>
-            </div>
-        </div>
-
-        <!-- Documents -->
-        <h6 class="mb-3">Documents <small class="text-muted fw-normal">(optional)</small></h6>
-        <div class="row mb-3">
-            <div class="col-md-6">
-                <label>Resume / CV (PDF)</label>
-                <input type="file" name="pdf_file" class="form-control" accept=".pdf">
-            </div>
-            <div class="col-md-6">
-                <label>Offer Letter / Contract (DOCX)</label>
-                <input type="file" name="docx_file" class="form-control" accept=".doc,.docx">
-            </div>
-        </div>
-
-        <!-- ACTIONS -->
-        <div class="d-flex gap-2">
-            <button type="submit" class="btn btn-primary">Submit</button>
-            <button type="reset" class="btn btn-light" style="background-color: rgb(184, 183, 183); color: rgb(0, 0, 0); border-radius: 10px;">Reset</button>
-            <a href="{{ url_for('employees.employee_list') }}" class="btn btn-light" style="background-color: rgb(255, 173, 173); color: rgb(0, 0, 0); border-radius: 10px;">Cancel</a>
-        </div>
-
-    </form>
-
 
 </div>
 

@@ -32,6 +32,14 @@
 
 
     <style>
+        html {
+            font-size: 115% !important;
+        }
+
+        body {
+            font-size: 1.15rem !important;
+        }
+
         .status-dot {
             height: 10px;
             width: 10px;
@@ -180,7 +188,7 @@
             </a>
 
             <!-- TEAM MEMBERS -->
-            {% if session.role in ['hr', 'manager', 'admin'] %}
+            {% if session.role in ['hr', 'manager'] %}
             <a class="ribbon-left" style="margin-bottom: 0; display: block;"
                 href="{{ url_for('employees.employee_list') }}">
                 <div class="ribbon-inner">
@@ -198,7 +206,7 @@
             {% endif %}
 
             <!-- TIMESHEETS -->
-            {% if session.role in ['employee','manager','hr','admin'] %}
+            {% if session.role in ['employee','manager','hr'] %}
             <a class="ribbon-left" style="margin-bottom: 0; display: block;"
                 href="{{ url_for('work.timesheets_list') }}">
                 <div class="ribbon-inner">
@@ -233,6 +241,7 @@
             {% endif %}
 
             <!-- PROJECTS -->
+            {% if session.role != 'admin' %}
             <a class="ribbon-left" style="margin-bottom: 0; display: block;"
                 href="{{ url_for('projects.projects_list') }}">
                 <div class="ribbon-inner">
@@ -247,8 +256,10 @@
                     </div>
                 </div>
             </a>
+            {% endif %}
 
             <!-- REIMBURSEMENTS -->
+            {% if session.role != 'admin' %}
             <a class="ribbon-left" style="margin-bottom: 0; display: block;"
                 href="{{ url_for('admin.reimbursement') }}">
                 <div class="ribbon-inner">
@@ -263,24 +274,8 @@
                     </div>
                 </div>
             </a>
-
-            <!-- REPORTS -->
-            {% if session.role in ['hr', 'manager', 'admin'] %}
-            <a class="ribbon-left" style="margin-bottom: 0; display: block;"
-                href="{{ url_for('work.hr_missing_timesheets') }}">
-                <div class="ribbon-inner">
-                    <div class="ribbon-accent-left" style="background: linear-gradient(to bottom, #93C5FD, #3B82F6);">
-                    </div>
-                    <div class="ribbon-content">
-                        <div class="ribbon-icon"><i class="bi bi-file-earmark-bar-graph"></i></div>
-                        <div class="ribbon-text">
-                            <span class="ribbon-title">REPORTS</span>
-                            <span class="ribbon-subtitle">Data &amp; insights</span>
-                        </div>
-                    </div>
-                </div>
-            </a>
             {% endif %}
+
 
             <!-- PAYSLIPS -->
             {% if session.role in ['manager','employee'] %}
@@ -299,23 +294,7 @@
             </a>
             {% endif %}
 
-            <!-- BANK VERIFICATION -->
-            {% if session.role in ['hr', 'admin'] %}
-            <a class="ribbon-left" style="margin-bottom: 0; display: block;"
-                href="{{ url_for('user.bank_verification') }}">
-                <div class="ribbon-inner">
-                    <div class="ribbon-accent-left" style="background: linear-gradient(to bottom, #93C5FD, #3B82F6);">
-                    </div>
-                    <div class="ribbon-content">
-                        <div class="ribbon-icon"><i class="bi bi-credit-card"></i></div>
-                        <div class="ribbon-text">
-                            <span class="ribbon-title">VERIFICATION</span>
-                            <span class="ribbon-subtitle">Bank validation</span>
-                        </div>
-                    </div>
-                </div>
-            </a>
-            {% endif %}
+
 
             <!-- ASSETS -->
             {% if session.role in ['hr', 'admin'] %}
@@ -328,6 +307,23 @@
                         <div class="ribbon-text">
                             <span class="ribbon-title">ASSETS</span>
                             <span class="ribbon-subtitle">Company property</span>
+                        </div>
+                    </div>
+                </div>
+            </a>
+            {% endif %}
+
+            <!-- SOFTWARE -->
+            {% if session.role in ['admin'] %}
+            <a class="ribbon-left" style="margin-bottom: 0; display: block;" href="{{ url_for('admin.software') }}">
+                <div class="ribbon-inner">
+                    <div class="ribbon-accent-left" style="background: linear-gradient(to bottom, #93C5FD, #3B82F6);">
+                    </div>
+                    <div class="ribbon-content">
+                        <div class="ribbon-icon"><i class="bi bi-box-seam"></i></div>
+                        <div class="ribbon-text">
+                            <span class="ribbon-title">SOFTWARE</span>
+                            <span class="ribbon-subtitle">Licenses &amp; tools</span>
                         </div>
                     </div>
                 </div>
@@ -410,21 +406,25 @@
             </a>
 
             <!-- Add Timesheet -->
+            {% if session.role != 'admin' %}
             <a class="quick-action" style="margin-bottom: 0;" href="{{ url_for('work.add_timesheet') }}">
                 <i class="bi bi-clock-history icon-purple"></i> <span>Add Timesheet</span>
             </a>
+            {% endif %}
 
-            <!-- New Project (HR + MANAGER + ADMIN) -->
-            {% if session.role in ['hr', 'manager', 'admin'] %}
+            <!-- New Project (HR + MANAGER) -->
+            {% if session.role in ['hr', 'manager'] %}
             <a class="quick-action" style="margin-bottom: 0;" href="{{ url_for('projects.create_project') }}">
                 <i class="bi bi-folder-plus icon-orange"></i> <span>New Project</span>
             </a>
             {% endif %}
 
             <!-- Request Reimbursement -->
+            {% if session.role != 'admin' %}
             <a class="quick-action" style="margin-bottom: 0;" href="{{ url_for('admin.reimbursement') }}">
                 <i class="bi bi-file-earmark-plus icon-blue"></i> <span>Request Reimbursement</span>
             </a>
+            {% endif %}
             {% endif %}
         </div>
 

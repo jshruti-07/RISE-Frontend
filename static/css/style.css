@@ -1,8 +1,8 @@
 /* ===== GLOBAL ===== */
 
 html {
-    /* No height constraint — let body determine its own zoom-adjusted height.
-       overflow:hidden suppresses the browser document scrollbar. */
+    /* Set base font-size to 115% to increase all rem-based typography by 15% across the overall app */
+    font-size: 115% !important;
     margin: 0;
     padding: 0;
     overflow: hidden;
@@ -10,6 +10,7 @@ html {
 
 body {
     font-family: 'Inter', sans-serif;
+    font-size: 1.15rem !important;
     zoom: 0.75;
     /* Clean & bright very light blue/white tint */
     background: linear-gradient(135deg, #ffffff 0%, #f4f7fb 50%, #edf2f9 100%);
@@ -95,7 +96,7 @@ body {
 .employee-table thead th {
     background: #f8fafc;
     color: #374151;
-    font-size: 14px;
+    font-size: 16.1px;
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: .4px;
@@ -107,7 +108,7 @@ body {
 /* Body */
 .employee-table tbody td {
     padding: 16px 20px;
-    font-size: 15px;
+    font-size: 17.25px;
     color: #4b5563;
     border-bottom: 1px solid #f1f5f9;
     vertical-align: middle;
@@ -138,7 +139,7 @@ body {
 /* Email */
 .employee-table td:nth-child(3) {
     color: #64748b;
-    font-size: 14px;
+    font-size: 16.1px;
 }
 
 /* Date */
@@ -254,7 +255,7 @@ body {
 
 .company {
     font-weight: 600;
-    font-size: 18px;
+    font-size: 20.7px;
     color: #0f172a;
 }
 
@@ -833,7 +834,7 @@ body {
 }
 
 .menu-btn {
-    font-size: 16px;
+    font-size: 18.4px;
     /* Reduced from 20px */
     border: 1px solid rgba(255, 255, 255, 0.4);
 }
@@ -1161,7 +1162,7 @@ select.form-control {
 
     color: white;
 
-    font-size: 20px;
+    font-size: 23px;
 
 }
 
@@ -1739,7 +1740,7 @@ select.form-control {
 
     font-weight: 600;
 
-    font-size: 16px;
+    font-size: 18.4px;
 
     position: relative;
 
@@ -1990,7 +1991,7 @@ select.form-control {
 
 .arrow {
 
-    font-size: 12px;
+    font-size: 13.8px;
 
 }
 
@@ -2030,7 +2031,7 @@ select.form-control {
 
 .sidebar.collapsed .icon {
 
-    font-size: 22px;
+    font-size: 25.3px;
 
 }
 
@@ -2162,7 +2163,7 @@ select.form-control {
 
     cursor: pointer;
 
-    font-size: 18px;
+    font-size: 20.7px;
 
     color: #666;
 
@@ -2195,7 +2196,7 @@ select.form-control {
 
     cursor: pointer;
 
-    font-size: 18px;
+    font-size: 20.7px;
 
     color: #666;
 
@@ -2244,7 +2245,7 @@ select.form-control {
 
     display: block !important;
 
-    font-size: 18px;
+    font-size: 20.7px;
 
 }
 
@@ -2282,7 +2283,7 @@ select.form-control {
 
 .sidebar.collapsed .menu-title span:first-child i {
     display: block !important;
-    font-size: 18px;
+    font-size: 20.7px;
     color: #cbd5e1;
 }
 
@@ -2335,7 +2336,7 @@ select.form-control {
 }
 
 .back-link i {
-    font-size: 16px;
+    font-size: 18.4px;
 }
 
 /* ===== RESPONSIVE DESIGN ===== */

@@ -1,0 +1,1301 @@
+{% extends "base.html" %}
+{% block title %}Software & Licenses{% endblock %}
+{% block page_title %}Software Management{% endblock %}
+
+{% block content %}
+<style>
+    .software-card {
+        background: #ffffff;
+        border-radius: 16px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+        padding: 24px;
+        border: 1px solid #f1f5f9;
+        margin-bottom: 24px;
+    }
+
+    .icon-box {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        color: white;
+    }
+
+    .badge-soft {
+        padding: 6px 12px;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 0.75rem;
+        display: inline-block;
+    }
+
+    .status-active { background: #dcfce7; color: #166534; }
+    .status-pending { background: #fef3c7; color: #92400e; }
+    .status-expired { background: #fee2e2; color: #b91c1c; }
+
+    .btn-action-edit {
+        width: 34px;
+        height: 34px;
+        border-radius: 10px;
+        border: 1px solid #6366f1;
+        background: transparent;
+        color: #6366f1;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.95rem;
+        transition: all 0.2s ease;
+        cursor: pointer;
+    }
+    .btn-action-edit:hover {
+        background: #6366f1;
+        color: #fff;
+        box-shadow: 0 4px 12px rgba(99,102,241,0.3);
+    }
+    .btn-action-delete {
+        width: 34px;
+        height: 34px;
+        border-radius: 10px;
+        border: 1px solid #ef4444;
+        background: transparent;
+        color: #ef4444;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.95rem;
+        transition: all 0.2s ease;
+        cursor: pointer;
+    }
+    .btn-action-delete:hover {
+        background: #ef4444;
+        color: #fff;
+        box-shadow: 0 4px 12px rgba(239,68,68,0.3);
+    }
+
+    .software-app-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        background: #f1f5f9;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.25rem;
+        color: #4f46e5;
+        overflow: hidden;
+        flex-shrink: 0;
+    }
+
+    .software-app-icon img {
+        width: 28px;
+        height: 28px;
+        object-fit: contain;
+        display: block;
+    }
+
+    .app-name-link {
+        cursor: pointer;
+        color: #1e293b;
+        font-weight: 700;
+        transition: color 0.15s ease;
+        text-decoration: none;
+        display: inline;
+    }
+    .app-name-link:hover {
+        color: #6366f1;
+        text-decoration: underline;
+    }
+
+    /* ===== MODAL AESTHETIC STYLES ===== */
+    .modal-software-hero {
+        background: linear-gradient(135deg, #4f46e5 0%, #6366f1 50%, #4338ca 100%);
+        border-radius: 20px 20px 0 0;
+        padding: 28px 32px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .modal-software-hero::after {
+        content: '';
+        position: absolute;
+        right: -20px;
+        bottom: -30px;
+        width: 160px;
+        height: 160px;
+        background: rgba(255, 255, 255, 0.08);
+        border-radius: 50%;
+        pointer-events: none;
+    }
+
+    .modal-software-icon {
+        width: 54px;
+        height: 54px;
+        border-radius: 16px;
+        background: rgba(255, 255, 255, 0.2);
+        backdrop-filter: blur(8px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.6rem;
+        color: #ffffff;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+    }
+
+    .form-label-custom {
+        font-size: 0.78rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: #475569;
+        margin-bottom: 8px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .input-group-custom {
+        border-radius: 12px;
+        overflow: hidden;
+        border: 1px solid #cbd5e1;
+        transition: all 0.2s ease;
+        background: #ffffff;
+    }
+
+    .input-group-custom:focus-within {
+        border-color: #6366f1;
+        box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.15);
+    }
+
+    .input-group-custom .input-group-text {
+        background: #f8fafc;
+        border: none;
+        color: #64748b;
+        font-size: 1.1rem;
+        padding-left: 14px;
+        padding-right: 12px;
+    }
+
+    .input-group-custom .form-control,
+    .input-group-custom .form-select {
+        border: none;
+        padding: 12px 14px;
+        font-size: 0.95rem;
+        color: #0f172a;
+        box-shadow: none !important;
+    }
+
+    .input-group-custom .form-control::placeholder {
+        color: #94a3b8;
+    }
+
+    .status-pill-group {
+        display: flex;
+        gap: 12px;
+    }
+
+    .status-pill-option {
+        flex: 1;
+        text-align: center;
+        padding: 12px 16px;
+        border-radius: 14px;
+        border: 2px solid #e2e8f0;
+        cursor: pointer;
+        font-size: 0.88rem;
+        font-weight: 600;
+        transition: all 0.2s ease;
+        user-select: none;
+        background: #ffffff;
+        color: #64748b;
+    }
+
+    .status-pill-option input[type="radio"] {
+        display: none;
+    }
+
+    .status-pill-option:hover {
+        border-color: #cbd5e1;
+        background: #f8fafc;
+    }
+
+    .status-pill-option.active-active:has(input:checked) {
+        background: #dcfce7;
+        border-color: #22c55e;
+        color: #15803d;
+    }
+
+    .status-pill-option.active-pending:has(input:checked) {
+        background: #fef3c7;
+        border-color: #f59e0b;
+        color: #b45309;
+    }
+
+    .status-pill-option.active-expired:has(input:checked) {
+        background: #fee2e2;
+        border-color: #ef4444;
+        color: #b91c1c;
+    }
+
+    .btn-save-software {
+        background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+        color: white;
+        border: none;
+        padding: 12px 28px;
+        border-radius: 30px;
+        font-weight: 700;
+        font-size: 0.92rem;
+        box-shadow: 0 4px 15px rgba(99, 102, 241, 0.35);
+        transition: all 0.2s ease;
+    }
+
+    .btn-save-software:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 6px 20px rgba(99, 102, 241, 0.45);
+        color: white;
+    }
+</style>
+
+<div class="software-card" id="softwareMainCard">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div class="d-flex align-items-center gap-3">
+            <div class="icon-box bg-primary shadow-sm">
+                <i class="bi bi-box-seam"></i>
+            </div>
+            <div>
+                <h4 class="mb-0 fw-bold">Software & Licenses</h4>
+                <p class="text-muted small mb-0">Manage applications, developer tools, and license allocations</p>
+            </div>
+        </div>
+        <div class="d-flex gap-2">
+            <button class="btn btn-primary px-4 py-2 rounded-pill shadow-sm fw-bold" data-bs-toggle="modal" data-bs-target="#addSoftwareModal">
+                <i class="bi bi-plus-lg me-2"></i> Add Software
+            </button>
+        </div>
+    </div>
+
+    <!-- Stats Summary Row -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-3">
+            <div class="p-3 bg-light rounded-4 d-flex align-items-center gap-3">
+                <div class="rounded-circle p-3 bg-primary bg-opacity-10 text-primary">
+                    <i class="bi bi-app-indicator fs-4"></i>
+                </div>
+                <div>
+                    <div class="text-muted small">Total Software</div>
+                    <h5 class="fw-bold mb-0" id="totalAppsCount">0 Apps</h5>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="p-3 bg-light rounded-4 d-flex align-items-center gap-3">
+                <div class="rounded-circle p-3 bg-success bg-opacity-10 text-success">
+                    <i class="bi bi-key fs-4"></i>
+                </div>
+                <div>
+                    <div class="text-muted small">Active Licenses</div>
+                    <h5 class="fw-bold mb-0" id="activeLicensesCount">0 Assigned</h5>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="p-3 bg-light rounded-4 d-flex align-items-center gap-3">
+                <div class="rounded-circle p-3 bg-warning bg-opacity-10 text-warning">
+                    <i class="bi bi-clock-history fs-4"></i>
+                </div>
+                <div>
+                    <div class="text-muted small">Renewal Due</div>
+                    <h5 class="fw-bold mb-0" id="renewalDueCount">0 Licenses</h5>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="p-3 bg-light rounded-4 d-flex align-items-center gap-3">
+                <div class="rounded-circle p-3 bg-info bg-opacity-10 text-info">
+                    <i class="bi bi-shield-check fs-4"></i>
+                </div>
+                <div>
+                    <div class="text-muted small">Compliance</div>
+                    <h5 class="fw-bold mb-0" id="complianceCount">0% Compliant</h5>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters Strip -->
+    <div class="row g-3 mb-4 p-3 bg-light rounded-4">
+        <div class="col-md-4">
+            <select class="form-select border-0 shadow-sm" id="filterCategory" onchange="filterSoftwareTable()">
+                <option value="">All Categories</option>
+                <option value="developer">Developer Tools</option>
+                <option value="productivity">Productivity</option>
+                <option value="security">Security</option>
+                <option value="design">Design</option>
+                <option value="cloud">Cloud Services</option>
+            </select>
+        </div>
+        <div class="col-md-8">
+            <div class="input-group">
+                <span class="input-group-text bg-white border-0 shadow-sm"><i class="bi bi-search"></i></span>
+                <input type="text" class="form-control border-0 shadow-sm" id="softwareSearchInput" placeholder="Search software or publisher..." onkeyup="filterSoftwareTable()">
+            </div>
+        </div>
+    </div>
+
+    <!-- Software Inventory Table -->
+    <div class="table-responsive">
+        <table class="table table-hover align-middle" id="softwareTable">
+            <thead class="bg-light">
+                <tr>
+                    <th class="border-0 rounded-start-3">Application</th>
+                    <th class="border-0">Category</th>
+                    <th class="border-0">Version</th>
+                    <th class="border-0">License Type</th>
+                    <th class="border-0">Allocated</th>
+                    <th class="border-0">Status</th>
+                    <th class="border-0 text-end rounded-end-3">Actions</th>
+                </tr>
+            </thead>
+            <tbody id="softwareTableBody">
+            </tbody>
+        </table>
+    </div>
+</div>
+
+
+<!-- Assign Employees Card Panel -->
+<div id="assignOverlay" class="software-card" style="
+    display: none;
+    background: #f8fafc;
+    border-radius: 16px;
+    border: 1px solid #f1f5f9;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+    margin-bottom: 24px;
+    padding: 0;
+">
+    <!-- Hero Header -->
+    <div style="
+        background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 50%, #dbeafe 100%);
+        padding: 28px 40px;
+        position: relative;
+        overflow: hidden;
+    ">
+        <!-- Decorative circles -->
+        <div style="position:absolute;right:-40px;top:-40px;width:220px;height:220px;background:rgba(255,255,255,0.07);border-radius:50%;pointer-events:none;"></div>
+        <div style="position:absolute;right:80px;bottom:-60px;width:160px;height:160px;background:rgba(255,255,255,0.05);border-radius:50%;pointer-events:none;"></div>
+
+        <div class="d-flex align-items-center justify-content-between position-relative" style="z-index:1;">
+            <!-- Back button -->
+            <button onclick="closeAssignOverlay()" style="
+                background: rgba(255,255,255,0.7);
+                border: 1px solid #93c5fd;
+                color: #075985;
+                border-radius: 12px;
+                padding: 8px 18px;
+                font-weight: 600;
+                font-size: 0.9rem;
+                display: flex; align-items: center; gap: 8px;
+                cursor: pointer;
+                transition: all 0.2s;
+                backdrop-filter: blur(8px);
+            " onmouseover="this.style.background='#ffffff'" onmouseout="this.style.background='rgba(255,255,255,0.7)'">
+                <i class="bi bi-arrow-left"></i> Back
+            </button>
+
+            <!-- Center: App identity -->
+            <div class="text-center" style="color:#0c4a6e;">
+                <div id="overlayAppIcon" style="
+                    width: 60px; height: 60px; border-radius: 18px;
+                    background: rgba(255,255,255,0.75);
+                    backdrop-filter: blur(12px);
+                    display: flex; align-items: center; justify-content: center;
+                    margin: 0 auto 10px;
+                    font-size: 1.8rem;
+                    box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+                "><i class="bi bi-box-seam-fill"></i></div>
+                <h3 class="fw-bold mb-1" style="color:#0c4a6e;" id="overlayAppName">Visual Studio Code</h3>
+                <p class="mb-0 small" style="color:#0369a1;" id="overlayAppPublisher">Microsoft</p>
+            </div>
+
+            <!-- Save button -->
+            <button onclick="saveAssignments()" style="
+                background: #0284c7;
+                border: none;
+                color: #ffffff;
+                border-radius: 12px;
+                padding: 8px 22px;
+                font-weight: 700;
+                font-size: 0.9rem;
+                display: flex; align-items: center; gap: 8px;
+                cursor: pointer;
+                transition: all 0.2s;
+                box-shadow: 0 4px 14px rgba(0,0,0,0.12);
+            " onmouseover="this.style.transform='translateY(-1px)'" onmouseout="this.style.transform='none'">
+                <i class="bi bi-check-lg"></i> Save Assignments
+            </button>
+        </div>
+    </div>
+
+    <!-- Body Content -->
+    <div style="max-width: 100%; padding: 36px 40px;">
+
+        <!-- Stats bar -->
+        <div class="d-flex gap-3 mb-4" id="overlayStatsBar">
+            <div style="flex:1; background:#fff; border-radius:16px; padding:18px 22px; box-shadow:0 2px 12px rgba(0,0,0,0.05); border:1px solid #f1f5f9;">
+                <div class="text-muted small fw-semibold text-uppercase mb-1">Software</div>
+                <div class="fw-bold text-dark" id="statAppName" style="font-size:1.05rem;">—</div>
+            </div>
+            <div style="flex:1; background:#fff; border-radius:16px; padding:18px 22px; box-shadow:0 2px 12px rgba(0,0,0,0.05); border:1px solid #f1f5f9;">
+                <div class="text-muted small fw-semibold text-uppercase mb-1">Assigned</div>
+                <div class="fw-bold text-primary" id="statAssignedCount" style="font-size:1.05rem;">0 Employees</div>
+            </div>
+            <div style="flex:1; background:#fff; border-radius:16px; padding:18px 22px; box-shadow:0 2px 12px rgba(0,0,0,0.05); border:1px solid #f1f5f9;">
+                <div class="text-muted small fw-semibold text-uppercase mb-1">Category</div>
+                <div class="fw-bold text-dark" id="statCategory" style="font-size:1.05rem;">—</div>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            <!-- Left Column: Add Employees -->
+            <div class="col-lg-5">
+                <div style="background:#fff; border-radius:20px; padding:28px 32px; box-shadow:0 4px 20px rgba(0,0,0,0.06); border:1px solid #f1f5f9; min-height: 380px;">
+                    <h5 class="fw-bold mb-1" style="color:#1e293b;">
+                        <i class="bi bi-person-plus-fill text-primary me-2"></i>Add Employees
+                    </h5>
+                    <p class="text-muted small mb-4">Type a name below to add team members from suggestions.</p>
+
+                    <!-- Standard Search Input -->
+                    <div class="input-group input-group-custom mb-3" style="
+                        border: 2px solid #e2e8f0;
+                        border-radius: 14px;
+                        overflow: hidden;
+                        background: #fafbff;
+                        transition: border-color 0.2s, box-shadow 0.2s;
+                    " id="empSearchInputGroup">
+                        <span class="input-group-text bg-transparent border-0"><i class="bi bi-search text-muted"></i></span>
+                        <input id="empNameInput" type="text"
+                            placeholder="Type employee name..."
+                            autocomplete="off"
+                            class="form-control border-0 bg-transparent"
+                            style="font-size: 0.95rem; color: #0f172a; outline: none; box-shadow: none; padding: 12px 6px;"
+                            oninput="onEmpNameInput()"
+                            onkeydown="onEmpNameKeydown(event)">
+                    </div>
+
+                    <!-- Autocomplete Suggestions List -->
+                    <div id="empSuggestions" style="
+                        display: none;
+                        max-height: 260px;
+                        overflow-y: auto;
+                        border: 1px solid #e2e8f0;
+                        border-radius: 12px;
+                        background: #fff;
+                        box-shadow: 0 8px 24px rgba(0,0,0,0.05);
+                        margin-top: 6px;
+                    ">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column: Assigned Employees list -->
+            <div class="col-lg-7">
+                <div style="background:#fff; border-radius:20px; padding:28px 32px; box-shadow:0 4px 20px rgba(0,0,0,0.06); border:1px solid #f1f5f9; min-height: 380px;">
+                    <div class="d-flex align-items-center justify-content-between mb-4">
+                        <h5 class="fw-bold mb-0" style="color:#1e293b;">
+                            <i class="bi bi-people-fill text-primary me-2"></i>
+                            Assigned Employees <span class="badge bg-primary ms-2" id="assignedBadge" style="font-size:0.75rem;">0</span>
+                        </h5>
+                        <button onclick="clearAllAssignments()" style="
+                            background: #fee2e2; border: none; color: #b91c1c;
+                            border-radius: 10px; padding: 6px 14px; font-size: 0.82rem;
+                            font-weight: 600; cursor: pointer; transition: background 0.2s;
+                        " onmouseover="this.style.background='#fecaca'" onmouseout="this.style.background='#fee2e2'">
+                            <i class="bi bi-x-lg me-1"></i> Clear All
+                        </button>
+                    </div>
+                    <div id="assignedEmployeeGrid" style="
+                        display: grid;
+                        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+                        gap: 14px;
+                        min-height: 80px;
+                    ">
+                        <div id="emptyAssignedMsg" style="grid-column:1/-1; text-align:center; color:#94a3b8; padding:30px 0;">
+                            <i class="bi bi-person-dash" style="font-size:2rem;display:block;margin-bottom:8px;"></i>
+                            No employees assigned yet
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+<!-- Add Software Modal -->
+<div class="modal fade" id="addSoftwareModal" tabindex="-1" aria-labelledby="addSoftwareModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+            
+            <!-- Hero Header -->
+            <div class="modal-software-hero text-white d-flex align-items-center justify-content-between">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="modal-software-icon">
+                        <i class="bi bi-box-seam-fill"></i>
+                    </div>
+                    <div>
+                        <h4 class="mb-1 fw-bold text-white">Add New Software Asset</h4>
+                        <p class="mb-0 text-white-50 small">Register applications, developer tools, or cloud licenses</p>
+                    </div>
+                </div>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <!-- Modal Body -->
+            <div class="modal-body p-4 bg-light bg-opacity-30">
+                <form id="addSoftwareForm">
+                    <div class="row g-4">
+                        
+                        <!-- Application Name -->
+                        <div class="col-md-6">
+                            <label class="form-label-custom"><i class="bi bi-app-indicator text-primary"></i> Application Name <span class="text-danger">*</span></label>
+                            <div class="input-group input-group-custom">
+                                <span class="input-group-text"><i class="bi bi-window"></i></span>
+                                <input type="text" class="form-control" id="swAppName" placeholder="e.g. IntelliJ IDEA, Adobe CC" required>
+                            </div>
+                        </div>
+
+                        <!-- Publisher / Vendor -->
+                        <div class="col-md-6">
+                            <label class="form-label-custom"><i class="bi bi-building text-primary"></i> Publisher / Vendor <span class="text-danger">*</span></label>
+                            <div class="input-group input-group-custom">
+                                <span class="input-group-text"><i class="bi bi-building"></i></span>
+                                <input type="text" class="form-control" id="swPublisher" placeholder="e.g. JetBrains, Adobe Systems" required>
+                            </div>
+                        </div>
+
+                        <!-- Category -->
+                        <div class="col-md-6">
+                            <label class="form-label-custom"><i class="bi bi-tags text-primary"></i> Category <span class="text-danger">*</span></label>
+                            <div class="input-group input-group-custom">
+                                <span class="input-group-text"><i class="bi bi-grid"></i></span>
+                                <select class="form-select" id="swCategory" required>
+                                    <option value="Developer Tools">Developer Tools</option>
+                                    <option value="Productivity">Productivity</option>
+                                    <option value="Security">Security</option>
+                                    <option value="Design">Design</option>
+                                    <option value="Cloud Services">Cloud Services</option>
+                                    <option value="Others">Others</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Version -->
+                        <div class="col-md-6">
+                            <label class="form-label-custom"><i class="bi bi-hash text-primary"></i> Version <span class="text-danger">*</span></label>
+                            <div class="input-group input-group-custom">
+                                <span class="input-group-text"><i class="bi bi-cpu"></i></span>
+                                <input type="text" class="form-control" id="swVersion" placeholder="e.g. v2026.1, Enterprise 4.0" required>
+                            </div>
+                        </div>
+
+                        <!-- License Type -->
+                        <div class="col-md-6">
+                            <label class="form-label-custom"><i class="bi bi-key-fill text-primary"></i> License Type <span class="text-danger">*</span></label>
+                            <div class="input-group input-group-custom">
+                                <span class="input-group-text"><i class="bi bi-shield-check"></i></span>
+                                <select class="form-select" id="swLicenseType" required>
+                                    <option value="Per Seat License">Per Seat License</option>
+                                    <option value="Subscription (Annual)">Subscription (Annual)</option>
+                                    <option value="Volume License">Volume License</option>
+                                    <option value="Open Source / Free">Open Source / Free</option>
+                                </select>
+                            </div>
+                        </div>
+
+
+
+                        <!-- License Status (Interactive Pill Options) -->
+                        <div class="col-12">
+                            <label class="form-label-custom"><i class="bi bi-activity text-primary"></i> License Status</label>
+                            <div class="status-pill-group">
+                                <label class="status-pill-option active-active">
+                                    <input type="radio" name="swStatusRadio" value="Active" checked>
+                                    <span><i class="bi bi-check-circle-fill me-1"></i> Active</span>
+                                </label>
+                                <label class="status-pill-option active-pending">
+                                    <input type="radio" name="swStatusRadio" value="Renewal Soon">
+                                    <span><i class="bi bi-clock-history me-1"></i> Renewal Soon</span>
+                                </label>
+                                <label class="status-pill-option active-expired">
+                                    <input type="radio" name="swStatusRadio" value="Expired">
+                                    <span><i class="bi bi-exclamation-triangle-fill me-1"></i> Expired</span>
+                                </label>
+                            </div>
+                        </div>
+
+                    </div>
+                </form>
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="modal-footer border-0 p-4 bg-white d-flex justify-content-between align-items-center">
+                <span class="text-muted small"><i class="bi bi-info-circle me-1"></i> New software will immediately reflect in asset inventory</span>
+                <div class="d-flex gap-2">
+                    <button type="button" class="btn btn-light rounded-pill px-4 fw-semibold" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-save-software" onclick="saveNewSoftware()">
+                        <i class="bi bi-check-lg me-1"></i> Save Software Asset
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+<!-- Edit Software Modal -->
+<div class="modal fade" id="editSoftwareModal" tabindex="-1" aria-labelledby="editSoftwareModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+            <div class="modal-software-hero text-white d-flex align-items-center justify-content-between">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="modal-software-icon">
+                        <i class="bi bi-pencil-square"></i>
+                    </div>
+                    <div>
+                        <h4 class="mb-1 fw-bold text-white">Edit Software Asset</h4>
+                        <p class="mb-0 text-white-50 small">Update the details for this software entry</p>
+                    </div>
+                </div>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4 bg-light bg-opacity-30">
+                <form id="editSoftwareForm">
+                    <div class="row g-4">
+                        <div class="col-md-6">
+                            <label class="form-label-custom"><i class="bi bi-app-indicator text-primary"></i> Application Name <span class="text-danger">*</span></label>
+                            <div class="input-group input-group-custom">
+                                <span class="input-group-text"><i class="bi bi-window"></i></span>
+                                <input type="text" class="form-control" id="editSwAppName" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label-custom"><i class="bi bi-building text-primary"></i> Publisher / Vendor <span class="text-danger">*</span></label>
+                            <div class="input-group input-group-custom">
+                                <span class="input-group-text"><i class="bi bi-building"></i></span>
+                                <input type="text" class="form-control" id="editSwPublisher" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label-custom"><i class="bi bi-tags text-primary"></i> Category <span class="text-danger">*</span></label>
+                            <div class="input-group input-group-custom">
+                                <span class="input-group-text"><i class="bi bi-grid"></i></span>
+                                <select class="form-select" id="editSwCategory" required>
+                                    <option value="Developer Tools">Developer Tools</option>
+                                    <option value="Productivity">Productivity</option>
+                                    <option value="Security">Security</option>
+                                    <option value="Design">Design</option>
+                                    <option value="Cloud Services">Cloud Services</option>
+                                    <option value="Others">Others</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label-custom"><i class="bi bi-hash text-primary"></i> Version <span class="text-danger">*</span></label>
+                            <div class="input-group input-group-custom">
+                                <span class="input-group-text"><i class="bi bi-cpu"></i></span>
+                                <input type="text" class="form-control" id="editSwVersion" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label-custom"><i class="bi bi-key-fill text-primary"></i> License Type <span class="text-danger">*</span></label>
+                            <div class="input-group input-group-custom">
+                                <span class="input-group-text"><i class="bi bi-shield-check"></i></span>
+                                <select class="form-select" id="editSwLicenseType" required>
+                                    <option value="Per Seat License">Per Seat License</option>
+                                    <option value="Subscription (Annual)">Subscription (Annual)</option>
+                                    <option value="Volume License">Volume License</option>
+                                    <option value="Open Source / Free">Open Source / Free</option>
+                                    <option value="Team Subscription">Team Subscription</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label-custom"><i class="bi bi-people-fill text-primary"></i> Allocated Count <span class="text-danger">*</span></label>
+                            <div class="input-group input-group-custom">
+                                <span class="input-group-text"><i class="bi bi-person-check"></i></span>
+                                <input type="text" class="form-control" id="editSwAllocated" required>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label-custom"><i class="bi bi-activity text-primary"></i> License Status</label>
+                            <div class="status-pill-group">
+                                <label class="status-pill-option active-active">
+                                    <input type="radio" name="editSwStatusRadio" value="Active">
+                                    <span><i class="bi bi-check-circle-fill me-1"></i> Active</span>
+                                </label>
+                                <label class="status-pill-option active-pending">
+                                    <input type="radio" name="editSwStatusRadio" value="Renewal Soon">
+                                    <span><i class="bi bi-clock-history me-1"></i> Renewal Soon</span>
+                                </label>
+                                <label class="status-pill-option active-expired">
+                                    <input type="radio" name="editSwStatusRadio" value="Expired">
+                                    <span><i class="bi bi-exclamation-triangle-fill me-1"></i> Expired</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer border-0 p-4 bg-white d-flex justify-content-between align-items-center">
+                <span class="text-muted small"><i class="bi bi-info-circle me-1"></i> Changes will update the table immediately</span>
+                <div class="d-flex gap-2">
+                    <button type="button" class="btn btn-light rounded-pill px-4 fw-semibold" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-save-software" onclick="applyEditSoftware()">
+                        <i class="bi bi-check-lg me-1"></i> Save Changes
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+let _editTargetRow = null;
+let _assignTargetRow = null;
+
+let EMPLOYEES = [];
+
+// Load actual team members from RISE backend/database
+async function loadActualEmployees() {
+    try {
+        const res = await fetch('/api/employees');
+        if (res.ok) {
+            const data = await res.json();
+            if (data.success && Array.isArray(data.employees)) {
+                EMPLOYEES = data.employees.map((emp, index) => {
+                    // Prefer display_name (clean, as shown in Team Member Records),
+                    // then full_name, then fall back to the raw name field.
+                    const fullName = emp.display_name || emp.full_name || emp.name || 'Unnamed Employee';
+                    const dept = emp.department || emp.designation || 'General';
+                    const initials = fullName.split(' ').map(w => w[0]).filter(Boolean).slice(0, 2).join('').toUpperCase();
+                    return {
+                        id: emp.id || (index + 1),
+                        name: fullName,
+                        dept: dept,
+                        avatar: initials || '?'
+                    };
+                });
+            }
+        }
+    } catch (e) {
+        console.error('Failed to load actual team members:', e);
+    }
+}
+
+async function loadSoftware() {
+    try {
+        const res = await fetch('/api/software');
+        if (res.ok) {
+            const data = await res.json();
+            if (data.success && Array.isArray(data.software)) {
+                renderSoftwareTable(data.software);
+                updateSoftwareStats(data.stats);
+            }
+        }
+    } catch (e) {
+        console.error('Failed to load software inventory:', e);
+    }
+}
+
+function renderSoftwareTable(softwareList) {
+    const tbody = document.getElementById('softwareTableBody');
+    if (!tbody) return;
+    tbody.innerHTML = '';
+    
+    softwareList.forEach(item => {
+        const tr = document.createElement('tr');
+        tr.dataset.id = item.id;
+        tr.dataset.name = item.name;
+        tr.dataset.publisher = item.publisher;
+        tr.dataset.category = item.category;
+        tr.dataset.version = item.version;
+        tr.dataset.licenseType = item.license_type;
+        tr.dataset.allocated = item.allocated;
+        tr.dataset.status = item.status;
+        tr.dataset.assignedNames = JSON.stringify(item.assigned_names || []);
+
+        let statusBadge = '<span class="badge-soft status-active">Active</span>';
+        if (item.status === 'Renewal Soon') {
+            statusBadge = '<span class="badge-soft status-pending">Renewal Soon</span>';
+        } else if (item.status === 'Expired') {
+            statusBadge = '<span class="badge-soft status-expired">Expired</span>';
+        }
+
+        tr.innerHTML = `
+            <td>
+                <div class="d-flex align-items-center gap-3">
+                    ${softwareIconHtml(item.name)}
+                    <div>
+                        <span class="app-name-link fw-bold" onclick="openAssignModal(this.closest('tr'))">${item.name}</span>
+                        <div class="text-muted small">${item.publisher}</div>
+                    </div>
+                </div>
+            </td>
+            <td><span class="badge bg-light text-dark fw-normal">${item.category}</span></td>
+            <td>${item.version}</td>
+            <td>${item.license_type}</td>
+            <td>${item.allocated}</td>
+            <td>${statusBadge}</td>
+            <td class="text-end">
+                <div class="d-flex justify-content-end gap-2">
+                    <button class="btn-action-edit" title="Edit" onclick="editSoftwareRow(this)"><i class="bi bi-pencil-fill"></i></button>
+                    <button class="btn-action-delete" title="Delete" onclick="deleteSoftwareRow(this)"><i class="bi bi-trash3-fill"></i></button>
+                </div>
+            </td>
+        `;
+        tbody.appendChild(tr);
+    });
+}
+
+function updateSoftwareStats(stats) {
+    if (!stats) return;
+    const total = stats.total;
+    const activeAllocated = stats.active_licenses;
+    const renewalDue = stats.renewal_due;
+    const compliance = stats.compliance;
+
+    document.getElementById('totalAppsCount').textContent = `${total} App${total === 1 ? '' : 's'}`;
+    document.getElementById('activeLicensesCount').textContent = `${activeAllocated} Assigned`;
+    document.getElementById('renewalDueCount').textContent = `${renewalDue} License${renewalDue === 1 ? '' : 's'}`;
+    document.getElementById('complianceCount').textContent = `${compliance}% Compliant`;
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    loadActualEmployees();
+    loadSoftware();
+});
+
+
+// ─── Overlay: assigned names set (strings) ───────────────────────
+let _assignedNames = new Set();
+
+function openAssignModal(tr) {
+    _assignTargetRow = tr;
+
+    // Safely extract app details
+    const appNameEl = tr.querySelector('.app-name-link') || tr.querySelector('.fw-bold');
+    const appName = appNameEl ? appNameEl.textContent.trim() : 'Software';
+
+    const publisherEl = tr.querySelector('.text-muted.small') || tr.querySelector('.text-muted');
+    const publisher = publisherEl ? publisherEl.textContent.trim() : '';
+
+    const cells = tr.querySelectorAll('td');
+    let category = '';
+    if (cells.length > 1) {
+        const catSpan = cells[1].querySelector('span');
+        category = catSpan ? catSpan.textContent.trim() : cells[1].textContent.trim();
+    }
+
+    // Populate overlay header
+    document.getElementById('overlayAppName').textContent = appName;
+    document.getElementById('overlayAppPublisher').textContent = publisher;
+
+    // Populate stats bar
+    const statAppName = document.getElementById('statAppName');
+    const statCategory = document.getElementById('statCategory');
+    if (statAppName) statAppName.textContent = appName;
+    if (statCategory) statCategory.textContent = category || '—';
+
+    // Restore previously assigned names safely
+    try {
+        _assignedNames = new Set(JSON.parse(tr.dataset.assignedNames || '[]'));
+    } catch (e) {
+        _assignedNames = new Set();
+    }
+
+    // Clear search input and hide suggestions
+    const input = document.getElementById('empNameInput');
+    if (input) input.value = '';
+    const sug = document.getElementById('empSuggestions');
+    if (sug) sug.style.display = 'none';
+
+    renderAssignedGrid();
+    refreshOverlayStats();
+
+    // Show overlay, hide main table card
+    document.getElementById('softwareMainCard').style.display = 'none';
+    document.getElementById('assignOverlay').style.display = 'block';
+}
+
+function closeAssignOverlay() {
+    document.getElementById('assignOverlay').style.display = 'none';
+    document.getElementById('softwareMainCard').style.display = 'block';
+    _assignTargetRow = null;
+}
+
+// ── Avatar colour palette (deterministic per name) ─────────────
+const _avatarPalette = [
+    ['#6366f1', '#4f46e5'], ['#ec4899', '#db2777'], ['#14b8a6', '#0d9488'],
+    ['#f59e0b', '#d97706'], ['#10b981', '#059669'], ['#3b82f6', '#2563eb'],
+    ['#8b5cf6', '#7c3aed'], ['#f43f5e', '#e11d48'], ['#06b6d4', '#0891b2'],
+    ['#a855f7', '#9333ea']
+];
+function getAvatarColors(name) {
+    let hash = 0;
+    for (let i = 0; i < name.length; i++) hash = (hash * 31 + name.charCodeAt(i)) | 0;
+    return _avatarPalette[Math.abs(hash) % _avatarPalette.length];
+}
+function getInitials(name) {
+    return (name || '').split(' ').map(w => w[0]).filter(Boolean).slice(0, 2).join('').toUpperCase() || '?';
+}
+
+function onEmpNameInput() {
+    const val = (document.getElementById('empNameInput').value || '').trim().toLowerCase();
+    const sug = document.getElementById('empSuggestions');
+
+    if (!val) { sug.style.display = 'none'; return; }
+
+    const matches = EMPLOYEES.filter(e =>
+        (e.name.toLowerCase().includes(val) || e.dept.toLowerCase().includes(val))
+        && !_assignedNames.has(e.name)
+    ).slice(0, 8);
+
+    if (!matches.length) {
+        sug.innerHTML = `
+        <div style="padding:16px 18px; text-align:center; color:#94a3b8; font-size:0.88rem;">
+            <i class="bi bi-person-x" style="font-size:1.3rem; display:block; margin-bottom:6px;"></i>
+            No employees found
+        </div>`;
+        sug.style.display = 'block';
+        return;
+    }
+
+    sug.innerHTML = matches.map(e => {
+        const [c1, c2] = getAvatarColors(e.name);
+        return `
+        <div onclick="addEmployeeName('${e.name.replace(/'/g, "\\'")}')"
+             style="padding:11px 18px; cursor:pointer; display:flex; align-items:center; gap:12px;
+                    border-bottom:1px solid #f1f5f9; transition:background 0.12s;"
+             onmouseover="this.style.background='#f5f3ff'" onmouseout="this.style.background='#fff'">
+            <div style="width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,${c1},${c2});
+                display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:0.75rem;flex-shrink:0;">${e.avatar}</div>
+            <div style="flex:1;min-width:0;">
+                <div style="font-weight:600;color:#1e293b;font-size:0.88rem;">${e.name}</div>
+                <div style="color:#94a3b8;font-size:0.76rem;">${e.dept}</div>
+            </div>
+            <i class="bi bi-plus-circle text-primary"></i>
+        </div>`;
+    }).join('');
+    sug.style.display = 'block';
+}
+
+// Close suggestions when clicking outside the search field
+document.addEventListener('click', function(event) {
+    const sug = document.getElementById('empSuggestions');
+    const inputGroup = document.getElementById('empSearchInputGroup');
+    if (sug && inputGroup && !inputGroup.contains(event.target) && !sug.contains(event.target)) {
+        sug.style.display = 'none';
+    }
+});
+
+function onEmpNameKeydown(e) {
+    if (e.key === 'Enter') {
+        e.preventDefault();
+        const val = (document.getElementById('empNameInput').value || '').trim();
+        if (val) addEmployeeName(val);
+    }
+    if (e.key === 'Escape') {
+        const sug = document.getElementById('empSuggestions');
+        if (sug) sug.style.display = 'none';
+    }
+}
+
+function addEmployeeName(name) {
+    if (!name || _assignedNames.has(name)) return;
+    _assignedNames.add(name);
+    const input = document.getElementById('empNameInput');
+    if (input) input.value = '';
+    const sug = document.getElementById('empSuggestions');
+    if (sug) sug.style.display = 'none';
+    renderAssignedGrid();
+    refreshOverlayStats();
+}
+
+function removeEmployeeName(name) {
+    _assignedNames.delete(name);
+    renderAssignedGrid();
+    refreshOverlayStats();
+}
+
+function clearAllAssignments() {
+    _assignedNames.clear();
+    renderAssignedGrid();
+    refreshOverlayStats();
+}
+
+function renderAssignedGrid() {
+    const grid = document.getElementById('assignedEmployeeGrid');
+    if (!grid) return;
+    const empty = document.getElementById('emptyAssignedMsg');
+
+    if (_assignedNames.size === 0) {
+        grid.innerHTML = '';
+        if (empty) grid.appendChild(empty);
+        return;
+    }
+
+    grid.innerHTML = '';
+    _assignedNames.forEach(name => {
+        const initials = getInitials(name);
+        const [c1, c2] = getAvatarColors(name);
+        const emp = EMPLOYEES.find(e => e.name === name);
+        const dept = emp ? emp.dept : 'Employee';
+
+        const card = document.createElement('div');
+        card.style.cssText = `
+            background: #fff;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 16px;
+            padding: 16px 18px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            position: relative;
+            transition: box-shadow 0.2s, border-color 0.2s;
+            animation: cardIn 0.25s ease;
+        `;
+        card.onmouseover = () => { card.style.boxShadow = '0 4px 16px rgba(99,102,241,0.12)'; card.style.borderColor = '#c7d2fe'; };
+        card.onmouseout = () => { card.style.boxShadow = 'none'; card.style.borderColor = '#e2e8f0'; };
+        card.innerHTML = `
+            <div style="width:42px;height:42px;border-radius:12px;background:linear-gradient(135deg,${c1},${c2});
+                display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:0.85rem;flex-shrink:0;">
+                ${initials}
+            </div>
+            <div style="flex:1;min-width:0;">
+                <div style="font-weight:600;color:#1e293b;font-size:0.9rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${name}</div>
+                <div style="color:#94a3b8;font-size:0.78rem;">${dept}</div>
+            </div>
+            <button onclick="removeEmployeeName('${name.replace(/'/g, "\\'")}')" title="Remove"
+                style="background:#fee2e2;border:none;color:#ef4444;border-radius:8px;width:28px;height:28px;
+                display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;font-size:0.8rem;
+                transition:background 0.15s;"
+                onmouseover="this.style.background='#fecaca'" onmouseout="this.style.background='#fee2e2'">
+                <i class="bi bi-x-lg"></i>
+            </button>
+        `;
+        grid.appendChild(card);
+    });
+}
+
+function refreshOverlayStats() {
+    const count = _assignedNames.size;
+    const statEl = document.getElementById('statAssignedCount');
+    if (statEl) statEl.textContent = `${count} Employee${count !== 1 ? 's' : ''}`;
+    const badgeEl = document.getElementById('assignedBadge');
+    if (badgeEl) badgeEl.textContent = count;
+}
+
+async function saveAssignments() {
+    if (!_assignTargetRow) { closeAssignOverlay(); return; }
+    const names = Array.from(_assignedNames);
+    const softwareId = _assignTargetRow.dataset.id;
+
+    try {
+        const res = await fetch(`/api/software/${softwareId}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ assigned_names: names })
+        });
+        if (res.ok) {
+            await loadSoftware();
+            closeAssignOverlay();
+        } else {
+            alert('Failed to save assignments.');
+        }
+    } catch (e) {
+        console.error(e);
+    }
+}
+
+// Inject card animation keyframes once
+const _styleEl = document.createElement('style');
+_styleEl.textContent = `@keyframes cardIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:none; } }`;
+document.head.appendChild(_styleEl);
+
+
+const softwareLogos = [
+    { match: 'visual studio code', src: 'https://cdn.simpleicons.org/visualstudiocode/007ACC', alt: 'Visual Studio Code', background: '#f0f4ff', fallback: 'bi-code-square' },
+    { match: 'microsoft 365', src: 'https://cdn.simpleicons.org/microsoftoffice/D83B01', alt: 'Microsoft 365', background: '#f0f8ff', fallback: 'bi-microsoft' },
+    { match: 'crowdstrike', src: 'https://cdn.simpleicons.org/crowdstrike/E0101E', alt: 'CrowdStrike', background: '#fff0f1', fallback: 'bi-shield-lock-fill' },
+    { match: 'figma', src: 'https://cdn.simpleicons.org/figma', alt: 'Figma', background: '#fff0fb', fallback: 'bi-palette-fill' },
+    { match: 'postman', src: 'https://cdn.simpleicons.org/postman/FF6C37', alt: 'Postman', background: '#fff7ed', fallback: 'bi-database-fill-gear' },
+];
+
+function softwareIconHtml(name) {
+    const logo = softwareLogos.find(item => name.toLowerCase().includes(item.match));
+    if (!logo) {
+        return '<div class="software-app-icon"><i class="bi bi-box-seam"></i></div>';
+    }
+    return `<div class="software-app-icon" style="background:${logo.background};">
+        <img src="${logo.src}" alt="${logo.alt}" onerror="this.style.display='none';this.parentElement.innerHTML='<i class=\\'bi ${logo.fallback}\\'></i>'">
+    </div>`;
+}
+
+function filterSoftwareTable() {
+    const input = document.getElementById('softwareSearchInput');
+    const filter = input.value.toLowerCase();
+    const catSelect = document.getElementById('filterCategory');
+    const catFilter = catSelect.value.toLowerCase();
+    const table = document.getElementById('softwareTable');
+    const tr = table.getElementsByTagName('tr');
+    for (let i = 1; i < tr.length; i++) {
+        const textContent = tr[i].textContent || tr[i].innerText;
+        const matchesSearch = textContent.toLowerCase().indexOf(filter) > -1;
+        const matchesCategory = !catFilter || textContent.toLowerCase().indexOf(catFilter) > -1;
+        tr[i].style.display = (matchesSearch && matchesCategory) ? '' : 'none';
+    }
+}
+
+function editSoftwareRow(btn) {
+    const tr = btn.closest('tr');
+    _editTargetRow = tr;
+    
+    const name = tr.dataset.name || '';
+    const publisher = tr.dataset.publisher || '';
+    const category = tr.dataset.category || '';
+    const version = tr.dataset.version || '';
+    const allocated = tr.dataset.allocated || '';
+    const licenseType = tr.dataset.licenseType || '';
+    const statusText = tr.dataset.status || 'Active';
+
+    document.getElementById('editSwAppName').value = name;
+    document.getElementById('editSwPublisher').value = publisher;
+    document.getElementById('editSwVersion').value = version;
+    document.getElementById('editSwAllocated').value = allocated;
+
+    const catSel = document.getElementById('editSwCategory');
+    for (let opt of catSel.options) { opt.selected = opt.value.toLowerCase() === category.toLowerCase(); }
+
+    const licSel = document.getElementById('editSwLicenseType');
+    for (let opt of licSel.options) { opt.selected = opt.value.toLowerCase() === licenseType.toLowerCase(); }
+
+    const radios = document.querySelectorAll('input[name="editSwStatusRadio"]');
+    radios.forEach(r => { r.checked = r.value.toLowerCase() === statusText.toLowerCase(); });
+
+    bootstrap.Modal.getOrCreateInstance(document.getElementById('editSoftwareModal')).show();
+}
+
+async function applyEditSoftware() {
+    const name = document.getElementById('editSwAppName').value.trim();
+    const publisher = document.getElementById('editSwPublisher').value.trim();
+    const category = document.getElementById('editSwCategory').value;
+    const version = document.getElementById('editSwVersion').value.trim();
+    const licenseType = document.getElementById('editSwLicenseType').value;
+    const allocated = document.getElementById('editSwAllocated').value.trim();
+    const statusRadio = document.querySelector('input[name="editSwStatusRadio"]:checked');
+    const status = statusRadio ? statusRadio.value : 'Active';
+
+    if (!name || !publisher || !version || !allocated) {
+        alert('Please fill in all required fields.');
+        return;
+    }
+
+    if (!_editTargetRow) return;
+    const id = _editTargetRow.dataset.id;
+
+    try {
+        const res = await fetch(`/api/software/${id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                name,
+                publisher,
+                category,
+                version,
+                license_type: licenseType,
+                allocated,
+                status
+            })
+        });
+        if (res.ok) {
+            await loadSoftware();
+            _editTargetRow = null;
+            bootstrap.Modal.getOrCreateInstance(document.getElementById('editSoftwareModal')).hide();
+        } else {
+            alert('Failed to save changes.');
+        }
+    } catch (e) {
+        console.error(e);
+    }
+}
+
+async function deleteSoftwareRow(btn) {
+    const tr = btn.closest('tr');
+    const id = tr.dataset.id;
+    if (!confirm("Are you sure you want to delete this software?")) {
+        return;
+    }
+    try {
+        const res = await fetch(`/api/software/${id}`, {
+            method: 'DELETE'
+        });
+        if (res.ok) {
+            tr.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+            tr.style.opacity = '0';
+            tr.style.transform = 'translateX(20px)';
+            setTimeout(async () => {
+                await loadSoftware();
+            }, 300);
+        } else {
+            alert('Failed to delete software.');
+        }
+    } catch (e) {
+        console.error(e);
+    }
+}
+
+async function saveNewSoftware() {
+    const name = document.getElementById('swAppName').value.trim();
+    const publisher = document.getElementById('swPublisher').value.trim();
+    const category = document.getElementById('swCategory').value;
+    const version = document.getElementById('swVersion').value.trim();
+    const licenseType = document.getElementById('swLicenseType').value;
+    const statusRadio = document.querySelector('input[name="swStatusRadio"]:checked');
+    const status = statusRadio ? statusRadio.value : 'Active';
+
+    if (!name || !publisher || !version) {
+        alert('Please fill in all required fields.');
+        return;
+    }
+
+    try {
+        const res = await fetch('/api/software', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                name,
+                publisher,
+                category,
+                version,
+                license_type: licenseType,
+                status
+            })
+        });
+        if (res.ok) {
+            await loadSoftware();
+            bootstrap.Modal.getOrCreateInstance(document.getElementById('addSoftwareModal')).hide();
+            document.getElementById('addSoftwareForm').reset();
+        } else {
+            alert('Failed to add software.');
+        }
+    } catch (e) {
+        console.error(e);
+    }
+}
+</script>
+{% endblock %}
