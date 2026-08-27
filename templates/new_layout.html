@@ -945,29 +945,135 @@
                 
 
 
-                <!-- TIMELINE -->
-                <div class="glass-card p-4 d-flex flex-column timeline-card" style="max-height: 380px;">
-                    <div class="d-flex justify-content-between align-items-center mb-3">
+                <!-- UPCOMING HOLIDAYS CARD -->
+                <div class="glass-card p-4 d-flex flex-column holidays-widget-card" style="border-radius: 16px;">
+                    <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
                         <div class="d-flex align-items-center gap-2">
-                            <h5 class="mb-0 fw-bold text-dark" style="font-size: 1.1rem;">Timeline</h5>
-                            <span id="timelineMonthLabel" class="badge bg-primary bg-opacity-10 text-primary" style="font-size: 0.75rem; letter-spacing: 0.05em; text-transform: uppercase;"></span>
-                        </div>
-                        <div class="d-flex align-items-center gap-1">
-                            <button class="btn btn-sm text-secondary p-1 d-flex align-items-center justify-content-center hover-bg-light rounded-circle" id="timelinePrevBtn" style="width:28px; height:28px;"><i class="bi bi-chevron-left"></i></button>
-                            <button class="btn btn-sm text-secondary p-1 d-flex align-items-center justify-content-center hover-bg-light rounded-circle" id="timelineNextBtn" style="width:28px; height:28px;"><i class="bi bi-chevron-right"></i></button>
-                            <div class="position-relative ms-2">
-                                <i class="bi bi-calendar3 text-primary fs-5" id="timelineCalendarBtn" style="cursor: pointer; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'" title="Reset to current month"></i>
+                            <div class="icon-circle bg-primary bg-opacity-10 text-primary d-flex align-items-center justify-content-center rounded-3" style="width: 32px; height: 32px;">
+                                <i class="bi bi-calendar-event-fill fs-6"></i>
                             </div>
+                            <h5 class="mb-0 fw-bold text-dark" style="font-size: 1.05rem;">Upcoming Holidays</h5>
+                        </div>
+                        <div class="card-filter-segmented">
+                            <button type="button" class="card-filter-btn" data-target="holiday" data-filter="week">This Week</button>
+                            <button type="button" class="card-filter-btn" data-target="holiday" data-filter="month">This Month</button>
+                            <button type="button" class="card-filter-btn active" data-target="holiday" data-filter="all">All</button>
                         </div>
                     </div>
-                    
-                    <div class="flex-grow-1 overflow-auto no-scrollbar position-relative pe-2">
-                        <!-- Vertical Line -->
-                        <div style="position: absolute; left: 6px; top: 8px; bottom: 0; width: 2px; background: #e2e8f0;"></div>
-                        
-                        <div id="timelineContent" style="padding-left: 1.5rem;">
-                            <!-- JS Populates this -->
+
+                    <div class="flex-grow-1 overflow-auto widget-scrollbar pe-2" style="max-height: 280px;">
+                        <div id="holidayEmptyState" class="text-center py-4 text-muted small" style="display: {% if holidays %}none{% else %}block{% endif %};">
+                            <i class="bi bi-calendar-check fs-4 d-block mb-1 text-secondary"></i>
+                            <span class="empty-text">No holidays scheduled</span>
                         </div>
+                        {% if holidays %}
+                            <div class="d-flex flex-column gap-2" id="holidayItemsList">
+                                {% for h in holidays %}
+                                <div class="p-2 rounded-3 border d-flex align-items-center justify-content-between holiday-item"
+                                     data-days="{{ h.days_until if h.days_until is defined else 999 }}"
+                                     data-upcoming="{{ 'true' if h.is_upcoming else 'false' }}"
+                                     style="background: #ffffff; border-color: #f1f5f9 !important; transition: all 0.2s ease;">
+                                    <div class="d-flex align-items-center gap-3">
+                                        <div class="text-center rounded-3 px-2 py-1 date-badge" 
+                                             style="background: {% if h.type == 'optional' %}#fdf4ff; color: #9333ea;{% else %}#eff6ff; color: #2563eb;{% endif %} min-width: 48px;">
+                                            <span class="d-block fw-bold" style="font-size: 0.9rem; line-height: 1.1;">{{ h.formatted_date.split()[0] if h.formatted_date else '' }}</span>
+                                            <span class="d-block text-uppercase fw-semibold" style="font-size: 0.65rem; letter-spacing: 0.05em;">{{ h.formatted_date.split()[1] if h.formatted_date and h.formatted_date.split()|length > 1 else '' }}</span>
+                                        </div>
+                                        <div>
+                                            <div class="fw-bold text-dark text-truncate" style="font-size: 0.88rem; max-width: 170px;" title="{{ h.name }}">{{ h.name }}</div>
+                                            <div class="text-muted" style="font-size: 0.72rem;">{{ h.day_name or (h.formatted_date or '') }}</div>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        {% if h.type == 'optional' %}
+                                        <span class="badge" style="background-color: #f5f3ff; color: #7c3aed; border: 1px solid #ede9fe; font-size: 0.68rem; font-weight: 600;">Optional</span>
+                                        {% else %}
+                                        <span class="badge" style="background-color: #ecfdf5; color: #059669; border: 1px solid #d1fae5; font-size: 0.68rem; font-weight: 600;">Public</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- UPCOMING BIRTHDAYS CARD -->
+                <div class="glass-card p-4 d-flex flex-column birthdays-widget-card" style="border-radius: 16px;">
+                    <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+                        <div class="d-flex align-items-center gap-2">
+                            <div class="icon-circle bg-warning bg-opacity-15 text-warning d-flex align-items-center justify-content-center rounded-3" style="width: 32px; height: 32px;">
+                                <i class="bi bi-cake2-fill fs-6 text-warning"></i>
+                            </div>
+                            <h5 class="mb-0 fw-bold text-dark" style="font-size: 1.05rem;">Upcoming Birthdays</h5>
+                        </div>
+                        <div class="card-filter-segmented">
+                            <button type="button" class="card-filter-btn" data-target="bday" data-filter="week">This Week</button>
+                            <button type="button" class="card-filter-btn" data-target="bday" data-filter="month">This Month</button>
+                            <button type="button" class="card-filter-btn active" data-target="bday" data-filter="all">All</button>
+                        </div>
+                    </div>
+
+                    <div class="flex-grow-1 overflow-auto widget-scrollbar pe-2" style="max-height: 280px;">
+                        <div id="bdayEmptyState" class="text-center py-4 text-muted small" style="display: {% if all_birthdays %}none{% else %}block{% endif %};">
+                            <i class="bi bi-gift fs-4 d-block mb-1 text-secondary"></i>
+                            <span class="empty-text">No birthdays recorded</span>
+                        </div>
+                        {% if all_birthdays %}
+                            <div class="d-flex flex-column gap-2" id="bdayItemsList">
+                                {% for b in all_birthdays %}
+                                <div class="p-2 rounded-3 border d-flex align-items-center justify-content-between bday-item {% if b.is_today %}border-warning bg-warning bg-opacity-10{% else %}bg-white{% endif %}"
+                                     data-days="{{ b.days_until }}"
+                                     data-today="{{ 'true' if b.is_today else 'false' }}"
+                                     style="border-color: #f1f5f9 !important; transition: all 0.2s ease;">
+                                    <div class="d-flex align-items-center gap-3">
+                                        <div class="position-relative flex-shrink-0">
+                                            {% if b.photo_url %}
+                                            <img src="{{ b.photo_url }}" alt="" class="rounded-circle object-fit-cover shadow-sm" style="width: 36px; height: 36px;"
+                                                 onerror="this.style.display='none'; if(this.nextElementSibling) this.nextElementSibling.style.display='flex';">
+                                            <div class="rounded-circle align-items-center justify-content-center text-white fw-bold shadow-sm"
+                                                 style="display: none; width: 36px; height: 36px; font-size: 0.8rem; background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);">
+                                                {{ (b.clean_name or b.name)[:2] | upper }}
+                                            </div>
+                                            {% else %}
+                                            <div class="rounded-circle d-flex align-items-center justify-content-center text-white fw-bold shadow-sm"
+                                                 style="width: 36px; height: 36px; font-size: 0.8rem; background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);">
+                                                {{ (b.clean_name or b.name)[:2] | upper }}
+                                            </div>
+                                            {% endif %}
+                                            {% if b.is_today %}
+                                            <span class="position-absolute bottom-0 end-0 translate-middle-y badge rounded-pill bg-danger p-1" style="font-size: 0.5rem;" title="Today's Birthday!">🎂</span>
+                                            {% endif %}
+                                        </div>
+                                        <div>
+                                            <div class="fw-bold text-dark text-truncate" style="font-size: 0.88rem; max-width: 150px;" title="{{ b.clean_name }}">
+                                                {{ b.clean_name }}
+                                            </div>
+                                            <div class="text-muted text-truncate" style="font-size: 0.72rem; max-width: 150px;">
+                                                {{ b.designation or 'Team Member' }}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="text-end">
+                                        {% if b.is_today %}
+                                        <span class="badge bg-warning text-dark fw-bold px-2 py-1 shadow-sm" style="font-size: 0.72rem;">
+                                            🎉 Today!
+                                        </span>
+                                        {% elif b.days_until == 1 %}
+                                        <span class="badge bg-primary bg-opacity-10 text-primary fw-semibold px-2 py-1" style="font-size: 0.72rem;">
+                                            Tomorrow
+                                        </span>
+                                        {% else %}
+                                        <span class="fw-semibold text-primary d-block" style="font-size: 0.8rem;">
+                                            {{ b.formatted_dob }}
+                                        </span>
+                                        <small class="text-muted" style="font-size: 0.68rem;">in {{ b.days_until }} days</small>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
                     </div>
                 </div>
 
@@ -979,140 +1085,99 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    const holidays = {{ holidays | tojson | safe if holidays else '[]' }};
-    const birthdays = {{ all_birthdays | tojson | safe if all_birthdays else '[]' }};
-    
-    let currentDate = new Date();
-    let currentViewMonth = currentDate.getMonth(); // 0-11
-    
-    const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-    
-    function parseMonth(dateStr) {
-        if (!dateStr) return -1;
-        // if "YYYY-MM-DD"
-        if (dateStr.includes('-') && dateStr.length >= 10) {
-            const parts = dateStr.substring(0,10).split('-');
-            return parseInt(parts[1], 10) - 1; // 0-indexed month
-        }
-        // if "16 May" or similar
-        for (let i = 0; i < monthNames.length; i++) {
-            if (dateStr.toLowerCase().includes(monthNames[i].toLowerCase())) {
-                return i;
-            }
-        }
-        const d = new Date(dateStr);
-        if (!isNaN(d.getTime())) return d.getMonth();
-        return -1;
-    }
 
-    function formatDayMonth(dateStr) {
-        if (!dateStr) return '';
-        if (dateStr.includes('-') && dateStr.length >= 10) {
-            const parts = dateStr.substring(0,10).split('-');
-            const m = parseInt(parts[1], 10) - 1;
-            return parseInt(parts[2], 10) + ' ' + monthNames[m];
-        }
-        return dateStr.substring(0, 11);
-    }
+    // 1. Interactive Holiday Filtering
+    const holidayFilterBtns = document.querySelectorAll('.card-filter-btn[data-target="holiday"]');
+    const holidayItems = document.querySelectorAll('.holiday-item');
+    const holidayEmpty = document.getElementById('holidayEmptyState');
 
-    function capitalizeFirstLetter(string) {
-        if (!string) return '';
-        return string.charAt(0).toUpperCase() + string.slice(1);
-    }
-
-    function renderTimeline() {
-        document.getElementById('timelineMonthLabel').innerText = monthNames[currentViewMonth];
-        const container = document.getElementById('timelineContent');
-        container.innerHTML = '';
-        
-        let events = [];
-        
-        holidays.forEach(h => {
-            const m = parseMonth(h.date || h.formatted_date);
-            if (m === currentViewMonth) {
-                events.push({
-                    type: 'holiday',
-                    title: h.name,
-                    subtitle: h.type || 'Holiday',
-                    dateStr: h.formatted_date || h.date,
-                    displayDate: formatDayMonth(h.formatted_date || h.date)
-                });
-            }
-        });
-        
-        birthdays.forEach(b => {
-            const m = parseMonth(b.date_of_birth);
-            if (m === currentViewMonth) {
-                let name = b.name ? b.name.split('@')[0] : 'Unknown';
-                name = name.split('.').map(capitalizeFirstLetter).join(' ');
-                events.push({
-                    type: 'birthday',
-                    title: name + "'s Birthday",
-                    subtitle: 'Birthday',
-                    dateStr: b.date_of_birth,
-                    displayDate: formatDayMonth(b.date_of_birth)
-                });
-            }
-        });
-        
-        if (events.length === 0) {
-            container.innerHTML = '<div class="text-muted small mt-2"><i class="bi bi-calendar-x me-1"></i>No upcoming events for this month.</div>';
-            return;
-        }
-        
-        // Sort events by day of month
-        events.sort((a, b) => {
-            const dayA = parseInt(a.displayDate) || 0;
-            const dayB = parseInt(b.displayDate) || 0;
-            return dayA - dayB;
-        });
-        
-        events.forEach(ev => {
-            const isBirthday = ev.type === 'birthday';
-            const iconBg = isBirthday ? 'bg-primary' : 'bg-dark';
-            const border = isBirthday ? 'border-primary' : 'border-dark';
-            const textClass = isBirthday ? 'text-primary' : 'text-muted';
+    function filterHolidays(filterType) {
+        let visibleCount = 0;
+        holidayItems.forEach(item => {
+            const days = parseInt(item.getAttribute('data-days')) || 0;
+            const isUpcoming = item.getAttribute('data-upcoming') === 'true';
             
-            const el = document.createElement('div');
-            el.className = 'position-relative mb-4';
-            el.innerHTML = `
-                <div class="position-absolute bg-white border ${border} rounded-circle d-flex align-items-center justify-content-center" style="width: 16px; height: 16px; left: -1.5rem; top: 2px; z-index: 2;">
-                    <div class="${iconBg} rounded-circle" style="width: 6px; height: 6px;"></div>
-                </div>
-                <div class="d-flex justify-content-between align-items-start">
-                    <div>
-                        <div class="fw-bold text-dark" style="font-size: 0.9rem;">${ev.title}</div>
-                        <div class="text-muted text-capitalize" style="font-size: 0.75rem;">${ev.subtitle}</div>
-                    </div>
-                    <div class="text-end ${textClass} fw-semibold" style="font-size: 0.8rem;">
-                        ${ev.displayDate}
-                    </div>
-                </div>
-            `;
-            container.appendChild(el);
+            let show = false;
+            if (filterType === 'all') {
+                show = isUpcoming || days >= 0;
+            } else if (filterType === 'week') {
+                show = days >= 0 && days <= 7;
+            } else if (filterType === 'month') {
+                show = days >= 0 && days <= 31;
+            }
+            
+            if (show) {
+                item.style.setProperty('display', 'flex', 'important');
+                visibleCount++;
+            } else {
+                item.style.setProperty('display', 'none', 'important');
+            }
         });
+        
+        if (holidayEmpty) {
+            holidayEmpty.style.display = (visibleCount === 0) ? 'block' : 'none';
+            const emptyTextEl = holidayEmpty.querySelector('.empty-text');
+            if (emptyTextEl) {
+                if (filterType === 'week') emptyTextEl.innerText = 'No holidays scheduled this week';
+                else if (filterType === 'month') emptyTextEl.innerText = 'No holidays scheduled this month';
+                else emptyTextEl.innerText = 'No upcoming holidays';
+            }
+        }
     }
 
-    const prevBtn = document.getElementById('timelinePrevBtn');
-    const nextBtn = document.getElementById('timelineNextBtn');
-    const calBtn = document.getElementById('timelineCalendarBtn');
-    
-    if (prevBtn) prevBtn.addEventListener('click', () => {
-        currentViewMonth = (currentViewMonth - 1 + 12) % 12;
-        renderTimeline();
-    });
-    
-    if (nextBtn) nextBtn.addEventListener('click', () => {
-        currentViewMonth = (currentViewMonth + 1) % 12;
-        renderTimeline();
-    });
-    
-    if (calBtn) calBtn.addEventListener('click', () => {
-        currentViewMonth = new Date().getMonth();
-        renderTimeline();
+    holidayFilterBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+            holidayFilterBtns.forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            filterHolidays(this.getAttribute('data-filter'));
+        });
     });
 
-    renderTimeline();
+    // 2. Interactive Birthday Filtering
+    const bdayFilterBtns = document.querySelectorAll('.card-filter-btn[data-target="bday"]');
+    const bdayItems = document.querySelectorAll('.bday-item');
+    const bdayEmpty = document.getElementById('bdayEmptyState');
+
+    function filterBirthdays(filterType) {
+        let visibleCount = 0;
+        bdayItems.forEach(item => {
+            const days = parseInt(item.getAttribute('data-days')) || 0;
+            
+            let show = false;
+            if (filterType === 'all') {
+                show = true;
+            } else if (filterType === 'week') {
+                show = days >= 0 && days <= 7;
+            } else if (filterType === 'month') {
+                show = days >= 0 && days <= 31;
+            }
+            
+            if (show) {
+                item.style.setProperty('display', 'flex', 'important');
+                visibleCount++;
+            } else {
+                item.style.setProperty('display', 'none', 'important');
+            }
+        });
+        
+        if (bdayEmpty) {
+            bdayEmpty.style.display = (visibleCount === 0) ? 'block' : 'none';
+            const emptyTextEl = bdayEmpty.querySelector('.empty-text');
+            if (emptyTextEl) {
+                if (filterType === 'week') emptyTextEl.innerText = 'No team birthdays this week';
+                else if (filterType === 'month') emptyTextEl.innerText = 'No team birthdays this month';
+                else emptyTextEl.innerText = 'No birthdays recorded';
+            }
+        }
+    }
+
+    bdayFilterBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+            bdayFilterBtns.forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            filterBirthdays(this.getAttribute('data-filter'));
+        });
+    });
 
     // Fetch and populate rental invoice widgets for Admin and HR
     {% if session.role in ['hr', 'admin'] %}

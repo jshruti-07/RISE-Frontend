@@ -78,63 +78,99 @@ def dashboard():
             "leaves": len(pending_leaves)
         }
 
-        holiday_res = requests.get(f"{BASE_URL}/holidays?year=2026", headers=get_headers())
-        if holiday_res.status_code == 200:
-            holidays = extract_list(holiday_res.json(), 'holidays', 'data')
-            for h in holidays:
-                raw_date = str(h.get("date", ""))
-                try:
-                    dt = datetime.strptime(raw_date[:10], "%Y-%m-%d") if "-" in raw_date else datetime.strptime(raw_date.strip(), "%a, %d %b")
-                    h["formatted_date"] = dt.strftime("%d %b")
-                except: h["formatted_date"] = raw_date
+        # 1. Holidays (sorted upcoming and current year)
+        holidays_list = []
+        try:
+            holiday_res = requests.get(f"{BASE_URL}/holidays?year=2026", headers=get_headers(), timeout=5)
+            if holiday_res.status_code != 200:
+                holiday_res = requests.get(f"{BASE_URL}/holidays", headers=get_headers(), timeout=5)
+            if holiday_res.status_code == 200:
+                raw_holidays = extract_list(holiday_res.json(), 'holidays', 'data')
+                today_date = datetime.now().date()
+                for h in raw_holidays:
+                    raw_date = str(h.get("date", "")).strip()
+                    try:
+                        dt = datetime.strptime(raw_date[:10], "%Y-%m-%d")
+                        h["date_obj"] = dt.date()
+                        h["formatted_date"] = dt.strftime("%d %b")
+                        h["day_name"] = dt.strftime("%A")
+                        h["days_until"] = (dt.date() - today_date).days
+                        h["is_upcoming"] = dt.date() >= today_date
+                    except:
+                        h["formatted_date"] = raw_date
+                        h["day_name"] = ""
+                        h["days_until"] = 999
+                        h["is_upcoming"] = True
+                    holidays_list.append(h)
+                
+                # Sort upcoming first, then past
+                holidays_list.sort(key=lambda x: (not x.get("is_upcoming", True), x.get("days_until", 999)))
+        except Exception as hol_e:
+            print("Error fetching holidays:", hol_e)
 
-        # Create a map for employee photos
+        # Create a map for employee photos (only keep valid URLs)
         photo_map = {}
         for emp in employees:
             nm = person_system_name(emp)
             photo = pick(emp, 'photo_url', 'photo')
             if nm and photo:
-                photo_map[nm] = photo
-                bare = strip_role_prefix(nm)
-                if bare:
-                    photo_map[bare] = photo
+                photo_str = str(photo).strip()
+                if photo_str.startswith(('http://', 'https://', '/', 'data:image')):
+                    photo_map[nm] = photo_str
+                    bare = strip_role_prefix(nm)
+                    if bare:
+                        photo_map[bare] = photo_str
 
-        # 1. Today's Birthdays
-        try:
-            today_res = requests.get(f"{BASE_URL}/birthdays/today/", headers=get_headers(), timeout=5)
-            if today_res.status_code == 200:
-                today_data = today_res.json()
-                today_list = extract_list(today_data, 'birthdays', 'data')
-                for b in today_list:
-                    b['is_today'] = True
-                    b['photo_url'] = photo_map.get(b.get('name')) or photo_map.get(strip_role_prefix(b.get('name')))
-                    birthday_data.append(b)
-        except: pass
-
-        # 2. Upcoming Birthdays (Next 7 Days)
-        try:
-            upcoming_res = requests.get(f"{BASE_URL}/birthdays/upcoming/", headers=get_headers(), timeout=5)
-            if upcoming_res.status_code == 200:
-                upcoming_data = upcoming_res.json()
-                upcoming_list = extract_list(upcoming_data, 'upcoming_birthdays', 'birthdays', 'data')
-                for b in upcoming_list:
-                    b['is_today'] = False
-                    b['photo_url'] = photo_map.get(b.get('name')) or photo_map.get(strip_role_prefix(b.get('name')))
-                    birthday_data.append(b)
-        except: pass
-
-        # 3. All Birthdays (for Timeline navigation)
-        all_birthdays = []
+        # 2. Upcoming Birthdays (Next birthdays across all team members)
+        all_birthdays_sorted = []
+        today_date = datetime.now().date()
         for emp in employees:
             dob = emp.get('date_of_birth')
             if dob:
-                nm = person_system_name(emp) or emp.get('employee_name') or emp.get('name', 'Unknown')
-                photo = photo_map.get(nm) or photo_map.get(strip_role_prefix(nm))
-                all_birthdays.append({
-                    'name': nm,
-                    'date_of_birth': dob,
-                    'photo_url': photo
-                })
+                raw_dob = str(dob)[:10]
+                try:
+                    b_date = datetime.strptime(raw_dob, "%Y-%m-%d").date()
+                    # Calculate next birthday
+                    try:
+                        this_bday = b_date.replace(year=today_date.year)
+                    except ValueError:
+                        # Leap year 29 Feb fallback
+                        this_bday = b_date.replace(year=today_date.year, day=28)
+                        
+                    if this_bday < today_date:
+                        try:
+                            this_bday = b_date.replace(year=today_date.year + 1)
+                        except ValueError:
+                            this_bday = b_date.replace(year=today_date.year + 1, day=28)
+                            
+                    days_until = (this_bday - today_date).days
+                    is_today = (days_until == 0)
+                    
+                    raw_name = emp.get('original_name') or emp.get('name') or emp.get('employee_name') or 'Unknown'
+                    clean_nm = strip_role_prefix(raw_name)
+                    if not clean_nm:
+                        clean_nm = raw_name
+                        
+                    photo = photo_map.get(raw_name) or photo_map.get(clean_nm)
+                    
+                    all_birthdays_sorted.append({
+                        'name': clean_nm,
+                        'clean_name': clean_nm,
+                        'date_of_birth': raw_dob,
+                        'formatted_dob': this_bday.strftime("%d %b"),
+                        'day_name': this_bday.strftime("%A"),
+                        'next_birthday': this_bday,
+                        'days_until': days_until,
+                        'is_today': is_today,
+                        'designation': emp.get('designation') or (emp.get('role', 'Team Member')).title(),
+                        'photo_url': photo
+                    })
+                except Exception as b_err:
+                    pass
+
+        all_birthdays_sorted.sort(key=lambda x: x['days_until'])
+        holidays = holidays_list
+        all_birthdays = all_birthdays_sorted
 
         if session.get('role') in ['hr', 'admin']:
             try:

@@ -307,42 +307,71 @@
         box-shadow: none !important;
     }
 
-    /* QUICK MANAGEMENT PANEL (DARK CARD) */
-    .quick-mgmt-card {
-        background: #0f172a !important; /* deep rich dark background */
+
+    /* HOLIDAYS & BIRTHDAYS WIDGETS */
+    .holidays-widget-card, .birthdays-widget-card {
         border-radius: 16px !important;
-        padding: 24px !important;
-        border: none !important;
+        background: #ffffff !important;
+        border: 1px solid rgba(226, 232, 240, 0.9) !important;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03) !important;
+    }
+    .holiday-item:hover, .bday-item:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        border-color: #cbd5e1 !important;
     }
 
-    .quick-mgmt-card h6 {
-        color: #94a3b8 !important;
-        font-weight: 600 !important;
-        letter-spacing: 0.05em !important;
-        font-size: 0.75rem !important;
+    /* CARD FILTER SEGMENTED CONTROLS */
+    .card-filter-segmented {
+        background: #f1f5f9;
+        padding: 3px;
+        border-radius: 20px;
+        display: inline-flex;
+        gap: 2px;
+        border: 1px solid #e2e8f0;
+    }
+    .card-filter-btn {
+        border: none;
+        background: transparent;
+        color: #64748b;
+        font-size: 0.68rem;
+        font-weight: 600;
+        padding: 3px 10px;
+        border-radius: 14px;
+        transition: all 0.2s ease;
+        cursor: pointer;
+        line-height: 1.2;
+        white-space: nowrap;
+    }
+    .card-filter-btn.active {
+        background: #ffffff;
+        color: #0f172a;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+    .card-filter-btn:hover:not(.active) {
+        color: #334155;
     }
 
-    .quick-mgmt-item {
-        padding: 12px 0 !important;
-        border-bottom: 1px solid #1e293b !important;
-        font-size: 0.88rem !important;
-        font-weight: 500 !important;
-        color: #e2e8f0 !important;
-        text-decoration: none !important;
+    /* WIDGET VISIBLE SCROLLBAR */
+    .widget-scrollbar {
+        overflow-y: auto !important;
+        scrollbar-width: thin !important;
+        scrollbar-color: #cbd5e1 #f8fafc !important;
     }
-    .quick-mgmt-item:hover {
-        color: #38bdf8 !important;
-        text-decoration: none !important;
+    .widget-scrollbar::-webkit-scrollbar {
+        width: 5px !important;
+        display: block !important;
     }
-
-    /* TIMELINE */
-    .timeline-card {
-        border-radius: 16px !important;
+    .widget-scrollbar::-webkit-scrollbar-track {
+        background: #f8fafc !important;
+        border-radius: 6px !important;
     }
-
-    /* ANNOUNCEMENTS */
-    .announcements-card {
-        border-radius: 16px !important;
+    .widget-scrollbar::-webkit-scrollbar-thumb {
+        background: #cbd5e1 !important;
+        border-radius: 6px !important;
+    }
+    .widget-scrollbar::-webkit-scrollbar-thumb:hover {
+        background: #94a3b8 !important;
     }
 
     .no-scrollbar::-webkit-scrollbar {

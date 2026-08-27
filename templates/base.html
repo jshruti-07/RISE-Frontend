@@ -277,23 +277,6 @@
             {% endif %}
 
 
-            <!-- PAYSLIPS -->
-            {% if session.role in ['manager','employee'] %}
-            <a class="ribbon-left" style="margin-bottom: 0; display: block;" href="{{ url_for('user.payslips') }}">
-                <div class="ribbon-inner">
-                    <div class="ribbon-accent-left" style="background: linear-gradient(to bottom, #93C5FD, #3B82F6);">
-                    </div>
-                    <div class="ribbon-content">
-                        <div class="ribbon-icon"><i class="bi bi-file-earmark-text"></i></div>
-                        <div class="ribbon-text">
-                            <span class="ribbon-title">PAYSLIPS</span>
-                            <span class="ribbon-subtitle">Salary documents</span>
-                        </div>
-                    </div>
-                </div>
-            </a>
-            {% endif %}
-
 
 
             <!-- ASSETS -->
@@ -396,35 +379,6 @@
                 </div>
             </a>
 
-            <!-- QUICK ACTIONS SECTION -->
-            <hr style="margin: 12px 16px 4px; border-top: 1px solid rgba(203, 213, 225, 0.6); opacity: 1;">
-            <div class="menu-category-header">QUICK ACTIONS</div>
-
-            <!-- Apply Leave -->
-            <a class="quick-action" style="margin-bottom: 0;" href="{{ url_for('work.add_leave') }}">
-                <i class="bi bi-calendar-plus icon-green"></i> <span>Apply Leave</span>
-            </a>
-
-            <!-- Add Timesheet -->
-            {% if session.role != 'admin' %}
-            <a class="quick-action" style="margin-bottom: 0;" href="{{ url_for('work.add_timesheet') }}">
-                <i class="bi bi-clock-history icon-purple"></i> <span>Add Timesheet</span>
-            </a>
-            {% endif %}
-
-            <!-- New Project (HR + MANAGER) -->
-            {% if session.role in ['hr', 'manager'] %}
-            <a class="quick-action" style="margin-bottom: 0;" href="{{ url_for('projects.create_project') }}">
-                <i class="bi bi-folder-plus icon-orange"></i> <span>New Project</span>
-            </a>
-            {% endif %}
-
-            <!-- Request Reimbursement -->
-            {% if session.role != 'admin' %}
-            <a class="quick-action" style="margin-bottom: 0;" href="{{ url_for('admin.reimbursement') }}">
-                <i class="bi bi-file-earmark-plus icon-blue"></i> <span>Request Reimbursement</span>
-            </a>
-            {% endif %}
             {% endif %}
         </div>
 
