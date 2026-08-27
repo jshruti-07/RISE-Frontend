@@ -307,7 +307,8 @@ def dashboard():
             manager_project_names = [proj.get('name', '').lower().strip() for proj in projects]
             team_pending_timesheets = [
                 t for t in timesheets
-                if str(t.get('project', '')).lower().strip() in manager_project_names
+                if (names_match(t.get('manager_name'), manager_name) or
+                    (not t.get('manager_name') and str(t.get('project', '')).lower().strip() in manager_project_names))
                 and str(t.get('status', '')).lower() in ['submitted', 'pending', 'missing', 'missing entry']
             ]
             

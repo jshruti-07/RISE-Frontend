@@ -153,34 +153,28 @@
 
 
 
-                {% if session.role in ['admin', 'superadmin'] %}
                 <div class="row mb-3">
                     <div class="col-md-6">
                         <label class="d-flex align-items-center gap-2">
                             <i class="bi bi-person-badge"></i>
-                            Role
+                            Role <span class="text-danger">*</span>
                         </label>
                         <div class="field-wrap">
-                            <select class="form-control" name="role" required>
-                                <option value="employee" {% if employee.role == 'employee' %}selected{% endif %}>{{ labels.EMPLOYEE }}</option>
-                                <option value="hr" {% if employee.role == 'hr' %}selected{% endif %}>HR</option>
-                                <option value="manager" {% if employee.role == 'manager' %}selected{% endif %}>Manager</option>
-                                {% if session.role == 'superadmin' %}
+                            <select class="form-select" name="role" required>
+                                <option value="" disabled {% if not employee.role %}selected{% endif %}>Select Role</option>
                                 <option value="admin" {% if employee.role == 'admin' %}selected{% endif %}>Admin</option>
                                 <option value="superadmin" {% if employee.role == 'superadmin' %}selected{% endif %}>Super Admin</option>
                                 <option value="accounts" {% if employee.role == 'accounts' %}selected{% endif %}>Accounts</option>
-                                {% endif %}
+                                <option value="hr" {% if employee.role == 'hr' %}selected{% endif %}>HR</option>
+                                <option value="manager" {% if employee.role == 'manager' %}selected{% endif %}>Manager</option>
+                                <option value="employee" {% if employee.role == 'employee' or not employee.role %}selected{% endif %}>Team Member</option>
                             </select>
                         </div>
                     </div>
-                </div>
-                {% endif %}
-
-                <div class="row mb-3">
                     <div class="col-md-6">
                         <label class="d-flex align-items-center gap-2">
                             <i class="bi bi-briefcase"></i>
-                            Designation
+                            Designation <span class="text-danger">*</span>
                         </label>
                         <div class="field-wrap">
                             <select class="form-select" name="designation" required>
@@ -203,13 +197,19 @@
                                 <option value="System Administrator" {% if employee.designation == 'System Administrator' %}selected{% endif %}>System Administrator</option>
                                 <option value="Intern" {% if employee.designation == 'Intern' %}selected{% endif %}>Intern</option>
                                 <option value="Trainee" {% if employee.designation == 'Trainee' %}selected{% endif %}>Trainee</option>
+                                {% if employee.designation and employee.designation not in ['Software Engineer', 'Senior Software Engineer', 'HR Executive', 'HR Manager', 'Project Manager', 'Recruiter', 'Senior Developer', 'Team Lead', 'QA Engineer', 'DevOps Engineer', 'Business Analyst', 'Product Manager', 'Technical Lead', 'Data Analyst', 'UI/UX Designer', 'System Administrator', 'Intern', 'Trainee'] %}
+                                <option value="{{ employee.designation }}" selected>{{ employee.designation }}</option>
+                                {% endif %}
                             </select>
                         </div>
                     </div>
+                </div>
+
+                <div class="row mb-3">
                     <div class="col-md-6">
                         <label class="d-flex align-items-center gap-2">
                             <i class="bi bi-building"></i>
-                            Department
+                            Department <span class="text-danger">*</span>
                         </label>
                         <div class="field-wrap">
                             <select class="form-select" name="department" required>
@@ -218,17 +218,18 @@
                                 <option value="HR" {% if employee.department == 'HR' %}selected{% endif %}>HR</option>
                                 <option value="Finance" {% if employee.department == 'Finance' %}selected{% endif %}>Finance</option>
                                 <option value="Recruitment" {% if employee.department == 'Recruitment' %}selected{% endif %}>Recruitment</option>
-                                <option value="Operations" {% if employee.department == 'Operations' %}selected{% endif %}>Operations</option>
-                                <option value="Marketing" {% if employee.department == 'Marketing' %}selected{% endif %}>Marketing</option>
                                 <option value="Sales" {% if employee.department == 'Sales' %}selected{% endif %}>Sales</option>
-                                <option value="Legal" {% if employee.department == 'Legal' %}selected{% endif %}>Legal</option>
+                                <option value="Marketing" {% if employee.department == 'Marketing' %}selected{% endif %}>Marketing</option>
+                                <option value="Operations" {% if employee.department == 'Operations' %}selected{% endif %}>Operations</option>
                                 <option value="IT" {% if employee.department == 'IT' %}selected{% endif %}>IT</option>
-                                <option value="Administration" {% if employee.department == 'Administration' %}selected{% endif %}>Administration</option>
-                                <option value="Product" {% if employee.department == 'Product' %}selected{% endif %}>Product</option>
-                                <option value="Design" {% if employee.department == 'Design' %}selected{% endif %}>Design</option>
                                 <option value="Quality Assurance" {% if employee.department == 'Quality Assurance' %}selected{% endif %}>Quality Assurance</option>
-                                <option value="Customer Support" {% if employee.department == 'Customer Support' %}selected{% endif %}>Customer Support</option>
                                 <option value="Research & Development" {% if employee.department == 'Research & Development' %}selected{% endif %}>Research & Development</option>
+                                <option value="Administration" {% if employee.department == 'Administration' %}selected{% endif %}>Administration</option>
+                                <option value="Legal" {% if employee.department == 'Legal' %}selected{% endif %}>Legal</option>
+                                <option value="Design" {% if employee.department == 'Design' %}selected{% endif %}>Design</option>
+                                {% if employee.department and employee.department not in ['Engineering', 'HR', 'Finance', 'Recruitment', 'Sales', 'Marketing', 'Operations', 'IT', 'Quality Assurance', 'Research & Development', 'Administration', 'Legal', 'Design'] %}
+                                <option value="{{ employee.department }}" selected>{{ employee.department }}</option>
+                                {% endif %}
                             </select>
                         </div>
                     </div>

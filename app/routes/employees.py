@@ -164,6 +164,7 @@ def edit_employee(id):
             "name": form['name'],
             "email": form['email'],
             "phone": form['phone'],
+            "role": form.get('role', ''),
             "date_of_joining": form['date_of_joining'],
             "date_of_birth": form.get('date_of_birth', ''),
             "designation": form.get('designation', ''),
@@ -180,15 +181,13 @@ def edit_employee(id):
             if doc.filename != "":
                 file_data['document'] = (doc.filename, doc.read(), doc.mimetype)
 
-        # ── Role update — must go to the dedicated /auth/users/<user_id>/role ─
-        # The employee table has NO role column; role lives in the users table.
-        # Sending role to PATCH /employees/<id> is silently ignored by the backend.
+        # ── Role update — send to dedicated /employees/<id>/role ─────────────
         new_role = form.get('role', '').strip()
         role_changed = False
         role_error = None
 
         current_emp_name = None
-        if new_role and session.get('role') == 'admin':
+        if new_role and session.get('role') in ['admin', 'superadmin', 'hr']:
             try:
                 emp_res = requests.get(
                     f"{BASE_URL}/employees/{id}", headers=get_headers(), timeout=5
@@ -214,6 +213,8 @@ def edit_employee(id):
                         session['role'] = new_role.lower()
                         if new_name:
                             session['employee_name'] = new_name
+                elif body.get('no_change') or "already" in str(body.get('message', '')).lower():
+                    role_changed = False
                 else:
                     role_error = body.get(
                         'error', f"Role update failed (HTTP {role_res.status_code})"

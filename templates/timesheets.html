@@ -92,7 +92,7 @@
             <tr>
                 <th>{{ labels.EMPLOYEE }}</th>
                 <th>Project</th>
-                <th>Project Manager</th>
+                <th>Approving Manager</th>
                 <th>Task</th>
                 <th>Description</th>
                 <th>Hours</th>
@@ -104,7 +104,7 @@
 
         <tbody>
             {% for t in timesheets %}
-            {% set manager_name = project_manager_map.get((t.project|string).strip().lower(), '-') %}
+            {% set manager_name = t.manager_name or project_manager_map.get((t.project|string).strip().lower(), '-') %}
             <tr class="timesheet-row" 
                 data-employee="{{ (t.employee_name|string)|lower if t.employee_name else '' }}" 
                 data-project="{{ (t.project|string)|lower if t.project else '' }}" 
@@ -118,7 +118,7 @@
                     </div>
                 </td>
                 <td>{{ t.project }}</td>
-                <td>{{ project_manager_map.get((t.project|string).strip().lower(), '-') | clean_name }}</td>
+                <td>{{ (t.manager_name or project_manager_map.get((t.project|string).strip().lower(), '-')) | clean_name }}</td>
                 <td>{{ t.task }}</td>
                 <td>{{ t.description or '-' }}</td>
                 <td>{{ t.hours }}</td>

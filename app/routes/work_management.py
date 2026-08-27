@@ -98,7 +98,8 @@ def timesheets_list():
             elif user_role == 'manager':
                 proj_name = str(t.get('project', '')).strip().lower()
                 mgr_for_proj = project_manager_map.get(proj_name)
-                if names_match(mgr_for_proj, current_user):
+                assigned_mgr = t.get('manager_name')
+                if names_match(assigned_mgr, current_user) or names_match(mgr_for_proj, current_user):
                     show = True
             
             if show:
@@ -206,7 +207,20 @@ def hr_missing_timesheets():
 @work_bp.route('/add-weekly-timesheet')
 @role_required(['admin', 'employee', 'hr', 'manager'])
 def add_weekly_timesheet():
-    return render_template('add_weekly_timesheet.html')
+    projects = []
+    try:
+        proj_res = requests.get(f"{BASE_URL}/projects/", headers=get_headers(), timeout=10)
+        if proj_res.status_code == 200:
+            projects = extract_list(proj_res.json(), 'projects', 'data')
+    except: pass
+    managers = []
+    try:
+        mgr_res = requests.get(f"{BASE_URL}/timesheets/managers", headers=get_headers(), timeout=10)
+        if mgr_res.status_code == 200:
+            managers = extract_list(mgr_res.json(), 'managers', 'data')
+    except Exception as e:
+        print("Failed to fetch managers for weekly timesheet:", e)
+    return render_template('add_weekly_timesheet.html', projects=projects, managers=managers)
 
 @work_bp.route('/add-timesheet', methods=['GET', 'POST'])
 @role_required(['admin', 'employee', 'hr', 'manager'])
@@ -215,6 +229,7 @@ def add_timesheet():
         payload = {
             "employee_name": request.form.get("employee_name"),
             "project": request.form.get("project"),
+            "manager_name": request.form.get("manager_name"),
             "task": request.form.get("task"),
             "hours": request.form.get("hours"),
             "start_date": request.form.get("start_date"),
@@ -237,9 +252,16 @@ def add_timesheet():
         if proj_res.status_code == 200:
             projects = extract_list(proj_res.json(), 'projects', 'data')
     except: pass
+    managers = []
+    try:
+        mgr_res = requests.get(f"{BASE_URL}/timesheets/managers", headers=get_headers(), timeout=10)
+        if mgr_res.status_code == 200:
+            managers = extract_list(mgr_res.json(), 'managers', 'data')
+    except Exception as e:
+        print("Failed to fetch managers for timesheet:", e)
     emp_res = requests.get(f"{BASE_URL}/employees/", headers=get_headers())
     employees = extract_list(emp_res.json(), 'employees', 'data') if emp_res.status_code == 200 else []
-    return render_template("add_timesheet.html", employees=employees, projects=projects, today_date=datetime.now().strftime('%Y-%m-%d'))
+    return render_template("add_timesheet.html", employees=employees, projects=projects, managers=managers, today_date=datetime.now().strftime('%Y-%m-%d'))
 
 
 @work_bp.route('/edit-timesheet/<int:timesheet_id>', methods=['GET', 'POST'])
@@ -285,6 +307,7 @@ def edit_timesheet(timesheet_id):
         payload = {
             "employee_name": request.form.get("employee_name"),
             "project": request.form.get("project"),
+            "manager_name": request.form.get("manager_name"),
             "task": request.form.get("task"),
             "hours": request.form.get("hours"),
             "start_date": request.form.get("start_date"),
@@ -337,6 +360,14 @@ def edit_timesheet(timesheet_id):
     except Exception as e:
         print("Failed to fetch projects from backend:", e)
 
+    managers = []
+    try:
+        mgr_res = requests.get(f"{BASE_URL}/timesheets/managers", headers=get_headers(), timeout=10)
+        if mgr_res.status_code == 200:
+            managers = extract_list(mgr_res.json(), 'managers', 'data')
+    except Exception as e:
+        print("Failed to fetch managers for edit form:", e)
+
     employees = []
     try:
         emp_res = requests.get(f"{BASE_URL}/employees/", headers=get_headers())
@@ -349,7 +380,8 @@ def edit_timesheet(timesheet_id):
         "edit_timesheet.html",
         timesheet=timesheet,
         employees=employees,
-        projects=projects
+        projects=projects,
+        managers=managers
     )
 
 @work_bp.route('/timesheets/export')
