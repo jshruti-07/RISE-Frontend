@@ -9,7 +9,8 @@
         <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
             <div class="d-flex align-items-center gap-3">
                 <div class="user-avatar">
-                    <img src="{{ sidebar_photo_url if sidebar_photo_url else url_for('static', filename='images/user.jpg') }}" alt="User" class="rounded-circle" width="50" height="50" style="object-fit: cover;">
+                    <img src="{{ sidebar_photo_url if sidebar_photo_url else url_for('static', filename='images/user.jpg') }}"
+                        alt="User" class="rounded-circle" width="50" height="50" style="object-fit: cover;">
                 </div>
                 <div>
                     <h5 class="mb-0">{{ display_name or labels.EMPLOYEE }}</h5>
@@ -17,16 +18,19 @@
                 </div>
             </div>
             <div class="d-flex gap-2 align-items-center">
-                <form method="GET" action="{{ url_for('work.attendance_view') }}" class="d-flex gap-2 flex-wrap align-items-end">
+                <form method="GET" action="{{ url_for('work.attendance_view') }}"
+                    class="d-flex gap-2 flex-wrap align-items-end">
                     {% if all_employees %}
                     <div>
                         <label class="small text-muted">{{ labels.EMPLOYEE }}</label>
                         <select name="employee_name" class="form-select form-select-sm">
                             {% for emp in all_employees %}
-                            <option value="{{ emp.name }}" {% if emp.name|names_match(attendance_summary.target_employee) %}selected{% endif %}>
+                            <option value="{{ emp.name }}" {% if
+                                emp.name|names_match(attendance_summary.target_employee) %}selected{% endif %}>
                                 {{ emp.name | clean_name }}
 
-                            <option value="{{ emp.name }}" {% if emp.name == attendance_summary.target_employee %}selected{% endif %}>
+                            <option value="{{ emp.name }}" {% if emp.name==attendance_summary.target_employee
+                                %}selected{% endif %}>
                                 {{ emp.name }}
 
                             </option>
@@ -36,11 +40,13 @@
                     {% endif %}
                     <div>
                         <label class="small text-muted">From</label>
-                        <input type="date" name="from_date" class="form-control form-control-sm" value="{{ attendance_summary.from_date if attendance_summary else '' }}">
+                        <input type="date" name="from_date" class="form-control form-control-sm"
+                            value="{{ attendance_summary.from_date if attendance_summary else '' }}">
                     </div>
                     <div>
                         <label class="small text-muted">To</label>
-                        <input type="date" name="to_date" class="form-control form-control-sm" value="{{ attendance_summary.to_date if attendance_summary else '' }}">
+                        <input type="date" name="to_date" class="form-control form-control-sm"
+                            value="{{ attendance_summary.to_date if attendance_summary else '' }}">
                     </div>
                     <div>
                         <button type="submit" class="btn btn-filter btn-sm">Apply</button>
@@ -54,7 +60,7 @@
     <div class="card shadow-sm border-0 rounded-3 mb-4">
         <div class="card-body">
             <h5 class="card-title mb-4">Attendance Summary</h5>
-            
+
             <!-- Date Range Section -->
             <div class="row mb-4">
                 <div class="col-12">
@@ -62,13 +68,15 @@
                         <div class="col-md-2">
                             <div class="d-flex flex-column">
                                 <small class="text-muted">Total Days</small>
-                                <span class="fw-bold fs-5">{{ attendance_summary.total_days if attendance_summary else 0 }}</span>
+                                <span class="fw-bold fs-5">{{ attendance_summary.total_days if attendance_summary else 0
+                                    }}</span>
                             </div>
                         </div>
                         <div class="col-md-2">
                             <div class="d-flex flex-column">
                                 <small class="text-muted">Working Days</small>
-                                <span class="fw-bold fs-5">{{ attendance_summary.working_days if attendance_summary else 0 }}</span>
+                                <span class="fw-bold fs-5">{{ attendance_summary.working_days if attendance_summary else
+                                    0 }}</span>
                             </div>
                         </div>
                     </div>
@@ -83,31 +91,36 @@
                         <div class="col-md-2">
                             <div class="d-flex flex-column">
                                 <small class="text-muted">Holidays</small>
-                                <span class="fw-bold fs-5">{{ attendance_summary.holidays if attendance_summary else 0 }}</span>
+                                <span class="fw-bold fs-5">{{ attendance_summary.holidays if attendance_summary else 0
+                                    }}</span>
                             </div>
                         </div>
                         <div class="col-md-2">
                             <div class="d-flex flex-column">
                                 <small class="text-muted">Attendance</small>
-                                <span class="fw-bold fs-5">{{ attendance_summary.attendance if attendance_summary else 0 }}</span>
+                                <span class="fw-bold fs-5">{{ attendance_summary.attendance if attendance_summary else 0
+                                    }}</span>
                             </div>
                         </div>
                         <div class="col-md-2">
                             <div class="d-flex flex-column">
                                 <small class="text-muted">Avg Hours</small>
-                                <span class="fw-bold fs-5">{{ attendance_summary.avg_hours if attendance_summary else 0 }}</span>
+                                <span class="fw-bold fs-5">{{ attendance_summary.avg_hours if attendance_summary else 0
+                                    }}</span>
                             </div>
                         </div>
                         <div class="col-md-2">
                             <div class="d-flex flex-column">
                                 <small class="text-muted">Leaves Used</small>
-                                <span class="fw-bold fs-5">{{ attendance_summary.leaves_used if attendance_summary else 0 }}</span>
+                                <span class="fw-bold fs-5">{{ attendance_summary.leaves_used if attendance_summary else
+                                    0 }}</span>
                             </div>
                         </div>
                         <div class="col-md-2">
                             <div class="d-flex flex-column">
                                 <small class="text-muted">Leave Balance</small>
-                                <span class="fw-bold fs-5">{{ attendance_summary.leave_balance if attendance_summary else 0 }}</span>
+                                <span class="fw-bold fs-5">{{ attendance_summary.leave_balance if attendance_summary
+                                    else 0 }}</span>
                             </div>
                         </div>
                     </div>
@@ -126,7 +139,8 @@
                                 </div>
                                 <div class="d-flex flex-column">
                                     <small class="text-muted">Office</small>
-                                    <span class="fw-bold">{{ attendance_metrics.office if attendance_metrics else 0 }}</span>
+                                    <span class="fw-bold">{{ attendance_metrics.office if attendance_metrics else 0
+                                        }}</span>
                                 </div>
                             </div>
                         </div>
@@ -137,7 +151,8 @@
                                 </div>
                                 <div class="d-flex flex-column">
                                     <small class="text-muted">WFH</small>
-                                    <span class="fw-bold">{{ attendance_metrics.wfh if attendance_metrics else 0 }}</span>
+                                    <span class="fw-bold">{{ attendance_metrics.wfh if attendance_metrics else 0
+                                        }}</span>
                                 </div>
                             </div>
                         </div>
@@ -148,7 +163,8 @@
                                 </div>
                                 <div class="d-flex flex-column">
                                     <small class="text-muted">Half Day</small>
-                                    <span class="fw-bold">{{ attendance_metrics.half_day if attendance_metrics else 0 }}</span>
+                                    <span class="fw-bold">{{ attendance_metrics.half_day if attendance_metrics else 0
+                                        }}</span>
                                 </div>
                             </div>
                         </div>
@@ -165,19 +181,19 @@
 <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    const calendarEl = document.getElementById('attendanceCalendar');
-    const calendar = new FullCalendar.Calendar(calendarEl, {
-        initialView: 'dayGridMonth',
-        headerToolbar: {
-            left: 'prev,next today',
-            center: 'title',
-            right: ''
-        },
-        height: 'auto',
-        events: []
+    document.addEventListener('DOMContentLoaded', function () {
+        const calendarEl = document.getElementById('attendanceCalendar');
+        const calendar = new FullCalendar.Calendar(calendarEl, {
+            initialView: 'dayGridMonth',
+            headerToolbar: {
+                left: 'prev,next today',
+                center: 'title',
+                right: ''
+            },
+            height: 'auto',
+            events: []
+        });
+        calendar.render();
     });
-    calendar.render();
-});
 </script>
 {% endblock %}

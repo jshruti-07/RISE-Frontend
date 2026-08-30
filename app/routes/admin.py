@@ -75,6 +75,7 @@ def api_helpdesk_assign(ticket_id):
     return jsonify(res.json()), res.status_code
 
 @admin_bp.route('/reimbursement')
+@admin_bp.route('/reimbursements')
 @role_required(['admin', 'employee', 'hr', 'manager'])
 def reimbursement():
     return render_template('reimbursement.html', BASE_URL=BASE_URL)
@@ -106,20 +107,26 @@ def api_reimbursements():
     return jsonify(res.json()), res.status_code
 
 @admin_bp.route('/api/reimbursements/<int:record_id>', methods=['GET', 'DELETE'])
-@role_required(['admin', 'employee', 'hr', 'manager'])
+@role_required(['admin', 'employee', 'hr', 'manager', 'accounts', 'superadmin'])
 def api_reimbursement_detail(record_id):
     if request.method == 'DELETE':
         res = requests.delete(f"{BASE_URL}/reimbursements/{record_id}", headers=get_headers())
     else:
         res = requests.get(f"{BASE_URL}/reimbursements/{record_id}", headers=get_headers())
         if res.status_code == 200:
-            data = res.json()
-            # Try to fetch history too
-            h_res = requests.get(f"{BASE_URL}/reimbursements/{record_id}/history", headers=get_headers())
-            if h_res.status_code == 200:
-                data['history'] = h_res.json().get('history', [])
-            return jsonify(data)
-    return jsonify(res.json()), res.status_code
+            try:
+                data = res.json()
+                if not data.get('history'):
+                    h_res = requests.get(f"{BASE_URL}/reimbursements/{record_id}/history", headers=get_headers())
+                    if h_res.status_code == 200:
+                        data['history'] = h_res.json().get('history', [])
+                return jsonify(data)
+            except Exception as e:
+                logging.error(f"Error parsing reimbursement detail: {e}")
+    try:
+        return jsonify(res.json()), res.status_code
+    except Exception:
+        return jsonify({"success": False, "error": "Failed to fetch reimbursement details"}), res.status_code
 
 @admin_bp.route('/api/reimbursements/<int:record_id>/approve', methods=['PATCH'])
 @role_required(['admin', 'hr', 'manager'])

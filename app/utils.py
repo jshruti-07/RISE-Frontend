@@ -9,7 +9,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Configuration
-BASE_URL = os.getenv("BACKEND_URL", "http://192.168.1.127:5001")
+BASE_URL = os.getenv("BACKEND_URL", "http://127.0.0.1:5001")
 
 def get_headers(exclude_content_type=False):
     token = session.get('token')
@@ -114,15 +114,19 @@ def fetch_leave_balance_helper(employee_name):
                 
                 # Standardize summary keys for template consistency
                 std_summary = {
-                    "total_leaves": bs.get("total_leaves") or bs.get("total_quota") or 30,
+                    "total_leaves": bs.get("total_leaves") or bs.get("total_quota") or 18,
                     "used_leaves": bs.get("used_leaves") or bs.get("total_used") or 0,
                     "remaining_leaves": bs.get("remaining_leaves") or bs.get("total_remaining") or 0,
-                    "casual_used": bs.get("casual_used") or bs.get("casual_leaves_used") or 0,
-                    "casual_total": bs.get("casual_total") or bs.get("casual_quota") or 12,
-                    "sick_used": bs.get("sick_used") or bs.get("sick_leaves_used") or 0,
-                    "sick_total": bs.get("sick_total") or bs.get("sick_quota") or 10,
-                    "earned_used": bs.get("earned_used") or bs.get("earned_leaves_used") or 0,
-                    "earned_total": bs.get("earned_total") or bs.get("earned_quota") or 8
+                    "planned_used": bs.get("planned_used") or bs.get("planned_leaves_used") or 0,
+                    "planned_total": bs.get("planned_total") or bs.get("planned_quota") or 12,
+                    "unplanned_used": bs.get("unplanned_used") or bs.get("unplanned_leaves_used") or 0,
+                    "unplanned_total": bs.get("unplanned_total") or bs.get("unplanned_quota") or 4,
+                    "optional_used": bs.get("optional_used") or bs.get("optional_leaves_used") or 0,
+                    "optional_total": bs.get("optional_total") or bs.get("optional_quota") or 2,
+                    # Backward compatibility aliases
+                    "planned_leaves": 0,
+                    "unplanned_leaves": 0,
+                    "optional_leaves": 0
                 }
                 
                 # Try to fill missing from balances array
@@ -131,19 +135,41 @@ def fetch_leave_balance_helper(employee_name):
                     ltype = (b.get("leave_type") or "").lower()
                     used = b.get("used_leaves") or b.get("used") or 0
                     total = b.get("total_leaves") or b.get("total") or (used + (b.get("remaining") or 0))
+                    rem = b.get("remaining_leaves") or b.get("remaining") or (total - used)
                     
-                    if "casual" in ltype:
-                        std_summary["casual_used"] = used
-                        std_summary["casual_total"] = total
+                    if "planned" in ltype and "unplanned" not in ltype:
+                        std_summary["planned_used"] = used
+                        std_summary["planned_total"] = total
+                        std_summary["planned_leaves"] = rem
+                    elif "unplanned" in ltype:
+                        std_summary["unplanned_used"] = used
+                        std_summary["unplanned_total"] = total
+                        std_summary["unplanned_leaves"] = rem
+                    elif "optional" in ltype:
+                        std_summary["optional_used"] = used
+                        std_summary["optional_total"] = total
+                        std_summary["optional_leaves"] = rem
+                    elif "casual" in ltype:
+                        std_summary["planned_used"] = used
+                        std_summary["planned_total"] = total
+                        std_summary["planned_leaves"] = rem
                     elif "sick" in ltype:
-                        std_summary["sick_used"] = used
-                        std_summary["sick_total"] = total
+                        std_summary["unplanned_used"] = used
+                        std_summary["unplanned_total"] = total
+                        std_summary["unplanned_leaves"] = rem
                     elif "earned" in ltype:
-                        std_summary["earned_used"] = used
-                        std_summary["earned_total"] = total
+                        std_summary["optional_used"] = used
+                        std_summary["optional_total"] = total
+                        std_summary["optional_leaves"] = rem
                 
                 # Final calculation for remaining if needed
                 std_summary["remaining_leaves"] = std_summary["total_leaves"] - std_summary["used_leaves"]
+                if not std_summary["planned_leaves"]:
+                    std_summary["planned_leaves"] = max(0, std_summary["planned_total"] - std_summary["planned_used"])
+                if not std_summary["unplanned_leaves"]:
+                    std_summary["unplanned_leaves"] = max(0, std_summary["unplanned_total"] - std_summary["unplanned_used"])
+                if not std_summary["optional_leaves"]:
+                    std_summary["optional_leaves"] = max(0, std_summary["optional_total"] - std_summary["optional_used"])
                 
                 return {"success": True, "summary": std_summary, "balances": balances}
         except Exception as e:
@@ -155,8 +181,8 @@ def fetch_leave_balance_helper(employee_name):
         if leaves_res.status_code == 200:
             from app.api_helpers import extract_list
             leaves_data = extract_list(leaves_res.json(), 'leaves', 'data')
-            used_stats = {"casual": 0, "sick": 0, "earned": 0, "total": 0}
-            quotas = {"casual": 12, "sick": 10, "earned": 8, "total": 30}
+            used_stats = {"planned": 0, "unplanned": 0, "optional": 0, "total": 0}
+            quotas = {"planned": 12, "unplanned": 4, "optional": 2, "total": 18}
             
             for leave in leaves_data:
                 if not isinstance(leave, dict): continue
@@ -170,39 +196,44 @@ def fetch_leave_balance_helper(employee_name):
                         days = (e_date - s_date).days + 1
                         
                         ltype = (leave.get("leave_type") or "").lower()
-                        if "casual" in ltype:
-                            used_stats["casual"] += days
-                        elif "sick" in ltype:
-                            used_stats["sick"] += days
-                        elif "earned" in ltype:
-                            used_stats["earned"] += days
+                        if "planned" in ltype and "unplanned" not in ltype:
+                            used_stats["planned"] += days
+                        elif "unplanned" in ltype or "sick" in ltype:
+                            used_stats["unplanned"] += days
+                        elif "optional" in ltype or "earned" in ltype:
+                            used_stats["optional"] += days
+                        elif "casual" in ltype:
+                            used_stats["planned"] += days
                         
                         used_stats["total"] += days
                     except Exception as e:
                         print(f"Error parsing leave dates: {e}")
                         continue
 
-            remaining_casual = max(0, quotas["casual"] - used_stats["casual"])
-            remaining_sick = max(0, quotas["sick"] - used_stats["sick"])
-            remaining_earned = max(0, quotas["earned"] - used_stats["earned"])
-            total_remaining = remaining_casual + remaining_sick + remaining_earned
+            remaining_planned = max(0, quotas["planned"] - used_stats["planned"])
+            remaining_unplanned = max(0, quotas["unplanned"] - used_stats["unplanned"])
+            remaining_optional = max(0, quotas["optional"] - used_stats["optional"])
+            total_remaining = remaining_planned + remaining_unplanned + remaining_optional
 
             std_summary = {
                 "total_leaves": quotas["total"],
                 "used_leaves": used_stats["total"],
                 "remaining_leaves": total_remaining,
-                "casual_used": used_stats["casual"],
-                "casual_total": quotas["casual"],
-                "sick_used": used_stats["sick"],
-                "sick_total": quotas["sick"],
-                "earned_used": used_stats["earned"],
-                "earned_total": quotas["earned"]
+                "planned_used": used_stats["planned"],
+                "planned_total": quotas["planned"],
+                "unplanned_used": used_stats["unplanned"],
+                "unplanned_total": quotas["unplanned"],
+                "optional_used": used_stats["optional"],
+                "optional_total": quotas["optional"],
+                "planned_leaves": remaining_planned,
+                "unplanned_leaves": remaining_unplanned,
+                "optional_leaves": remaining_optional
             }
 
             balances = [
-                {"leave_type": "Casual", "used_leaves": used_stats["casual"], "total_leaves": quotas["casual"], "remaining_leaves": remaining_casual},
-                {"leave_type": "Sick", "used_leaves": used_stats["sick"], "total_leaves": quotas["sick"], "remaining_leaves": remaining_sick},
-                {"leave_type": "Earned", "used_leaves": used_stats["earned"], "total_leaves": quotas["earned"], "remaining_leaves": remaining_earned}
+                {"leave_type": "Planned", "used_leaves": used_stats["planned"], "total_leaves": quotas["planned"], "remaining_leaves": remaining_planned},
+                {"leave_type": "Unplanned", "used_leaves": used_stats["unplanned"], "total_leaves": quotas["unplanned"], "remaining_leaves": remaining_unplanned},
+                {"leave_type": "Optional", "used_leaves": used_stats["optional"], "total_leaves": quotas["optional"], "remaining_leaves": remaining_optional}
             ]
 
             return {"success": True, "summary": std_summary, "balances": balances}

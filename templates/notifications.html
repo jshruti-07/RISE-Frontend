@@ -221,13 +221,19 @@ function showNotificationDetails(timestamp) {
         </div>
         <div class="detail-card">
             <div class="detail-fields">
-                <div class="detail-field-label">Status</div>
-                <div class="detail-field-value">Your timesheet has been ${escapeHtml(notification.action.toLowerCase())}.</div>
+                <div class="detail-field">
+                    <span class="detail-field-label">Status</span>
+                    <span class="detail-field-value">Your timesheet has been ${escapeHtml(notification.action.toLowerCase())}.</span>
+                </div>
                 ${notification.comments ? `
-                <div class="detail-field-label">Comments</div>
-                <div class="detail-field-value">${escapeHtml(notification.comments)}</div>` : ''}
-                <div class="detail-field-label">{{ labels.EMPLOYEE }}</div>
-                <div class="detail-field-value">${escapeHtml(notification.employeeName)}</div>
+                <div class="detail-field">
+                    <span class="detail-field-label">Comments</span>
+                    <span class="detail-field-value">${escapeHtml(notification.comments)}</span>
+                </div>` : ''}
+                <div class="detail-field">
+                    <span class="detail-field-label">{{ labels.EMPLOYEE }}</span>
+                    <span class="detail-field-value">${escapeHtml(notification.employeeName)}</span>
+                </div>
             </div>
         </div>
     `;

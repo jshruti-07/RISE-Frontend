@@ -8,15 +8,197 @@
 {% endblock %}
 
 {% block content %}
-<div class="container-fluid onboarding-page py-3 px-3 px-lg-4">
+<style>
+    .hd-dashboard-card {
+        background: #FFFFFF;
+        border: 1px solid #E8ECF4;
+        border-radius: 16px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+        overflow: hidden;
+    }
 
-    <!-- Header -->
-    <div class="mb-4 d-flex flex-wrap justify-content-between align-items-center gap-3">
-        <div>
-            <h4 class="mb-1">Onboarding Management</h4>
-            <p class="mb-0">Track and manage new team member journeys.</p>
-        </div>
-        <button class="btn btn-primary" id="btnCreateJoinee">Create New Joinee</button>
+    .onboarding-table {
+        font-size: 0.85rem;
+    }
+
+    .onboarding-table th {
+        white-space: nowrap;
+    }
+
+    .onboarding-table td {
+        vertical-align: middle;
+    }
+
+    /* Modal Layout & Padding Fixes */
+    .modal-overlay {
+        position: fixed;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background: rgba(15, 23, 42, 0.6);
+        backdrop-filter: blur(4px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 1050;
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.2s ease, visibility 0.2s ease;
+        padding: 1.5rem;
+    }
+
+    .modal-overlay:not(.d-none) {
+        opacity: 1;
+        visibility: visible;
+    }
+
+    .custom-modal {
+        background: #FFFFFF;
+        border-radius: 16px;
+        border: 1px solid #E8ECF4;
+        width: 100%;
+        max-width: 620px;
+        padding: 0;
+        box-shadow: 0 20px 40px -10px rgba(15, 23, 42, 0.25);
+        transform: translateY(16px);
+        transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        max-height: calc(100vh - 3rem);
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+    }
+
+    .custom-modal.modal-sm {
+        max-width: 440px;
+    }
+
+    .modal-overlay:not(.d-none) .custom-modal {
+        transform: translateY(0);
+    }
+
+    #modalFormPanel {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        min-height: 0;
+        flex: 1 1 auto;
+    }
+
+    .custom-modal-header {
+        background: #F8FAFC !important;
+        border-bottom: 1px solid #E8ECF4 !important;
+        padding: 1.2rem 1.75rem !important;
+        margin-bottom: 0 !important;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-shrink: 0;
+    }
+
+    .custom-modal-header h5 {
+        font-size: 1.05rem;
+        font-weight: 700;
+        color: #0F172A;
+    }
+
+    .custom-modal-body {
+        padding: 1.75rem 1.75rem 1.5rem !important;
+        overflow-y: auto;
+        flex: 1 1 auto;
+        max-height: calc(85vh - 140px);
+    }
+
+    .custom-modal-footer {
+        background: #FFFFFF !important;
+        border-top: 1px solid #E8ECF4 !important;
+        padding: 1rem 1.75rem !important;
+        margin-top: 0 !important;
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 0.6rem;
+        flex-shrink: 0;
+    }
+
+    #modalSuccessPanel {
+        padding: 2.5rem 2rem;
+    }
+
+    .form-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.15rem 1.25rem;
+    }
+
+    .form-group {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .custom-modal .form-label {
+        font-size: 0.82rem;
+        font-weight: 600;
+        color: #475569;
+        margin-bottom: 0.4rem;
+    }
+
+    .custom-modal .form-control {
+        border-radius: 8px;
+        border: 1px solid #CBD5E1;
+        font-size: 0.875rem;
+        padding: 0.55rem 0.85rem;
+        color: #0F172A;
+        background: #FFFFFF;
+    }
+
+    .custom-modal .form-control:focus {
+        border-color: #7C3AED;
+        box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.12);
+        outline: none;
+    }
+
+    .custom-modal .input-group {
+        border-radius: 8px;
+    }
+
+    .custom-modal .input-group .form-control {
+        border-top-right-radius: 0;
+        border-bottom-right-radius: 0;
+    }
+
+    .custom-modal .input-group .btn {
+        border: 1px solid #CBD5E1;
+        border-left: 0;
+        background: #F8FAFC;
+        color: #64748B;
+        border-top-right-radius: 8px;
+        border-bottom-right-radius: 8px;
+        padding: 0.55rem 0.85rem;
+    }
+
+    .custom-modal .input-group .btn:hover {
+        background: #F1F5F9;
+        color: #1E293B;
+    }
+
+    .password-strength .strength-bar {
+        height: 4px;
+        flex: 1;
+        background-color: #E2E8F0;
+        border-radius: 2px;
+        transition: background-color 0.3s;
+    }
+
+    .error-text {
+        font-size: 0.75rem;
+        color: #EF4444;
+        margin-top: 0.25rem;
+    }
+</style>
+
+<div class="container-fluid onboarding-page py-4">
+
+    <!-- Title Outside Table Card -->
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h4 class="fw-bold text-dark mb-0">Onboarding Management</h4>
     </div>
 
     <!-- Stats -->
@@ -68,54 +250,63 @@
     </div>
 
     <!-- Table panel -->
-    <div class="onboarding-panel">
-        <ul class="nav onboarding-tabs" id="onboardingTabs">
-            <li class="nav-item">
-                <button class="nav-link active" type="button" data-status="">New Joinees</button>
-            </li>
-            <li class="nav-item">
-                <button class="nav-link" type="button" data-status="pending">Pending Onboarding</button>
-            </li>
-            <li class="nav-item">
-                <button class="nav-link" type="button" data-status="documents_submitted">Submitted Forms</button>
-            </li>
-            <li class="nav-item">
-                <button class="nav-link" type="button" data-status="verified">Approved</button>
-            </li>
-        </ul>
+    <div class="onboarding-panel hd-dashboard-card">
+        <!-- Top Actions Bar inside Card -->
+        <div class="p-4 pb-0 d-flex justify-content-between align-items-center flex-wrap gap-3 mb-3">
+            <ul class="nav onboarding-tabs border-0 p-0 bg-transparent m-0" id="onboardingTabs">
+                <li class="nav-item me-1">
+                    <button class="nav-link active" type="button" data-status="">New Joinees</button>
+                </li>
+                <li class="nav-item me-1">
+                    <button class="nav-link" type="button" data-status="pending">Pending Onboarding</button>
+                </li>
+                <li class="nav-item me-1">
+                    <button class="nav-link" type="button" data-status="documents_submitted">Submitted Forms</button>
+                </li>
+                <li class="nav-item">
+                    <button class="nav-link" type="button" data-status="verified">Approved</button>
+                </li>
+            </ul>
 
-        <div class="onboarding-table-wrap">
-            <div id="loadingOverlay" class="loading-overlay d-none">
-                <div class="spinner-border text-primary" role="status">
-                    <span class="visually-hidden">Loading...</span>
+            <button class="btn btn-soft-purple btn-sm rounded-pill px-3 shadow-sm" id="btnCreateJoinee" style="font-size: 0.8rem; font-weight: 600;">
+                <i class="bi bi-plus-circle me-1"></i> Create New Joinee
+            </button>
+        </div>
+
+        <div class="px-4 pb-4">
+            <div class="onboarding-table-wrap">
+                <div id="loadingOverlay" class="loading-overlay d-none">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </div>
+
+                <div id="errorAlert" class="alert alert-danger mb-3 d-none" role="alert"></div>
+
+                <div class="table-responsive rounded-3 border" style="border-color: #E8ECF4 !important;">
+                    <table class="table table-hover align-middle mb-0 onboarding-table" id="joineesTable">
+                        <thead class="table-light" style="background-color: #F8FAFC;">
+                            <tr>
+                                <th style="font-weight: 700; color: #475569; font-size: 0.85rem; padding: 12px 16px;">Team Member</th>
+                                <th style="font-weight: 700; color: #475569; font-size: 0.85rem;">Role / Department</th>
+                                <th style="font-weight: 700; color: #475569; font-size: 0.85rem;">Joining Date</th>
+                                <th style="font-weight: 700; color: #475569; font-size: 0.85rem;">Status</th>
+                                <th style="font-weight: 700; color: #475569; font-size: 0.85rem; text-align: center; padding-right: 16px;">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="joineesTableBody">
+                            <!-- Populated by JS -->
+                        </tbody>
+                    </table>
                 </div>
             </div>
 
-            <div id="errorAlert" class="alert alert-danger m-3 d-none" role="alert"></div>
-
-            <div class="table-responsive">
-                <table class="table align-middle" id="joineesTable">
-                    <thead>
-                        <tr>
-                            <th>Team Member</th>
-                            <th>Role / Department</th>
-                            <th>Joining Date</th>
-                            <th>Status</th>
-                            <th class="text-end">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody id="joineesTableBody">
-                        <!-- Populated by JS -->
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
-        <div class="onboarding-panel-footer d-flex flex-wrap justify-content-between align-items-center gap-2">
-            <span class="text-muted small" id="paginationInfo">Showing 0 to 0 of 0 entries</span>
-            <div class="btn-group">
-                <button class="btn btn-outline-secondary btn-sm" id="btnPrevPage" disabled>Previous</button>
-                <button class="btn btn-outline-secondary btn-sm" id="btnNextPage" disabled>Next</button>
+            <div class="onboarding-panel-footer d-flex flex-wrap justify-content-between align-items-center gap-2 pt-3 border-0 bg-transparent px-0">
+                <span class="text-muted small" id="paginationInfo">Showing 0 to 0 of 0 entries</span>
+                <div class="btn-group">
+                    <button class="btn btn-outline-secondary btn-sm rounded-start-pill px-3" id="btnPrevPage" disabled>Previous</button>
+                    <button class="btn btn-outline-secondary btn-sm rounded-end-pill px-3" id="btnNextPage" disabled>Next</button>
+                </div>
             </div>
         </div>
     </div>
@@ -180,9 +371,9 @@
                     </div>
                 </form>
             </div>
-            <div class="custom-modal-footer d-flex justify-content-end gap-2 mt-4">
-                <button type="button" class="btn btn-light" id="btnCancelModal">Cancel</button>
-                <button type="button" class="btn btn-primary d-flex align-items-center gap-2" id="btnSubmitJoinee">
+            <div class="custom-modal-footer">
+                <button type="button" class="btn btn-light btn-sm rounded-pill px-4 border" id="btnCancelModal" style="color: #64748B; font-weight: 600;">Cancel</button>
+                <button type="button" class="btn btn-soft-purple btn-sm rounded-pill px-4 shadow-sm fw-semibold d-flex align-items-center gap-2" id="btnSubmitJoinee">
                     <span id="btnSubmitText">Create Joinee &rarr;</span>
                     <span class="spinner-border spinner-border-sm d-none" id="submitSpinner" role="status" aria-hidden="true"></span>
                 </button>
@@ -194,24 +385,24 @@
             <div class="success-icon mb-3">
                 <i class="bi bi-check-circle-fill text-success" style="font-size: 3.5rem;"></i>
             </div>
-            <h4 class="mb-2">Joinee Created!</h4>
+            <h4 class="mb-2 fw-bold text-dark">Joinee Created!</h4>
             <p class="text-muted mb-4" id="successDetails">John Doe (john@example.com)</p>
             
             <div class="person-id-box mb-4 text-start">
                 <label class="form-label text-muted small fw-semibold">Generated Person ID</label>
-                <div class="d-flex align-items-center bg-light border rounded p-2 gap-2">
+                <div class="d-flex align-items-center bg-light border rounded-3 p-2 gap-2">
                     <code class="fs-5 flex-grow-1 text-dark mb-0 bg-transparent p-0" id="createdPersonId"></code>
-                    <button class="btn btn-sm btn-outline-secondary" id="btnCopyPersonId" title="Copy ID">
+                    <button class="btn btn-sm btn-outline-secondary rounded-pill" id="btnCopyPersonId" title="Copy ID">
                         <i class="bi bi-clipboard"></i>
                     </button>
                 </div>
             </div>
 
-            <div class="alert alert-info small text-start mb-4">
+            <div class="alert alert-info small text-start mb-4 rounded-3 border-0">
                 <i class="bi bi-info-circle me-1"></i> Please securely share the temporary password with the new joinee. They will be prompted to change it on their first login.
             </div>
 
-            <button type="button" class="btn btn-primary w-100" id="btnDoneModal">Done</button>
+            <button type="button" class="btn btn-soft-purple btn-sm rounded-pill px-4 shadow-sm fw-semibold w-100 py-2" id="btnDoneModal">Done</button>
         </div>
     </div>
 </div>
@@ -220,25 +411,25 @@
 <div id="delete-modal" class="modal-overlay d-none">
     <div class="custom-modal modal-sm">
         <div class="custom-modal-header">
-            <h5 class="mb-0 fw-semibold">Delete Joinee</h5>
+            <h5 class="mb-0 fw-semibold text-danger"><i class="bi bi-trash3 text-danger me-2"></i>Delete Joinee</h5>
             <button type="button" class="btn-close" id="delete-modal-close" aria-label="Close"></button>
         </div>
         <div class="custom-modal-body">
-            <div class="warning-icon-block">
+            <div class="warning-icon-block text-center mb-3 text-danger">
                 <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="currentColor" viewBox="0 0 16 16" aria-hidden="true">
                     <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/>
                 </svg>
             </div>
-            <p class="text-center">Are you sure you want to delete <strong id="delete-joinee-name"></strong>?</p>
-            <p class="text-muted text-sm text-center">
+            <p class="text-center mb-2">Are you sure you want to delete <strong id="delete-joinee-name" class="text-dark"></strong>?</p>
+            <p class="text-muted text-sm text-center small mb-0">
                 This will immediately disable their login. All submitted documents and
                 declaration data will be preserved for record-keeping.
             </p>
             <div id="delete-error-banner" class="alert alert-danger d-none py-2 mt-2"></div>
         </div>
-        <div class="custom-modal-footer d-flex justify-content-end gap-2 mt-3">
-            <button type="button" class="btn btn-light" id="delete-cancel-btn">Cancel</button>
-            <button type="button" class="btn btn-danger-solid" id="delete-confirm-btn">
+        <div class="custom-modal-footer justify-content-center">
+            <button type="button" class="btn btn-light btn-sm rounded-pill px-4 border" id="delete-cancel-btn" style="color: #64748B; font-weight: 600;">Cancel</button>
+            <button type="button" class="btn btn-danger btn-sm rounded-pill px-4 fw-semibold" id="delete-confirm-btn">
                 <span id="delete-btn-text">Yes, Delete</span>
                 <span class="spinner-border spinner-border-sm ms-1 d-none" id="delete-btn-spinner" role="status" aria-hidden="true"></span>
             </button>
@@ -250,7 +441,7 @@
 <div id="migration-modal" class="modal-overlay d-none">
     <div class="custom-modal">
         <div class="custom-modal-header">
-            <h5 class="mb-0 fw-semibold" id="migration-modal-title">Login Setup</h5>
+            <h5 class="mb-0 fw-semibold" id="migration-modal-title"><i class="bi bi-shield-lock text-primary me-2"></i>Login Setup</h5>
             <button type="button" class="btn-close" id="migration-modal-close" aria-label="Close"></button>
         </div>
         <div class="custom-modal-body">
@@ -265,7 +456,7 @@
             
             <div class="mb-3">
                 <label class="form-label text-muted small fw-bold mb-1">Company Email (optional)</label>
-                <input type="email" id="migration-company-email-input" class="form-control" placeholder="name@company.com">
+                <input type="email" id="migration-company-email-input" class="form-control rounded-3" placeholder="name@company.com">
                 <small class="text-muted" style="font-size: 0.75rem;">Leave blank to keep personal email as login</small>
             </div>
             
@@ -290,13 +481,13 @@
             <div id="migration-error-banner" class="alert alert-danger d-none py-2 mt-2"></div>
             <div id="migration-success-banner" class="alert alert-success d-none py-2 mt-2"></div>
         </div>
-        <div class="custom-modal-footer d-flex justify-content-end gap-2 mt-3">
-            <button type="button" class="btn btn-light" id="migration-cancel-btn">Cancel</button>
-            <button type="button" class="btn btn-primary" id="migration-confirm-btn">
+        <div class="custom-modal-footer">
+            <button type="button" class="btn btn-light btn-sm rounded-pill px-4 border" id="migration-cancel-btn" style="color: #64748B; font-weight: 600;">Cancel</button>
+            <button type="button" class="btn btn-soft-purple btn-sm rounded-pill px-4 shadow-sm fw-semibold" id="migration-confirm-btn">
                 <span id="migration-btn-text">Update Login &rarr;</span>
                 <span class="spinner-border spinner-border-sm ms-1 d-none" id="migration-btn-spinner" role="status" aria-hidden="true"></span>
             </button>
-            <button type="button" class="btn btn-success d-none" id="migration-create-team-btn">
+            <button type="button" class="btn btn-success btn-sm rounded-pill px-4 shadow-sm fw-semibold d-none" id="migration-create-team-btn">
                 Create as Team Member &rarr;
             </button>
         </div>

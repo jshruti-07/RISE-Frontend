@@ -4,12 +4,52 @@
 
 {% block content %}
 <style>
+    .hd-dashboard-card {
+        background: #FFFFFF;
+        border: 1px solid #E8ECF4;
+        border-radius: 16px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+        overflow: hidden;
+    }
+
+    .leave-filter-pill {
+        border: 1px solid #E2E8F0;
+        background: #FFFFFF;
+        color: #64748B;
+        border-radius: 20px;
+        padding: 5px 14px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.15s ease;
+    }
+
+    .leave-filter-pill:hover, .leave-filter-pill.active {
+        background: #6366F1;
+        color: #FFFFFF;
+        border-color: #6366F1;
+    }
+
+    .avatar-circle-sm {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.82rem;
+        font-weight: 700;
+        flex-shrink: 0;
+    }
+
     .timesheet-table {
         font-size: 0.85rem;
     }
+
     .timesheet-table th {
         white-space: nowrap;
     }
+
     .timesheet-table td {
         vertical-align: middle;
     }
@@ -18,184 +58,249 @@
 <!-- Hidden session token for API authentication -->
 <input type="hidden" id="sessionToken" value="{{ session.get('token', '') }}">
 
-<div class="form-card">
+{# Compute status counts #}
+{% set ns_ts = namespace(all=timesheets|length, submitted=0, approved=0, rejected=0) %}
+{% for t in timesheets %}
+    {% set st = (t.status or '')|lower %}
+    {% if st == 'submitted' %}{% set ns_ts.submitted = ns_ts.submitted + 1 %}
+    {% elif st == 'approved' %}{% set ns_ts.approved = ns_ts.approved + 1 %}
+    {% elif st == 'rejected' %}{% set ns_ts.rejected = ns_ts.rejected + 1 %}
+    {% endif %}
+{% endfor %}
 
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <div class="d-flex align-items-center gap-2">
-            <h5 class="mb-0">Timesheet Records</h5>
-            <button class="btn btn-outline-primary btn-sm" onclick="location.href='/timesheets'"
-                style="border-radius: 10px;">Daily</button>
-            <button class="btn btn-outline-primary btn-sm" onclick="location.href='/add-weekly-timesheet'"
-                style="border-radius: 10px;">Weekly</button>
-            <button class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#calendarModal"
-                style="border-radius: 10px;">
-                <i class="bi bi-calendar3"></i> View Calendar
-            </button>
-        </div>
-
-        <!-- 📦 CALENDAR DATA STORAGE [UPDATED] -->
-        <script id="calendarData" type="application/json">
-            {
-                "holidays": {{ holidays|tojson|safe if holidays else '[]' }},
-                "missing_timesheets": {{ missing_timesheets|tojson|safe if missing_timesheets else '[]' }},
-                "submitted_timesheets": {{ timesheets|tojson|safe if timesheets else '[]' }},
-                "project_map": {{ project_map|tojson|safe if project_map else '{}' }}
-            }
-        </script>
-
-        <div class="d-flex align-items-center gap-2">
-            <button type="button" class="btn btn-success btn-sm" id="exportExcelBtn"
-                style="border-radius: 10px;">
-                <i class="bi bi-file-earmark-excel"></i> Export Excel
-            </button>
-            {% if session.role in ['hr', 'admin'] %}
-            <a href="{{ url_for('work.hr_missing_timesheets') }}" class="btn btn-sm text-white" style="border-radius: 10px; background-color: #e28a00; border-color: #e28a00;">Pending Timesheets</a>
-            {% endif %}
-            {% if session.role in ['employee','hr','admin', 'manager'] %}
-            <a href="{{ url_for('work.add_timesheet') }}" class="btn btn-primary btn-sm" style="border-radius: 10px;">Add Timesheet</a>
-            {% endif %}
-        </div>
+<div class="container-fluid py-4">
+    <!-- Title Outside Table Card -->
+    <div class="mb-3">
+        <h4 class="fw-bold text-dark mb-0">Timesheets</h4>
     </div>
 
-    <!-- Filters Section -->
-    <div class="row g-2 mb-3">
-        {% if session.role in ['hr', 'admin'] %}
-        <div class="col-md-2">
-            <input type="text" id="filterEmployee" class="form-control form-control-sm" placeholder="Search {{ labels.EMPLOYEE }}..." style="border-radius: 8px;">
-        </div>
-        {% endif %}
-        <div class="col-md-2">
-            <input type="text" id="filterProject" class="form-control form-control-sm" placeholder="Search Project..." style="border-radius: 8px;">
-        </div>
-        <div class="col-md-2">
-            <input type="text" id="filterManager" class="form-control form-control-sm" placeholder="Search Manager..." style="border-radius: 8px;">
-        </div>
-        <div class="col-md-2">
-            <input type="date" id="filterDate" class="form-control form-control-sm" style="border-radius: 8px;">
-        </div>
-        <div class="col-md-2">
-            <select id="filterStatus" class="form-control form-control-sm" style="border-radius: 8px;">
-                <option value="">All Statuses</option>
-                <option value="submitted">Submitted</option>
-                <option value="approved">Approved</option>
-                <option value="rejected">Rejected</option>
-            </select>
-        </div>
-        <div class="col-md-1">
-            <button class="btn btn-outline-secondary btn-sm w-100" id="clearFilters" style="border-radius: 8px;">Clear</button>
-        </div>
-    </div>
+    <div class="hd-dashboard-card">
+        <div class="p-4">
+            <!-- 📦 CALENDAR DATA STORAGE [UPDATED] -->
+            <script id="calendarData" type="application/json">
+                {
+                    "holidays": {{ holidays|tojson|safe if holidays else '[]' }},
+                    "missing_timesheets": {{ missing_timesheets|tojson|safe if missing_timesheets else '[]' }},
+                    "submitted_timesheets": {{ timesheets|tojson|safe if timesheets else '[]' }},
+                    "project_map": {{ project_map|tojson|safe if project_map else '{}' }}
+                }
+            </script>
 
-    <!-- Manager/HR Approval Section -->
-    <table class="table table-hover timesheet-table">
-        <thead>
-            <tr>
-                <th>{{ labels.EMPLOYEE }}</th>
-                <th>Project</th>
-                <th>Approving Manager</th>
-                <th>Task</th>
-                <th>Description</th>
-                <th>Hours</th>
-                <th>Date</th>
-                <th>Status</th>
-                <th class="text-center">Actions</th>
-            </tr>
-        </thead>
+            <!-- Top Actions & Navigation Bar -->
+            <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-3">
+                <!-- Status Filter Pills & View Toggles -->
+                <div class="d-flex align-items-center gap-2 flex-wrap">
+                    <button type="button" class="leave-filter-pill active" onclick="quickFilterStatus('', this)">All ({{ ns_ts.all }})</button>
+                    {% if ns_ts.submitted > 0 %}<button type="button" class="leave-filter-pill" onclick="quickFilterStatus('submitted', this)">Submitted ({{ ns_ts.submitted }})</button>{% endif %}
+                    {% if ns_ts.approved > 0 %}<button type="button" class="leave-filter-pill" onclick="quickFilterStatus('approved', this)">Approved ({{ ns_ts.approved }})</button>{% endif %}
+                    {% if ns_ts.rejected > 0 %}<button type="button" class="leave-filter-pill" onclick="quickFilterStatus('rejected', this)">Rejected ({{ ns_ts.rejected }})</button>{% endif %}
 
-        <tbody>
-            {% for t in timesheets %}
-            {% set manager_name = t.manager_name or project_manager_map.get((t.project|string).strip().lower(), '-') %}
-            <tr class="timesheet-row" 
-                data-employee="{{ (t.employee_name|string)|lower if t.employee_name else '' }}" 
-                data-project="{{ (t.project|string)|lower if t.project else '' }}" 
-                data-manager="{{ (manager_name|string)|lower if manager_name else '' }}" 
-                data-date="{{ t.start_date[:10] if t.start_date else '' }}" 
-                data-status="{{ (t.status|string)|lower if t.status else '' }}">
-                <td>
-                    <div class="d-flex flex-column justify-content-center">
-                        <span style="line-height: 1.2;">{{ t.employee_name | clean_name }}</span>
-                        <small class="text-muted" style="font-size: 0.6rem; margin-top: 2px;">[{{ labels.EMPLOYEE.upper() if t.employee_role == 'employee' else (t.employee_role | title) if t.employee_role else 'Team Member' }}]</small>
-                    </div>
-                </td>
-                <td>{{ t.project }}</td>
-                <td>{{ (t.manager_name or project_manager_map.get((t.project|string).strip().lower(), '-')) | clean_name }}</td>
-                <td>{{ t.task }}</td>
-                <td>{{ t.description or '-' }}</td>
-                <td>{{ t.hours }}</td>
-                <td style="white-space: nowrap;">{{ t.start_date[:11] if t.start_date else '' }}</td>
-                <td>
-                    {% if t.status == 'submitted' %}
-                    <span class="badge text-dark" style="background-color:#e0ecfe; font-size: 0.7rem; padding: 0.35em 0.65em;">Submitted</span>
-                    {% elif t.status == 'approved' %}
-                    <span class="badge text-dark" style="background-color:#d9f7e9; font-size: 0.7rem; padding: 0.35em 0.65em;">Approved</span>
-                    {% elif t.status == 'rejected' %}
-                    <span class="badge text-dark" style="background-color:#ffd7da; font-size: 0.7rem; padding: 0.35em 0.65em;">Rejected</span>
-                    {% else %}
-                    <span class="badge bg-secondary" style="font-size: 0.7rem; padding: 0.35em 0.65em;">{{ t.status|capitalize }}</span>
+                    <div class="vr mx-1 d-none d-md-block text-muted opacity-25"></div>
+
+                    <button class="btn btn-outline-secondary btn-sm rounded-pill px-3" onclick="location.href='/timesheets'" style="font-size: 0.8rem; font-weight: 600;">Daily</button>
+                    <button class="btn btn-outline-secondary btn-sm rounded-pill px-3" onclick="location.href='/add-weekly-timesheet'" style="font-size: 0.8rem; font-weight: 600;">Weekly</button>
+                    <button class="btn btn-outline-secondary btn-sm rounded-pill px-3" data-bs-toggle="modal" data-bs-target="#calendarModal" style="font-size: 0.8rem; font-weight: 600;">
+                        <i class="bi bi-calendar3 me-1"></i> Calendar
+                    </button>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="d-flex align-items-center gap-2 flex-wrap">
+                    <button type="button" class="btn btn-sm btn-outline-success rounded-pill px-3 shadow-sm" id="exportExcelBtn" style="font-size: 0.8rem; font-weight: 600;">
+                        <i class="bi bi-file-earmark-excel me-1"></i> Export Excel
+                    </button>
+                    {% if session.role in ['hr', 'admin'] %}
+                    <a href="{{ url_for('work.hr_missing_timesheets') }}" class="btn btn-sm btn-outline-warning rounded-pill px-3 shadow-sm text-dark" style="font-size: 0.8rem; font-weight: 600;">
+                        <i class="bi bi-clock-history me-1"></i> Pending Timesheets
+                    </a>
                     {% endif %}
-                </td>
-                <td class="text-center">
-                    <div class="d-flex flex-wrap gap-2 justify-content-center">
-                        {% if session.get('role') in ['employee','hr','admin'] and (t.is_own or (t.employee_name|names_match(session.get('employee_name')))) and
-                        t.status == 'submitted' %}
-                        <a href="/edit-timesheet/{{ t.id }}" class="btn btn-sm btn-outline-primary rounded-pill px-2"
-                            style="font-size: 0.7rem; min-width: 80px; display: inline-flex; align-items: center; justify-content: center; gap: 4px; white-space: nowrap;">
-                            <i class="bi bi-pencil"></i> Edit
-                        </a>
-                        {% endif %}
+                    {% if session.role in ['employee','hr','admin', 'manager'] %}
+                    <a href="{{ url_for('work.add_timesheet') }}" class="btn btn-soft-purple btn-sm rounded-pill px-3 shadow-sm" style="font-size: 0.8rem; font-weight: 600;">
+                        <i class="bi bi-plus-circle me-1"></i> Add Timesheet
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
 
-                        {% if session.role in ['admin', 'manager', 'hr'] %}
-                        {% if t.status == 'submitted' %}
-                            {% if (t.employee_role == 'hr' and session.get('role') == 'admin') or 
-                                  (t.employee_role != 'hr' and session.get('role') in ['admin', 'manager', 'hr']) %}
-                                {% if not (t.is_own or (t.employee_name|names_match(session.get('employee_name')))) %}
-                                    <button class="btn btn-sm approve-btn border-0 rounded-pill px-2" data-timesheet-id="{{ t.id }}"
-                                        data-employee-name="{{ t.employee_name }}"
-                                        style="background-color: #D1E7DD; color: #000000; font-size: 0.7rem; min-width: 80px; display: inline-flex; align-items: center; justify-content: center; gap: 4px; white-space: nowrap;">
+            <!-- Filters Section -->
+            <div class="row g-2 mb-3 align-items-center p-2 rounded-3 bg-light bg-opacity-50 border" style="border-color: #F1F5F9 !important;">
+                {% if session.role in ['hr', 'admin'] %}
+                <div class="col-md-3 col-sm-6">
+                    <div class="input-group input-group-sm">
+                        <span class="input-group-text bg-white border-end-0"><i class="bi bi-search text-muted"></i></span>
+                        <input type="text" id="filterEmployee" class="form-control border-start-0 ps-0" placeholder="Search {{ labels.EMPLOYEE }}...">
+                    </div>
+                </div>
+                {% endif %}
+                <div class="{% if session.role in ['hr', 'admin'] %}col-md-2 col-sm-6{% else %}col-md-3 col-sm-6{% endif %}">
+                    <input type="text" id="filterProject" class="form-control form-control-sm rounded-3" placeholder="Search Project...">
+                </div>
+                <div class="{% if session.role in ['hr', 'admin'] %}col-md-2 col-sm-6{% else %}col-md-3 col-sm-6{% endif %}">
+                    <input type="text" id="filterManager" class="form-control form-control-sm rounded-3" placeholder="Search Manager...">
+                </div>
+                <div class="col-md-2 col-sm-6">
+                    <input type="date" id="filterDate" class="form-control form-control-sm rounded-3">
+                </div>
+                <div class="col-md-2 col-sm-6">
+                    <select id="filterStatus" class="form-select form-select-sm rounded-3">
+                        <option value="">All Statuses</option>
+                        <option value="submitted">Submitted</option>
+                        <option value="approved">Approved</option>
+                        <option value="rejected">Rejected</option>
+                    </select>
+                </div>
+                <div class="{% if session.role in ['hr', 'admin'] %}col-md-1 col-sm-12{% else %}col-md-2 col-sm-12{% endif %} text-end">
+                    <button class="btn btn-outline-secondary btn-sm w-100 rounded-3" id="clearFilters">Clear</button>
+                </div>
+            </div>
+
+            <!-- Timesheet Records Table -->
+            <div class="table-responsive rounded-3 border" style="border-color: #E8ECF4 !important;">
+                <table class="table table-hover align-middle mb-0 timesheet-table">
+                    <thead class="table-light" style="background-color: #F8FAFC;">
+                        <tr>
+                            <th style="font-weight: 700; color: #475569; font-size: 0.85rem; padding: 12px 16px;">{{ labels.EMPLOYEE }}</th>
+                            <th style="font-weight: 700; color: #475569; font-size: 0.85rem;">Project</th>
+                            <th style="font-weight: 700; color: #475569; font-size: 0.85rem;">Approving Manager</th>
+                            <th style="font-weight: 700; color: #475569; font-size: 0.85rem;">Task</th>
+                            <th style="font-weight: 700; color: #475569; font-size: 0.85rem;">Description</th>
+                            <th style="font-weight: 700; color: #475569; font-size: 0.85rem; text-align: center;">Hours</th>
+                            <th style="font-weight: 700; color: #475569; font-size: 0.85rem;">Date</th>
+                            <th style="font-weight: 700; color: #475569; font-size: 0.85rem; text-align: center;">Status</th>
+                            <th style="font-weight: 700; color: #475569; font-size: 0.85rem; text-align: center; padding-right: 16px;">Actions</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% for t in timesheets %}
+                        {% set manager_name = t.manager_name or project_manager_map.get((t.project|string).strip().lower(), '-') %}
+                        {% set emp_role = (t.employee_role or 'employee')|lower %}
+                        {% set role_bg = '#EEF2FF' if emp_role == 'employee' else ('#F5F3FF' if emp_role == 'manager' else ('#ECFDF5' if emp_role == 'hr' else ('#FEF2F2' if emp_role == 'superadmin' else '#EFF6FF'))) %}
+                        {% set role_fg = '#4F46E5' if emp_role == 'employee' else ('#6D28D9' if emp_role == 'manager' else ('#047857' if emp_role == 'hr' else ('#B91C1C' if emp_role == 'superadmin' else '#1D4ED8'))) %}
+                        <tr class="timesheet-row" data-employee="{{ (t.employee_name|string)|lower if t.employee_name else '' }}"
+                            data-project="{{ (t.project|string)|lower if t.project else '' }}"
+                            data-manager="{{ (manager_name|string)|lower if manager_name else '' }}"
+                            data-date="{{ t.start_date[:10] if t.start_date else '' }}"
+                            data-status="{{ (t.status|string)|lower if t.status else '' }}">
+                            <td style="padding: 12px 16px;">
+                                <div class="d-flex align-items-center gap-2">
+                                    <div class="avatar-circle-sm" style="background: {{ role_bg }}; color: {{ role_fg }}; border: 1px solid rgba(0,0,0,0.04);">
+                                        {{ (t.employee_name or 'E')[:2]|upper }}
+                                    </div>
+                                    <div>
+                                        <div class="fw-bold text-slate-900" style="font-size: 0.9rem;">{{ t.employee_name | clean_name }}</div>
+                                        <small class="text-muted">[{{ labels.EMPLOYEE if emp_role == 'employee' else ('Super Admin' if emp_role == 'superadmin' else emp_role | capitalize) }}]</small>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="fw-semibold text-dark" style="font-size: 0.88rem;">{{ t.project }}</div>
+                            </td>
+                            <td>
+                                <div class="text-slate-700" style="font-size: 0.85rem;">{{ manager_name | clean_name }}</div>
+                            </td>
+                            <td>
+                                <div class="text-slate-700" style="font-size: 0.85rem;">{{ t.task }}</div>
+                            </td>
+                            <td>
+                                <div class="text-muted text-truncate" style="max-width: 220px; font-size: 0.82rem;" title="{{ t.description }}">{{ t.description or '—' }}</div>
+                            </td>
+                            <td style="text-align: center;">
+                                <span class="badge px-2.5 py-1 rounded-pill" style="background: #F8FAFC; color: #334155; border: 1px solid #E2E8F0; font-weight: 600; font-size: 0.78rem;">
+                                    {{ t.hours }} hrs
+                                </span>
+                            </td>
+                            <td style="white-space: nowrap;">
+                                <div class="text-slate-700" style="font-size: 0.85rem;">{{ t.start_date[:10] if t.start_date else '—' }}</div>
+                            </td>
+                            <td style="text-align: center;">
+                                {% if t.status == 'submitted' %}
+                                <span class="badge px-2.5 py-1 rounded-pill" style="background: #EFF6FF; color: #1D4ED8; border: 1px solid #DBEAFE; font-weight: 600; font-size: 0.76rem;">
+                                    Submitted
+                                </span>
+                                {% elif t.status == 'approved' %}
+                                <span class="badge px-2.5 py-1 rounded-pill" style="background: #ECFDF5; color: #047857; border: 1px solid #D1FAE5; font-weight: 600; font-size: 0.76rem;">
+                                    Approved
+                                </span>
+                                {% elif t.status == 'rejected' %}
+                                <span class="badge px-2.5 py-1 rounded-pill" style="background: #FEF2F2; color: #B91C1C; border: 1px solid #FECACA; font-weight: 600; font-size: 0.76rem;">
+                                    Rejected
+                                </span>
+                                {% else %}
+                                <span class="badge px-2.5 py-1 rounded-pill" style="background: #F1F5F9; color: #475569; border: 1px solid #E2E8F0; font-weight: 600; font-size: 0.76rem;">
+                                    {{ t.status|capitalize }}
+                                </span>
+                                {% endif %}
+                            </td>
+                            <td class="text-center" style="padding-right: 16px;">
+                                <div class="d-flex flex-wrap gap-1.5 justify-content-center">
+                                    {% if session.get('role') in ['employee','hr','admin'] and (t.is_own or (t.employee_name|names_match(session.get('employee_name')))) and t.status == 'submitted' %}
+                                    <a href="/edit-timesheet/{{ t.id }}" class="btn btn-sm btn-outline-primary rounded-pill px-2.5 py-1" style="font-size: 0.76rem; display: inline-flex; align-items: center; gap: 4px;">
+                                        <i class="bi bi-pencil"></i> Edit
+                                    </a>
+                                    {% endif %}
+
+                                    {% if session.role in ['admin', 'manager', 'hr'] %}
+                                    {% if t.status == 'submitted' %}
+                                    {% if not (t.is_own or (t.employee_name|names_match(session.get('employee_name')))) %}
+                                    <button class="btn btn-sm approve-btn rounded-pill px-2.5 py-1 border shadow-xs" data-timesheet-id="{{ t.id }}" data-employee-name="{{ t.employee_name }}"
+                                        style="background-color: #ECFDF5; color: #047857; border-color: #D1FAE5 !important; font-size: 0.76rem; font-weight: 600; display: inline-flex; align-items: center; gap: 4px;">
                                         <i class="bi bi-check-circle"></i> Approve
                                     </button>
-                                    <button class="btn btn-sm reject-btn border-0 rounded-pill px-2" data-timesheet-id="{{ t.id }}"
-                                        data-employee-name="{{ t.employee_name }}"
-                                        style="background-color: #F8D7DA; color: #000000; font-size: 0.7rem; min-width: 80px; display: inline-flex; align-items: center; justify-content: center; gap: 4px; white-space: nowrap;">
+                                    <button class="btn btn-sm reject-btn rounded-pill px-2.5 py-1 border shadow-xs" data-timesheet-id="{{ t.id }}" data-employee-name="{{ t.employee_name }}"
+                                        style="background-color: #FEF2F2; color: #B91C1C; border-color: #FECACA !important; font-size: 0.76rem; font-weight: 600; display: inline-flex; align-items: center; gap: 4px;">
                                         <i class="bi bi-x-circle"></i> Reject
                                     </button>
-                                {% endif %}
-                            {% endif %}
-                        {% elif t.status == 'approved' %}
-                        <button class="btn btn-sm btn-light text-success rounded-pill px-2" disabled
-                            style="background-color: #f8f9fa; font-size: 0.7rem; min-width: 80px; display: inline-flex; align-items: center; justify-content: center; gap: 4px; white-space: nowrap;">
-                            <i class="bi bi-check-circle-fill"></i> Approved
-                        </button>
-                        {% elif t.status == 'rejected' %}
-                        <button class="btn btn-sm btn-light text-danger rounded-pill px-2" disabled
-                            style="background-color: #f8f9fa; font-size: 0.7rem; min-width: 80px; display: inline-flex; align-items: center; justify-content: center; gap: 4px; white-space: nowrap;">
-                            <i class="bi bi-x-circle-fill"></i> Rejected
-                        </button>
-                        {% endif %}
-                        {% endif %}
-                    </div>
-                </td>
-            </tr>
-            {% else %}
-            <tr>
-                <td colspan="{% if session.role in ['hr', 'admin'] %}8{% else %}9{% endif %}" class="text-center">
-                    No timesheets found
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-
+                                    {% endif %}
+                                    {% elif t.status == 'approved' %}
+                                    <span class="badge px-2.5 py-1 rounded-pill" style="background: #F8FAFC; color: #059669; border: 1px solid #E2E8F0; font-size: 0.75rem;">
+                                        <i class="bi bi-check-circle-fill me-1"></i> Approved
+                                    </span>
+                                    {% elif t.status == 'rejected' %}
+                                    <span class="badge px-2.5 py-1 rounded-pill" style="background: #F8FAFC; color: #DC2626; border: 1px solid #E2E8F0; font-size: 0.75rem;">
+                                        <i class="bi bi-x-circle-fill me-1"></i> Rejected
+                                    </span>
+                                    {% endif %}
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="9" class="text-center text-muted py-5">
+                                <i class="bi bi-clock-history fs-2 d-block mb-2 text-muted"></i>
+                                <span>No timesheets found</span>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 </div>
 
+<script>
+    function quickFilterStatus(status, btn) {
+        document.querySelectorAll('.leave-filter-pill').forEach(b => b.classList.remove('active'));
+        if (btn) btn.classList.add('active');
+
+        const statusSelect = document.getElementById('filterStatus');
+        if (statusSelect) {
+            statusSelect.value = status;
+            statusSelect.dispatchEvent(new Event('change'));
+        }
+    }
+</script>
+
 <!-- Reject Timesheet Modal -->
-{% if session.role in ['manager', 'hr'] %}
+{% if session.role in ['manager', 'hr', 'admin'] %}
 <div class="modal fade" id="rejectTimesheetModal" tabindex="-1" aria-labelledby="rejectTimesheetModalLabel"
     aria-hidden="true">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="rejectTimesheetModalLabel">Reject Timesheet</h5>
+                <h5 class="modal-title fw-bold" id="rejectTimesheetModalLabel"><i class="bi bi-x-circle text-danger me-2"></i>Reject Timesheet</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body modal-body-form">
@@ -213,9 +318,9 @@
                 </form>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-danger" id="rejectTimesheetBtn">
-                    <i class="bi bi-x-circle"></i> Reject Timesheet
+                <button type="button" class="btn btn-light btn-sm rounded-pill px-3 border" data-bs-dismiss="modal" style="color: #64748B; font-weight: 600;">Cancel</button>
+                <button type="button" class="btn btn-danger btn-sm rounded-pill px-3 fw-semibold" id="rejectTimesheetBtn">
+                    <i class="bi bi-x-circle me-1"></i> Reject Timesheet
                 </button>
             </div>
         </div>
@@ -229,30 +334,34 @@
         <div class="modal-content">
             <!-- HEADER -->
             <div class="modal-header">
-                <h5 class="modal-title text-success">
-                    <i class="bi bi-check-circle"></i> Confirm Approval
+                <h5 class="modal-title text-success fw-bold">
+                    <i class="bi bi-check-circle me-2"></i> Confirm Approval
                 </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
 
             <!-- BODY -->
-            <div class="modal-body modal-body-plain">
-                <p>
+            <div class="modal-body modal-body-plain text-center p-4">
+                <div class="mb-3">
+                    <i class="bi bi-check-circle text-success" style="font-size: 2.5rem;"></i>
+                </div>
+                <h6 class="fw-bold mb-2">Approve this timesheet?</h6>
+                <p class="text-muted mb-2 small">
                     Are you sure you want to approve the timesheet for
                     <strong id="approveEmpName"></strong>?
                 </p>
-                <p class="text-muted small">
+                <p class="text-muted small mb-0">
                     This action will mark the timesheet as approved and cannot be undone.
                 </p>
             </div>
 
             <!-- FOOTER -->
-            <div class="modal-footer">
-                <button type="button" class="btn btn-light" data-bs-dismiss="modal">
+            <div class="modal-footer justify-content-center">
+                <button type="button" class="btn btn-light btn-sm rounded-pill px-4 border" data-bs-dismiss="modal" style="color: #64748B; font-weight: 600;">
                     Cancel
                 </button>
-                <button type="button" class="btn btn-success" id="confirmApproveBtn">
-                    <i class="bi bi-check-circle"></i> Approve
+                <button type="button" class="btn btn-success btn-sm rounded-pill px-4 fw-semibold" id="confirmApproveBtn">
+                    <i class="bi bi-check-circle me-1"></i> Approve
                 </button>
             </div>
         </div>
@@ -261,29 +370,27 @@
 
 <!-- Success Modal -->
 <div class="modal fade" id="successModal" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+        <div class="modal-content text-center">
             <!-- HEADER -->
-            <div class="modal-header">
-                <h5 class="modal-title text-success">
-                    <i class="bi bi-check-circle-fill"></i> Success
-                </h5>
+            <div class="modal-header border-0 pb-0">
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
 
             <!-- BODY -->
-            <div class="modal-body modal-body-plain text-center">
+            <div class="modal-body modal-body-plain text-center p-4 pt-2">
                 <div class="mb-3">
-                    <i class="bi bi-check-circle-fill text-success" style="font-size: 3rem;"></i>
+                    <i class="bi bi-check-circle-fill text-success" style="font-size: 2.75rem;"></i>
                 </div>
-                <p id="successMessage">
+                <h6 class="fw-bold text-dark mb-1">Success</h6>
+                <p id="successMessage" class="text-muted small mb-0">
                     Operation completed successfully!
                 </p>
             </div>
 
             <!-- FOOTER -->
-            <div class="modal-footer">
-                <button type="button" class="btn btn-success" data-bs-dismiss="modal">
+            <div class="modal-footer border-0 pt-0 justify-content-center pb-4">
+                <button type="button" class="btn btn-soft-purple btn-sm rounded-pill px-4 shadow-sm fw-semibold" data-bs-dismiss="modal">
                     OK
                 </button>
             </div>
@@ -291,21 +398,20 @@
     </div>
 </div>
 
-
 <!-- Timesheet Calendar Modal -->
 <div class="modal fade" id="calendarModal" tabindex="-1" aria-labelledby="calendarModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg modal-dialog-centered" style="max-width: 805px;">
+    <div class="modal-dialog modal-xl modal-dialog-centered" style="max-width: 980px;">
         <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="calendarModalLabel">Timesheet & Holiday Calendar</h5>
+            <div class="modal-header py-2 px-4">
+                <h5 class="modal-title fw-bold text-dark mb-0" id="calendarModalLabel"><i class="bi bi-calendar3 text-primary me-2"></i>Timesheet & Holiday Calendar</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body modal-body-detail py-2 px-3">
+            <div class="modal-body modal-body-detail p-3 pt-2">
                 <div id="calendar"
                     style="background: white; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
                 </div>
 
-                <div class="mt-2 d-flex flex-wrap gap-2 justify-content-center pb-2">
+                <div class="mt-2 d-flex flex-wrap gap-2 justify-content-center">
                     <div class="calendar-legend-item">
                         <span class="legend-dot" style="background-color: #22c55e;"></span>
                         Completed
@@ -337,7 +443,7 @@
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title mb-0">
+                <h5 class="modal-title mb-0 fw-bold">
                     <i class="bi bi-calendar-event text-primary me-2"></i>
                     Details for <span id="detailDateLabel">--</span>
                 </h5>
@@ -349,9 +455,9 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-light btn-sm rounded-pill px-4 border" data-bs-dismiss="modal" style="color: #64748B; font-weight: 600;">Close</button>
                 {% if session.role == 'employee' %}
-                <button type="button" class="btn btn-primary d-none" id="addTimesheetDayBtn"
+                <button type="button" class="btn btn-soft-purple btn-sm rounded-pill px-4 shadow-sm fw-semibold d-none" id="addTimesheetDayBtn"
                     onclick="redirectToAddTimesheet()">
                     <i class="bi bi-plus-circle me-1"></i> Add Entry
                 </button>
@@ -535,7 +641,7 @@
 
     function getActiveTimesheetFilters() {
         const filters = {};
-        
+
         // Map frontend filter IDs to backend export keys
         const filterMap = {
             'filterDate': 'start_date',
@@ -1237,7 +1343,10 @@
         align-items: center;
         gap: 4px;
     }
-    .fc-event, .fc-event-title, .fc-event-main {
+
+    .fc-event,
+    .fc-event-title,
+    .fc-event-main {
         color: inherit !important;
     }
 
@@ -1269,8 +1378,36 @@
     #calendarModal .modal-content {
         background: #ffffff;
         border: none;
-        border-radius: 24px;
+        border-radius: 20px;
         box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    }
+
+    #calendarModal .fc .fc-daygrid-day-frame {
+        min-height: 50px !important;
+        height: 52px !important;
+    }
+
+    #calendarModal .fc .fc-toolbar {
+        margin-bottom: 0.35rem !important;
+        padding: 0.25rem 0.5rem !important;
+    }
+
+    #calendarModal .fc .fc-toolbar-title {
+        font-size: 1.1rem !important;
+        font-weight: 700 !important;
+    }
+
+    #calendarModal .fc-col-header-cell {
+        padding: 4px 0 !important;
+    }
+
+    #calendarModal .fc-daygrid-day-top {
+        padding: 2px 6px !important;
+    }
+
+    #calendarModal .fc-daygrid-day-number {
+        font-size: 0.78rem !important;
+        padding: 0 !important;
     }
 
     .calendar-legend-item {
@@ -1314,8 +1451,8 @@
                             center: 'title',
                             right: ''
                         },
-                        height: 'auto',
-                        contentHeight: 'auto',
+                        height: 480,
+                        aspectRatio: 2.1,
                         handleWindowResize: true,
                         expandRows: true,
                         selectable: true,
@@ -1545,7 +1682,7 @@
             };
 
             rows.forEach(row => {
-                const matches = 
+                const matches =
                     (!vals.employee || row.dataset.employee.includes(vals.employee)) &&
                     (!vals.project || row.dataset.project.includes(vals.project)) &&
                     (!vals.manager || row.dataset.manager.includes(vals.manager)) &&
@@ -1564,15 +1701,15 @@
         });
 
         if (clearBtn) {
-            clearBtn.addEventListener('click', function() {
+            clearBtn.addEventListener('click', function () {
                 Object.values(filters).forEach(f => {
                     if (f) f.value = '';
                 });
                 applyFilters();
             });
         }
-        
-        applyPagination('.timesheet-table', 15);
+
+        applyPagination('.timesheet-table', 20);
     });
 </script>
 {% endblock %}

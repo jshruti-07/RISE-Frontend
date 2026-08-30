@@ -21,125 +21,6 @@
 
 
 
-    .sidebar .logo-text span:first-child {
-        font-size: 1.1rem !important;
-        font-weight: 700 !important;
-        color: #6366f1 !important; /* violet accent */
-    }
-
-    /* Active & Hover Sidebar Links */
-    .sidebar .ribbon-left {
-        background: transparent !important;
-        border: none !important;
-        padding: 4px 16px !important;
-        margin: 2px 0 !important;
-    }
-
-    .sidebar .ribbon-inner {
-        background: transparent !important;
-        border: none !important;
-        border-radius: 8px !important;
-        padding: 10px 12px !important;
-        transition: all 0.2s ease !important;
-    }
-
-    .sidebar .ribbon-accent-left {
-        display: none !important; /* remove the old gradient line */
-    }
-
-    .sidebar .ribbon-content {
-        display: flex !important;
-        align-items: center !important;
-        gap: 12px !important;
-    }
-
-    .sidebar .ribbon-icon {
-        font-size: 1.15rem !important;
-        color: #64748b !important;
-        display: flex !important;
-        align-items: center !important;
-    }
-
-    .sidebar .ribbon-text {
-        display: flex !important;
-        flex-direction: column !important;
-    }
-
-    .sidebar .ribbon-title {
-        font-size: 0.8rem !important;
-        font-weight: 600 !important;
-        color: #475569 !important;
-        letter-spacing: 0.03em !important;
-        text-transform: uppercase !important;
-    }
-
-    .sidebar .ribbon-subtitle {
-        display: none !important; /* hide subtitle for cleaner sidebar */
-    }
-
-    /* Active Highlighted Menu Item */
-    .sidebar .ribbon-left[href*="dashboard"] .ribbon-inner,
-    .sidebar .ribbon-left.active .ribbon-inner {
-        background-color: #f5f3ff !important; /* soft violet accent bg */
-    }
-
-    .sidebar .ribbon-left[href*="dashboard"] .ribbon-icon,
-    .sidebar .ribbon-left.active .ribbon-icon {
-        color: #6366f1 !important;
-    }
-
-    .sidebar .ribbon-left[href*="dashboard"] .ribbon-title,
-    .sidebar .ribbon-left.active .ribbon-title {
-        color: #6366f1 !important;
-    }
-
-    /* Quick Actions Sidebar Menu */
-    .sidebar .menu-category-header {
-        font-size: 0.72rem !important;
-        font-weight: 700 !important;
-        color: #94a3b8 !important;
-        padding: 16px 28px 8px !important;
-        letter-spacing: 0.05em !important;
-    }
-
-    .sidebar .quick-action {
-        display: flex !important;
-        align-items: center !important;
-        gap: 10px !important;
-        padding: 8px 28px !important;
-        color: #64748b !important;
-        font-weight: 500 !important;
-        font-size: 0.85rem !important;
-        text-decoration: none !important;
-        transition: all 0.2s ease !important;
-    }
-    
-    .sidebar .quick-action:hover {
-        background-color: #f8fafc !important;
-        color: #4f46e5 !important;
-    }
-
-    /* Collapse button styling */
-    .sidebar .collapse-container {
-        border-top: 1px solid #f1f5f9 !important;
-        background: #ffffff !important;
-    }
-
-
-
-    /* MAIN PANEL & CONTAINER */
-    .main {
-        margin-left: 248px !important;
-        background-color: #f8fafc !important;
-        min-height: 100vh !important;
-        transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-    }
-
-    .sidebar.collapsed+.main {
-        margin-left: 68px !important;
-        width: calc(100% - 68px) !important;
-    }
-
     .page-content {
         padding: 24px !important;
     }
@@ -515,17 +396,17 @@
             </div>
             {% if session.role == 'hr' %}
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <button class="btn btn-outline-secondary" id="dashDetailEditBtn">
+                <button type="button" class="btn btn-light btn-sm rounded-pill px-3 border" data-bs-dismiss="modal" style="color: #64748B; font-weight: 600;">Close</button>
+                <button class="btn btn-soft-purple btn-sm rounded-pill px-3 shadow-sm" id="dashDetailEditBtn">
                     <i class="bi bi-pencil-fill me-1"></i> Edit
                 </button>
-                <button class="btn btn-outline-danger" id="dashDetailDeleteBtn">
+                <button class="btn btn-outline-danger btn-sm rounded-pill px-3" id="dashDetailDeleteBtn" style="font-weight: 600;">
                     <i class="bi bi-trash-fill me-1"></i> Delete
                 </button>
             </div>
             {% else %}
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-light btn-sm rounded-pill px-4 border" data-bs-dismiss="modal" style="color: #64748B; font-weight: 600;">Close</button>
             </div>
             {% endif %}
         </div>
@@ -592,8 +473,8 @@
                 </form>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <button type="submit" form="dashAnnForm" class="btn btn-primary fw-bold" id="dashAnnSubmitBtn">Save
+                <button type="button" class="btn btn-light btn-sm rounded-pill px-4 border" data-bs-dismiss="modal" style="color: #64748B; font-weight: 600;">Cancel</button>
+                <button type="submit" form="dashAnnForm" class="btn btn-soft-purple btn-sm rounded-pill px-4 shadow-sm fw-semibold" id="dashAnnSubmitBtn">Save
                     Announcement</button>
             </div>
         </div>
@@ -602,50 +483,26 @@
 {% endif %}
 
 <!-- Project Details Modal -->
-
 <div class="modal fade" id="projectDetailsModal" tabindex="-1" aria-hidden="true">
-
-    <div class="modal-dialog modal-lg modal-dialog-centered">
-
+    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable" style="max-width: 880px;">
         <div class="modal-content">
-
             <div class="modal-header">
-
-                <h5 class="modal-title">
-
-                    <i class="bi bi-folder-fill me-2"></i>
-
-                    <span id="modalProjectName">Project Details</span>
-
+                <h5 class="modal-title fw-bold text-dark mb-0">
+                    <i class="bi bi-folder2-open text-primary me-2"></i><span id="modalProjectName">Project Details</span>
                 </h5>
-
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-
             </div>
-
             <div class="modal-body modal-body-detail">
-
                 <div id="projectDetailsContent">
-
                     <!-- Project details will be loaded here -->
-
                 </div>
-
             </div>
-
             <div class="modal-footer">
-
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-
+                <button type="button" class="btn btn-light btn-sm rounded-pill px-4 border" data-bs-dismiss="modal" style="color: #64748B; font-weight: 600;">Close</button>
             </div>
-
         </div>
-
     </div>
-
 </div>
-
-
 
 <!-- Employee Selection Modal -->
 <div class="modal fade" id="employeeSelectionModal" tabindex="-1" aria-labelledby="employeeSelectionModalLabel"
@@ -664,16 +521,16 @@
                     <div class="d-flex justify-content-between align-items-center mb-3">
                         <h6 class="mb-0">{{ labels.AVAILABLE_EMPLOYEES }}</h6>
                         <div>
-                            <button type="button" class="btn btn-sm btn-outline-primary" onclick="selectAllEmployees()">
+                            <button type="button" class="btn btn-sm btn-outline-primary rounded-pill px-3" onclick="selectAllEmployees()">
                                 <i class="bi bi-check-all me-1"></i>Select All
                             </button>
-                            <button type="button" class="btn btn-sm btn-outline-secondary"
+                            <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3"
                                 onclick="clearAllEmployees()">
                                 <i class="bi bi-x-square me-1"></i>Clear All
                             </button>
                         </div>
                     </div>
-                    <div class="border rounded p-3" style="max-height: 400px; overflow-y: auto;">
+                    <div class="border rounded-3 p-3 bg-light" style="max-height: 400px; overflow-y: auto;">
                         <div id="availableEmployeesList">
                             <!-- Employees will be loaded here -->
                         </div>
@@ -681,12 +538,12 @@
                 </div>
             </div>
             <div class="modal-footer d-flex justify-content-between align-items-center">
-                <div id="allocationTracker" class="badge bg-secondary p-2">
+                <div id="allocationTracker" class="badge rounded-pill bg-light text-dark border px-3 py-2 fw-semibold">
                     Selected Allocation: <span id="totalAllocValue">0</span>%
                 </div>
-                <div>
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-primary" onclick="assignSelectedEmployees()">
+                <div class="d-flex gap-2">
+                    <button type="button" class="btn btn-light btn-sm rounded-pill px-3 border" data-bs-dismiss="modal" style="color: #64748B; font-weight: 600;">Cancel</button>
+                    <button type="button" class="btn btn-soft-purple btn-sm rounded-pill px-4 shadow-sm fw-semibold" onclick="assignSelectedEmployees()">
                         <i class="bi bi-person-plus me-2"></i>
                         {{ labels.ASSIGN_TEAM_MEMBERS }}
                     </button>
@@ -879,7 +736,7 @@
             detailsHtml += '<div class="row mt-3">' +
                 '<div class="col-12">' +
                 '<div class="d-flex justify-content-between align-items-center mb-1">' +
-                '<h6 class="text-muted mb-0">' + (userRole === 'employee' ? 'Your Allocation' : 'Team Members & Workload') + '</h6>' +
+                '<h6 class="text-muted mb-0">Team Members & Workload</h6>' +
                 '<small class="text-muted">' + teamList.length + ' Members</small>' +
                 '</div>' +
                 '<div class="list-group list-group-flush border rounded" style="max-height: 250px; overflow-y: auto;">';
@@ -887,8 +744,9 @@
             for (var i = 0; i < teamList.length; i++) {
                 var member = teamList[i];
                 var mName = typeof member === 'string' ? member : (member.name || member.employee_name || member.employee || member.employeeName || member.member_name || member.m_name);
+                if (!mName) continue;
 
-                if (userRole === 'employee' && mName !== employeeName) continue;
+                var isYou = (typeof namesMatchJS === 'function' ? namesMatchJS(mName, employeeName) : (mName === employeeName));
 
                 var allocation = '100';
                 if (typeof member !== 'string') {
@@ -905,7 +763,9 @@
 
                 detailsHtml += '<div class="list-group-item d-flex justify-content-between align-items-center py-2">' +
                     '<div>' +
-                    '<div class="fw-bold">' + mName + '</div>' +
+                    '<div class="fw-bold">' + escapeHtml(mName) + 
+                    (isYou ? ' <span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25 rounded-pill px-2 py-0.5 ms-1" style="font-size: 0.68rem; font-weight: 600;">You</span>' : '') + 
+                    '</div>' +
                     '</div>' +
                     '<div class="text-end">' +
                     '<span class="badge bg-primary rounded-pill me-1">' + allocation + '% Alloc.</span>' +
@@ -913,7 +773,6 @@
                     '</div>' +
                     '</div>';
             }
-
             detailsHtml += '</div></div></div>';
         } else {
             detailsHtml += '<div class="row mt-3"><div class="col-12"><div class="alert alert-info py-2">No team members found for this project.</div></div></div>';

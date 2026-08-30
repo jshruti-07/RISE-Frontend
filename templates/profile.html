@@ -965,7 +965,7 @@
                                         <td class="px-3 py-3"><span class="badge badge-soft-warning rounded-pill">{{
                                                 active_leave_count }} Pending</span></td>
                                         <td class="px-3 py-3 text-end">
-                                            <a href="/leaves" class="btn btn-sm btn-hrms-outline py-1 px-2">Review</a>
+                                            <a href="/leaves?employee={{ employee.name or employee.display_name or '' }}" class="btn btn-sm btn-hrms-outline py-1 px-2">Review</a>
                                         </td>
                                     </tr>
                                     {% endif %}
@@ -978,7 +978,7 @@
                                         <td class="px-3 py-3"><span class="badge badge-soft-warning rounded-pill">{{
                                                 active_reimbursement_count }} Active</span></td>
                                         <td class="px-3 py-3 text-end">
-                                            <a href="/reimbursements"
+                                            <a href="/reimbursement?employee_name={{ employee.name or employee.display_name or '' }}&status=pending&action=review"
                                                 class="btn btn-sm btn-hrms-outline py-1 px-2">Review</a>
                                         </td>
                                     </tr>
@@ -992,7 +992,7 @@
                                         <td class="px-3 py-3"><span class="badge badge-soft-primary rounded-pill">{{
                                                 active_helpdesk_count }} Open</span></td>
                                         <td class="px-3 py-3 text-end">
-                                            <a href="/helpdesk" class="btn btn-sm btn-hrms-outline py-1 px-2">Review</a>
+                                            <a href="/helpdesk?search={{ employee.name or employee.display_name or '' }}" class="btn btn-sm btn-hrms-outline py-1 px-2">Review</a>
                                         </td>
                                     </tr>
                                     {% endif %}

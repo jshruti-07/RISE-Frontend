@@ -22,7 +22,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // State
     let currentPage = 1;
-    const perPage = 10;
+    const perPage = 20;
     let currentStatus = ''; // empty means all
     let totalItems = 0;
 

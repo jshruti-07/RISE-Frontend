@@ -4,20 +4,107 @@
 {% block content %}
 <input type="hidden" id="empName" value="{{ session.get('employee_name', '') }}">
 <input type="hidden" id="sessionToken" value="{{ session.get('token', '') }}">
-<div class="form-card" style="background: transparent; border: none; padding: 0;">
-    <!-- Header Navigation -->
-    <div class="d-flex justify-content-between align-items-center mb-4 p-4 bg-white rounded-4 shadow-sm">
+
+<style>
+    .hd-dashboard-card {
+        background: #FFFFFF;
+        border: 1px solid #E8ECF4;
+        border-radius: 16px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+        overflow: hidden;
+    }
+
+    /* Toggle Style */
+    .pill-toggle {
+        background: #F1F5F9;
+        padding: 3px;
+        border-radius: 20px;
+        display: inline-flex;
+        gap: 2px;
+    }
+
+    .pill-toggle .btn {
+        border-radius: 16px;
+        border: none;
+        font-weight: 600;
+        font-size: 0.78rem;
+        padding: 5px 16px;
+        color: #64748B;
+        background: transparent;
+        transition: all 0.15s ease;
+    }
+
+    .pill-toggle .btn.active {
+        background: #FFFFFF;
+        color: #4F46E5;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    }
+
+    .day-header {
+        padding: 12px 6px !important;
+        vertical-align: middle;
+    }
+
+    .date-lbl {
+        font-size: 0.78rem;
+    }
+
+    .day-inp {
+        height: 38px;
+        font-weight: 600;
+        font-size: 0.85rem;
+        border-radius: 6px;
+    }
+
+    .day-inp:not([readonly]):focus {
+        background: #FFFFFF !important;
+        box-shadow: 0 0 0 2px #6366F1 !important;
+        outline: none;
+        z-index: 10;
+        cursor: text;
+    }
+
+    .desc-inp:not([readonly]):focus {
+        background: #FFFFFF !important;
+        box-shadow: 0 0 0 2px #6366F1 !important;
+        z-index: 10;
+    }
+
+    .cursor-pointer {
+        cursor: pointer;
+        transition: color 0.2s;
+    }
+
+    .cursor-pointer:hover {
+        color: #4338CA !important;
+    }
+
+    /* Status Backgrounds */
+    .status-leave { 
+        background-color: #E9D5FF !important; 
+    }
+    .status-holiday { 
+        background-color: #FEF3C7 !important; 
+    }
+    .status-weekly-off { 
+        background-color: #F1F5F9 !important; 
+    }
+</style>
+
+<div class="container-fluid py-4">
+    <!-- Header Navigation Outside Card -->
+    <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
         <div class="d-flex align-items-center gap-3">
-            <h5 class="mb-0 fw-bold">Timesheet</h5>
+            <h4 class="fw-bold text-dark mb-0">Timesheets</h4>
             <div class="pill-toggle">
                 <button class="btn btn-sm" onclick="location.href='/timesheets'">Daily</button>
                 <button class="btn btn-sm active">Weekly</button>
             </div>
         </div>
 
-        <div class="d-flex align-items-center gap-4">
-            <div class="d-flex gap-3 small text-muted fw-bold text-uppercase"
-                style="letter-spacing: 0.05em; font-size: 0.75rem;">
+        <div class="d-flex align-items-center gap-3 flex-wrap">
+            <div class="d-flex gap-3 small text-muted fw-semibold text-uppercase"
+                style="letter-spacing: 0.05em; font-size: 0.72rem;">
                 <span class="d-flex align-items-center gap-1"><span
                         style="width:10px; height:10px; background:#e9d5ff; border-radius:50%; display:inline-block;"></span>
                     Leave</span>
@@ -28,215 +115,130 @@
                         style="width:10px; height:10px; background:#f1f5f9; border-radius:50%; display:inline-block;"></span>
                     Weekly Off</span>
             </div>
-            <button class="btn btn-outline-secondary btn-sm rounded-circle shadow-sm border-0 bg-light p-2"
-                onclick="location.href='/timesheets'">
-                <i class="bi bi-x-lg px-1"></i>
-            </button>
+            <a href="{{ url_for('work.timesheets_list') }}" class="btn btn-outline-secondary btn-sm rounded-pill px-3 fw-semibold">
+                <i class="bi bi-arrow-left me-1"></i> Back to Records
+            </a>
         </div>
     </div>
 
-    <!-- Main Grid -->
-    <div class="bg-white rounded-4 shadow-sm overflow-hidden mb-4">
-        <div class="table-responsive">
-            <table class="table table-bordered mb-0 align-middle text-center" id="weeklyTable"
-                style="min-width: 1200px; border-color: #f1f5f9;">
-                <thead style="background: #f8fafc;">
-                    <tr class="align-middle">
-                        <th
-                            style="width: 150px; padding: 18px 10px; color: #475569; font-weight: 700; text-transform: uppercase; font-size: 0.8rem;">
-                            Project</th>
-                        <th
-                            style="width: 150px; color: #475569; font-weight: 700; text-transform: uppercase; font-size: 0.8rem;">
-                            Task</th>
-                        <th
-                            style="width: 140px; color: #475569; font-weight: 700; text-transform: uppercase; font-size: 0.8rem;">
-                            Status</th>
+    <!-- Main Grid Card -->
+    <div class="hd-dashboard-card mb-4">
+        <div class="p-4">
+            <div class="table-responsive rounded-3 border" style="border-color: #E8ECF4 !important;">
+                <table class="table table-bordered mb-0 align-middle text-center" id="weeklyTable"
+                    style="min-width: 1200px; border-color: #E8ECF4;">
+                    <thead style="background: #F8FAFC;">
+                        <tr class="align-middle">
+                            <th style="width: 160px; padding: 14px 10px; color: #475569; font-weight: 700; font-size: 0.82rem;">
+                                Project</th>
+                            <th style="width: 160px; color: #475569; font-weight: 700; font-size: 0.82rem;">
+                                Task</th>
+                            <th style="width: 130px; color: #475569; font-weight: 700; font-size: 0.82rem;">
+                                Action</th>
 
-                        <!-- Mon-Fri -->
-                        {% for day in ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'] %}
-                        <th class="day-header" style="width: 140px;" data-idx="{{ loop.index0 }}">
-                            <div class="d-flex align-items-center justify-content-center gap-2">
-                                {% if loop.first %}<i class="bi bi-chevron-left cursor-pointer text-primary"
-                                    onclick="changeWeek(-1)"></i>{% endif %}
-                                <div>
-                                    <div class="small fw-normal text-muted">{{ day }}</div>
-                                    <div class="date-lbl fw-bold small text-dark"></div>
+                            <!-- Mon-Fri -->
+                            {% for day in ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'] %}
+                            <th class="day-header" style="width: 140px;" data-idx="{{ loop.index0 }}">
+                                <div class="d-flex align-items-center justify-content-center gap-2">
+                                    {% if loop.first %}<i class="bi bi-chevron-left cursor-pointer text-primary"
+                                        onclick="changeWeek(-1)"></i>{% endif %}
+                                    <div>
+                                        <div class="small fw-normal text-muted">{{ day }}</div>
+                                        <div class="date-lbl fw-bold small text-dark"></div>
+                                    </div>
+                                    {% if loop.last %}<div style="width: 15px;"></div>{% endif %}
                                 </div>
-                                {% if loop.last %}<div style="width: 15px;"></div>{% endif %}
-                            </div>
-                        </th>
-                        {% endfor %}
+                            </th>
+                            {% endfor %}
 
-                        <!-- Sat-Sun (Weekly Off) -->
-                        <th class="day-header bg-light bg-opacity-50" style="width: 140px;" data-idx="5"
-                            style="color: #64748b;">
-                            <div class="small fw-normal">Sat</div>
-                            <div class="date-lbl fw-bold small"></div>
-                        </th>
-                        <th class="day-header bg-light bg-opacity-50" style="width: 140px;" data-idx="6"
-                            style="color: #64748b;">
-                            <div class="d-flex align-items-center justify-content-center gap-2">
-                                <div>
-                                    <div class="small fw-normal">Sun</div>
-                                    <div class="date-lbl fw-bold small"></div>
+                            <!-- Sat-Sun (Weekly Off) -->
+                            <th class="day-header bg-light bg-opacity-50" style="width: 140px;" data-idx="5">
+                                <div class="small fw-normal text-muted">Sat</div>
+                                <div class="date-lbl fw-bold small text-dark"></div>
+                            </th>
+                            <th class="day-header bg-light bg-opacity-50" style="width: 140px;" data-idx="6">
+                                <div class="d-flex align-items-center justify-content-center gap-2">
+                                    <div>
+                                        <div class="small fw-normal text-muted">Sun</div>
+                                        <div class="date-lbl fw-bold small text-dark"></div>
+                                    </div>
+                                    <i class="bi bi-chevron-right cursor-pointer text-primary" onclick="changeWeek(1)"></i>
                                 </div>
-                                <i class="bi bi-chevron-right cursor-pointer text-primary" onclick="changeWeek(1)"></i>
-                            </div>
-                        </th>
-                        <th
-                            style="width: 100px; color: #475569; font-weight: 700; text-transform: uppercase; font-size: 0.8rem;">
-                            Total</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr class="ts-row">
-                        <td class="p-3">
-                            <select
-                                class="form-select border-0 bg-light rounded-3 project-sel shadow-none py-2 px-3 fw-semibold text-dark">
-                                <option value="">Select Project</option>
-                                {% for p in projects %}
-                                <option value="{{ p.name }}">{{ p.name }}</option>
-                                {% endfor %}
-                            </select>
-                        </td>
-                        <td class="p-3">
-                            <input type="text"
-                                class="form-control border-0 bg-light rounded-3 task-inp shadow-none py-2 px-3 fw-medium"
-                                placeholder="Task description...">
-                        </td>
-                        <td class="text-center p-3">
-                            <button class="btn btn-primary btn-sm rounded-pill fw-bold w-100 py-2 shadow-sm"
-                                style="background: #0a038c; border: none;" onclick="submitRow(this)">
-                                Submit
-                            </button>
-                        </td>
-
-                        <!-- Mon-Fri Inputs -->
-                        {% for i in range(5) %}
-                        <td class="p-2">
-                            <div class="d-flex flex-column gap-2">
+                            </th>
+                            <th style="width: 110px; color: #475569; font-weight: 700; font-size: 0.82rem;">
+                                Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="ts-row">
+                            <td class="p-2">
+                                <select class="form-select form-select-sm border rounded-3 project-sel shadow-none py-1.5 px-2 fw-semibold text-dark" style="border-color: #E2E8F0;">
+                                    <option value="">Select Project</option>
+                                    {% for p in projects %}
+                                    <option value="{{ p.name }}">{{ p.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </td>
+                            <td class="p-2">
                                 <input type="text"
-                                    class="form-control day-inp border-0 bg-light text-center rounded-2 py-3 shadow-none"
-                                    value="0:00" data-day="{{ i }}" onfocus="this.select()">
-                                <textarea class="form-control desc-inp border-0 bg-white rounded-2 small text-muted p-2"
-                                    style="font-size: 0.7rem; height: 60px; resize: none;" placeholder="Activity..."
-                                    data-day="{{ i }}"></textarea>
-                            </div>
-                        </td>
-                        {% endfor %}
+                                    class="form-control form-control-sm border rounded-3 task-inp shadow-none py-1.5 px-2 fw-medium"
+                                    placeholder="Task description..." style="border-color: #E2E8F0;">
+                            </td>
+                            <td class="text-center p-2">
+                                <button class="btn btn-soft-purple btn-sm rounded-pill px-3 fw-semibold w-100 shadow-sm"
+                                    onclick="submitRow(this)" style="font-size: 0.78rem;">
+                                    Submit
+                                </button>
+                            </td>
 
-                        <!-- Sat-Sun (Readonly) -->
-                        {% for i in range(5, 7) %}
-                        <td class="p-2 bg-light bg-opacity-50">
-                            <div class="d-flex flex-column gap-2 opacity-50">
-                                <input type="text"
-                                    class="form-control day-inp border-0 bg-white text-center rounded-2 py-3"
-                                    value="0:00" data-day="{{ i }}" readonly>
-                                <textarea class="form-control desc-inp border-0 bg-white rounded-2 small p-2"
-                                    style="font-size: 0.7rem; height: 60px; resize: none;" value="-"
-                                    readonly></textarea>
-                            </div>
-                        </td>
-                        {% endfor %}
+                            <!-- Mon-Fri Inputs -->
+                            {% for i in range(5) %}
+                            <td class="p-2">
+                                <div class="d-flex flex-column gap-1.5">
+                                    <input type="text"
+                                        class="form-control day-inp border bg-light bg-opacity-50 text-center rounded-2 shadow-none"
+                                        value="0:00" data-day="{{ i }}" onfocus="this.select()" style="border-color: #E2E8F0;">
+                                    <textarea class="form-control desc-inp border bg-white rounded-2 small text-muted p-1.5"
+                                        style="font-size: 0.72rem; height: 55px; resize: none; border-color: #E2E8F0;" placeholder="Activity..."
+                                        data-day="{{ i }}"></textarea>
+                                </div>
+                            </td>
+                            {% endfor %}
 
-                        <td class="text-center fw-bold row-tot fs-6 text-dark p-3">00:00</td>
-                    </tr>
-                </tbody>
-                <tfoot class="fw-bold bg-light">
-                    <tr>
-                        <td colspan="3" class="text-end py-4 px-3 text-muted text-uppercase small"
-                            style="letter-spacing: 0.1em;">Daily Total</td>
-                        {% for i in range(5) %}
-                        <td class="col-tot py-4" data-day="{{ i }}">00:00</td>
-                        {% endfor %}
-                        <td class="col-tot py-4 bg-white bg-opacity-50" data-day="5">00:00</td>
-                        <td class="col-tot py-4 bg-white bg-opacity-50" data-day="6">00:00</td>
-                        <td class="grand-tot py-4 fs-5 text-primary border-0" style="background: #fefeff;">00:00</td>
-                    </tr>
-                </tfoot>
-            </table>
+                            <!-- Sat-Sun (Readonly) -->
+                            {% for i in range(5, 7) %}
+                            <td class="p-2 bg-light bg-opacity-50">
+                                <div class="d-flex flex-column gap-1.5 opacity-50">
+                                    <input type="text"
+                                        class="form-control day-inp border bg-white text-center rounded-2"
+                                        value="0:00" data-day="{{ i }}" readonly style="border-color: #E2E8F0;">
+                                    <textarea class="form-control desc-inp border bg-white rounded-2 small p-1.5"
+                                        style="font-size: 0.72rem; height: 55px; resize: none; border-color: #E2E8F0;" value="-"
+                                        readonly></textarea>
+                                </div>
+                            </td>
+                            {% endfor %}
+
+                            <td class="text-center fw-bold row-tot fs-6 text-dark p-3">00:00</td>
+                        </tr>
+                    </tbody>
+                    <tfoot class="fw-bold" style="background: #F8FAFC;">
+                        <tr>
+                            <td colspan="3" class="text-end py-3 px-3 text-muted text-uppercase small"
+                                style="letter-spacing: 0.08em; font-size: 0.78rem;">Daily Total</td>
+                            {% for i in range(5) %}
+                            <td class="col-tot py-3" data-day="{{ i }}" style="font-size: 0.88rem; color: #1E293B;">00:00</td>
+                            {% endfor %}
+                            <td class="col-tot py-3 bg-white bg-opacity-50" data-day="5" style="font-size: 0.88rem; color: #64748B;">00:00</td>
+                            <td class="col-tot py-3 bg-white bg-opacity-50" data-day="6" style="font-size: 0.88rem; color: #64748B;">00:00</td>
+                            <td class="grand-tot py-3 fs-6 text-primary border-0" style="background: #F1F5F9;">00:00</td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
         </div>
     </div>
 </div>
-
-<style>
-    /* Premium Toggle Style */
-    .pill-toggle {
-        background: #f1f5f9;
-        padding: 4px;
-        border-radius: 12px;
-        display: flex;
-        gap: 2px;
-    }
-
-    .pill-toggle .btn {
-        border-radius: 8px;
-        border: none;
-        font-weight: 600;
-        font-size: 0.75rem;
-        padding: 6px 20px;
-        color: #64748b;
-        background: transparent;
-    }
-
-    .pill-toggle .btn.active {
-        background: white;
-        color: #4f46e5;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-    }
-
-    .day-header {
-        padding: 15px 5px !important;
-    }
-
-    .date-lbl {
-        font-size: 0.8rem;
-    }
-
-    .day-inp {
-        height: 40px;
-        font-weight: 600;
-        font-size: 0.85rem;
-    }
-
-    .day-inp:not([readonly]):focus {
-        background: white !important;
-        box-shadow: 0 0 0 2px #4f46e5 !important;
-        outline: none;
-        z-index: 10;
-        cursor: text;
-    }
-
-    .desc-inp:not([readonly]):focus {
-        background: #fff !important;
-        box-shadow: 0 0 0 2px #4f46e5 !important;
-        z-index: 10;
-    }
-
-    .cursor-pointer {
-        cursor: pointer;
-        transition: color 0.2s;
-    }
-
-    .cursor-pointer:hover {
-        color: #4338ca !important;
-    }
-
-    .table td {
-        border-color: #f1f5f9 !important;
-    }
-
-    /* Status Backgrounds */
-    .status-leave { 
-        background-color: #e9d5ff !important; 
-    }
-    .status-holiday { 
-        background-color: #fef3c7 !important; 
-    }
-    .status-weekly-off { 
-        background-color: #f1f5f9 !important; 
-    }
-</style>
 
 <script>
     let offset = 0;

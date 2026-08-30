@@ -70,7 +70,8 @@ def create_app():
             role=session.get('role'),
             sidebar_photo_url=session.get('photo_url'),
             labels=UI_LABELS,
-            config=UI_CONFIG
+            config=UI_CONFIG,
+            BASE_URL=os.getenv("BACKEND_URL", "http://127.0.0.1:5001")
         )
 
     @app.template_filter('clean_name')

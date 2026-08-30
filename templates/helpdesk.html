@@ -153,24 +153,81 @@
         cursor: not-allowed;
     }
 
+    /* Dashboard Card */
+    .hd-dashboard-card {
+        background: #FFFFFF;
+        border: 1px solid #E8ECF4;
+        border-radius: 16px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+        overflow: hidden;
+    }
+
+    .helpdesk-table th {
+        white-space: nowrap;
+    }
+
+    .helpdesk-table td {
+        vertical-align: middle;
+        padding: 12px 16px;
+        font-size: 0.85rem;
+    }
+
     /* Badges */
     .badge-soft {
-        padding: 6px 12px;
-        border-radius: 8px;
+        padding: 4px 10px;
+        border-radius: 20px;
         font-weight: 600;
-        font-size: 0.75rem;
+        font-size: 0.76rem;
         display: inline-block;
     }
 
-    .status-open { background: #dcfce7; color: #166534; }
-    .status-in_progress { background: #fef3c7; color: #92400e; }
-    .status-resolved { background: #e0f2fe; color: #0369a1; }
-    .status-closed { background: #fee2e2; color: #b91c1c; }
+    .status-open {
+        background: rgba(16, 185, 129, 0.12);
+        color: #059669;
+        border: 1px solid rgba(16, 185, 129, 0.25);
+    }
 
-    .priority-urgent { background: #fee2e2; color: #b91c1c; }
-    .priority-high { background: #ffedd5; color: #c2410c; }
-    .priority-medium { background: #e0f2fe; color: #0369a1; }
-    .priority-low { background: #f1f5f9; color: #475569; }
+    .status-in_progress {
+        background: rgba(245, 158, 11, 0.12);
+        color: #d97706;
+        border: 1px solid rgba(245, 158, 11, 0.25);
+    }
+
+    .status-resolved {
+        background: rgba(59, 130, 246, 0.12);
+        color: #2563eb;
+        border: 1px solid rgba(59, 130, 246, 0.25);
+    }
+
+    .status-closed {
+        background: rgba(100, 116, 139, 0.12);
+        color: #475569;
+        border: 1px solid rgba(100, 116, 139, 0.25);
+    }
+
+    .priority-urgent {
+        background: rgba(239, 68, 68, 0.12);
+        color: #dc2626;
+        border: 1px solid rgba(239, 68, 68, 0.25);
+    }
+
+    .priority-high {
+        background: rgba(249, 115, 22, 0.12);
+        color: #ea580c;
+        border: 1px solid rgba(249, 115, 22, 0.25);
+    }
+
+    .priority-medium {
+        background: rgba(59, 130, 246, 0.12);
+        color: #2563eb;
+        border: 1px solid rgba(59, 130, 246, 0.25);
+    }
+
+    .priority-low {
+        background: rgba(100, 116, 139, 0.12);
+        color: #64748b;
+        border: 1px solid rgba(100, 116, 139, 0.25);
+    }
 
     /* Audit Trail Styling */
     .history-item {
@@ -197,10 +254,13 @@
     }
 
     /* Scrollbar */
-    .chat-messages::-webkit-scrollbar, .detail-pane::-webkit-scrollbar {
+    .chat-messages::-webkit-scrollbar,
+    .detail-pane::-webkit-scrollbar {
         width: 6px;
     }
-    .chat-messages::-webkit-scrollbar-thumb, .detail-pane::-webkit-scrollbar-thumb {
+
+    .chat-messages::-webkit-scrollbar-thumb,
+    .detail-pane::-webkit-scrollbar-thumb {
         background: #cbd5e1;
         border-radius: 10px;
     }
@@ -211,70 +271,66 @@
 <input type="hidden" id="userRole" value="{{ session.get('role', '') }}">
 <input type="hidden" id="userName" value="{{ session.get('employee_name', '') }}">
 
-<div class="form-card">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div class="d-flex align-items-center gap-3">
-            <div class="icon-box bg-primary shadow-sm">
-                <i class="bi bi-life-preserver"></i>
-            </div>
-            <div>
-                <h4 class="mb-0 fw-bold">Help Desk</h4>
-                <p class="text-muted small mb-0">Track and resolve issues</p>
-            </div>
-        </div>
-        <div class="d-flex gap-2">
-            <button class="btn btn-primary px-4 py-2 rounded-pill shadow-sm fw-bold" data-bs-toggle="modal" data-bs-target="#createTicketModal">
-                <i class="bi bi-plus-lg me-2"></i> New Ticket
-            </button>
-        </div>
+<div class="container-fluid py-4">
+    <!-- Title Outside Table Card -->
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h4 class="fw-bold text-dark mb-0">Help Desk</h4>
     </div>
 
-    <!-- Filters Strip -->
-    <div class="row g-3 mb-4 p-3 bg-light rounded-4">
-        <div class="col-md-3">
-            <select class="form-select border-0 shadow-sm" id="filterStatus" onchange="loadTickets()">
-                <option value="">All Status</option>
-                <option value="open">Open</option>
-                <option value="in_progress">In Progress</option>
-                <option value="closed">Closed</option>
-            </select>
-        </div>
-        <div class="col-md-3">
-            <select class="form-select border-0 shadow-sm" id="filterPriority" onchange="loadTickets()">
-                <option value="">All Priority</option>
-                <option value="urgent">Urgent</option>
-                <option value="high">High</option>
-                <option value="medium">Medium</option>
-                <option value="low">Low</option>
-            </select>
-        </div>
-        <div class="col-md-6">
-            <div class="input-group">
-                <span class="input-group-text bg-white border-0 shadow-sm"><i class="bi bi-search"></i></span>
-                <input type="text" class="form-control border-0 shadow-sm" id="searchInput" placeholder="Search tickets..." onkeyup="debounceLoad()">
+    <div class="hd-dashboard-card">
+        <div class="p-4">
+            <!-- Top Controls & Filters Strip -->
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-3">
+                <div class="d-flex align-items-center gap-2 flex-grow-1 flex-wrap">
+                    <select class="form-select form-select-sm rounded-3" id="filterStatus" onchange="loadTickets()" style="max-width: 160px;">
+                        <option value="">All Status</option>
+                        <option value="open">Open</option>
+                        <option value="in_progress">In Progress</option>
+                        <option value="closed">Closed</option>
+                    </select>
+
+                    <select class="form-select form-select-sm rounded-3" id="filterPriority" onchange="loadTickets()" style="max-width: 160px;">
+                        <option value="">All Priority</option>
+                        <option value="urgent">Urgent</option>
+                        <option value="high">High</option>
+                        <option value="medium">Medium</option>
+                        <option value="low">Low</option>
+                    </select>
+
+                    <div class="input-group input-group-sm" style="max-width: 320px;">
+                        <span class="input-group-text bg-white border-end-0"><i class="bi bi-search text-muted"></i></span>
+                        <input type="text" class="form-control border-start-0 ps-0 rounded-end-3" id="searchInput"
+                            placeholder="Search tickets..." onkeyup="debounceLoad()">
+                    </div>
+                </div>
+
+                <button class="btn btn-soft-purple btn-sm rounded-pill px-3 shadow-sm" data-bs-toggle="modal"
+                    data-bs-target="#createTicketModal" style="font-size: 0.8rem; font-weight: 600;">
+                    <i class="bi bi-plus-circle me-1"></i> New Ticket
+                </button>
+            </div>
+
+            <!-- Tickets Table -->
+            <div class="table-responsive rounded-3 border" style="border-color: #E8ECF4 !important;">
+                <table class="table table-hover align-middle mb-0 helpdesk-table">
+                    <thead class="table-light" style="background-color: #F8FAFC;">
+                        <tr>
+                            <th style="font-weight: 700; color: #475569; font-size: 0.85rem; padding: 12px 16px;">Reference</th>
+                            <th style="font-weight: 700; color: #475569; font-size: 0.85rem;">Title</th>
+                            <th style="font-weight: 700; color: #475569; font-size: 0.85rem;" id="empHeaderTh" style="display:none;">Employee</th>
+                            <th style="font-weight: 700; color: #475569; font-size: 0.85rem;">Category</th>
+                            <th style="font-weight: 700; color: #475569; font-size: 0.85rem;">Priority</th>
+                            <th style="font-weight: 700; color: #475569; font-size: 0.85rem;">Status</th>
+                            <th style="font-weight: 700; color: #475569; font-size: 0.85rem;">Created</th>
+                            <th style="font-weight: 700; color: #475569; font-size: 0.85rem; text-align: center; padding-right: 16px;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="ticketsTableBody">
+                        <!-- Data loaded via JS -->
+                    </tbody>
+                </table>
             </div>
         </div>
-    </div>
-
-    <!-- Tickets Table -->
-    <div class="table-responsive">
-        <table class="table table-hover align-middle">
-            <thead class="bg-light">
-                <tr>
-                    <th class="border-0 rounded-start-3">Reference</th>
-                    <th class="border-0">Title</th>
-                    <th class="border-0" id="empHeaderTh" style="display:none;">Employee</th>
-                    <th class="border-0">Category</th>
-                    <th class="border-0">Priority</th>
-                    <th class="border-0">Status</th>
-                    <th class="border-0">Created</th>
-                    <th class="border-0 text-end rounded-end-3">Actions</th>
-                </tr>
-            </thead>
-            <tbody id="ticketsTableBody">
-                <!-- Data loaded via JS -->
-            </tbody>
-        </table>
     </div>
 </div>
 
@@ -308,14 +364,14 @@
 
                         <div class="detail-card detail-item">
                             <div class="row g-3">
-                            <div class="col-6">
-                                <div class="detail-label">Category</div>
-                                <div class="detail-value" id="ticketCategory"></div>
-                            </div>
-                            <div class="col-6">
-                                <div class="detail-label">Priority</div>
-                                <div id="ticketPriority"></div>
-                            </div>
+                                <div class="col-6">
+                                    <div class="detail-label">Category</div>
+                                    <div class="detail-value" id="ticketCategory"></div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="detail-label">Priority</div>
+                                    <div id="ticketPriority"></div>
+                                </div>
                             </div>
                         </div>
 
@@ -393,11 +449,12 @@
                             </div>
                             <div class="mb-4">
                                 <label class="detail-label">Reassign To</label>
-                                <input type="text" class="form-control form-control-sm" id="assignToInput" placeholder="Enter name...">
+                                <input type="text" class="form-control form-control-sm" id="assignToInput"
+                                    placeholder="Enter name...">
                             </div>
                             <div class="d-grid gap-2">
-                                <button class="btn btn-primary fw-bold" onclick="updateTicketMeta()">Apply Updates</button>
-                                <button class="btn btn-success fw-bold" onclick="markAsResolved()">Mark as Resolved</button>
+                                <button class="btn btn-soft-purple btn-sm rounded-pill px-4 shadow-sm fw-semibold" onclick="updateTicketMeta()">Apply Updates</button>
+                                <button class="btn btn-success btn-sm rounded-pill px-4 fw-semibold" onclick="markAsResolved()">Mark as Resolved</button>
                             </div>
                         </div>
                     </div>
@@ -407,7 +464,8 @@
                         <div class="chat-header">
                             <div>
                                 <h6 class="fw-bold mb-0">Conversation</h6>
-                                <span class="text-muted small"><i class="bi bi-circle-fill text-success small me-1"></i> Live Updates</span>
+                                <span class="text-muted small"><i class="bi bi-circle-fill text-success small me-1"></i>
+                                    Live Updates</span>
                             </div>
                             <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                         </div>
@@ -418,7 +476,8 @@
 
                         <div class="chat-footer">
                             <div class="input-wrapper">
-                                <input type="text" class="chat-input" id="messageInput" placeholder="Type a message here..." onkeypress="handleKey(event)">
+                                <input type="text" class="chat-input" id="messageInput"
+                                    placeholder="Type a message here..." onkeypress="handleKey(event)">
                                 <button class="btn-send" id="sendBtn" onclick="sendMessage()">
                                     <i class="bi bi-send-fill"></i>
                                 </button>
@@ -436,7 +495,7 @@
     <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title mb-0 fw-bold">
+                <h5 class="modal-title mb-0 fw-bold text-dark">
                     <i class="bi bi-ticket-perforated text-primary me-2"></i>Raise New Ticket
                 </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
@@ -445,12 +504,12 @@
                 <form id="createTicketForm">
                     <div class="mb-4">
                         <label class="detail-label">Subject</label>
-                        <input type="text" class="form-control" name="title" required placeholder="What is the issue?">
+                        <input type="text" class="form-control rounded-3" name="title" required placeholder="What is the issue?">
                     </div>
                     <div class="row mb-4">
                         <div class="col-md-6">
                             <label class="detail-label">Category</label>
-                            <select class="form-select" name="category" required>
+                            <select class="form-select rounded-3" name="category" required>
                                 <option value="it_issue">IT Issue</option>
                                 <option value="hr_issue">HR Issue</option>
                                 <option value="payroll">Payroll</option>
@@ -460,7 +519,7 @@
                         </div>
                         <div class="col-md-6">
                             <label class="detail-label">Priority</label>
-                            <select class="form-select" name="priority" required>
+                            <select class="form-select rounded-3" name="priority" required>
                                 <option value="low">Low</option>
                                 <option value="medium" selected>Medium</option>
                                 <option value="high">High</option>
@@ -470,14 +529,15 @@
                     </div>
                     <div class="mb-4">
                         <label class="detail-label">Detailed Information</label>
-                        <textarea class="form-control" name="description" rows="4" required placeholder="Provide as much detail as possible..."></textarea>
+                        <textarea class="form-control rounded-3" name="description" rows="4" required
+                            placeholder="Provide as much detail as possible..."></textarea>
                     </div>
                 </form>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-primary fw-bold" onclick="createTicket()">
-                    <i class="bi bi-send me-1"></i>Submit Request
+                <button type="button" class="btn btn-light btn-sm rounded-pill px-4 border" data-bs-dismiss="modal" style="color: #64748B; font-weight: 600;">Cancel</button>
+                <button type="button" class="btn btn-soft-purple btn-sm rounded-pill px-4 shadow-sm fw-semibold" onclick="createTicket()">
+                    <i class="bi bi-send me-1"></i> Submit Request
                 </button>
             </div>
         </div>
@@ -511,7 +571,7 @@
         }
 
         loadTickets();
-        
+
         // Modal cleanup to prevent memory leaks and zombie polling
         const modal = document.getElementById('ticketDetailsModal');
         modal.addEventListener('hidden.bs.modal', () => {
@@ -565,22 +625,24 @@
         tbody.innerHTML = tickets.map(t => `
             <tr>
                 <td><span class="fw-bold text-primary">#${t.ticket_ref}</span></td>
-                <td class="fw-medium">${t.title}</td>
-                ${isAdmin ? `<td class="fw-semibold text-dark"><i class="bi bi-person me-1 text-muted"></i>${t.employee_name || 'N/A'}</td>` : ''}
-                <td><span class="badge bg-light text-dark fw-normal">${t.category.replace('_', ' ')}</span></td>
+                <td><div class="fw-semibold text-dark">${t.title}</div></td>
+                ${isAdmin ? `<td><div class="fw-semibold text-dark"><i class="bi bi-person me-1 text-muted"></i>${t.employee_name || 'N/A'}</div></td>` : ''}
+                <td><span class="badge bg-light text-dark fw-medium border">${t.category.replace('_', ' ')}</span></td>
                 <td><span class="badge-soft priority-${t.priority}">${t.priority}</span></td>
                 <td><span class="badge-soft status-${t.status}">${t.status.replace('_', ' ')}</span></td>
-                <td class="text-muted small">${new Date(t.created_at).toLocaleDateString()}</td>
-                <td class="text-end">
-                    <div class="d-flex justify-content-end gap-1">
-                        <button class="btn btn-sm btn-outline-primary px-3 rounded-pill" onclick="viewTicket(${t.id})">View</button>
-                        ${isAdmin && t.status !== 'closed' ? `<button class="btn btn-sm btn-outline-success px-3 rounded-pill" onclick="quickResolve(${t.id})">Done</button>` : ''}
+                <td class="text-secondary small">${new Date(t.created_at).toLocaleDateString()}</td>
+                <td class="text-center">
+                    <div class="d-inline-flex align-items-center gap-1">
+                        <button class="btn btn-sm btn-outline-primary px-3 rounded-pill fw-semibold" style="font-size: 0.78rem;" onclick="viewTicket(${t.id})">View</button>
+                        ${isAdmin && t.status !== 'closed' ? `<button class="btn btn-sm btn-outline-success px-3 rounded-pill fw-semibold" style="font-size: 0.78rem;" onclick="quickResolve(${t.id})">Done</button>` : ''}
                     </div>
                 </td>
             </tr>
         `).join('');
-        
-        applyPagination('.table', 10);
+
+        if (typeof applyPagination === 'function') {
+            applyPagination('.table', 20);
+        }
     }
 
     // --- DETAIL & CHAT ---
@@ -588,7 +650,7 @@
     function viewTicket(id) {
         console.log('Opening Ticket:', id);
         currentTicketId = id;
-        
+
         fetch(`/api/helpdesk/${id}`, { headers: getHeaders() })
             .then(res => res.json())
             .then(data => {
@@ -612,7 +674,7 @@
         document.getElementById('ticketPriority').innerHTML = `<span class="badge-soft priority-${t.priority}">${t.priority}</span>`;
         document.getElementById('ticketCategory').textContent = t.category.replace('_', ' ');
         document.getElementById('ticketEmployee').textContent = t.employee_name || 'Unknown';
-        
+
         const isReassigned = history && history.some(h => h.field === 'assigned_to');
         if (isReassigned) {
             document.getElementById('ticketAssigned').innerHTML = `${t.assigned_to || 'Unassigned'} <span class="badge bg-warning text-dark ms-1" style="font-size:0.68rem; vertical-align: middle;">Reassigned</span>`;
@@ -670,7 +732,7 @@
     function loadMessages(id, shouldScroll = false) {
         // Double check we are still viewing this ticket
         if (currentTicketId != id) return;
-        
+
         if (!chatInterval) {
             chatInterval = setInterval(() => loadMessages(id), 4000);
         }
@@ -695,12 +757,12 @@
         container.innerHTML = messages.map(m => {
             const isSystem = m.sender_name === 'System' || m.message.includes('marked as resolved');
             if (isSystem) return `<div class="system-msg">${m.message}</div>`;
-            
+
             const isSent = m.sender_name === user;
             return `
                 <div class="message-wrapper ${isSent ? 'sent' : 'received'}">
                     <div class="message-bubble">${m.message}</div>
-                    <div class="message-meta">${isSent ? 'You' : m.sender_name} • ${new Date(m.created_at).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</div>
+                    <div class="message-meta">${isSent ? 'You' : m.sender_name} • ${new Date(m.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
                 </div>
             `;
         }).join('');
@@ -725,22 +787,22 @@
             headers: getHeaders(),
             body: JSON.stringify({ message: message })
         })
-        .then(res => res.json())
-        .then(data => {
-            input.disabled = false;
-            btn.disabled = false;
-            if (data.success) {
-                input.value = '';
-                loadMessages(currentTicketId, true);
-            } else {
-                alert('Send failed: ' + data.error);
-            }
-        })
-        .catch(err => {
-            input.disabled = false;
-            btn.disabled = false;
-            console.error('Send Error:', err);
-        });
+            .then(res => res.json())
+            .then(data => {
+                input.disabled = false;
+                btn.disabled = false;
+                if (data.success) {
+                    input.value = '';
+                    loadMessages(currentTicketId, true);
+                } else {
+                    alert('Send failed: ' + data.error);
+                }
+            })
+            .catch(err => {
+                input.disabled = false;
+                btn.disabled = false;
+                console.error('Send Error:', err);
+            });
     }
 
     function handleKey(e) { if (e.key === 'Enter') sendMessage(); }
@@ -756,17 +818,17 @@
             headers: getHeaders(),
             body: JSON.stringify(data)
         })
-        .then(res => res.json())
-        .then(data => {
-            if (data.success) {
-                bootstrap.Modal.getInstance(document.getElementById('createTicketModal')).hide();
-                form.reset();
-                loadTickets();
-                alert('Ticket raised successfully!');
-            } else {
-                alert('Error: ' + data.error);
-            }
-        });
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    bootstrap.Modal.getInstance(document.getElementById('createTicketModal')).hide();
+                    form.reset();
+                    loadTickets();
+                    alert('Ticket raised successfully!');
+                } else {
+                    alert('Error: ' + data.error);
+                }
+            });
     }
 
     function updateTicketMeta() {
@@ -778,19 +840,19 @@
             headers: getHeaders(),
             body: JSON.stringify({ status: status })
         })
-        .then(() => {
-            if (assigned) {
-                return fetch(`/api/helpdesk/${currentTicketId}/assign`, {
-                    method: 'PATCH',
-                    headers: getHeaders(),
-                    body: JSON.stringify({ assigned_to: assigned })
-                });
-            }
-        })
-        .then(() => {
-            viewTicket(currentTicketId);
-            loadTickets();
-        });
+            .then(() => {
+                if (assigned) {
+                    return fetch(`/api/helpdesk/${currentTicketId}/assign`, {
+                        method: 'PATCH',
+                        headers: getHeaders(),
+                        body: JSON.stringify({ assigned_to: assigned })
+                    });
+                }
+            })
+            .then(() => {
+                viewTicket(currentTicketId);
+                loadTickets();
+            });
     }
 
     function markAsResolved() {
@@ -802,14 +864,14 @@
             headers: getHeaders(),
             body: JSON.stringify({ status: 'resolved' })
         })
-        .then(res => res.json())
-        .then(data => {
-            if (data.success) {
-                sendMessage(`Ticket marked as resolved by ${name}`);
-                viewTicket(currentTicketId);
-                loadTickets();
-            }
-        });
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    sendMessage(`Ticket marked as resolved by ${name}`);
+                    viewTicket(currentTicketId);
+                    loadTickets();
+                }
+            });
     }
 
     function quickResolve(id) {

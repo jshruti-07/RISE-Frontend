@@ -4,78 +4,193 @@
 
 {% block content %}
 <style>
-    .badge-pastel-success {
-        background-color: #D1E7DD;
-        color: #0F5132;
+    .hd-dashboard-card {
+        background: #FFFFFF;
+        border: 1px solid #E8ECF4;
+        border-radius: 16px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+        overflow: hidden;
     }
 
-    .badge-pastel-warning {
-        background-color: #FFF3CD;
-        color: #664D03;
+    .leave-filter-pill {
+        border: 1px solid #E2E8F0;
+        background: #FFFFFF;
+        color: #64748B;
+        border-radius: 20px;
+        padding: 5px 14px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.15s ease;
     }
 
-    .badge-pastel-danger {
-        background-color: #F8D7DA;
-        color: #842029;
+    .leave-filter-pill:hover, .leave-filter-pill.active {
+        background: #6366F1;
+        color: #FFFFFF;
+        border-color: #6366F1;
+    }
+
+    .avatar-circle-sm {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.82rem;
+        font-weight: 700;
+        flex-shrink: 0;
     }
 </style>
 
-<div class="d-flex justify-content-between mb-3" style="margin: 10px;">
-    <h5>{{ labels.EMPLOYEE_RECORDS }}</h5>
-    {% if session.role in ['hr','admin'] %}
-    <a href="{{ url_for('employees.add_employee') }}" class="btn btn-primary">+ {{ labels.ADD_EMPLOYEE }}</a>
+{# Compute role counts #}
+{% set ns_roles = namespace(all=employees|length, employee=0, manager=0, hr=0, admin=0, superadmin=0) %}
+{% for emp in employees %}
+    {% set r = (emp.role or 'employee')|lower %}
+    {% if r == 'employee' %}{% set ns_roles.employee = ns_roles.employee + 1 %}
+    {% elif r == 'manager' %}{% set ns_roles.manager = ns_roles.manager + 1 %}
+    {% elif r == 'hr' %}{% set ns_roles.hr = ns_roles.hr + 1 %}
+    {% elif r == 'superadmin' %}{% set ns_roles.superadmin = ns_roles.superadmin + 1 %}
+    {% elif r == 'admin' %}{% set ns_roles.admin = ns_roles.admin + 1 %}
     {% endif %}
-</div>
+{% endfor %}
 
-<div class="form-card">
-    <table class="table table-hover" style="cursor:pointer; text-align: center;">
-        <thead>
-            <tr>
-                <th style="text-align: left;">Name</th>
-                <th style="text-align: left;">Role</th>
-                <th style="text-align: left;">Email</th>
-                <th>Joining Date</th>
-            </tr>
-        </thead>
+<div class="container-fluid py-4">
+    <div class="mb-3">
+        <h4 class="fw-bold text-dark mb-0">Team Members</h4>
+    </div>
+    <div class="hd-dashboard-card">
+        <div class="p-4">
+            <!-- Filter Controls, Search & Actions Toolbar -->
+            <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-3">
+                <!-- Role Filter Pills -->
+                <div class="d-flex align-items-center gap-2 flex-wrap">
+                    <button type="button" class="leave-filter-pill active" onclick="filterRole('all', this)">All ({{ ns_roles.all }})</button>
+                    {% if ns_roles.employee > 0 %}<button type="button" class="leave-filter-pill" onclick="filterRole('employee', this)">Team Members ({{ ns_roles.employee }})</button>{% endif %}
+                    {% if ns_roles.manager > 0 %}<button type="button" class="leave-filter-pill" onclick="filterRole('manager', this)">Managers ({{ ns_roles.manager }})</button>{% endif %}
+                    {% if ns_roles.hr > 0 %}<button type="button" class="leave-filter-pill" onclick="filterRole('hr', this)">HR ({{ ns_roles.hr }})</button>{% endif %}
+                    {% if ns_roles.admin > 0 %}<button type="button" class="leave-filter-pill" onclick="filterRole('admin', this)">Admin ({{ ns_roles.admin }})</button>{% endif %}
+                    {% if ns_roles.superadmin > 0 %}<button type="button" class="leave-filter-pill" onclick="filterRole('superadmin', this)">Super Admin ({{ ns_roles.superadmin }})</button>{% endif %}
+                </div>
 
-        <tbody>
-
-            {% set colors = ['bg-primary','bg-danger','bg-success','bg-warning','bg-dark'] %}
-
-            {% for emp in employees %}
-            <tr onclick="window.location.href='{{ url_for('employees.view_profile', employee_name=emp.name) }}'">
-
-                <td>
-                    <div class="d-flex flex-column justify-content-center" style="text-align: left;">
-                        <a href="{{ url_for('employees.view_profile', employee_name=emp.name) }}"
-                            class="text-decoration-none fw-semibold text-dark hover-primary" style="line-height: 1.2;"
-                            onclick="event.stopPropagation()">
-                            {{ emp.name | clean_name }}
-                        </a>
+                <!-- Search & Action -->
+                <div class="d-flex align-items-center gap-2 flex-wrap">
+                    <div class="input-group input-group-sm" style="max-width: 240px;">
+                        <span class="input-group-text bg-white border-end-0"><i class="bi bi-search text-muted"></i></span>
+                        <input type="text" class="form-control border-start-0 ps-0" placeholder="Search team members..." onkeyup="searchTeam(this.value)">
                     </div>
-                </td>
 
-                <td><span class="d-flex flex-column justify-content-center"
-                        style="font-size: 0.8rem; color: slategray; text-align: left;">{{ labels.EMPLOYEE.upper() if
-                        emp.role == 'employee' else emp.role | upper }}</span></td>
-                <td><span class="d-flex flex-column justify-content-center"
-                        style="font-size: 0.8rem; color: slategray; text-align: left;">{{ emp.email }}</span></td>
-                <td><span class="d-flex flex-column justify-content-center"
-                        style="font-size: 0.8rem; color: slategray; text-align: center;">{{ emp.date_of_joining[:11] if
-                        emp.date_of_joining else '' }}</span></td>
-            </tr>
+                    <span class="badge bg-light text-secondary border px-3 py-2" style="font-size: 0.82rem;">
+                        <i class="bi bi-people-fill me-1 text-primary"></i> Total: {{ ns_roles.all }}
+                    </span>
 
-            {% endfor %}
+                    {% if session.role in ['hr', 'admin'] %}
+                    <a href="{{ url_for('employees.add_employee') }}" class="btn btn-soft-purple btn-sm rounded-pill px-3 shadow-sm" style="font-size: 0.8rem; font-weight: 600;">
+                        <i class="bi bi-plus-circle me-1"></i> {{ labels.ADD_EMPLOYEE }}
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
 
-        </tbody>
-    </table>
-
+            <!-- Team Members Table -->
+            <div class="table-responsive rounded-3 border" style="border-color: #E8ECF4 !important;">
+                <table class="table table-hover align-middle mb-0" id="teamMembersTable">
+                    <thead class="table-light" style="background-color: #F8FAFC;">
+                        <tr>
+                            <th style="font-weight: 700; color: #475569; font-size: 0.85rem; padding: 12px 16px;">Team Member</th>
+                            <th style="font-weight: 700; color: #475569; font-size: 0.85rem;">Role</th>
+                            <th style="font-weight: 700; color: #475569; font-size: 0.85rem;">Email Address</th>
+                            <th style="font-weight: 700; color: #475569; font-size: 0.85rem;">Joining Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for emp in employees %}
+                        {% set emp_role = (emp.role or 'employee')|lower %}
+                        <tr data-role="{{ emp_role }}" class="team-member-row" style="cursor: pointer;" onclick="window.location.href='{{ url_for('employees.view_profile', employee_name=emp.name) }}'">
+                            <td style="padding: 12px 16px;">
+                                <div class="d-flex align-items-center gap-2">
+                                    {% set role_bg = '#EEF2FF' if emp_role == 'employee' else ('#F5F3FF' if emp_role == 'manager' else ('#ECFDF5' if emp_role == 'hr' else ('#FEF2F2' if emp_role == 'superadmin' else '#EFF6FF'))) %}
+                                    {% set role_fg = '#4F46E5' if emp_role == 'employee' else ('#6D28D9' if emp_role == 'manager' else ('#047857' if emp_role == 'hr' else ('#B91C1C' if emp_role == 'superadmin' else '#1D4ED8'))) %}
+                                    <div class="avatar-circle-sm" style="background: {{ role_bg }}; color: {{ role_fg }}; border: 1px solid rgba(0,0,0,0.04);">
+                                        {{ (emp.name or 'E')[:2]|upper }}
+                                    </div>
+                                    <div>
+                                        <div class="fw-bold text-slate-900" style="font-size: 0.9rem;">{{ emp.name | clean_name }}</div>
+                                        <small class="text-muted">{{ emp.designation or ('Super Admin' if emp_role == 'superadmin' else emp_role|capitalize) }}</small>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                {% set badge_bg = '#EEF2FF' if emp_role == 'employee' else ('#F5F3FF' if emp_role == 'manager' else ('#ECFDF5' if emp_role == 'hr' else ('#FEF2F2' if emp_role == 'superadmin' else '#EFF6FF'))) %}
+                                {% set badge_fg = '#4338CA' if emp_role == 'employee' else ('#6D28D9' if emp_role == 'manager' else ('#047857' if emp_role == 'hr' else ('#B91C1C' if emp_role == 'superadmin' else '#1D4ED8'))) %}
+                                {% set badge_border = '#E0E7FF' if emp_role == 'employee' else ('#EDE9FE' if emp_role == 'manager' else ('#D1FAE5' if emp_role == 'hr' else ('#FECACA' if emp_role == 'superadmin' else '#DBEAFE'))) %}
+                                <span class="badge px-2.5 py-1 rounded-pill" style="background: {{ badge_bg }}; color: {{ badge_fg }}; border: 1px solid {{ badge_border }}; font-weight: 600; font-size: 0.76rem; letter-spacing: 0.02em;">
+                                    {{ 'Super Admin' if emp_role == 'superadmin' else (labels.EMPLOYEE if emp_role == 'employee' else emp_role | capitalize) }}
+                                </span>
+                            </td>
+                            <td>
+                                <div class="text-slate-700" style="font-size: 0.85rem;">
+                                    {{ emp.email or '—' }}
+                                </div>
+                            </td>
+                            <td>
+                                <div class="text-slate-700" style="font-size: 0.85rem;">
+                                    {{ emp.date_of_joining[:10] if emp.date_of_joining else '—' }}
+                                </div>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="4" class="text-center text-muted py-5">
+                                <i class="bi bi-people fs-2 d-block mb-2 text-muted"></i>
+                                <span>No team members found.</span>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 </div>
 
 <script>
+    function filterRole(role, btn) {
+        document.querySelectorAll('.leave-filter-pill').forEach(b => b.classList.remove('active'));
+        if (btn) btn.classList.add('active');
+
+        const rows = document.querySelectorAll('.team-member-row');
+        rows.forEach(r => {
+            const rRole = (r.getAttribute('data-role') || '').toLowerCase();
+            if (role === 'all' || rRole === role) {
+                r.style.display = '';
+            } else {
+                r.style.display = 'none';
+            }
+        });
+
+        if (typeof applyPagination === 'function') {
+            applyPagination('#teamMembersTable', 20);
+        }
+    }
+
+    function searchTeam(query) {
+        const q = (query || '').toLowerCase().trim();
+        const rows = document.querySelectorAll('.team-member-row');
+        rows.forEach(r => {
+            const text = (r.textContent || '').toLowerCase();
+            if (!q || text.includes(q)) {
+                r.style.display = '';
+            } else {
+                r.style.display = 'none';
+            }
+        });
+    }
+
     document.addEventListener('DOMContentLoaded', () => {
-        applyPagination('.table', 10);
+        if (typeof applyPagination === 'function') {
+            applyPagination('#teamMembersTable', 20);
+        }
     });
 </script>
-
 {% endblock %}

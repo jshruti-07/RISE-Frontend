@@ -108,9 +108,22 @@ def dashboard():
         except Exception as hol_e:
             print("Error fetching holidays:", hol_e)
 
+        # 2. Upcoming Birthdays (Next birthdays across all team members)
+        birthday_source = list(employees)
+        try:
+            b_res = requests.get(f"{BASE_URL}/birthdays", headers=get_headers(), timeout=5)
+            if b_res.status_code != 200:
+                b_res = requests.get(f"{BASE_URL}/birthdays/all", headers=get_headers(), timeout=5)
+            if b_res.status_code == 200:
+                b_data = extract_list(b_res.json(), 'birthdays', 'data')
+                if b_data:
+                    birthday_source = b_data
+        except Exception as b_fetch_err:
+            print("Error fetching birthdays endpoint:", b_fetch_err)
+
         # Create a map for employee photos (only keep valid URLs)
         photo_map = {}
-        for emp in employees:
+        for emp in birthday_source:
             nm = person_system_name(emp)
             photo = pick(emp, 'photo_url', 'photo')
             if nm and photo:
@@ -121,10 +134,9 @@ def dashboard():
                     if bare:
                         photo_map[bare] = photo_str
 
-        # 2. Upcoming Birthdays (Next birthdays across all team members)
         all_birthdays_sorted = []
         today_date = datetime.now().date()
-        for emp in employees:
+        for emp in birthday_source:
             dob = emp.get('date_of_birth')
             if dob:
                 raw_dob = str(dob)[:10]

@@ -3,45 +3,76 @@
 {% block page_title %}Offboarding{% endblock %}
 
 {% block content %}
-<div class="page-content">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h4>Offboarding Requests</h4>
+<style>
+    .hd-dashboard-card {
+        background: #FFFFFF;
+        border: 1px solid #E8ECF4;
+        border-radius: 16px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+        overflow: hidden;
+    }
+
+    .offboarding-table th {
+        white-space: nowrap;
+    }
+
+    .offboarding-table td {
+        vertical-align: middle;
+        padding: 12px 16px;
+        font-size: 0.85rem;
+    }
+</style>
+
+<div class="container-fluid py-4">
+    <!-- Title Outside Table Card -->
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h4 class="fw-bold text-dark mb-0">Offboarding Requests</h4>
     </div>
     
-    <div class="card-ui">
-        <div class="table-responsive">
-            <table class="table table-hover">
-                <thead>
-                    <tr>
-                        <th>Employee</th>
-                        <th>Initiated By</th>
-                        <th>Last Working Day</th>
-                        <th>Status</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for req in requests %}
-                    <tr>
-                        <td>{{ req.employee_name }}</td>
-                        <td>{{ req.initiated_by_name }}</td>
-                        <td>{{ req.last_working_day }}</td>
-                        <td>
-                            <span class="badge {% if req.status == 'COMPLETED' %}bg-success{% elif req.status == 'IN_PROGRESS' %}bg-warning{% elif req.status == 'CANCELLED' %}bg-secondary{% else %}bg-info{% endif %}">
-                                {{ req.status }}
-                            </span>
-                        </td>
-                        <td>
-                            <a href="{{ url_for('offboarding_ui.detail', id=req.id) }}" class="btn btn-sm btn-outline-primary">View Detail</a>
-                        </td>
-                    </tr>
-                    {% else %}
-                    <tr>
-                        <td colspan="5" class="text-center text-muted">No offboarding requests found.</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+    <div class="hd-dashboard-card">
+        <div class="p-4">
+            <div class="table-responsive rounded-3 border" style="border-color: #E8ECF4 !important;">
+                <table class="table table-hover align-middle mb-0 offboarding-table">
+                    <thead class="table-light" style="background-color: #F8FAFC;">
+                        <tr>
+                            <th style="font-weight: 700; color: #475569; font-size: 0.85rem; padding: 12px 16px;">Employee</th>
+                            <th style="font-weight: 700; color: #475569; font-size: 0.85rem;">Initiated By</th>
+                            <th style="font-weight: 700; color: #475569; font-size: 0.85rem;">Last Working Day</th>
+                            <th style="font-weight: 700; color: #475569; font-size: 0.85rem;">Status</th>
+                            <th style="font-weight: 700; color: #475569; font-size: 0.85rem; text-align: center; padding-right: 16px;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for req in requests %}
+                        <tr>
+                            <td>
+                                <div class="fw-bold text-dark">{{ req.employee_name }}</div>
+                            </td>
+                            <td>
+                                <span class="text-secondary">{{ req.initiated_by_name or '—' }}</span>
+                            </td>
+                            <td>
+                                <span class="text-secondary">{{ req.last_working_day or '—' }}</span>
+                            </td>
+                            <td>
+                                <span class="badge rounded-pill px-2.5 py-1 fw-semibold {% if req.status == 'COMPLETED' %}bg-success bg-opacity-10 text-success border border-success border-opacity-25{% elif req.status == 'IN_PROGRESS' %}bg-warning bg-opacity-10 text-warning border border-warning border-opacity-25{% elif req.status == 'CANCELLED' %}bg-secondary bg-opacity-10 text-secondary border border-secondary border-opacity-25{% else %}bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25{% endif %}" style="font-size: 0.76rem;">
+                                    {{ req.status }}
+                                </span>
+                            </td>
+                            <td class="text-center">
+                                <a href="{{ url_for('offboarding_ui.detail', id=req.id) }}" class="btn btn-sm btn-outline-primary rounded-pill px-3 fw-semibold" style="font-size: 0.78rem;">
+                                    View Detail
+                                </a>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="5" class="text-center text-muted py-4">No offboarding requests found.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 </div>

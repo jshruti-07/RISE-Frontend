@@ -34,18 +34,53 @@ def timesheets_list():
         # 1. Fetch ALL projects
         projects_db = []
         project_manager_map = {}
+        managed_projects = set()
+        managed_team_members = set()
         try:
             proj_res = requests.get(f"{BASE_URL}/projects/", headers=get_headers(), timeout=10)
             if proj_res.status_code == 200:
                 data = proj_res.json()
                 projects_db = extract_list(data, 'projects', 'data')
                 
-                # Map projects to managers
+                # Map projects to managers and collect managed projects & team members
+                current_user_name = session.get('employee_name')
                 for proj in projects_db:
                     if not isinstance(proj, dict): continue
-                    p_name = str(proj.get('name', '')).strip().lower()
-                    mgr = pick(proj, 'assigned_manager', 'manager_name', 'assigned_manager_name', default='-')
-                    project_manager_map[p_name] = mgr
+                    p_name = str(proj.get('name', '') or proj.get('project_name', '')).strip().lower()
+                    mgr = pick(proj, 'assigned_manager', 'manager_name', 'assigned_manager_name', 'manager', default='-')
+                    if p_name:
+                        project_manager_map[p_name] = mgr
+                    
+                    if current_user_name and names_match(mgr, current_user_name):
+                        if p_name:
+                            managed_projects.add(p_name)
+                        if proj.get('id'):
+                            managed_projects.add(str(proj.get('id')))
+                        
+                        raw_team = (
+                            proj.get('team_members') or 
+                            proj.get('team') or 
+                            proj.get('assignments') or 
+                            proj.get('project_team') or 
+                            proj.get('members') or 
+                            proj.get('employees') or 
+                            proj.get('member_list') or []
+                        )
+                        if not isinstance(raw_team, list):
+                            raw_team = [raw_team]
+                        for m in raw_team:
+                            if isinstance(m, str) and m.strip():
+                                managed_team_members.add(m.strip().lower())
+                            elif isinstance(m, dict):
+                                m_name = (
+                                    m.get('name') or 
+                                    m.get('employee_name') or 
+                                    m.get('employee') or 
+                                    m.get('employeeName') or 
+                                    m.get('member_name')
+                                )
+                                if m_name:
+                                    managed_team_members.add(str(m_name).strip().lower())
         except Exception as e:
             print(f"Error fetching projects for timesheets: {e}")
 
@@ -89,17 +124,30 @@ def timesheets_list():
             is_own = names_match(emp_name, current_user)
             t['is_own'] = is_own
             
+            # Ensure manager_name is set for display if empty
+            proj_name = str(t.get('project', '') or t.get('project_name', '')).strip().lower()
+            if not t.get('manager_name') or t.get('manager_name') == '-':
+                if proj_name in project_manager_map and project_manager_map[proj_name] != '-':
+                    t['manager_name'] = project_manager_map[proj_name]
+            
             # Visibility Logic
             show = False
-            if user_role == 'admin':
+            if user_role in ['admin', 'hr']:
                 show = True
             elif is_own:
                 show = True
             elif user_role == 'manager':
-                proj_name = str(t.get('project', '')).strip().lower()
+                assigned_mgr = t.get('manager_name') or t.get('manager') or t.get('assigned_manager')
                 mgr_for_proj = project_manager_map.get(proj_name)
-                assigned_mgr = t.get('manager_name')
-                if names_match(assigned_mgr, current_user) or names_match(mgr_for_proj, current_user):
+                
+                # 1. Timesheet explicitly names this manager
+                if names_match(assigned_mgr, current_user):
+                    show = True
+                # 2. Project is managed by this manager
+                elif names_match(mgr_for_proj, current_user) or (proj_name and proj_name in managed_projects):
+                    show = True
+                # 3. Employee submitting timesheet is on one of this manager's project teams
+                elif any(names_match(tm, emp_name) for tm in managed_team_members):
                     show = True
             
             if show:
@@ -563,14 +611,36 @@ def leaves_list():
             # Robust self-check
             l['is_own'] = names_match(emp_name, current_user)
             
+            # Signoffs from backend
+            signoffs = l.get('signoffs') or []
+            l['signoffs'] = signoffs
+            
+            # Determine if current user can approve this pending leave
+            can_approve = False
+            if l.get('status') == 'pending' and not l['is_own']:
+                if user_role in ['admin', 'superadmin']:
+                    can_approve = True
+                elif user_role == 'hr':
+                    can_approve = any(s.get('approver_role') == 'hr' and s.get('status') == 'pending' for s in signoffs) if signoffs else True
+                elif user_role == 'manager':
+                    can_approve = any(
+                        s.get('approver_role') == 'manager'
+                        and s.get('status') == 'pending'
+                        and (names_match(s.get('approver_name'), current_user) or not s.get('approver_name'))
+                        for s in signoffs
+                    ) if signoffs else True
+
+            l['can_user_approve'] = can_approve
+
             # Visibility Logic
             show = False
-            if user_role in ['hr', 'admin']:
+            if user_role in ['hr', 'admin', 'superadmin']:
                 show = True
             elif l['is_own']:
                 show = True
             elif user_role == 'manager':
-                # Managers see leaves of employees in projects they manage
+                # Managers see leaves of employees in projects they manage OR leaves requiring their signoff
+                has_pending_signoff = any(names_match(s.get('approver_name'), current_user) for s in signoffs)
                 managed_projects = [p['name'].strip().lower() for p in projects_db if names_match(pick(p, 'assigned_manager', 'manager_name', 'assigned_manager_name'), current_user)]
                 
                 # Check if this employee is in any of those projects
@@ -585,7 +655,7 @@ def leaves_list():
                     if is_member:
                         emp_projects.append(p['name'].strip().lower())
                 
-                if any(proj in managed_projects for proj in emp_projects):
+                if has_pending_signoff or any(proj in managed_projects for proj in emp_projects):
                     show = True
             
             if show:
@@ -593,7 +663,7 @@ def leaves_list():
 
         # Fetch balance summary for current user
         balance_data = fetch_leave_balance_helper(current_user)
-        summary = {"remaining_leaves": 0, "casual_leaves": 0, "sick_leaves": 0, "earned_leaves": 0}
+        summary = {"remaining_leaves": 0, "planned_leaves": 0, "unplanned_leaves": 0, "optional_leaves": 0}
         balance = []
         
         if balance_data:
@@ -654,10 +724,11 @@ def add_leave():
     balance_data = fetch_leave_balance_helper(employee_name)
     balance = []
     summary = {
-        "remaining_leaves": 0, "total_leaves": 30, "used_leaves": 0,
-        "casual_used": 0, "casual_total": 12,
-        "sick_used": 0, "sick_total": 10,
-        "earned_used": 0, "earned_total": 8
+        "remaining_leaves": 0, "total_leaves": 18, "used_leaves": 0,
+        "planned_used": 0, "planned_total": 12,
+        "unplanned_used": 0, "unplanned_total": 4,
+        "optional_used": 0, "optional_total": 2,
+        "planned_leaves": 0, "unplanned_leaves": 0, "optional_leaves": 0
     }
     
     if balance_data:
@@ -669,7 +740,7 @@ def add_leave():
             leaves_res = requests.get(f"{BASE_URL}/leaves", headers=get_headers(), timeout=10)
             if leaves_res.status_code == 200:
                 leaves_data = extract_list(leaves_res.json(), 'leaves', 'data')
-                used_stats = {"casual": 0, "sick": 0, "earned": 0, "total": 0}
+                used_stats = {"planned": 0, "unplanned": 0, "optional": 0, "total": 0}
 
                 for leave in leaves_data:
                     emp = pick(leave, 'employee_name', 'teamMemberName', 'name')
@@ -679,26 +750,30 @@ def add_leave():
                             e_date = datetime.strptime(leave.get("end_date")[:10], "%Y-%m-%d")
                             days = (e_date - s_date).days + 1
                             ltype = (leave.get("leave_type") or "").lower()
-                            if "casual" in ltype: used_stats["casual"] += days
-                            elif "sick" in ltype: used_stats["sick"] += days
-                            elif "earned" in ltype: used_stats["earned"] += days
+                            if "planned" in ltype and "unplanned" not in ltype: used_stats["planned"] += days
+                            elif "unplanned" in ltype or "sick" in ltype: used_stats["unplanned"] += days
+                            elif "optional" in ltype or "earned" in ltype: used_stats["optional"] += days
+                            elif "casual" in ltype: used_stats["planned"] += days
                             used_stats["total"] += days
                         except: continue
                 
                 summary = {
-                    "total_leaves": 30,
+                    "total_leaves": 18,
                     "used_leaves": used_stats["total"],
-                    "remaining_leaves": 30 - used_stats["total"],
-                    "casual_used": used_stats["casual"], "casual_total": 12,
-                    "sick_used": used_stats["sick"], "sick_total": 10,
-                    "earned_used": used_stats["earned"], "earned_total": 8
+                    "remaining_leaves": 18 - used_stats["total"],
+                    "planned_used": used_stats["planned"], "planned_total": 12,
+                    "unplanned_used": used_stats["unplanned"], "unplanned_total": 4,
+                    "optional_used": used_stats["optional"], "optional_total": 2,
+                    "planned_leaves": 12 - used_stats["planned"],
+                    "unplanned_leaves": 4 - used_stats["unplanned"],
+                    "optional_leaves": 2 - used_stats["optional"]
                 }
-                # Compatibility for add_leave template
-                summary["casual_leaves"] = 12 - used_stats["casual"]
-                summary["sick_leaves"] = 10 - used_stats["sick"]
-                summary["earned_leaves"] = 8 - used_stats["earned"]
                 
-                balance = [{"leave_type": "Calculated Fallback", "remaining_leaves": summary["remaining_leaves"]}]
+                balance = [
+                    {"leave_type": "Planned", "used_leaves": used_stats["planned"], "total_leaves": 12, "remaining_leaves": summary["planned_leaves"]},
+                    {"leave_type": "Unplanned", "used_leaves": used_stats["unplanned"], "total_leaves": 4, "remaining_leaves": summary["unplanned_leaves"]},
+                    {"leave_type": "Optional", "used_leaves": used_stats["optional"], "total_leaves": 2, "remaining_leaves": summary["optional_leaves"]}
+                ]
         except Exception as e:
             print(f"Error in add_leave fallback: {e}")
 
@@ -890,8 +965,8 @@ def leaves_balance():
         leaves_res = requests.get(f"{BASE_URL}/leaves", headers=get_headers(), timeout=10)
         if leaves_res.status_code == 200:
             leaves_data = extract_list(leaves_res.json(), 'leaves', 'data')
-            used_stats = {"casual": 0, "sick": 0, "earned": 0, "total": 0}
-            quotas = {"casual": 12, "sick": 10, "earned": 8, "total": 30}
+            used_stats = {"planned": 0, "unplanned": 0, "optional": 0, "total": 0}
+            quotas = {"planned": 12, "unplanned": 4, "optional": 2, "total": 18}
 
             for leave in leaves_data:
                 emp = pick(leave, 'employee_name', 'teamMemberName', 'name')
@@ -901,9 +976,10 @@ def leaves_balance():
                         e_date = datetime.strptime(leave.get("end_date")[:10], "%Y-%m-%d")
                         days = (e_date - s_date).days + 1
                         ltype = (leave.get("leave_type") or "").lower()
-                        if "casual" in ltype: used_stats["casual"] += days
-                        elif "sick" in ltype: used_stats["sick"] += days
-                        elif "earned" in ltype: used_stats["earned"] += days
+                        if "planned" in ltype and "unplanned" not in ltype: used_stats["planned"] += days
+                        elif "unplanned" in ltype or "sick" in ltype: used_stats["unplanned"] += days
+                        elif "optional" in ltype or "earned" in ltype: used_stats["optional"] += days
+                        elif "casual" in ltype: used_stats["planned"] += days
                         used_stats["total"] += days
                     except: continue
             
@@ -912,14 +988,17 @@ def leaves_balance():
                 "summary": {
                     "total_leaves": quotas["total"], "used_leaves": used_stats["total"],
                     "remaining_leaves": quotas["total"] - used_stats["total"],
-                    "casual_used": used_stats["casual"], "casual_total": quotas["casual"],
-                    "sick_used": used_stats["sick"], "sick_total": quotas["sick"],
-                    "earned_used": used_stats["earned"], "earned_total": quotas["earned"]
+                    "planned_used": used_stats["planned"], "planned_total": quotas["planned"],
+                    "unplanned_used": used_stats["unplanned"], "unplanned_total": quotas["unplanned"],
+                    "optional_used": used_stats["optional"], "optional_total": quotas["optional"],
+                    "planned_leaves": quotas["planned"] - used_stats["planned"],
+                    "unplanned_leaves": quotas["unplanned"] - used_stats["unplanned"],
+                    "optional_leaves": quotas["optional"] - used_stats["optional"]
                 },
                 "balances": [
-                    {"leave_type": "Casual", "used_leaves": used_stats["casual"], "total_leaves": quotas["casual"], "remaining_leaves": quotas["casual"] - used_stats["casual"]},
-                    {"leave_type": "Sick", "used_leaves": used_stats["sick"], "total_leaves": quotas["sick"], "remaining_leaves": quotas["sick"] - used_stats["sick"]},
-                    {"leave_type": "Earned", "used_leaves": used_stats["earned"], "total_leaves": quotas["earned"], "remaining_leaves": quotas["earned"] - used_stats["earned"]}
+                    {"leave_type": "Planned", "used_leaves": used_stats["planned"], "total_leaves": quotas["planned"], "remaining_leaves": quotas["planned"] - used_stats["planned"]},
+                    {"leave_type": "Unplanned", "used_leaves": used_stats["unplanned"], "total_leaves": quotas["unplanned"], "remaining_leaves": quotas["unplanned"] - used_stats["unplanned"]},
+                    {"leave_type": "Optional", "used_leaves": used_stats["optional"], "total_leaves": quotas["optional"], "remaining_leaves": quotas["optional"] - used_stats["optional"]}
                 ]
             })
     except Exception as e:
@@ -931,10 +1010,62 @@ def leaves_balance():
 @role_required(['admin', 'hr', 'manager'])
 def get_pending_timesheets():
     try:
-        # Backend endpoint discovered: /timesheets/pending-approvals/
+        current_user = session.get('employee_name')
+        user_role = str(session.get('role', '')).lower().strip()
+        
+        # 1. Try backend pending-approvals endpoint
         res = requests.get(f"{BASE_URL}/timesheets/pending-approvals/", headers=get_headers(), timeout=10)
         if res.status_code == 200:
-            return jsonify(res.json()), 200
+            data = res.json()
+            items = extract_list(data, 'pending_timesheets', 'timesheets', 'data')
+            if items:
+                return jsonify({"success": True, "pending_timesheets": items}), 200
+
+        # 2. Fallback: Query all timesheets and filter submitted for manager's projects/team
+        ts_res = requests.get(f"{BASE_URL}/timesheets/", headers=get_headers(), timeout=10)
+        if ts_res.status_code == 200:
+            all_ts = extract_list(ts_res.json(), 'timesheets', 'data')
+            
+            # Fetch projects to map manager & team members
+            managed_projects = set()
+            managed_team_members = set()
+            try:
+                p_res = requests.get(f"{BASE_URL}/projects/", headers=get_headers(), timeout=10)
+                if p_res.status_code == 200:
+                    for proj in extract_list(p_res.json(), 'projects', 'data'):
+                        if not isinstance(proj, dict): continue
+                        p_name = str(proj.get('name', '') or proj.get('project_name', '')).strip().lower()
+                        mgr = pick(proj, 'assigned_manager', 'manager_name', 'assigned_manager_name', 'manager', default='')
+                        if current_user and names_match(mgr, current_user):
+                            if p_name: managed_projects.add(p_name)
+                            raw_team = proj.get('team_members') or proj.get('team') or proj.get('assignments') or proj.get('project_team') or proj.get('members') or proj.get('employees') or []
+                            if not isinstance(raw_team, list): raw_team = [raw_team]
+                            for m in raw_team:
+                                m_name = m if isinstance(m, str) else (m.get('name') or m.get('employee_name') or m.get('employee') or m.get('member_name'))
+                                if m_name: managed_team_members.add(str(m_name).strip().lower())
+            except Exception as pe:
+                print(f"Error fetching projects for pending timesheets: {pe}")
+            
+            pending = []
+            for t in all_ts:
+                if not isinstance(t, dict): continue
+                st = str(t.get('status', '')).lower().strip()
+                if st != 'submitted': continue
+                
+                emp_name = t.get('employee_name') or t.get('name') or t.get('emp_name')
+                is_own = names_match(emp_name, current_user)
+                if is_own: continue
+                
+                if user_role in ['admin', 'hr']:
+                    pending.append(t)
+                elif user_role == 'manager':
+                    assigned_mgr = t.get('manager_name') or t.get('manager') or t.get('assigned_manager')
+                    proj_name = str(t.get('project', '') or t.get('project_name', '')).strip().lower()
+                    if names_match(assigned_mgr, current_user) or (proj_name and proj_name in managed_projects) or any(names_match(tm, emp_name) for tm in managed_team_members):
+                        pending.append(t)
+                        
+            return jsonify({"success": True, "pending_timesheets": pending}), 200
+            
         return jsonify({"success": False, "error": "Failed to fetch pending timesheets"}), res.status_code
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 500
@@ -948,10 +1079,20 @@ def approve_timesheet():
         if not ts_id:
             return jsonify({"success": False, "error": "Timesheet ID required"}), 400
             
-        # Backend endpoint discovered: /timesheets/<id>/approve/
+        # 1. Primary endpoint: POST /timesheets/<id>/approve/
         res = requests.post(f"{BASE_URL}/timesheets/{ts_id}/approve/", headers=get_headers(), timeout=10)
         if res.status_code in [200, 201]:
             return jsonify({"success": True}), 200
+        
+        # 2. Fallbacks: PATCH /timesheets/<id>/review or PATCH /timesheets/<id>
+        res = requests.patch(f"{BASE_URL}/timesheets/{ts_id}/review", json={"status": "approved"}, headers=get_headers(), timeout=10)
+        if res.status_code in [200, 201]:
+            return jsonify({"success": True}), 200
+            
+        res = requests.patch(f"{BASE_URL}/timesheets/{ts_id}", json={"status": "approved"}, headers=get_headers(), timeout=10)
+        if res.status_code in [200, 201]:
+            return jsonify({"success": True}), 200
+
         return jsonify({"success": False, "error": res.text}), res.status_code
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 500
@@ -962,15 +1103,25 @@ def reject_timesheet():
     try:
         data = request.json
         ts_id = data.get('timesheet_id')
-        reason = data.get('rejection_reason') or data.get('reason')
+        reason = data.get('rejection_reason') or data.get('reason') or ''
         if not ts_id:
             return jsonify({"success": False, "error": "Timesheet ID required"}), 400
             
-        # Backend endpoint discovered: /timesheets/<id>/reject/
-        payload = {"reason": reason}
+        # 1. Primary endpoint: POST /timesheets/<id>/reject/
+        payload = {"reason": reason, "status": "rejected", "rejection_reason": reason}
         res = requests.post(f"{BASE_URL}/timesheets/{ts_id}/reject/", json=payload, headers=get_headers(), timeout=10)
         if res.status_code in [200, 201]:
             return jsonify({"success": True}), 200
+            
+        # 2. Fallbacks: PATCH /timesheets/<id>/review or PATCH /timesheets/<id>
+        res = requests.patch(f"{BASE_URL}/timesheets/{ts_id}/review", json=payload, headers=get_headers(), timeout=10)
+        if res.status_code in [200, 201]:
+            return jsonify({"success": True}), 200
+            
+        res = requests.patch(f"{BASE_URL}/timesheets/{ts_id}", json=payload, headers=get_headers(), timeout=10)
+        if res.status_code in [200, 201]:
+            return jsonify({"success": True}), 200
+
         return jsonify({"success": False, "error": res.text}), res.status_code
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 500
@@ -1009,13 +1160,31 @@ def get_timesheet_calendar():
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 500
 
-@work_bp.route('/update-leave/<int:leave_id>/<status>', methods=['PUT'])
-@role_required(['admin', 'manager', 'hr'])
+@work_bp.route('/update-leave/<int:leave_id>/<status>', methods=['PUT', 'POST'])
+@role_required(['admin', 'superadmin', 'manager', 'hr'])
 def update_leave_status(leave_id, status):
     try:
-        res = requests.put(f"{BASE_URL}/leaves/{leave_id}", json={"status": status}, headers=get_headers())
-        if res.status_code == 200:
-            return jsonify({'success': True, 'message': f'Leave {status} successfully'}), 200
-        return jsonify({'success': False, 'error': 'Failed to update leave status'}), 500
+        status_norm = (status or '').lower()
+        if status_norm == 'approved':
+            endpoint = f"{BASE_URL}/leaves/{leave_id}/approve"
+            res = requests.put(endpoint, headers=get_headers(), timeout=10)
+        elif status_norm == 'rejected':
+            endpoint = f"{BASE_URL}/leaves/{leave_id}/reject"
+            res = requests.put(endpoint, json={"reason": "Rejected by reviewer"}, headers=get_headers(), timeout=10)
+        else:
+            endpoint = f"{BASE_URL}/leaves/{leave_id}"
+            res = requests.put(endpoint, json={"status": status}, headers=get_headers(), timeout=10)
+
+        data = {}
+        try:
+            data = res.json()
+        except Exception:
+            pass
+
+        if res.status_code in (200, 201):
+            return jsonify({'success': True, 'message': data.get('message', f'Leave {status} successfully')}), 200
+
+        error_msg = data.get('error') or data.get('message') or f"Failed with status code {res.status_code}"
+        return jsonify({'success': False, 'error': error_msg}), res.status_code
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)}), 500

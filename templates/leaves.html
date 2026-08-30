@@ -16,17 +16,20 @@
         position: relative;
         overflow: hidden;
     }
+
     .leave-card-mini:hover {
         transform: translateY(-2px);
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
         border-color: #cbd5e1;
     }
+
     .lc-header {
         display: flex;
         justify-content: space-between;
         align-items: center;
         margin-bottom: 0;
     }
+
     .lc-label {
         font-size: 0.75rem;
         font-weight: 700;
@@ -34,27 +37,187 @@
         text-transform: uppercase;
         letter-spacing: 0.025em;
     }
-    .lc-icon, .lc-fraction {
+
+    .lc-icon,
+    .lc-fraction {
         font-size: 0.85rem;
         color: #1e293b;
     }
+
     .lc-fraction {
         background: #f1f5f9;
         padding: 2px 8px;
         border-radius: 6px;
         font-size: 0.7rem;
     }
-    
+
     /* Variants */
-    .leave-card-mini.total { border-left: 4px solid #6366f1; }
-    .leave-card-mini.casual { border-left: 4px solid #3b82f6; }
-    .leave-card-mini.sick { border-left: 4px solid #ef4444; }
-    .leave-card-mini.earned { border-left: 4px solid #22c55e; }
-    
-    .leave-card-mini.total .lc-icon { color: #6366f1; }
-    .leave-card-mini.casual .lc-icon { color: #3b82f6; }
-    .leave-card-mini.sick .lc-icon { color: #ef4444; }
-    .leave-card-mini.earned .lc-icon { color: #22c55e; }
+    .leave-card-mini.total {
+        border-left: 4px solid #6366f1;
+    }
+
+    .leave-card-mini.planned {
+        border-left: 4px solid #3b82f6;
+    }
+
+    .leave-card-mini.unplanned {
+        border-left: 4px solid #f59e0b;
+    }
+
+    .leave-card-mini.optional {
+        border-left: 4px solid #8b5cf6;
+    }
+
+    .leave-card-mini.total .lc-icon {
+        color: #6366f1;
+    }
+
+    .leave-card-mini.planned .lc-icon {
+        color: #3b82f6;
+    }
+
+    .leave-card-mini.unplanned .lc-icon {
+        color: #f59e0b;
+    }
+
+    .leave-card-mini.optional .lc-icon {
+        color: #8b5cf6;
+    }
+
+    /* Dashboard Tab Layout for Leaves */
+    .hd-dashboard-card {
+        background: #FFFFFF;
+        border: 1px solid #E8ECF4;
+        border-radius: 16px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+        overflow: hidden;
+    }
+
+    .hd-nav-tabs {
+        border-bottom: 1px solid #E8ECF4;
+        background: #FAFAFA;
+        padding: 0 24px;
+        gap: 24px;
+    }
+
+    .hd-nav-tabs .nav-link {
+        color: #64748B;
+        font-weight: 600;
+        font-size: 0.95rem;
+        padding: 16px 4px;
+        border: none;
+        background: transparent;
+        position: relative;
+        transition: all 0.2s ease;
+    }
+
+    .hd-nav-tabs .nav-link:hover {
+        color: #0F172A;
+    }
+
+    .hd-nav-tabs .nav-link.active {
+        color: #6366F1;
+        background: transparent;
+    }
+
+    .hd-nav-tabs .nav-link.active::after {
+        content: '';
+        position: absolute;
+        bottom: -1px;
+        left: 0;
+        right: 0;
+        height: 2.5px;
+        background-color: #6366F1;
+        border-radius: 2px;
+    }
+
+    .hd-stat-box {
+        background: #FFFFFF;
+        border: 1px solid #E8ECF4;
+        border-radius: 14px;
+        padding: 18px 20px;
+        transition: all 0.2s ease;
+        height: 100%;
+        cursor: pointer;
+        text-decoration: none;
+        display: block;
+    }
+
+    .hd-stat-box:hover, .hd-stat-box.active-filter {
+        border-color: rgba(99, 102, 241, 0.4);
+        box-shadow: 0 6px 16px rgba(99, 102, 241, 0.08);
+        transform: translateY(-2px);
+    }
+
+    .hd-icon-circle {
+        width: 38px;
+        height: 38px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1rem;
+    }
+
+    .hd-summary-banner {
+        background: #F8FAFC;
+        border-top: 1px solid #E8ECF4;
+        padding: 16px 24px;
+    }
+
+    .leave-filter-pill {
+        border: 1px solid #E2E8F0;
+        background: #FFFFFF;
+        color: #64748B;
+        border-radius: 20px;
+        padding: 5px 14px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.15s ease;
+    }
+
+    .leave-filter-pill:hover, .leave-filter-pill.active {
+        background: #6366F1;
+        color: #FFFFFF;
+        border-color: #6366F1;
+    }
+
+    .avatar-circle-sm {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.78rem;
+        font-weight: 700;
+        flex-shrink: 0;
+    }
+
+    /* Very light grey scrollbar for holidays list */
+    #holidaysSection .table-responsive::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    #holidaysSection .table-responsive::-webkit-scrollbar-track {
+        background: #F8FAFC;
+        border-radius: 6px;
+    }
+
+    #holidaysSection .table-responsive::-webkit-scrollbar-thumb {
+        background: #E2E8F0;
+        border-radius: 6px;
+    }
+
+    #holidaysSection .table-responsive::-webkit-scrollbar-thumb:hover {
+        background: #CBD5E1;
+    }
+
+    #holidaysSection .table-responsive {
+        scrollbar-width: thin;
+        scrollbar-color: #E2E8F0 #F8FAFC;
+    }
 </style>
 <!-- Hidden session token for API authentication -->
 <input type="hidden" id="sessionToken" value="{{ session.get('token', '') }}">
@@ -64,57 +227,9 @@
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h4 class="mb-0 fw-bold">Leave Application</h4>
         <div class="d-flex gap-2">
-            {% if session.role == 'hr' %}
-            <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#addHolidayModal">
-                <i class="bi bi-calendar-plus me-1"></i> Add Holiday
-            </button>
-            {% endif %}
-            <a href="{{ url_for('work.add_leave') }}" class="btn btn-primary">
-                Apply Leave
+            <a href="{{ url_for('work.add_leave') }}" class="btn btn-soft-purple btn-sm rounded-pill px-3 shadow-sm" style="font-size: 0.8rem; font-weight: 600;">
+                <i class="bi bi-plus-circle me-1"></i> Apply Leave
             </a>
-        </div>
-    </div>
-
-    <!-- Leave Summary Section (Visible to all for their own balance) -->
-    <div class="row mb-4" id="leaveSummarySection">
-        <div class="col-12">
-            <div class="card border-0 shadow-sm">
-                <div class="card-body p-4">
-                    <h5 class="card-title mb-3 fw-semibold">My Leave Balance Summary</h5>
-                    <div class="row" id="leaveBalanceCards">
-                        {% if summary and (summary.remaining_leaves is defined or balance) %}
-                            {% set categories = [
-                                {'label': 'Total Leaves', 'used': summary.used_leaves|default(0), 'total': summary.total_leaves|default(30), 'color': 'total'},
-                                {'label': 'Casual Leaves', 'used': summary.casual_used|default(0), 'total': summary.casual_total|default(12), 'color': 'casual'},
-                                {'label': 'Sick Leaves', 'used': summary.sick_used|default(0), 'total': summary.sick_total|default(10), 'color': 'sick'},
-                                {'label': 'Earned Leaves', 'used': summary.earned_used|default(0), 'total': summary.earned_total|default(8), 'color': 'earned'}
-                            ] %}
-                            
-                            {% for cat in categories %}
-                                {% set remaining = cat.total - cat.used %}
-                                <div class="col-md-3 col-sm-6 mb-2">
-                                    <div class="leave-card-mini {{ cat.color }}">
-                                        <div class="lc-header">
-                                            <span class="lc-label">{{ cat.label }}</span>
-                                            <div class="text-end">
-                                                <span class="lc-fraction fw-bold">{{ remaining }} / {{ cat.total }}</span>
-                                                <div style="font-size: 0.6rem; color: #94a3b8; font-weight: 700; margin-top: 1px; letter-spacing: 0.5px;">AVAILABLE</div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            {% endfor %}
-                        {% else %}
-                            <div class="col-md-4 mb-3">
-                                <div class="text-center py-3 bg-light rounded">
-                                    <div class="spinner-border text-primary" role="status"></div>
-                                    <div class="mt-2 text-muted small">Loading balance...</div>
-                                </div>
-                            </div>
-                        {% endif %}
-                    </div>
-                </div>
-            </div>
         </div>
     </div>
 
@@ -125,13 +240,15 @@
                 <!-- Left Section: Leave Calendar -->
                 <div class="col-lg-6 d-flex flex-column pe-lg-4" style="border-right: 1px solid #f1f5f9; min-width: 0;">
                     <div class="d-flex align-items-center mb-3" style="height: 38px;">
-                        <h5 class="card-title mb-0 fw-semibold">Leave Calendar</h5>
+                        <h5 class="card-title mb-0 fw-semibold">Calendar</h5>
                     </div>
                     <div class="flex-grow-1 d-flex flex-column justify-content-between">
-                        <div id="calendar" style="background: #ffffff; border: 2px solid rgba(99, 102, 241, 0.18); border-radius: 12px; box-shadow: 0 8px 24px rgba(99, 102, 241, 0.08); flex-grow: 1; width: 100%; padding: 12px;"></div>
-                        
+                        <div class="p-2 bg-white rounded-3 border" style="border-color: #E2E8F0 !important; box-shadow: 0 1px 3px rgba(0,0,0,0.04);">
+                            <div id="calendar" style="width: 100%;"></div>
+                        </div>
+
                         <!-- Calendar Legend -->
-                        <div class="mt-3 d-flex flex-wrap gap-2 justify-content-center pb-2">
+                        <div class="mt-2 d-flex flex-wrap gap-1.5 justify-content-center pb-1">
                             <div class="calendar-legend-item">
                                 <span class="legend-dot" style="background-color: #22c55e;"></span>
                                 Approved
@@ -152,10 +269,6 @@
                                 <span class="legend-dot" style="background-color: #3b82f6;"></span>
                                 Holiday
                             </div>
-                            <div class="calendar-legend-item">
-                                <span class="legend-dot" style="background-color: #94a3b8;"></span>
-                                Weekend
-                            </div>
                         </div>
                     </div>
                 </div>
@@ -164,176 +277,381 @@
                 <div class="col-lg-6 d-flex flex-column ps-lg-4" id="holidaysSection">
                     <div class="d-flex justify-content-between align-items-center mb-3" style="height: 38px;">
                         <h5 class="card-title mb-0 fw-semibold">
-                            Company Holidays
+                            Holidays
                         </h5>
                         {% if session.role == 'hr' %}
-                        <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#addHolidayModal">
-                            Add Holiday
+                        <button type="button" class="btn btn-sm btn-outline-primary rounded-pill px-3 shadow-xs" data-bs-toggle="modal"
+                            data-bs-target="#addHolidayModal" style="font-size: 0.8rem; font-weight: 600;">
+                            <i class="bi bi-plus-circle me-1"></i> Add Holiday
                         </button>
                         {% endif %}
                     </div>
-                    <div class="table-responsive flex-grow-1" style="overflow-y: hidden; margin-top: 14px;">
-                        <table class="table table-hover align-middle mb-0 w-100" id="holidaysTable" style="table-layout: fixed; border-collapse: separate; border-spacing: 0 20px;">
-                            <thead class="table-light" style="position: sticky; top: 0; z-index: 2;">
+                    <div class="table-responsive rounded-3 border flex-grow-1" style="border-color: #E8ECF4 !important; overflow-y: auto; min-height: 530px; max-height: 560px;">
+                        <table class="table table-hover align-middle mb-0 w-100" id="holidaysTable">
+                            <thead class="table-light" style="background-color: #F8FAFC; position: sticky; top: 0; z-index: 2;">
                                 <tr>
-                                    <th style="width: 25%; font-size: 1.05rem; font-weight: 800; border-bottom: 1px solid #E5E7EB !important; border-top: none; color: #0f172a;">Date</th>
-                                    <th style="width: 30%; font-size: 1.05rem; font-weight: 800; border-bottom: 1px solid #E5E7EB !important; border-top: none; color: #0f172a;">Holiday Name</th>
-                                    <th style="width: 15%; font-size: 1.05rem; font-weight: 800; border-bottom: 1px solid #E5E7EB !important; border-top: none; color: #0f172a;">Type</th>
-                                    <th style="width: 30%; font-size: 1.05rem; font-weight: 800; border-bottom: 1px solid #E5E7EB !important; border-top: none; color: #0f172a;">Description</th>
+                                    <th style="font-weight: 700; color: #475569; font-size: 0.82rem; padding: 12px 14px; width: 28%;">Date</th>
+                                    <th style="font-weight: 700; color: #475569; font-size: 0.82rem; width: 32%;">Holiday Name</th>
+                                    <th style="font-weight: 700; color: #475569; font-size: 0.82rem; width: 18%;">Type</th>
+                                    <th style="font-weight: 700; color: #475569; font-size: 0.82rem; width: 22%; padding-right: 14px;">Description</th>
                                 </tr>
                             </thead>
                             <tbody id="holidaysTableBody">
-                                <tr><td colspan="4" class="text-center text-muted py-3">Loading holidays...</td></tr>
+                                <tr>
+                                    <td colspan="4" class="text-center text-muted py-4">Loading holidays...</td>
+                                </tr>
                             </tbody>
                         </table>
                     </div>
                     <!-- Holidays Pagination -->
-                    <div id="holidaysPagination" class="d-flex justify-content-center align-items-center gap-1 pt-2" style="flex-shrink: 0;"></div>
+                    <div id="holidaysPagination" class="d-flex justify-content-center align-items-center gap-1 pt-3"
+                        style="flex-shrink: 0;"></div>
                 </div>
             </div>
         </div>
     </div>
-</div>
 
-<!-- My Leave Applications (Visible to Everyone) -->
-<div class="form-card mb-4">
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <h5 class="mb-0">My Leave Applications</h5>
-    </div>
+    <!-- LEAVE APPLICATIONS DASHBOARD CARD (Helpdesk / Reimbursement Style) -->
+    {% set is_admin_or_hr = (session.role in ['admin', 'hr', 'manager']) %}
+    
+    {# Compute All Leaves Stats #}
+    {% set ns_all = namespace(pending=0, approved=0, rejected=0, total=0) %}
+    {% for l in leaves %}
+        {% set ns_all.total = ns_all.total + 1 %}
+        {% if l.status|lower == 'pending' %}{% set ns_all.pending = ns_all.pending + 1 %}{% endif %}
+        {% if l.status|lower == 'approved' %}{% set ns_all.approved = ns_all.approved + 1 %}{% endif %}
+        {% if l.status|lower == 'rejected' %}{% set ns_all.rejected = ns_all.rejected + 1 %}{% endif %}
+    {% endfor %}
 
-    <table class="table table-hover">
-        <thead>
-            <tr>
-                <th>Type</th>
-                <th>Start</th>
-                <th>End</th>
-                <th>Reason</th>
-                <th>Status</th>
-            </tr>
-        </thead>
-        <tbody>
-        {% set ns = namespace(found_my=false) %}
-        {% for l in leaves %}
-            {% if l.is_own %}
-                {% set ns.found_my = true %}
-                <tr>
-                    <td>{{ l.leave_type | capitalize }}</td>
-                    <td>{{ l.start_date[:10] if l.start_date else '' }}</td>
-                    <td>{{ l.end_date[:10] if l.end_date else '' }}</td>
-                    <td>{{ l.reason }}</td>
-                    <td>
-                        <span class="badge 
-                            {% if l.status == 'approved' %}bg-success
-                            {% elif l.status == 'pending' %}bg-warning
-                            {% else %}bg-danger{% endif %}">
-                            {{ l.status | capitalize }}
-                        </span>
-                    </td>
-                </tr>
-            {% endif %}
-        {% endfor %}
-        {% if not ns.found_my %}
-            <tr>
-                <td colspan="5" class="text-center">No personal leave records found</td>
-            </tr>
+    {# Compute My Leaves Stats #}
+    {% set ns_my = namespace(pending=0, approved=0, rejected=0, total=0) %}
+    {% for l in leaves %}
+        {% if l.is_own %}
+            {% set ns_my.total = ns_my.total + 1 %}
+            {% if l.status|lower == 'pending' %}{% set ns_my.pending = ns_my.pending + 1 %}{% endif %}
+            {% if l.status|lower == 'approved' %}{% set ns_my.approved = ns_my.approved + 1 %}{% endif %}
+            {% if l.status|lower == 'rejected' %}{% set ns_my.rejected = ns_my.rejected + 1 %}{% endif %}
         {% endif %}
-        </tbody>
-    </table>
-</div>
+    {% endfor %}
 
-{% if session.role != 'employee' %}
-<!-- All Leave Applications (HR/Admin/Manager View) -->
-<div class="form-card">
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <h5 class="mb-0">All Leave Applications</h5>
-    </div>
+    <div class="hd-dashboard-card mb-4">
+        <!-- Tab Navigation -->
+        <ul class="nav hd-nav-tabs" id="leaveTabs" role="tablist">
+            {% if is_admin_or_hr %}
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="all-leaves-tab" data-bs-toggle="tab" data-bs-target="#all-leaves-pane" type="button" role="tab">
+                    <i class="bi bi-people-fill me-2"></i>All Leave Applications
+                </button>
+            </li>
+            {% endif %}
+            <li class="nav-item" role="presentation">
+                <button class="nav-link {% if not is_admin_or_hr %}active{% endif %}" id="my-leaves-tab" data-bs-toggle="tab" data-bs-target="#my-leaves-pane" type="button" role="tab">
+                    <i class="bi bi-person-badge-fill me-2"></i>My Applications
+                </button>
+            </li>
+        </ul>
 
-    <table class="table table-hover">
-        <thead>
-            <tr>
-                <th>Employee</th>
-                <th>Type</th>
-                <th>Start</th>
-                <th>End</th>
-                <th>Reason</th>
-                <th>Status</th>
-                <th>Action</th>
-            </tr>
-        </thead>
-        <tbody>
-        {% for l in leaves %}
-        <tr>
-            <td>{{ l.employee_name | clean_name }}</td>
-            <td>{{ l.leave_type | capitalize }}</td>
-            <td>{{ l.start_date[:10] if l.start_date else '' }}</td>
-            <td>{{ l.end_date[:10] if l.end_date else '' }}</td>
-            <td>{{ l.reason }}</td>
-            <td>
-                <span class="badge 
-                    {% if l.status == 'approved' %}bg-success
-                    {% elif l.status == 'pending' %}bg-warning
-                    {% else %}bg-danger{% endif %}">
-                    {{ l.status }}
-                </span>
-            </td>
-            <td>
-                {% if l.status == 'pending' %}
-                    {% if l.employee_role == 'hr' %}
-                        {% if session.role == 'admin' %}
-                            <button class="btn btn-sm btn-success" onclick="updateLeave('{{ l.id }}', 'approved', this)">Approve</button>
-                            <button class="btn btn-sm btn-danger" onclick="updateLeave('{{ l.id }}', 'rejected', this)">Reject</button>
+        <div class="tab-content" id="leaveTabsContent">
+            
+            {% if is_admin_or_hr %}
+            <!-- TAB 1: ALL LEAVE APPLICATIONS (HR / Admin / Manager) -->
+            <div class="tab-pane fade show active" id="all-leaves-pane" role="tabpanel">
+                <div class="p-4">
+                    <!-- Filter Controls & Total Badge -->
+                    <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+                        <div class="d-flex gap-2">
+                            <button type="button" class="leave-filter-pill active" onclick="filterLeaveTable('all', 'all', this)">All ({{ ns_all.total }})</button>
+                            <button type="button" class="leave-filter-pill" onclick="filterLeaveTable('all', 'pending', this)">Pending ({{ ns_all.pending }})</button>
+                            <button type="button" class="leave-filter-pill" onclick="filterLeaveTable('all', 'approved', this)">Approved ({{ ns_all.approved }})</button>
+                            <button type="button" class="leave-filter-pill" onclick="filterLeaveTable('all', 'rejected', this)">Rejected ({{ ns_all.rejected }})</button>
+                        </div>
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="badge bg-light text-secondary border px-3 py-2" style="font-size: 0.82rem;">
+                                <i class="bi bi-journal-text me-1 text-primary"></i> Total: {{ ns_all.total }}
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- All Leaves Table -->
+                    <div class="table-responsive rounded-3 border" style="border-color: #E8ECF4 !important;">
+                        <table class="table table-hover align-middle mb-0" id="allLeavesTable">
+                            <thead class="table-light" style="background-color: #F8FAFC;">
+                                <tr>
+                                    <th style="font-weight: 700; color: #475569; font-size: 0.85rem; padding: 12px 16px;">Employee</th>
+                                    <th style="font-weight: 700; color: #475569; font-size: 0.85rem;">Leave Type</th>
+                                    <th style="font-weight: 700; color: #475569; font-size: 0.85rem;">Duration / Category</th>
+                                    <th style="font-weight: 700; color: #475569; font-size: 0.85rem;">Dates</th>
+                                    <th style="font-weight: 700; color: #475569; font-size: 0.85rem;">Reason</th>
+                                    <th style="font-weight: 700; color: #475569; font-size: 0.85rem;">Status</th>
+                                    <th style="font-weight: 700; color: #475569; font-size: 0.85rem; text-align: right; padding-right: 16px;">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for l in leaves %}
+                                <tr data-status="{{ l.status|lower }}" class="leave-row-all">
+                                    <td style="padding: 12px 16px;">
+                                        <div class="d-flex align-items-center gap-2">
+                                            <div class="avatar-circle-sm" style="background: #EFF6FF; color: #3B82F6;">
+                                                {{ (l.employee_name or 'E')[:2]|upper }}
+                                            </div>
+                                            <div>
+                                                <div class="fw-bold text-slate-900" style="font-size: 0.9rem;">{{ l.employee_name | clean_name }}</div>
+                                                <small class="text-muted">{{ l.employee_role|capitalize if l.employee_role else 'Employee' }}</small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        {% set type_lower = (l.leave_type or '')|lower %}
+                                        {% set badge_style = 'background:#EFF6FF; color:#1D4ED8;' if 'planned' in type_lower and 'unplanned' not in type_lower else ('background:#FFFBEB; color:#B45309;' if 'unplanned' in type_lower else ('background:#F5F3FF; color:#6D28D9;' if 'optional' in type_lower else 'background:#F1F5F9; color:#475569;')) %}
+                                        <span class="badge px-2 py-1 rounded-pill" style="{{ badge_style }} font-weight: 600; font-size: 0.78rem;">
+                                            {{ l.leave_type | capitalize }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        {% set is_half = (l.leave_type_category == 'half_day') %}
+                                        <div class="d-flex align-items-center gap-1">
+                                            <span class="fw-semibold text-slate-800" style="font-size: 0.85rem;">
+                                                {{ l.total_days|default(1) }} {% if l.total_days == 0.5 or is_half %}Day (Half Day){% else %}Days{% endif %}
+                                            </span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="text-slate-700" style="font-size: 0.85rem;">
+                                            <span class="fw-medium">{{ l.start_date[:10] if l.start_date else '—' }}</span>
+                                            {% if l.end_date and l.end_date[:10] != l.start_date[:10] %}
+                                            <i class="bi bi-arrow-right text-muted mx-1"></i>
+                                            <span class="fw-medium">{{ l.end_date[:10] }}</span>
+                                            {% endif %}
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="text-muted text-truncate" style="max-width: 220px; font-size: 0.85rem;" title="{{ l.reason }}">
+                                            {{ l.reason or '—' }}
+                                        </div>
+                                    </td>
+                                    <td>
+                                        {% set st = (l.status or 'pending')|lower %}
+                                        {% set st_bg = '#ECFDF5' if st == 'approved' else ('#FFFBEB' if st == 'pending' else '#FEF2F2') %}
+                                        {% set st_fg = '#065F46' if st == 'approved' else ('#92400E' if st == 'pending' else '#991B1B') %}
+                                        <span class="badge px-2 py-1 rounded-pill" style="background:{{ st_bg }}; color:{{ st_fg }}; font-weight:600; font-size:0.75rem;">
+                                            {{ st|capitalize }}
+                                        </span>
+                                        {% if l.signoffs and l.signoffs|length > 0 %}
+                                        <div class="d-flex flex-column gap-1 mt-1.5">
+                                            {% for s in l.signoffs %}
+                                            {% set s_ok = (s.status == 'approved') %}
+                                            {% set s_rej = (s.status == 'rejected') %}
+                                            {% set s_chip_bg = '#ECFDF5' if s_ok else ('#FEF2F2' if s_rej else '#F8FAFC') %}
+                                            {% set s_chip_fg = '#065F46' if s_ok else ('#991B1B' if s_rej else '#64748B') %}
+                                            {% set s_chip_border = '#D1FAE5' if s_ok else ('#FECACA' if s_rej else '#E2E8F0') %}
+                                            {% set s_icon = 'bi-check-circle-fill text-success' if s_ok else ('bi-x-circle-fill text-danger' if s_rej else 'bi-clock-history text-warning') %}
+                                            <span class="badge d-inline-flex align-items-center gap-1 text-truncate" style="background:{{ s_chip_bg }}; color:{{ s_chip_fg }}; border:1px solid {{ s_chip_border }}; font-size:0.68rem; font-weight:600; padding:2px 6px; max-width:180px;">
+                                                <i class="bi {{ s_icon }}"></i>
+                                                <span>{% if s.approver_role == 'hr' %}HR{% elif s.project_name %}Mgr ({{ s.project_name }}){% else %}Manager{% endif %}: {{ s.status|capitalize }}</span>
+                                            </span>
+                                            {% endfor %}
+                                        </div>
+                                        {% endif %}
+                                    </td>
+                                    <td style="text-align: right; padding-right: 16px;">
+                                        {% if l.status == 'pending' and l.can_user_approve %}
+                                        <button class="btn btn-sm btn-success rounded-pill px-2.5 py-1 me-1" onclick="updateLeave('{{ l.id }}', 'approved', this)" style="font-size:0.75rem;">
+                                            <i class="bi bi-check-lg me-0.5"></i>Approve
+                                        </button>
+                                        <button class="btn btn-sm btn-danger rounded-pill px-2.5 py-1" onclick="updateLeave('{{ l.id }}', 'rejected', this)" style="font-size:0.75rem;">
+                                            <i class="bi bi-x-lg me-0.5"></i>Reject
+                                        </button>
+                                        {% elif l.status == 'pending' %}
+                                        <span class="text-muted small" style="font-size: 0.75rem;">Awaiting Other Sign-off</span>
+                                        {% else %}
+                                        <span class="text-muted">—</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% else %}
+                                <tr>
+                                    <td colspan="7" class="text-center text-muted py-5">
+                                        <i class="bi bi-calendar-x fs-2 d-block mb-2 text-muted"></i>
+                                        <span>No leave applications found.</span>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- TAB 2: MY LEAVE APPLICATIONS -->
+            <div class="tab-pane fade {% if not is_admin_or_hr %}show active{% endif %}" id="my-leaves-pane" role="tabpanel">
+                <div class="p-4">
+                    <!-- My Leave Balance Summary Cards -->
+                    <div class="row g-3 mb-4" id="leaveBalanceCards">
+                        {% if summary and (summary.remaining_leaves is defined or balance) %}
+                        {% set categories = [
+                        {'label': 'Total Leaves', 'used': summary.used_leaves|default(0), 'total': summary.total_leaves|default(18), 'color': 'total'},
+                        {'label': 'Planned Leaves', 'used': summary.planned_used|default(0), 'total': summary.planned_total|default(12), 'color': 'planned'},
+                        {'label': 'Unplanned Leaves', 'used': summary.unplanned_used|default(0), 'total': summary.unplanned_total|default(4), 'color': 'unplanned'},
+                        {'label': 'Optional Leaves', 'used': summary.optional_used|default(0), 'total': summary.optional_total|default(2), 'color': 'optional'}
+                        ] %}
+
+                        {% for cat in categories %}
+                        {% set remaining = cat.total - cat.used %}
+                        <div class="col-md-3 col-sm-6">
+                            <div class="leave-card-mini {{ cat.color }}">
+                                <div class="lc-header">
+                                    <span class="lc-label">{{ cat.label }}</span>
+                                    <div class="text-end">
+                                        <span class="lc-fraction fw-bold">{{ remaining }} / {{ cat.total }}</span>
+                                        <div style="font-size: 0.6rem; color: #94a3b8; font-weight: 700; margin-top: 1px; letter-spacing: 0.5px;">AVAILABLE</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
                         {% else %}
-                            <span class="text-muted small">Admin Approval Required</span>
+                        <div class="col-12">
+                            <div class="text-center py-3 bg-light rounded">
+                                <div class="spinner-border spinner-border-sm text-primary" role="status"></div>
+                                <span class="ms-2 text-muted small">Loading balance...</span>
+                            </div>
+                        </div>
                         {% endif %}
-                    {% elif session.role in ['admin', 'hr', 'manager'] %}
-                        <button class="btn btn-sm btn-success" onclick="updateLeave('{{ l.id }}', 'approved', this)">Approve</button>
-                        <button class="btn btn-sm btn-danger" onclick="updateLeave('{{ l.id }}', 'rejected', this)">Reject</button>
-                    {% else %}
-                        -
-                    {% endif %}
-                {% else %}
-                    -
-                {% endif %}
-            </td>
-        </tr>
-        {% else %}
-        <tr>
-            <td colspan="7" class="text-center">No leaves found</td>
-        </tr>
-        {% endfor %}
-        </tbody>
-    </table>
+                    </div>
+
+                    <!-- Filter Controls & Action Button -->
+                    <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+                        <div class="d-flex gap-2">
+                            <button type="button" class="leave-filter-pill active" onclick="filterLeaveTable('my', 'all', this)">All ({{ ns_my.total }})</button>
+                            <button type="button" class="leave-filter-pill" onclick="filterLeaveTable('my', 'pending', this)">Pending ({{ ns_my.pending }})</button>
+                            <button type="button" class="leave-filter-pill" onclick="filterLeaveTable('my', 'approved', this)">Approved ({{ ns_my.approved }})</button>
+                            <button type="button" class="leave-filter-pill" onclick="filterLeaveTable('my', 'rejected', this)">Rejected ({{ ns_my.rejected }})</button>
+                        </div>
+                    </div>
+
+                    <!-- My Leaves Table -->
+                    <div class="table-responsive rounded-3 border" style="border-color: #E8ECF4 !important;">
+                        <table class="table table-hover align-middle mb-0" id="myLeavesTable">
+                            <thead class="table-light" style="background-color: #F8FAFC;">
+                                <tr>
+                                    <th style="font-weight: 700; color: #475569; font-size: 0.85rem; padding: 12px 16px;">Leave Type</th>
+                                    <th style="font-weight: 700; color: #475569; font-size: 0.85rem;">Duration</th>
+                                    <th style="font-weight: 700; color: #475569; font-size: 0.85rem;">Dates</th>
+                                    <th style="font-weight: 700; color: #475569; font-size: 0.85rem;">Reason</th>
+                                    <th style="font-weight: 700; color: #475569; font-size: 0.85rem; text-align: right; padding-right: 16px;">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% set found_my = false %}
+                                {% for l in leaves %}
+                                {% if l.is_own %}
+                                {% set found_my = true %}
+                                <tr data-status="{{ l.status|lower }}" class="leave-row-my">
+                                    <td style="padding: 12px 16px;">
+                                        {% set type_lower = (l.leave_type or '')|lower %}
+                                        {% set badge_style = 'background:#EFF6FF; color:#1D4ED8;' if 'planned' in type_lower and 'unplanned' not in type_lower else ('background:#FFFBEB; color:#B45309;' if 'unplanned' in type_lower else ('background:#F5F3FF; color:#6D28D9;' if 'optional' in type_lower else 'background:#F1F5F9; color:#475569;')) %}
+                                        <span class="badge px-2 py-1 rounded-pill" style="{{ badge_style }} font-weight: 600; font-size: 0.78rem;">
+                                            {{ l.leave_type | capitalize }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        {% set is_half = (l.leave_type_category == 'half_day') %}
+                                        <span class="fw-semibold text-slate-800" style="font-size: 0.85rem;">
+                                            {{ l.total_days|default(1) }} {% if l.total_days == 0.5 or is_half %}Day (Half Day){% else %}Days{% endif %}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <div class="text-slate-700" style="font-size: 0.85rem;">
+                                            <span class="fw-medium">{{ l.start_date[:10] if l.start_date else '—' }}</span>
+                                            {% if l.end_date and l.end_date[:10] != l.start_date[:10] %}
+                                            <i class="bi bi-arrow-right text-muted mx-1"></i>
+                                            <span class="fw-medium">{{ l.end_date[:10] }}</span>
+                                            {% endif %}
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="text-muted text-truncate" style="max-width: 250px; font-size: 0.85rem;" title="{{ l.reason }}">
+                                            {{ l.reason or '—' }}
+                                        </div>
+                                    </td>
+                                    <td style="text-align: right; padding-right: 16px;">
+                                        {% set st = (l.status or 'pending')|lower %}
+                                        {% set st_bg = '#ECFDF5' if st == 'approved' else ('#FFFBEB' if st == 'pending' else '#FEF2F2') %}
+                                        {% set st_fg = '#065F46' if st == 'approved' else ('#92400E' if st == 'pending' else '#991B1B') %}
+                                        <span class="badge px-2 py-1 rounded-pill" style="background:{{ st_bg }}; color:{{ st_fg }}; font-weight:600; font-size:0.75rem;">
+                                            {{ st|capitalize }}
+                                        </span>
+                                        {% if l.signoffs and l.signoffs|length > 0 %}
+                                        <div class="d-flex flex-column align-items-end gap-1 mt-1.5">
+                                            {% for s in l.signoffs %}
+                                            {% set s_ok = (s.status == 'approved') %}
+                                            {% set s_rej = (s.status == 'rejected') %}
+                                            {% set s_chip_bg = '#ECFDF5' if s_ok else ('#FEF2F2' if s_rej else '#F8FAFC') %}
+                                            {% set s_chip_fg = '#065F46' if s_ok else ('#991B1B' if s_rej else '#64748B') %}
+                                            {% set s_chip_border = '#D1FAE5' if s_ok else ('#FECACA' if s_rej else '#E2E8F0') %}
+                                            {% set s_icon = 'bi-check-circle-fill text-success' if s_ok else ('bi-x-circle-fill text-danger' if s_rej else 'bi-clock-history text-warning') %}
+                                            <span class="badge d-inline-flex align-items-center gap-1 text-truncate" style="background:{{ s_chip_bg }}; color:{{ s_chip_fg }}; border:1px solid {{ s_chip_border }}; font-size:0.68rem; font-weight:600; padding:2px 6px; max-width:180px;">
+                                                <i class="bi {{ s_icon }}"></i>
+                                                <span>{% if s.approver_role == 'hr' %}HR{% elif s.project_name %}Mgr ({{ s.project_name }}){% else %}Manager{% endif %}: {{ s.status|capitalize }}</span>
+                                            </span>
+                                            {% endfor %}
+                                        </div>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endif %}
+                                {% endfor %}
+                                {% if not found_my %}
+                                <tr>
+                                    <td colspan="5" class="text-center text-muted py-5">
+                                        <i class="bi bi-calendar-check fs-2 d-block mb-2 text-muted"></i>
+                                        <span>No personal leave records found.</span>
+                                    </td>
+                                </tr>
+                                {% endif %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
 </div>
-{% endif %}
 
 {% if session.role == 'hr' %}
 <!-- Add Holiday Modal -->
 <div class="modal fade" id="addHolidayModal" tabindex="-1" aria-labelledby="addHolidayModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content border-0 shadow">
-            <div class="modal-header bg-primary text-white">
+        <div class="modal-content">
+            <div class="modal-header">
                 <h5 class="modal-title fw-bold" id="addHolidayModalLabel">
-                    <i class="bi bi-calendar-plus me-2"></i>Add New Holiday
+                    <i class="bi bi-calendar-plus text-primary me-2"></i>Add New Holiday
                 </h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                    aria-label="Close"></button>
             </div>
             <form id="addHolidayForm">
                 <div class="modal-body p-4">
                     <div id="holidayAlert" class="alert alert-danger d-none" role="alert"></div>
 
                     <div class="mb-3">
-                        <label for="holidayDate" class="form-label fw-semibold">Holiday Date <span class="text-danger">*</span></label>
-                        <input type="date" class="form-control" id="holidayDate" name="date" required>
+                        <label for="holidayDate" class="form-label fw-semibold">Holiday Date <span
+                                class="text-danger">*</span></label>
+                        <input type="date" class="form-control rounded-3" id="holidayDate" name="date" required>
                     </div>
 
                     <div class="mb-3">
-                        <label for="holidayName" class="form-label fw-semibold">Holiday Title / Name <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" id="holidayName" name="name" placeholder="e.g. Independence Day" required>
+                        <label for="holidayName" class="form-label fw-semibold">Holiday Title / Name <span
+                                class="text-danger">*</span></label>
+                        <input type="text" class="form-control rounded-3" id="holidayName" name="name"
+                            placeholder="e.g. Independence Day" required>
                     </div>
 
                     <div class="mb-3">
                         <label for="holidayType" class="form-label fw-semibold">Type</label>
-                        <select class="form-select" id="holidayType" name="type">
+                        <select class="form-select rounded-3" id="holidayType" name="type">
                             <option value="public" selected>Public Holiday</option>
                             <option value="optional">Optional Holiday</option>
                             <option value="restricted">Restricted Holiday</option>
@@ -342,13 +660,15 @@
 
                     <div class="mb-3">
                         <label for="holidayDescription" class="form-label fw-semibold">Description (Optional)</label>
-                        <textarea class="form-control" id="holidayDescription" name="description" rows="2" placeholder="Additional notes or details..."></textarea>
+                        <textarea class="form-control rounded-3" id="holidayDescription" name="description" rows="2"
+                            placeholder="Additional notes or details..."></textarea>
                     </div>
                 </div>
-                <div class="modal-footer bg-light px-4 py-3">
-                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-primary fw-semibold" id="submitHolidayBtn">
-                        <span id="holidaySubmitSpinner" class="spinner-border spinner-border-sm me-1 d-none" role="status" aria-hidden="true"></span>
+                <div class="modal-footer px-4 py-3">
+                    <button type="button" class="btn btn-light btn-sm rounded-pill px-3 border" data-bs-dismiss="modal" style="color: #64748B; font-weight: 600;">Cancel</button>
+                    <button type="submit" class="btn btn-soft-purple btn-sm rounded-pill px-4 shadow-sm fw-semibold" id="submitHolidayBtn">
+                        <span id="holidaySubmitSpinner" class="spinner-border spinner-border-sm me-1 d-none"
+                            role="status" aria-hidden="true"></span>
                         Save Holiday
                     </button>
                 </div>
@@ -357,6 +677,27 @@
     </div>
 </div>
 {% endif %}
+
+<!-- Calendar Details Modal -->
+<div class="modal fade" id="calendarDetailModal" tabindex="-1" aria-labelledby="calendarDetailModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" style="max-width: 480px;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title fw-bold text-dark fs-6" id="calendarDetailModalLabel">
+                    <i class="bi bi-info-circle me-2 text-primary"></i>Application Details
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4" id="calendarDetailModalBody">
+                <!-- Content dynamically populated -->
+            </div>
+            <div class="modal-footer d-flex justify-content-between" id="calendarDetailModalFooter">
+                <button type="button" class="btn btn-light btn-sm rounded-pill px-3 border" data-bs-dismiss="modal" style="color: #64748B; font-weight: 600;">Close</button>
+                <div id="calendarDetailModalActions" class="d-flex gap-2 align-items-center"></div>
+            </div>
+        </div>
+    </div>
+</div>
 
 <link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>
@@ -371,151 +712,393 @@
         text-align: center;
         transition: all 0.3s ease;
     }
+
     .leave-balance-card:hover {
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         transform: translateY(-2px);
     }
+
     .leave-balance-card .leave-type {
         font-size: 0.9rem;
         color: #6b7280;
         font-weight: 500;
         margin-bottom: 8px;
     }
+
     .leave-balance-card .leave-count {
         font-size: 2rem;
         font-weight: 700;
         color: #1f2937;
     }
+
     .leave-balance-card .leave-total {
         font-size: 0.85rem;
         color: #9ca3af;
     }
-    
+
     /* Premium Calendar Styling */
-    .fc { width: 100% !important; max-width: 100% !important; background: transparent !important; font-family: 'Inter', sans-serif !important; border: none !important; }
-    /* Let FullCalendar calculate its internal table widths instead of constraining each child. */
-    #calendar .fc-view-harness, #calendar .fc-scrollgrid, #calendar .fc-daygrid-body, #calendar .fc-daygrid-body table { width: 100% !important; }
-    .fc-theme-standard td, .fc-theme-standard th { border: 1px solid #f1f5f9 !important; }
-    .fc-toolbar { margin-bottom: 1rem !important; padding: 0 10px !important; }
-    .fc-button-group { background: #f1f5f9; padding: 4px; border-radius: 12px; }
-    .fc-button-primary { background: transparent !important; border: none !important; color: #475569 !important; font-weight: 600 !important; border-radius: 8px !important; padding: 8px 16px !important; box-shadow: none !important; }
-    .fc-button-primary.fc-button-active, .fc-button-primary:hover { background: white !important; color: #4f46e5 !important; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1) !important; }
-    .fc-today-button { background: white !important; border: 1px solid #e2e8f0 !important; color: #4f46e5 !important; border-radius: 10px !important; margin-left: 12px !important; font-weight: 700 !important; }
-    .fc-col-header { background: #f8fafc; border-radius: 12px 12px 0 0; overflow: hidden; }
-    .fc-col-header-cell { padding: 8px 0 !important; border: none !important; text-align: center !important; }
-    .fc-col-header-cell-cushion { display: inline-block !important; font-size: 0.75rem !important; font-weight: 700 !important; color: #000000 !important; letter-spacing: 0.1em; text-align: center !important; width: 100% !important; text-decoration: none !important; }
-    .fc-daygrid-day { transition: all 0.2s ease; border: 1px solid #f1f5f9 !important; }
-    .fc-daygrid-day-top { display: flex !important; justify-content: center !important; align-items: center !important; padding: 4px 0 !important; }
-    .fc-daygrid-day-number { display: inline-block !important; font-size: 0.85rem !important; font-weight: 700 !important; color: #1e293b !important; text-decoration: none !important; padding: 2px !important; text-align: center !important; width: 100% !important; }
-    .day-weekend { background-color: #fbfcfe !important; }
-    .day-today { background-color: #f0f7ff !important; border: 2px solid #3b82f6 !important; z-index: 1; }
-    .fc-day-other { background-color: #f8fafc !important; opacity: 0.3 !important; pointer-events: none !important; }
-    .fc-day-other .fc-daygrid-day-number { color: #94a3b8 !important; }
-    .fc-day-future:not(.fc-day-other) { cursor: pointer; }
-    .fc-day-future:not(.fc-day-other) .fc-daygrid-day-number { color: #1e293b !important; opacity: 1 !important; }
-    .fc-event { border-radius: 6px !important; padding: 2px 8px !important; font-size: 0.68rem !important; font-weight: 700 !important; border: none !important; margin: 2px 4px !important; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04); display: flex; align-items: center; gap: 4px; }
-    .fc-event, .fc-event-title, .fc-event-main { color: inherit !important; }
-    
+    .fc {
+        width: 100% !important;
+        max-width: 100% !important;
+        background: transparent !important;
+        font-family: inherit !important;
+        border: none !important;
+    }
+
+    #calendar .fc-view-harness,
+    #calendar .fc-scrollgrid,
+    #calendar .fc-scrollgrid-section,
+    #calendar .fc-scrollgrid-section table,
+    #calendar .fc-scroller,
+    #calendar .fc-daygrid-body,
+    #calendar .fc-daygrid-body table,
+    #calendar .fc-col-header,
+    #calendar .fc-scrollgrid-sync-table {
+        width: 100% !important;
+        max-width: 100% !important;
+        table-layout: fixed !important;
+        box-sizing: border-box !important;
+    }
+
+    #calendar .fc,
+    #calendar {
+        --fc-border-color: transparent !important;
+    }
+
+    #calendar .fc-scrollgrid,
+    #calendar .fc-theme-standard .fc-scrollgrid {
+        border: none !important;
+    }
+
+    #calendar .fc-theme-standard td,
+    #calendar .fc-theme-standard th {
+        border: 1px solid #f8fafc !important;
+    }
+
+    .fc-toolbar {
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        margin-bottom: 0.35rem !important;
+        padding: 0 !important;
+        flex-wrap: wrap;
+        gap: 4px;
+    }
+
+    .fc-toolbar-title {
+        font-size: 0.95rem !important;
+        font-weight: 700 !important;
+        color: #0f172a !important;
+    }
+
+    .fc-button-group {
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 6px;
+        display: inline-flex;
+        overflow: hidden;
+    }
+
+    .fc-button-primary {
+        background: #ffffff !important;
+        border: none !important;
+        color: #475569 !important;
+        font-weight: 600 !important;
+        font-size: 0.72rem !important;
+        padding: 2px 8px !important;
+        box-shadow: none !important;
+        transition: all 0.15s ease;
+    }
+
+    .fc-button-primary:hover {
+        background: #f8fafc !important;
+        color: #0f172a !important;
+    }
+
+    .fc-today-button {
+        background: #ffffff !important;
+        border: 1px solid #e2e8f0 !important;
+        color: #2563eb !important;
+        border-radius: 6px !important;
+        margin-left: 4px !important;
+        font-weight: 700 !important;
+        font-size: 0.72rem !important;
+        padding: 2px 8px !important;
+    }
+
+    .fc-today-button:hover {
+        background: #eff6ff !important;
+        border-color: #bfdbfe !important;
+    }
+
+    .fc-col-header {
+        background: transparent;
+        margin-bottom: 0;
+    }
+
+    .fc-col-header-cell {
+        padding: 2px 0 !important;
+        background: transparent !important;
+        border: none !important;
+        text-align: center !important;
+    }
+
+    .fc-col-header-cell-cushion {
+        display: inline-block !important;
+        font-size: 0.72rem !important;
+        font-weight: 800 !important;
+        color: #334155 !important;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        text-align: center !important;
+        text-decoration: none !important;
+    }
+
+    /* Muted Red for Saturday and Sunday Column Headers */
+    .fc-col-header-cell.fc-day-sun .fc-col-header-cell-cushion,
+    .fc-col-header-cell.fc-day-sat .fc-col-header-cell-cushion {
+        color: #ef4444 !important;
+        font-weight: 800 !important;
+    }
+
+    .fc-daygrid-day {
+        transition: all 0.2s ease;
+        border: 1px solid #f8fafc !important;
+        min-height: 26px !important;
+        height: 26px !important;
+    }
+
+    .fc-daygrid-day-top {
+        display: flex !important;
+        justify-content: center !important;
+        align-items: center !important;
+        padding: 0 !important;
+    }
+
+    .fc-daygrid-day-number {
+        display: inline-block !important;
+        font-size: 0.76rem !important;
+        font-weight: 700 !important;
+        color: #1e293b !important;
+        text-decoration: none !important;
+        text-align: center !important;
+        padding: 0 2px !important;
+        line-height: 1.2 !important;
+    }
+
+    /* Muted Red for Saturday and Sunday Dates */
+    .fc-day-sun .fc-daygrid-day-number,
+    .fc-day-sat .fc-daygrid-day-number,
+    .day-weekend .fc-daygrid-day-number {
+        color: #ef4444 !important;
+        font-weight: 700 !important;
+    }
+
+    .day-weekend {
+        background-color: transparent !important;
+    }
+
+    /* Blue Circular Highlight for Today */
+    .fc-day-today .fc-daygrid-day-number,
+    .day-today .fc-daygrid-day-number {
+        background-color: #2563eb !important;
+        color: #ffffff !important;
+        width: 22px !important;
+        height: 22px !important;
+        border-radius: 50% !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        line-height: 1 !important;
+        padding: 0 !important;
+        box-shadow: 0 1px 4px rgba(37, 99, 235, 0.35) !important;
+    }
+
+    .day-today {
+        background-color: transparent !important;
+        border: 1px solid #f8fafc !important;
+    }
+
+    .fc-day-other {
+        background-color: #f8fafc !important;
+        opacity: 0.3 !important;
+        pointer-events: none !important;
+    }
+
+    .fc-day-other .fc-daygrid-day-number {
+        color: #94a3b8 !important;
+    }
+
+    .fc-day-future:not(.fc-day-other) {
+        cursor: pointer;
+    }
+
+    .fc-day-future:not(.fc-day-other) .fc-daygrid-day-number {
+        color: #1e293b !important;
+        opacity: 1 !important;
+    }
+
+    .fc-event {
+        border-radius: 3px !important;
+        padding: 0 3px !important;
+        font-size: 0.58rem !important;
+        font-weight: 700 !important;
+        border: none !important;
+        margin: 1px !important;
+        line-height: 1.2 !important;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+        display: flex;
+        align-items: center;
+        gap: 2px;
+    }
+
+    .fc-event,
+    .fc-event-title,
+    .fc-event-main {
+        color: inherit !important;
+    }
+
     /* Calendar Status Colors */
-    .status-approved { background: #dcfce7 !important; color: black !important; border-left: 3px solid #22c55e !important; }
-    .status-pending { background: #fef9c3 !important; color: black !important; border-left: 3px solid #eab308 !important; }
-    .status-rejected { background: #fee2e2 !important; color: black !important; border-left: 3px solid #ef4444 !important; }
-    .status-half-day { background: #ffedd5 !important; color: black !important; border-left: 3px solid #f97316 !important; }
-    .status-holiday { background: #dbeafe !important; color: black !important; border-left: 3px solid #3b82f6 !important; }
-    
-    .calendar-legend-item { padding: 4px 10px; background: #f8fafc; border-radius: 10px; font-size: 0.7rem; color: #475569; border: 1px solid #f1f5f9; display: flex; align-items: center; gap: 6px; }
-    .legend-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+    .status-approved {
+        background: #dcfce7 !important;
+        color: black !important;
+        border-left: 3px solid #22c55e !important;
+    }
+
+    .status-pending {
+        background: #fef9c3 !important;
+        color: black !important;
+        border-left: 3px solid #eab308 !important;
+    }
+
+    .status-rejected {
+        background: #fee2e2 !important;
+        color: black !important;
+        border-left: 3px solid #ef4444 !important;
+    }
+
+    .status-half-day {
+        background: #ffedd5 !important;
+        color: black !important;
+        border-left: 3px solid #f97316 !important;
+    }
+
+    .status-holiday {
+        background: #dbeafe !important;
+        color: black !important;
+        border-left: 3px solid #3b82f6 !important;
+    }
+
+    .calendar-legend-item {
+        padding: 4px 10px;
+        background: #f8fafc;
+        border-radius: 10px;
+        font-size: 0.7rem;
+        color: #475569;
+        border: 1px solid #f1f5f9;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .legend-dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        display: inline-block;
+    }
 </style>
 
 <script>
-const DAY_FULL   = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
-const MONTH_ABBR = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    const DAY_ABBR = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    const MONTH_ABBR = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
-function ordinalSuffix(n) {
-    const s = ['th','st','nd','rd'];
-    const v = n % 100;
-    return n + (s[(v - 20) % 10] || s[v] || s[0]);
-}
+    function ordinalSuffix(n) {
+        const s = ['th', 'st', 'nd', 'rd'];
+        const v = n % 100;
+        return n + (s[(v - 20) % 10] || s[v] || s[0]);
+    }
 
-function formatHolidayDate(value) {
-    const datePart = String(value || '').trim().slice(0, 10);
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(datePart)) return '—';
-    const [year, month, day] = datePart.split('-').map(Number);
-    if (month < 1 || month > 12 || day < 1 || day > 31) return '—';
-    const date = new Date(Date.UTC(year, month - 1, day));
-    if (Number.isNaN(date.getTime())) return '—';
-    const dayName = DAY_FULL[date.getUTCDay()];
-    const mon     = MONTH_ABBR[date.getUTCMonth()];
-    return `${dayName}, ${ordinalSuffix(day)} ${mon}`;   // e.g. "Thursday, 2nd Jan"
-}
+    function formatHolidayDate(value) {
+        const datePart = String(value || '').trim().slice(0, 10);
+        if (!/^\d{4}-\d{2}-\d{2}$/.test(datePart)) return '—';
+        const [year, month, day] = datePart.split('-').map(Number);
+        if (month < 1 || month > 12 || day < 1 || day > 31) return '—';
+        const date = new Date(Date.UTC(year, month - 1, day));
+        if (Number.isNaN(date.getTime())) return '—';
+        const dayName = DAY_ABBR[date.getUTCDay()];
+        const mon = MONTH_ABBR[date.getUTCMonth()];
+        return `${dayName}, ${ordinalSuffix(day)} ${mon}`;   // e.g. "Thu, 2nd Jan"
+    }
 
-document.addEventListener('DOMContentLoaded', function() {
-    const isEmployee = '{{ session.role }}' === 'employee';
+    document.addEventListener('DOMContentLoaded', function () {
+        const isEmployee = '{{ session.role }}' === 'employee';
 
-    // Populate holidays table via JS API (reliable date fetching)
-    refreshHolidaysList();
+        // Populate holidays table via JS API (reliable date fetching)
+        refreshHolidaysList();
 
-    // Load Leave Balance for all roles
-    loadLeaveBalance();
-    
-    // Initialize Inline Calendar for all users
-    initializeInlineCalendar();
-    
-    // Load leave balance from API
-    function loadLeaveBalance() {
-        fetch('/api/leaves/balance')
-            .then(res => res.json())
-            .then(data => {
-                console.log('Leave Balance Data:', data); // Debug logging
-                const container = document.getElementById('leaveBalanceCards');
-                if (!container) return;
-                
-                if (data.success && (data.balances || data.summary)) {
-                    const summary = data.summary || {};
-                    const balances = data.balances || [];
-                    
-                    // Helper to get balance for a type
-                    const getBal = (type) => {
-                        // 1. Try to find in balances array
-                        const b = balances.find(item => {
-                            const ltype = (item.leave_type || '').toLowerCase();
-                            return ltype.includes(type.toLowerCase());
-                        });
-                        
-                        if (b) {
-                            const used = b.used_leaves !== undefined ? b.used_leaves : (b.used || 0);
-                            const total = b.total_leaves !== undefined ? b.total_leaves : (b.total || (used + (b.remaining_leaves || b.remaining || 0)));
+        // Load Leave Balance for all roles
+        loadLeaveBalance();
+
+        // Initialize Inline Calendar for all users
+        initializeInlineCalendar();
+
+        // Load leave balance from API
+        function loadLeaveBalance() {
+            fetch('/api/leaves/balance')
+                .then(res => res.json())
+                .then(data => {
+                    console.log('Leave Balance Data:', data); // Debug logging
+                    const container = document.getElementById('leaveBalanceCards');
+                    if (!container) return;
+
+                    if (data.success && (data.balances || data.summary)) {
+                        const summary = data.summary || {};
+                        const balances = data.balances || [];
+
+                        // Helper to get balance for a type
+                        const getBal = (type) => {
+                            // 1. Try to find in balances array
+                            const b = balances.find(item => {
+                                const ltype = (item.leave_type || '').toLowerCase();
+                                return ltype.includes(type.toLowerCase());
+                            });
+
+                            if (b) {
+                                const used = b.used_leaves !== undefined ? b.used_leaves : (b.used || 0);
+                                const total = b.total_leaves !== undefined ? b.total_leaves : (b.total || (used + (b.remaining_leaves || b.remaining || 0)));
+                                return { used, total };
+                            }
+
+                            // 2. Try to find in summary object
+                            if (type === 'total') {
+                                const used = summary.used_leaves !== undefined ? summary.used_leaves : (summary.total_used || 0);
+                                const total = summary.total_leaves !== undefined ? summary.total_leaves : (summary.total_quota || 18);
+                                return { used, total };
+                            }
+
+                            // Check common prefixes/suffixes in summary
+                            const defaultTotals = { planned: 12, unplanned: 4, optional: 2 };
+                            const used = summary[`${type}_used`] || summary[`${type}_leaves_used`] || summary[`used_${type}_leaves`] || 0;
+                            const remaining = summary[`${type}_remaining`] || summary[`${type}_leaves_remaining`] || summary[`remaining_${type}_leaves`] || summary[`${type}_leaves`] || 0;
+                            const total = summary[`${type}_total`] || summary[`${type}_leaves_total`] || (used + remaining) || defaultTotals[type] || 10;
+
                             return { used, total };
-                        }
-                        
-                        // 2. Try to find in summary object
-                        if (type === 'total') {
-                            const used = summary.used_leaves !== undefined ? summary.used_leaves : (summary.total_used || 0);
-                            const total = summary.total_leaves !== undefined ? summary.total_leaves : (summary.total_quota || 30);
-                            return { used, total };
-                        }
-                        
-                        // Check common prefixes/suffixes in summary
-                        const used = summary[`${type}_used`] || summary[`${type}_leaves_used`] || summary[`used_${type}_leaves`] || 0;
-                        const remaining = summary[`${type}_remaining`] || summary[`${type}_leaves_remaining`] || summary[`remaining_${type}_leaves`] || summary[`${type}_leaves`] || 0;
-                        const total = summary[`${type}_total`] || summary[`${type}_leaves_total`] || (used + remaining) || 10;
-                        
-                        return { used, total };
-                    };
+                        };
 
-                    const categories = [
-                        { label: 'Total Leaves', ...getBal('total') },
-                        { label: 'Casual Leaves', ...getBal('casual') },
-                        { label: 'Sick Leaves', ...getBal('sick') },
-                        { label: 'Earned Leaves', ...getBal('earned') }
-                    ];
+                        const categories = [
+                            { label: 'Total Leaves', ...getBal('total') },
+                            { label: 'Planned Leaves', ...getBal('planned') },
+                            { label: 'Unplanned Leaves', ...getBal('unplanned') },
+                            { label: 'Optional Leaves', ...getBal('optional') }
+                        ];
 
-                    let html = '';
-                    categories.forEach(cat => {
-                        const remaining = cat.total - cat.used;
-                        const colorClass = cat.label.includes('Total') ? 'total' : cat.label.toLowerCase().split(' ')[0];
-                        
-                        html += `
+                        let html = '';
+                        categories.forEach(cat => {
+                            const remaining = cat.total - cat.used;
+                            const colorClass = cat.label.includes('Total') ? 'total' : cat.label.toLowerCase().split(' ')[0];
+
+                            html += `
                             <div class="col-md-3 col-sm-6 mb-2">
                                 <div class="leave-card-mini ${colorClass}">
                                     <div class="lc-header">
@@ -528,321 +1111,584 @@ document.addEventListener('DOMContentLoaded', function() {
                                 </div>
                             </div>
                         `;
-                    });
-                    container.innerHTML = html;
-                } else {
-                    const msg = data.error || 'No leave balance data available';
-                    container.innerHTML = `<div class="col-12 text-center text-muted py-4">${msg}</div>`;
-                }
-            })
-            .catch(err => {
-                console.error('Error loading leave balance:', err);
-                const container = document.getElementById('leaveBalanceCards');
-                if (container) {
-                    container.innerHTML = '<div class="col-12 text-center text-danger">Failed to load leave balance</div>';
-                }
-            });
-    }
-    
-    // Initialize inline calendar
-    function initializeInlineCalendar() {
-        const calendarEl = document.getElementById('calendar');
-        if (!calendarEl) return;
-        
-        const calendar = new FullCalendar.Calendar(calendarEl, {
-            initialView: 'dayGridMonth',
-            headerToolbar: { left: 'prev,next today', center: 'title', right: '' },
-            height: 'auto',
-            contentHeight: 'auto',
-            handleWindowResize: true,
-            expandRows: true,
-            selectable: true,
-            dayCellDidMount: function(info) {
-                const dateStr = info.date.toISOString().split('T')[0];
-                const todayStr = new Date().toISOString().split('T')[0];
-                if (info.date.getDay() === 0 || info.date.getDay() === 6) {
-                    info.el.classList.add('day-weekend');
-                }
-                if (dateStr > todayStr) {
-                    info.el.classList.add('fc-day-future');
-                }
-                if (dateStr === todayStr) {
-                    info.el.classList.add('day-today');
-                }
-            },
-            events: function(fetchInfo, successCallback, failureCallback) {
-                // 1. Static leaves from the template
-                const allLeaves = {{ leaves | tojson | safe }} || [];
-                const staticEvents = allLeaves.map(l => {
-                    const startStr = (l.start_date || '').split('T')[0];
-                    const endStr = (l.end_date || '').split('T')[0];
-                    if (!startStr || !endStr) return null;
+                        });
+                        container.innerHTML = html;
+                    } else {
+                        const msg = data.error || 'No leave balance data available';
+                        container.innerHTML = `<div class="col-12 text-center text-muted py-4">${msg}</div>`;
+                    }
+                })
+                .catch(err => {
+                    console.error('Error loading leave balance:', err);
+                    const container = document.getElementById('leaveBalanceCards');
+                    if (container) {
+                        container.innerHTML = '<div class="col-12 text-center text-danger">Failed to load leave balance</div>';
+                    }
+                });
+        }
 
-                    const status = (l.status || 'pending').toLowerCase();
-                    const category = (l.leave_type_category || 'full_day').toLowerCase();
-                    const isHalfDay = (category === 'half_day');
-                    
-                    const title = `${l.employee_name || 'Employee'}: ${l.leave_type || 'Leave'}${isHalfDay ? ' (Half Day)' : ''}`;
+        // Initialize inline calendar
+        function initializeInlineCalendar() {
+            const calendarEl = document.getElementById('calendar');
+            if (!calendarEl) return;
 
-                    // FullCalendar end date is exclusive for allDay events
-                    let end = new Date(endStr);
-                    end.setDate(end.getDate() + 1);
-                    const endFormatted = end.toISOString().split('T')[0];
+            const calendar = new FullCalendar.Calendar(calendarEl, {
+                initialView: 'dayGridMonth',
+                headerToolbar: { left: 'prev,next today', center: 'title', right: '' },
+                height: 'auto',
+                contentHeight: 'auto',
+                handleWindowResize: true,
+                expandRows: false,
+                selectable: true,
+                dayCellDidMount: function (info) {
+                    const dateStr = info.date.toISOString().split('T')[0];
+                    const todayStr = new Date().toISOString().split('T')[0];
+                    if (info.date.getDay() === 0 || info.date.getDay() === 6) {
+                        info.el.classList.add('day-weekend');
+                    }
+                    if (dateStr > todayStr) {
+                        info.el.classList.add('fc-day-future');
+                    }
+                    if (dateStr === todayStr) {
+                        info.el.classList.add('day-today');
+                    }
+                },
+                events: function (fetchInfo, successCallback, failureCallback) {
+                    // 1. Static leaves from the template
+                    const allLeaves = {{ leaves | tojson | safe }} || [];
+                    const staticEvents = allLeaves.map(l => {
+                const startStr = (l.start_date || '').split('T')[0];
+                const endStr = (l.end_date || '').split('T')[0];
+                if (!startStr || !endStr) return null;
 
-                    return {
-                        title: title,
-                        start: startStr,
-                        end: endFormatted,
-                        allDay: true,
-                        className: isHalfDay ? 'status-half-day' : `status-${status}`
-                    };
-                }).filter(e => e !== null);
+                const status = (l.status || 'pending').toLowerCase();
+                const category = (l.leave_type_category || 'full_day').toLowerCase();
+                const isHalfDay = (category === 'half_day');
 
-                // 2. Fetch holidays from the calendar API
-                const middleDate = new Date((fetchInfo.start.getTime() + fetchInfo.end.getTime()) / 2);
-                const year = middleDate.getFullYear();
-                const month = middleDate.getMonth() + 1;
-                
-                fetch(`/api/leaves/calendar?year=${year}&month=${month}`)
-                    .then(res => res.json())
-                    .then(data => {
-                        const apiEvents = [];
-                        if (data.success && data.days) {
-                            Object.entries(data.days).forEach(([dateStr, dayData]) => {
-                                if (dayData.status === 'holiday') {
-                                    apiEvents.push({
-                                        title: dayData.holiday.holiday_name || 'Holiday',
-                                        start: dateStr,
-                                        allDay: true,
-                                        className: 'status-holiday'
-                                    });
-                                }
-                            });
-                        }
-                        successCallback([...staticEvents, ...apiEvents]);
-                    })
-                    .catch(err => {
-                        console.error('Calendar API error (holidays):', err);
-                        successCallback(staticEvents);
-                    });
-            },
-            dateClick: function(info) {
-                const dateStr = info.dateStr;
-                const todayStr = new Date().toISOString().split('T')[0];
-                if (dateStr >= todayStr) {
-                    window.location.href = `/add-leave?date=${dateStr}`;
-                }
+                const title = `${l.employee_name || 'Employee'}: ${l.leave_type || 'Leave'}${isHalfDay ? ' (Half Day)' : ''}`;
+
+                // FullCalendar end date is exclusive for allDay events
+                let end = new Date(endStr);
+                end.setDate(end.getDate() + 1);
+                const endFormatted = end.toISOString().split('T')[0];
+
+                return {
+                    id: l.id || '',
+                    title: title,
+                    start: startStr,
+                    end: endFormatted,
+                    allDay: true,
+                    className: isHalfDay ? 'status-half-day' : `status-${status}`,
+                    extendedProps: {
+                        isLeave: true,
+                        leaveId: l.id || '',
+                        employeeName: l.employee_name || '',
+                        employeeRole: l.employee_role || '',
+                        leaveType: l.leave_type || '',
+                        category: category,
+                        isHalfDay: isHalfDay,
+                        totalDays: l.total_days || 1,
+                        startDate: startStr,
+                        endDate: endStr,
+                        reason: l.reason || '',
+                        status: status,
+                        isOwn: l.is_own || false,
+                        signoffs: l.signoffs || [],
+                        canUserApprove: l.can_user_approve || false
+                    }
+                };
+            }).filter(e => e !== null);
+
+            // 2. Fetch holidays from the calendar API
+            const middleDate = new Date((fetchInfo.start.getTime() + fetchInfo.end.getTime()) / 2);
+            const year = middleDate.getFullYear();
+            const month = middleDate.getMonth() + 1;
+
+            fetch(`/api/leaves/calendar?year=${year}&month=${month}`)
+                .then(res => res.json())
+                .then(data => {
+                    const apiEvents = [];
+                    if (data.success && data.days) {
+                        Object.entries(data.days).forEach(([dateStr, dayData]) => {
+                            if (dayData.status === 'holiday') {
+                                apiEvents.push({
+                                    title: dayData.holiday.holiday_name || 'Holiday',
+                                    start: dateStr,
+                                    allDay: true,
+                                    className: 'status-holiday',
+                                    extendedProps: {
+                                        isHoliday: true,
+                                        holidayName: dayData.holiday.holiday_name || 'Holiday',
+                                        date: dateStr,
+                                        type: dayData.holiday.holiday_type || 'Public Holiday',
+                                        description: dayData.holiday.description || ''
+                                    }
+                                });
+                            }
+                        });
+                    }
+                    successCallback([...staticEvents, ...apiEvents]);
+                })
+                .catch(err => {
+                    console.error('Calendar API error (holidays):', err);
+                    successCallback(staticEvents);
+                });
+        },
+        eventClick: function(info) {
+            info.jsEvent.preventDefault();
+            info.jsEvent.stopPropagation();
+            if (info.event && info.event.extendedProps) {
+                showCalendarDetailModal(info.event.extendedProps);
             }
-        });
-        calendar.render();
-        setTimeout(() => { calendar.updateSize(); }, 150);
-        window.inlineCalendar = calendar;
+        }
+    });
+    calendar.render();
+    setTimeout(() => { calendar.updateSize(); }, 150);
+    window.inlineCalendar = calendar;
     }
 });
 
-function updateLeave(leaveId, status, btn) {
-    if (!confirm("Are you sure?")) return;
-    fetch(`/update-leave/${leaveId}/${status}`, { method: "PUT" })
-    .then(res => res.json())
-    .then(data => {
-        if (!data.success) throw new Error(data.error || "Failed to update leave");
-        const row = btn.closest("tr");
-        const statusCell = row.children[row.children.length - 2];
-        let badgeClass = status === "approved" ? "bg-success" : "bg-danger";
-        statusCell.innerHTML = `<span class="badge ${badgeClass}">${status}</span>`;
-        row.children[row.children.length - 1].innerHTML = "-";
-    })
-    .catch(err => { alert(err.message || "Error updating leave"); });
-}
+    function showCalendarDetailModal(props) {
+        if (!props) return;
+        const bodyEl = document.getElementById('calendarDetailModalBody');
+        const titleEl = document.getElementById('calendarDetailModalLabel');
+        const actionsEl = document.getElementById('calendarDetailModalActions');
+        if (!bodyEl) return;
 
-// ── Holiday table state ──────────────────────────────────────────────────────
-let _allHolidays = [];
-let _holPage     = 1;
-const HOL_PAGE_SIZE = 10;
+        if (props.isHoliday) {
+            if (titleEl) titleEl.innerHTML = `<i class="bi bi-gift-fill me-2 text-primary"></i>Holiday Details`;
+            bodyEl.innerHTML = `
+                <div class="text-center mb-3">
+                    <div class="avatar-circle-sm mx-auto mb-2" style="width: 44px; height: 44px; background: #EFF6FF; color: #1D4ED8; font-size: 1.1rem;">
+                        <i class="bi bi-calendar-event"></i>
+                    </div>
+                    <h5 class="fw-bold text-slate-900 mb-1" style="font-size: 1rem;">${escapeHtml(props.holidayName)}</h5>
+                    <span class="badge px-2.5 py-1 rounded-pill" style="background:#EFF6FF; color:#1D4ED8; border:1px solid #DBEAFE; font-weight:600; font-size:0.75rem;">
+                        ${escapeHtml(props.type || 'Public Holiday')}
+                    </span>
+                </div>
+                <div class="p-3 bg-light rounded-3 border mb-1" style="border-color:#F1F5F9 !important;">
+                    <div class="d-flex justify-content-between align-items-center mb-2 pb-2 border-bottom">
+                        <span class="text-muted small fw-semibold">Date</span>
+                        <span class="fw-bold text-dark small">${formatHolidayDate(props.date)}</span>
+                    </div>
+                    <div>
+                        <span class="text-muted small fw-semibold d-block mb-1">Description</span>
+                        <p class="text-slate-700 small mb-0">${escapeHtml(props.description || 'Company public holiday')}</p>
+                    </div>
+                </div>
+            `;
+            if (actionsEl) actionsEl.innerHTML = '';
+        } else if (props.isLeave) {
+            if (titleEl) titleEl.innerHTML = `<i class="bi bi-person-badge-fill me-2 text-primary"></i>Leave Application Details`;
+            
+            const empRole = (props.employeeRole || 'employee').toLowerCase();
+            const roleBg = '#EEF2FF', roleFg = '#4F46E5';
+            
+            const statusBg = props.status === 'approved' ? '#ECFDF5' : (props.status === 'pending' ? '#FFFBEB' : '#FEF2F2');
+            const statusFg = props.status === 'approved' ? '#047857' : (props.status === 'pending' ? '#B45309' : '#B91C1C');
+            const statusBorder = props.status === 'approved' ? '#D1FAE5' : (props.status === 'pending' ? '#FEF3C7' : '#FECACA');
 
-function refreshHolidaysList() {
-    fetch('/api/holidays')
-        .then(res => res.json())
-        .then(data => {
-            if (data.success && data.holidays) {
-                _allHolidays = data.holidays;
-            } else {
-                _allHolidays = [];
+            // Multi-approver signoff details
+            let signoffHtml = '';
+            if (props.signoffs && props.signoffs.length > 0) {
+                signoffHtml = `
+                    <div class="p-2.5 bg-light rounded-3 border mb-3" style="border-color:#F1F5F9 !important;">
+                        <span class="text-muted d-block mb-1.5" style="font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Sign-off Requirements</span>
+                        <div class="d-flex flex-column gap-1.5">
+                `;
+                props.signoffs.forEach(s => {
+                    const sOk = (s.status === 'approved');
+                    const sRej = (s.status === 'rejected');
+                    const sBg = sOk ? '#ECFDF5' : (sRej ? '#FEF2F2' : '#F8FAFC');
+                    const sFg = sOk ? '#065F46' : (sRej ? '#991B1B' : '#64748B');
+                    const sBorder = sOk ? '#D1FAE5' : (sRej ? '#FECACA' : '#E2E8F0');
+                    const sIcon = sOk ? 'bi-check-circle-fill text-success' : (sRej ? 'bi-x-circle-fill text-danger' : 'bi-clock-history text-warning');
+                    const roleLabel = s.approver_role === 'hr' ? 'HR Department' : `Manager (${s.project_name || 'Project'})`;
+                    const approverText = s.action_by ? ` • By ${escapeHtml(s.action_by)}` : (s.approver_name ? ` • Assigned to ${escapeHtml(s.approver_name)}` : '');
+
+                    signoffHtml += `
+                        <div class="d-flex align-items-center justify-content-between p-1.5 rounded-2" style="background:#FFFFFF; border:1px solid #F1F5F9;">
+                            <div class="d-flex align-items-center gap-1.5">
+                                <i class="bi ${sIcon}" style="font-size: 0.88rem;"></i>
+                                <span class="fw-semibold text-slate-800" style="font-size: 0.8rem;">${escapeHtml(roleLabel)}</span>
+                                <small class="text-muted" style="font-size: 0.72rem;">${approverText}</small>
+                            </div>
+                            <span class="badge rounded-pill" style="background:${sBg}; color:${sFg}; border:1px solid ${sBorder}; font-size:0.7rem; font-weight:600; text-transform:capitalize;">
+                                ${escapeHtml(s.status || 'pending')}
+                            </span>
+                        </div>
+                    `;
+                });
+                signoffHtml += `</div></div>`;
             }
-            _holPage = 1;
-            renderHolidayPage();
-        })
-        .catch(err => {
-            console.error('Error refreshing holidays list:', err);
-            _allHolidays = [];
-            renderHolidayPage();
-        });
-}
 
-function renderHolidayPage() {
-    const tbody = document.getElementById('holidaysTableBody');
-    const pager = document.getElementById('holidaysPagination');
-    if (!tbody) return;
+            bodyEl.innerHTML = `
+                <div class="d-flex align-items-center justify-content-between mb-3 pb-3 border-bottom">
+                    <div class="d-flex align-items-center gap-2">
+                        <div class="avatar-circle-sm" style="width: 38px; height: 38px; background: ${roleBg}; color: ${roleFg}; font-size: 0.85rem;">
+                            ${(props.employeeName || 'E').slice(0, 2).toUpperCase()}
+                        </div>
+                        <div>
+                            <div class="fw-bold text-slate-900" style="font-size: 0.92rem;">${escapeHtml(props.employeeName)}</div>
+                            <small class="text-muted">${escapeHtml(props.employeeRole ? props.employeeRole.charAt(0).toUpperCase() + props.employeeRole.slice(1) : 'Employee')}</small>
+                        </div>
+                    </div>
+                    <span class="badge px-2.5 py-1 rounded-pill" style="background: ${statusBg}; color: ${statusFg}; border: 1px solid ${statusBorder}; font-weight: 600; font-size: 0.76rem; text-transform: capitalize;">
+                        ${escapeHtml(props.status)}
+                    </span>
+                </div>
 
-    if (_allHolidays.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="4" class="text-center text-muted py-3">No company holidays scheduled.</td></tr>';
-        if (pager) pager.innerHTML = '';
-        return;
-    }
+                <div class="row g-2 mb-3">
+                    <div class="col-6">
+                        <div class="p-2 bg-light rounded-3 border" style="border-color:#F1F5F9 !important;">
+                            <span class="text-muted d-block mb-1" style="font-size: 0.72rem; font-weight: 600; text-transform: uppercase;">Leave Type</span>
+                            <span class="fw-bold text-dark" style="font-size: 0.84rem;">${escapeHtml(props.leaveType)}</span>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="p-2 bg-light rounded-3 border" style="border-color:#F1F5F9 !important;">
+                            <span class="text-muted d-block mb-1" style="font-size: 0.72rem; font-weight: 600; text-transform: uppercase;">Duration</span>
+                            <span class="fw-bold text-dark" style="font-size: 0.84rem;">${props.totalDays} ${props.totalDays === 0.5 || props.isHalfDay ? 'Day (Half Day)' : 'Days'}</span>
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <div class="p-2 bg-light rounded-3 border" style="border-color:#F1F5F9 !important;">
+                            <span class="text-muted d-block mb-1" style="font-size: 0.72rem; font-weight: 600; text-transform: uppercase;">Dates</span>
+                            <span class="fw-semibold text-slate-800" style="font-size: 0.84rem;">
+                                ${props.startDate}${props.endDate && props.endDate !== props.startDate ? ' &rarr; ' + props.endDate : ''}
+                            </span>
+                        </div>
+                    </div>
+                </div>
 
-    const totalPages = Math.ceil(_allHolidays.length / HOL_PAGE_SIZE);
-    _holPage = Math.max(1, Math.min(_holPage, totalPages));
+                ${signoffHtml}
 
-    const start = (_holPage - 1) * HOL_PAGE_SIZE;
-    const pageItems = _allHolidays.slice(start, start + HOL_PAGE_SIZE);
+                <div class="p-2 bg-light rounded-3 border mb-1" style="border-color:#F1F5F9 !important;">
+                    <span class="text-muted d-block mb-1" style="font-size: 0.72rem; font-weight: 600; text-transform: uppercase;">Reason</span>
+                    <p class="text-slate-700 small mb-0">${escapeHtml(props.reason || 'No reason specified.')}</p>
+                </div>
+            `;
 
-    // Use fixed padding now that we have 20px row gaps via border-spacing
-    const rowPad = 12;
-
-    // Render rows — no border between them
-    let html = '';
-    pageItems.forEach(h => {
-        const dateStr = formatHolidayDate(h.date);
-        const hType = h.type || 'public';
-        // Determine type color — plain text, no badge
-        let typeColor = '#1d4ed8';       // public  → dark blue
-        if (hType === 'optional')                               typeColor = '#0e7490'; // dark cyan
-        else if (hType === 'restricted' || hType === 'company') typeColor = '#374151'; // dark gray
-
-        html += `
-            <tr style="border: none;">
-                <td class="fw-semibold" style="white-space: nowrap; border: none; color: #64748b; padding: ${rowPad}px 12px;">${dateStr}</td>
-                <td class="fw-bold" style="border: none; padding: ${rowPad}px 12px;">${escapeHtml(h.name || '')}</td>
-                <td style="border: none; padding: ${rowPad}px 12px;">
-                    <span style="font-weight:600; color:${typeColor}; text-transform:uppercase; font-size:0.78rem; letter-spacing:0.04em;">${escapeHtml(hType)}</span>
-                </td>
-                <td style="border: none; padding: ${rowPad}px 12px; color: #64748b; font-size: 0.875rem;">${escapeHtml(h.description || '—')}</td>
-            </tr>`;
-    });
-    tbody.innerHTML = html;
-
-    // Render pagination controls
-    if (pager) {
-        if (totalPages <= 1) { pager.innerHTML = ''; return; }
-        const btnBase = 'style="min-width:32px; height:32px; padding:0 8px; font-size:0.78rem; border-radius:8px; border:1px solid #e2e8f0; background:#fff; cursor:pointer; display:inline-flex; align-items:center; justify-content:center;"';
-        const activeStyle = 'style="min-width:32px; height:32px; padding:0 8px; font-size:0.78rem; border-radius:8px; border:1px solid #6366f1; background:#6366f1; color:#fff; cursor:pointer; display:inline-flex; align-items:center; justify-content:center; font-weight:700;"';
-        let pHtml = `<button ${btnBase} onclick="_holPage--; renderHolidayPage();" ${_holPage===1?'disabled':''}>&lsaquo;</button>`;
-        for (let p = 1; p <= totalPages; p++) {
-            pHtml += `<button ${p===_holPage ? activeStyle : btnBase} onclick="_holPage=${p}; renderHolidayPage();">${p}</button>`;
-        }
-        pHtml += `<button ${btnBase} onclick="_holPage++; renderHolidayPage();" ${_holPage===totalPages?'disabled':''}>&rsaquo;</button>`;
-        pager.innerHTML = pHtml;
-    }
-}
-
-function formatHolidayDate(dateVal) {
-    if (!dateVal) return '—';
-    const datePart = String(dateVal).trim().slice(0, 10);
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(datePart)) return '—';
-    const [year, month, day] = datePart.split('-').map(Number);
-    if (month < 1 || month > 12 || day < 1 || day > 31) return '—';
-    const date = new Date(Date.UTC(year, month - 1, day));
-    if (Number.isNaN(date.getTime())) return '—';
-    const dayName = DAY_FULL[date.getUTCDay()];
-    const mon     = MONTH_ABBR[date.getUTCMonth()];
-    return `${dayName}, ${ordinalSuffix(day)} ${mon}`;
-}
-
-function escapeHtml(str) {
-    if (!str) return '';
-    return String(str)
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#039;');
-}
-
-document.addEventListener('DOMContentLoaded', () => {
-    document.querySelectorAll('.table').forEach((table, index) => {
-        const id = `leave-table-${index}`;
-        table.id = table.id || id;
-        applyPagination(`#${table.id}`, 10);
-    });
-
-    const holidayForm = document.getElementById('addHolidayForm');
-    if (holidayForm) {
-        holidayForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const alertEl = document.getElementById('holidayAlert');
-            const submitBtn = document.getElementById('submitHolidayBtn');
-            const spinner = document.getElementById('holidaySubmitSpinner');
-            
-            if (alertEl) {
-                alertEl.classList.add('d-none');
-                alertEl.textContent = '';
-            }
-            
-            const name = document.getElementById('holidayName').value.trim();
-            const date = document.getElementById('holidayDate').value;
-            const type = document.getElementById('holidayType').value;
-            const description = document.getElementById('holidayDescription').value.trim();
-            
-            if (!name || !date) {
-                if (alertEl) {
-                    alertEl.textContent = 'Please provide both holiday title and date.';
-                    alertEl.classList.remove('d-none');
+            if (actionsEl) {
+                let actHtml = '';
+                const userRole = '{{ session.role }}';
+                if (props.status === 'pending' && !props.isOwn && (props.canUserApprove || userRole === 'admin' || userRole === 'superadmin')) {
+                    actHtml += `
+                        <button type="button" class="btn btn-sm btn-success rounded-pill px-3" onclick="updateLeaveFromModal('${props.leaveId}', 'approved')">
+                            <i class="bi bi-check-circle me-1"></i> Approve
+                        </button>
+                        <button type="button" class="btn btn-sm btn-danger rounded-pill px-3" onclick="updateLeaveFromModal('${props.leaveId}', 'rejected')">
+                            <i class="bi bi-x-circle me-1"></i> Reject
+                        </button>
+                    `;
+                } else if (props.status === 'pending' && !props.isOwn) {
+                    actHtml += `<span class="badge bg-light text-muted border px-2.5 py-1.5 rounded-pill small">Awaiting Other Sign-off</span>`;
                 }
-                return;
+                if (props.isOwn) {
+                    actHtml += `<span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25 px-2.5 py-1.5 rounded-pill small"><i class="bi bi-person me-1"></i>My Application</span>`;
+                }
+                actionsEl.innerHTML = actHtml;
             }
-            
-            if (submitBtn) submitBtn.disabled = true;
-            if (spinner) spinner.classList.remove('d-none');
-            
-            fetch('/api/holidays', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ name, date, type, description })
+        }
+
+        const modalEl = document.getElementById('calendarDetailModal');
+        if (modalEl) {
+            const modal = new bootstrap.Modal(modalEl);
+            modal.show();
+        }
+    }
+
+    function updateLeaveFromModal(leaveId, status) {
+        if (!confirm("Are you sure?")) return;
+        fetch(`/update-leave/${leaveId}/${status}`, { method: "PUT" })
+            .then(res => res.json())
+            .then(data => {
+                if (!data.success) throw new Error(data.error || "Failed to update leave");
+                const modalEl = document.getElementById('calendarDetailModal');
+                if (modalEl) {
+                    const modal = bootstrap.Modal.getInstance(modalEl);
+                    if (modal) modal.hide();
+                }
+                window.location.reload();
             })
-            .then(res => res.json().then(data => ({ ok: res.ok, status: res.status, data })))
-            .then(({ ok, status, data }) => {
-                if (submitBtn) submitBtn.disabled = false;
-                if (spinner) spinner.classList.add('d-none');
-                
-                if (!ok || !data.success) {
+            .catch(err => { alert(err.message || "Error updating leave"); });
+    }
+
+    function updateLeave(leaveId, status, btn) {
+        if (!confirm("Are you sure?")) return;
+        fetch(`/update-leave/${leaveId}/${status}`, { method: "PUT" })
+            .then(res => res.json())
+            .then(data => {
+                if (!data.success) throw new Error(data.error || "Failed to update leave");
+                const row = btn ? btn.closest("tr") : null;
+                if (row) {
+                    const statusCell = row.children[row.children.length - 2];
+                    let badgeClass = status === "approved" ? "bg-success" : "bg-danger";
+                    if (statusCell) statusCell.innerHTML = `<span class="badge ${badgeClass}">${status}</span>`;
+                    const actionCell = row.children[row.children.length - 1];
+                    if (actionCell) actionCell.innerHTML = "-";
+                }
+                setTimeout(() => { window.location.reload(); }, 350);
+            })
+            .catch(err => { alert(err.message || "Error updating leave"); });
+    }
+
+    // ── Holiday table state ──────────────────────────────────────────────────────
+    let _allHolidays = [];
+    let _holPage = 1;
+    const HOL_PAGE_SIZE = 20;
+
+    function refreshHolidaysList() {
+        fetch('/api/holidays')
+            .then(res => res.json())
+            .then(data => {
+                if (data.success && data.holidays) {
+                    _allHolidays = data.holidays;
+                } else {
+                    _allHolidays = [];
+                }
+                _holPage = 1;
+                renderHolidayPage();
+            })
+            .catch(err => {
+                console.error('Error refreshing holidays list:', err);
+                _allHolidays = [];
+                renderHolidayPage();
+            });
+    }
+
+    function renderHolidayPage() {
+        const tbody = document.getElementById('holidaysTableBody');
+        const pager = document.getElementById('holidaysPagination');
+        if (!tbody) return;
+
+        if (_allHolidays.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="4" class="text-center text-muted py-3">No company holidays scheduled.</td></tr>';
+            if (pager) pager.innerHTML = '';
+            return;
+        }
+
+        const totalPages = Math.ceil(_allHolidays.length / HOL_PAGE_SIZE);
+        _holPage = Math.max(1, Math.min(_holPage, totalPages));
+
+        const start = (_holPage - 1) * HOL_PAGE_SIZE;
+        const pageItems = _allHolidays.slice(start, start + HOL_PAGE_SIZE);
+
+        // Use fixed padding now that we have 20px row gaps via border-spacing
+        const rowPad = 12;
+
+        let html = '';
+        pageItems.forEach(h => {
+            const dateStr = formatHolidayDate(h.date);
+            const hType = (h.type || 'public').toLowerCase();
+
+            let badgeBg = '#EFF6FF', badgeFg = '#1D4ED8', badgeBorder = '#DBEAFE';
+            if (hType === 'optional') {
+                badgeBg = '#F5F3FF'; badgeFg = '#6D28D9'; badgeBorder = '#EDE9FE';
+            } else if (hType === 'restricted' || hType === 'company') {
+                badgeBg = '#FFFBEB'; badgeFg = '#B45309'; badgeBorder = '#FEF3C7';
+            }
+
+            html += `
+            <tr style="border-bottom: 1px solid #F1F5F9;">
+                <td style="padding: 12px 14px; white-space: nowrap;">
+                    <div class="text-muted" style="font-size: 0.84rem;">${dateStr}</div>
+                </td>
+                <td style="padding: 12px 10px;">
+                    <div class="fw-bold text-dark" style="font-size: 0.88rem;">${escapeHtml(h.name || '')}</div>
+                </td>
+                <td style="padding: 12px 10px;">
+                    <span class="badge px-2.5 py-1 rounded-pill" style="background: ${badgeBg}; color: ${badgeFg}; border: 1px solid ${badgeBorder}; font-weight: 600; font-size: 0.75rem; text-transform: capitalize;">
+                        ${escapeHtml(hType)}
+                    </span>
+                </td>
+                <td style="padding: 12px 14px 12px 10px;">
+                    <div class="text-muted text-truncate" style="max-width: 180px; font-size: 0.82rem;" title="${escapeHtml(h.description || '')}">
+                        ${escapeHtml(h.description || '—')}
+                    </div>
+                </td>
+            </tr>`;
+        });
+        tbody.innerHTML = html;
+
+        // Render pagination controls
+        if (pager) {
+            if (totalPages <= 1) { pager.innerHTML = ''; return; }
+            const btnBase = 'style="min-width:32px; height:32px; padding:0 8px; font-size:0.78rem; border-radius:8px; border:1px solid #e2e8f0; background:#fff; cursor:pointer; display:inline-flex; align-items:center; justify-content:center;"';
+            const activeStyle = 'style="min-width:32px; height:32px; padding:0 8px; font-size:0.78rem; border-radius:8px; border:1px solid #6366f1; background:#6366f1; color:#fff; cursor:pointer; display:inline-flex; align-items:center; justify-content:center; font-weight:700;"';
+            let pHtml = `<button ${btnBase} onclick="_holPage--; renderHolidayPage();" ${_holPage === 1 ? 'disabled' : ''}>&lsaquo;</button>`;
+            for (let p = 1; p <= totalPages; p++) {
+                pHtml += `<button ${p === _holPage ? activeStyle : btnBase} onclick="_holPage=${p}; renderHolidayPage();">${p}</button>`;
+            }
+            pHtml += `<button ${btnBase} onclick="_holPage++; renderHolidayPage();" ${_holPage === totalPages ? 'disabled' : ''}>&rsaquo;</button>`;
+            pager.innerHTML = pHtml;
+        }
+    }
+
+    function formatHolidayDate(dateVal) {
+        if (!dateVal) return '—';
+        const datePart = String(dateVal).trim().slice(0, 10);
+        if (!/^\d{4}-\d{2}-\d{2}$/.test(datePart)) return '—';
+        const [year, month, day] = datePart.split('-').map(Number);
+        if (month < 1 || month > 12 || day < 1 || day > 31) return '—';
+        const date = new Date(Date.UTC(year, month - 1, day));
+        if (Number.isNaN(date.getTime())) return '—';
+        const dayName = DAY_ABBR[date.getUTCDay()];
+        const mon = MONTH_ABBR[date.getUTCMonth()];
+        return `${dayName}, ${ordinalSuffix(day)} ${mon}`;
+    }
+
+    function escapeHtml(str) {
+        if (!str) return '';
+        return String(str)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#039;');
+    }
+
+    // ── Interactive Leave Table Filter & Search ──────────────────────────────
+    function filterLeaveTable(scope, status, el) {
+        const tableId = scope === 'all' ? 'allLeavesTable' : 'myLeavesTable';
+        const rowClass = scope === 'all' ? '.leave-row-all' : '.leave-row-my';
+        const paneId = scope === 'all' ? '#all-leaves-pane' : '#my-leaves-pane';
+        const rows = document.querySelectorAll(`${paneId} ${rowClass}`);
+        
+        // Update active filter pill highlight
+        const pane = document.querySelector(paneId);
+        if (pane) {
+            pane.querySelectorAll('.leave-filter-pill').forEach(pill => pill.classList.remove('active'));
+            pane.querySelectorAll('.hd-stat-box').forEach(box => box.classList.remove('active-filter'));
+        }
+
+        if (el) {
+            if (el.classList.contains('leave-filter-pill')) {
+                el.classList.add('active');
+            } else if (el.classList.contains('hd-stat-box')) {
+                el.classList.add('active-filter');
+                // Also highlight matching pill
+                const matchingPill = pane ? Array.from(pane.querySelectorAll('.leave-filter-pill')).find(p => p.textContent.toLowerCase().includes(status)) : null;
+                if (matchingPill) matchingPill.classList.add('active');
+            }
+        }
+
+        rows.forEach(r => {
+            const rowStatus = (r.getAttribute('data-status') || '').toLowerCase();
+            if (status === 'all' || rowStatus === status) {
+                r.style.display = '';
+            } else {
+                r.style.display = 'none';
+            }
+        });
+
+        // Re-apply pagination after filtering
+        if (typeof applyPagination === 'function') {
+            applyPagination(`#${tableId}`, 20);
+        }
+    }
+
+    function searchLeaveTable(scope, query) {
+        const rowClass = scope === 'all' ? '.leave-row-all' : '.leave-row-my';
+        const paneId = scope === 'all' ? '#all-leaves-pane' : '#my-leaves-pane';
+        const rows = document.querySelectorAll(`${paneId} ${rowClass}`);
+        const q = (query || '').toLowerCase().trim();
+
+        rows.forEach(r => {
+            const text = (r.textContent || '').toLowerCase();
+            if (!q || text.includes(q)) {
+                r.style.display = '';
+            } else {
+                r.style.display = 'none';
+            }
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        if (typeof applyPagination === 'function') {
+            applyPagination('#allLeavesTable', 20);
+            applyPagination('#myLeavesTable', 20);
+        }
+
+        const holidayForm = document.getElementById('addHolidayForm');
+        if (holidayForm) {
+            holidayForm.addEventListener('submit', function (e) {
+                e.preventDefault();
+
+                const alertEl = document.getElementById('holidayAlert');
+                const submitBtn = document.getElementById('submitHolidayBtn');
+                const spinner = document.getElementById('holidaySubmitSpinner');
+
+                if (alertEl) {
+                    alertEl.classList.add('d-none');
+                    alertEl.textContent = '';
+                }
+
+                const name = document.getElementById('holidayName').value.trim();
+                const date = document.getElementById('holidayDate').value;
+                const type = document.getElementById('holidayType').value;
+                const description = document.getElementById('holidayDescription').value.trim();
+
+                if (!name || !date) {
                     if (alertEl) {
-                        alertEl.textContent = data.error || data.message || 'Failed to add holiday.';
+                        alertEl.textContent = 'Please provide both holiday title and date.';
                         alertEl.classList.remove('d-none');
-                    } else {
-                        alert(data.error || 'Failed to add holiday.');
                     }
                     return;
                 }
-                
-                // Success: Close modal and reset form
-                const modalEl = document.getElementById('addHolidayModal');
-                if (modalEl) {
-                    const modalInstance = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
-                    if (modalInstance) modalInstance.hide();
-                }
-                holidayForm.reset();
-                
-                // Refresh list and calendar
-                refreshHolidaysList();
-                if (window.inlineCalendar && typeof window.inlineCalendar.refetchEvents === 'function') {
-                    window.inlineCalendar.refetchEvents();
-                }
-            })
-            .catch(err => {
-                if (submitBtn) submitBtn.disabled = false;
-                if (spinner) spinner.classList.add('d-none');
-                if (alertEl) {
-                    alertEl.textContent = err.message || 'An error occurred while saving holiday.';
-                    alertEl.classList.remove('d-none');
-                } else {
-                    alert(err.message || 'An error occurred while saving holiday.');
-                }
+
+                if (submitBtn) submitBtn.disabled = true;
+                if (spinner) spinner.classList.remove('d-none');
+
+                fetch('/api/holidays', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ name, date, type, description })
+                })
+                    .then(res => res.json().then(data => ({ ok: res.ok, status: res.status, data })))
+                    .then(({ ok, status, data }) => {
+                        if (submitBtn) submitBtn.disabled = false;
+                        if (spinner) spinner.classList.add('d-none');
+
+                        if (!ok || !data.success) {
+                            if (alertEl) {
+                                alertEl.textContent = data.error || data.message || 'Failed to add holiday.';
+                                alertEl.classList.remove('d-none');
+                            } else {
+                                alert(data.error || 'Failed to add holiday.');
+                            }
+                            return;
+                        }
+
+                        // Success: Close modal and reset form
+                        const modalEl = document.getElementById('addHolidayModal');
+                        if (modalEl) {
+                            const modalInstance = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
+                            if (modalInstance) modalInstance.hide();
+                        }
+                        holidayForm.reset();
+
+                        // Refresh list and calendar
+                        refreshHolidaysList();
+                        if (window.inlineCalendar && typeof window.inlineCalendar.refetchEvents === 'function') {
+                            window.inlineCalendar.refetchEvents();
+                        }
+                    })
+                    .catch(err => {
+                        if (submitBtn) submitBtn.disabled = false;
+                        if (spinner) spinner.classList.add('d-none');
+                        if (alertEl) {
+                            alertEl.textContent = err.message || 'An error occurred while saving holiday.';
+                            alertEl.classList.remove('d-none');
+                        } else {
+                            alert(err.message || 'An error occurred while saving holiday.');
+                        }
+                    });
             });
-        });
-    }
-});
+        }
+    });
 </script>
 {% endblock %}

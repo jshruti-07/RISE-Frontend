@@ -3,243 +3,209 @@
 {% block page_title %}Edit Employee{% endblock %}
 
 {% block content %}
+<style>
+    .hd-dashboard-card {
+        background: #FFFFFF;
+        border: 1px solid #E8ECF4;
+        border-radius: 16px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+        overflow: hidden;
+    }
 
-<div class="container mt-4">
+    .form-section-title {
+        font-size: 0.95rem;
+        font-weight: 700;
+        color: #1E293B;
+        padding-bottom: 8px;
+        margin-bottom: 16px;
+        border-bottom: 1px solid #F1F5F9;
+    }
 
-    <a href="{{ url_for('employees.employee_list') }}" class="back-link">
-        <i class="bi bi-arrow-left"></i> Back to Records
-    </a>
+    .form-label {
+        font-size: 0.82rem;
+        font-weight: 600;
+        color: #475569;
+        margin-bottom: 5px;
+    }
 
-    <div class="form-card p-4">
+    .form-control, .form-select {
+        border-radius: 8px;
+        border: 1px solid #E2E8F0;
+        font-size: 0.86rem;
+        padding: 8px 12px;
+    }
 
-        <div class="d-flex align-items-center gap-3 mb-3">
+    .form-control:focus, .form-select:focus {
+        border-color: #A5B4FC;
+        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.12);
+    }
+</style>
 
-            <div class="icon-box bg-primary">
-                <i class="bi bi-pencil-square"></i>
-            </div>
+<div class="container-fluid py-4">
+    <!-- Header Outside Card -->
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h4 class="fw-bold text-dark mb-0">{{ labels.EDIT_EMPLOYEE }}</h4>
+        <a href="{{ url_for('employees.employee_list') }}" class="btn btn-outline-secondary btn-sm rounded-pill px-3 fw-semibold">
+            <i class="bi bi-arrow-left me-1"></i> Back to Records
+        </a>
+    </div>
 
-            <div>
-                <h5 class="mb-0">{{ labels.EDIT_EMPLOYEE }}</h5>
-                <small class="text-muted">Update details</small>
-            </div>
-
-        </div>
-
-
-        <div class="form-body">
+    <div class="hd-dashboard-card">
+        <div class="p-4">
             <form method="POST" enctype="multipart/form-data">
 
-                <div class="row mb-3">
+                <!-- Personal Info -->
+                <div class="form-section-title">
+                    <i class="bi bi-person-badge me-1 text-primary"></i> Personal Information
+                </div>
+
+                <div class="row g-3 mb-4">
                     <div class="col-md-6">
-                        <label class="d-flex align-items-center gap-2">
-                            <i class="bi bi-person"></i>
-                            Full Name
-                        </label>
-                        <div class="field-wrap">
-                            <input type="text" class="form-control" name="name" value="{{ employee.name or '' }}" placeholder="Full name" required>
-                        </div>
+                        <label class="form-label">Full Name <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" name="name" value="{{ employee.name or '' }}" placeholder="Enter full name" required>
                     </div>
                     <div class="col-md-6">
-                        <label class="d-flex align-items-center gap-2">
-                            <i class="bi bi-envelope"></i>
-                            Email
-                        </label>
-                        <div class="field-wrap">
-                            <input type="email" class="form-control" name="email" value="{{ employee.email or '' }}" placeholder="Email address" required>
-                        </div>
+                        <label class="form-label">Email Address <span class="text-danger">*</span></label>
+                        <input type="email" class="form-control" name="email" value="{{ employee.email or '' }}" placeholder="name@company.com" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Phone Number <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" name="phone" value="{{ employee.phone or '' }}" placeholder="Phone number" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Date of Birth <span class="text-danger">*</span></label>
+                        <input type="date" class="form-control" name="date_of_birth"
+                            value="{{ employee.date_of_birth[:10] if employee.date_of_birth else '' }}" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Gender <span class="text-danger">*</span></label>
+                        <select class="form-select" name="gender" required>
+                            <option value="" disabled {% if not employee.gender %}selected{% endif %}>Select Gender</option>
+                            <option value="Male" {% if employee.gender == 'Male' %}selected{% endif %}>Male</option>
+                            <option value="Female" {% if employee.gender == 'Female' %}selected{% endif %}>Female</option>
+                            <option value="Other" {% if employee.gender == 'Other' %}selected{% endif %}>Other</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Address</label>
+                        <input type="text" class="form-control" name="address" value="{{ employee.address or '' }}" placeholder="Residential address">
                     </div>
                 </div>
 
-                <div class="row mb-3">
-                    <div class="col-md-6">
-                        <label class="d-flex align-items-center gap-2">
-                            <i class="bi bi-telephone"></i>
-                            Phone Number
-                        </label>
-                        <div class="field-wrap">
-                            <input type="text" class="form-control" name="phone" value="{{ employee.phone or '' }}" placeholder="Phone number" required>
-                        </div>
+                <!-- Employment Details -->
+                <div class="form-section-title">
+                    <i class="bi bi-briefcase me-1 text-primary"></i> Employment Details
+                </div>
+
+                <div class="row g-3 mb-4">
+                    <div class="col-md-4">
+                        <label class="form-label">Role <span class="text-danger">*</span></label>
+                        <select class="form-select" name="role" required>
+                            <option value="" disabled {% if not employee.role %}selected{% endif %}>Select Role</option>
+                            <option value="admin" {% if employee.role == 'admin' %}selected{% endif %}>Admin</option>
+                            <option value="superadmin" {% if employee.role == 'superadmin' %}selected{% endif %}>Super Admin</option>
+                            <option value="accounts" {% if employee.role == 'accounts' %}selected{% endif %}>Accounts</option>
+                            <option value="hr" {% if employee.role == 'hr' %}selected{% endif %}>HR</option>
+                            <option value="manager" {% if employee.role == 'manager' %}selected{% endif %}>Manager</option>
+                            <option value="employee" {% if employee.role == 'employee' or not employee.role %}selected{% endif %}>Team Member</option>
+                        </select>
                     </div>
-                    <div class="col-md-6">
-                        <label class="d-flex align-items-center gap-2">
-                            <i class="bi bi-calendar"></i>
-                            Date of Birth
-                        </label>
-                        <div class="field-wrap">
-                            <input type="date" class="form-control" name="date_of_birth"
-                                value="{{ employee.date_of_birth[:10] if employee.date_of_birth else '' }}"
-                                required>
-                        </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Employment Type <span class="text-danger">*</span></label>
+                        <select class="form-select" name="employment_type" required>
+                            <option value="" disabled {% if not employee.employment_type %}selected{% endif %}>Select Employment Type</option>
+                            <option value="Full-time" {% if employee.employment_type in ['Full-time', 'Full Time'] %}selected{% endif %}>Full-time</option>
+                            <option value="Part-time" {% if employee.employment_type in ['Part-time', 'Part Time'] %}selected{% endif %}>Part-time</option>
+                            <option value="Contract" {% if employee.employment_type == 'Contract' %}selected{% endif %}>Contract</option>
+                            <option value="Temporary" {% if employee.employment_type == 'Temporary' %}selected{% endif %}>Temporary</option>
+                            <option value="Internship" {% if employee.employment_type in ['Internship', 'Intern'] %}selected{% endif %}>Internship</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Date of Joining <span class="text-danger">*</span></label>
+                        <input type="date" class="form-control" name="date_of_joining"
+                            value="{{ employee.date_of_joining[:10] if employee.date_of_joining else '' }}" required>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Designation <span class="text-danger">*</span></label>
+                        <select class="form-select" name="designation" required>
+                            <option value="" disabled {% if not employee.designation %}selected{% endif %}>Select Designation</option>
+                            <option value="Software Engineer" {% if employee.designation == 'Software Engineer' %}selected{% endif %}>Software Engineer</option>
+                            <option value="Senior Software Engineer" {% if employee.designation == 'Senior Software Engineer' %}selected{% endif %}>Senior Software Engineer</option>
+                            <option value="HR Executive" {% if employee.designation == 'HR Executive' %}selected{% endif %}>HR Executive</option>
+                            <option value="HR Manager" {% if employee.designation == 'HR Manager' %}selected{% endif %}>HR Manager</option>
+                            <option value="Project Manager" {% if employee.designation == 'Project Manager' %}selected{% endif %}>Project Manager</option>
+                            <option value="Recruiter" {% if employee.designation == 'Recruiter' %}selected{% endif %}>Recruiter</option>
+                            <option value="Senior Developer" {% if employee.designation == 'Senior Developer' %}selected{% endif %}>Senior Developer</option>
+                            <option value="Team Lead" {% if employee.designation == 'Team Lead' %}selected{% endif %}>Team Lead</option>
+                            <option value="QA Engineer" {% if employee.designation == 'QA Engineer' %}selected{% endif %}>QA Engineer</option>
+                            <option value="DevOps Engineer" {% if employee.designation == 'DevOps Engineer' %}selected{% endif %}>DevOps Engineer</option>
+                            <option value="Business Analyst" {% if employee.designation == 'Business Analyst' %}selected{% endif %}>Business Analyst</option>
+                            <option value="Product Manager" {% if employee.designation == 'Product Manager' %}selected{% endif %}>Product Manager</option>
+                            <option value="Technical Lead" {% if employee.designation == 'Technical Lead' %}selected{% endif %}>Technical Lead</option>
+                            <option value="Data Analyst" {% if employee.designation == 'Data Analyst' %}selected{% endif %}>Data Analyst</option>
+                            <option value="UI/UX Designer" {% if employee.designation == 'UI/UX Designer' %}selected{% endif %}>UI/UX Designer</option>
+                            <option value="System Administrator" {% if employee.designation == 'System Administrator' %}selected{% endif %}>System Administrator</option>
+                            <option value="Intern" {% if employee.designation == 'Intern' %}selected{% endif %}>Intern</option>
+                            <option value="Trainee" {% if employee.designation == 'Trainee' %}selected{% endif %}>Trainee</option>
+                            {% if employee.designation and employee.designation not in ['Software Engineer', 'Senior Software Engineer', 'HR Executive', 'HR Manager', 'Project Manager', 'Recruiter', 'Senior Developer', 'Team Lead', 'QA Engineer', 'DevOps Engineer', 'Business Analyst', 'Product Manager', 'Technical Lead', 'Data Analyst', 'UI/UX Designer', 'System Administrator', 'Intern', 'Trainee'] %}
+                            <option value="{{ employee.designation }}" selected>{{ employee.designation }}</option>
+                            {% endif %}
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Department <span class="text-danger">*</span></label>
+                        <select class="form-select" name="department" required>
+                            <option value="" disabled {% if not employee.department %}selected{% endif %}>Select Department</option>
+                            <option value="Engineering" {% if employee.department == 'Engineering' %}selected{% endif %}>Engineering</option>
+                            <option value="HR" {% if employee.department == 'HR' %}selected{% endif %}>HR</option>
+                            <option value="Finance" {% if employee.department == 'Finance' %}selected{% endif %}>Finance</option>
+                            <option value="Recruitment" {% if employee.department == 'Recruitment' %}selected{% endif %}>Recruitment</option>
+                            <option value="Sales" {% if employee.department == 'Sales' %}selected{% endif %}>Sales</option>
+                            <option value="Marketing" {% if employee.department == 'Marketing' %}selected{% endif %}>Marketing</option>
+                            <option value="Operations" {% if employee.department == 'Operations' %}selected{% endif %}>Operations</option>
+                            <option value="IT" {% if employee.department == 'IT' %}selected{% endif %}>IT</option>
+                            <option value="Quality Assurance" {% if employee.department == 'Quality Assurance' %}selected{% endif %}>Quality Assurance</option>
+                            <option value="Research & Development" {% if employee.department == 'Research & Development' %}selected{% endif %}>Research & Development</option>
+                            <option value="Administration" {% if employee.department == 'Administration' %}selected{% endif %}>Administration</option>
+                            <option value="Legal" {% if employee.department == 'Legal' %}selected{% endif %}>Legal</option>
+                            <option value="Design" {% if employee.department == 'Design' %}selected{% endif %}>Design</option>
+                            {% if employee.department and employee.department not in ['Engineering', 'HR', 'Finance', 'Recruitment', 'Sales', 'Marketing', 'Operations', 'IT', 'Quality Assurance', 'Research & Development', 'Administration', 'Legal', 'Design'] %}
+                            <option value="{{ employee.department }}" selected>{{ employee.department }}</option>
+                            {% endif %}
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Reporting Manager</label>
+                        <input type="text" class="form-control" name="reporting_manager" value="{{ employee.reporting_manager or '' }}" placeholder="Reporting manager">
                     </div>
                 </div>
 
-                <div class="row mb-3">
+                <!-- Documents -->
+                <div class="form-section-title">
+                    <i class="bi bi-file-earmark-arrow-up me-1 text-primary"></i> Documents &amp; Attachments <small class="text-muted fw-normal" style="font-size: 0.78rem;">(optional)</small>
+                </div>
+
+                <div class="row g-3 mb-4">
                     <div class="col-md-6">
-                        <label class="d-flex align-items-center gap-2">
-                            <i class="bi bi-gender-male"></i>
-                            Gender
-                        </label>
-                        <div class="field-wrap">
-                            <select class="form-select" name="gender" required>
-                                <option value="" disabled {% if not employee.gender %}selected{% endif %}>Select Gender</option>
-                                <option value="Male" {% if employee.gender == 'Male' %}selected{% endif %}>Male</option>
-                                <option value="Female" {% if employee.gender == 'Female' %}selected{% endif %}>Female</option>
-                                <option value="Other" {% if employee.gender == 'Other' %}selected{% endif %}>Other</option>
-                            </select>
+                        <label class="form-label">Update Document</label>
+                        <input type="file" class="form-control" name="document">
+                        {% if employee.document_name %}
+                        <div class="form-text text-muted small mt-1">
+                            <i class="bi bi-paperclip me-1"></i> Current: <strong>{{ employee.document_name }}</strong>
                         </div>
-                    </div>
-                    <div class="col-md-6">
-                        <label class="d-flex align-items-center gap-2">
-                            <i class="bi bi-briefcase"></i>
-                            Employment Type
-                        </label>
-                        <div class="field-wrap">
-                            <select class="form-select" name="employment_type" required>
-                                <option value="" disabled {% if not employee.employment_type %}selected{% endif %}>Select Employment Type</option>
-                                <option value="Full-time" {% if employee.employment_type == 'Full-time' %}selected{% endif %}>Full-time</option>
-                                <option value="Part-time" {% if employee.employment_type == 'Part-time' %}selected{% endif %}>Part-time</option>
-                                <option value="Contract" {% if employee.employment_type == 'Contract' %}selected{% endif %}>Contract</option>
-                                <option value="Temporary" {% if employee.employment_type == 'Temporary' %}selected{% endif %}>Temporary</option>
-                                <option value="Internship" {% if employee.employment_type == 'Internship' %}selected{% endif %}>Internship</option>
-                            </select>
-                        </div>
+                        {% endif %}
                     </div>
                 </div>
 
-                <div class="row mb-3">
-                    <div class="col-md-6">
-                        <label class="d-flex align-items-center gap-2">
-                            <i class="bi bi-person"></i>
-                            Reporting Manager
-                        </label>
-                        <div class="field-wrap">
-                            <input type="text" class="form-control" name="reporting_manager" value="{{ employee.reporting_manager or '' }}" placeholder="Reporting manager">
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <label class="d-flex align-items-center gap-2">
-                            <i class="bi bi-geo-alt"></i>
-                            Address
-                        </label>
-                        <div class="field-wrap">
-                            <textarea class="form-control" name="address" placeholder="Address">{{ employee.address or '' }}</textarea>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="row mb-3">
-
-                    <div class="col-md-6">
-                        <label class="d-flex align-items-center gap-2">
-                            <i class="bi bi-calendar"></i>
-                            Date of Joining
-                        </label>
-                        <div class="field-wrap">
-                            <input type="date" class="form-control" name="date_of_joining"
-                                value="{{ employee.date_of_joining[:10] if employee.date_of_joining else '' }}"
-                                required>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <label class="d-flex align-items-center gap-2">
-                            <i class="bi bi-file-earmark"></i>
-                            Update Document
-                        </label>
-                        <div class="field-wrap">
-                            <input type="file" class="form-control" name="document">
-                        </div>
-                    </div>
-                </div>
-
-
-
-                <div class="row mb-3">
-                    <div class="col-md-6">
-                        <label class="d-flex align-items-center gap-2">
-                            <i class="bi bi-person-badge"></i>
-                            Role <span class="text-danger">*</span>
-                        </label>
-                        <div class="field-wrap">
-                            <select class="form-select" name="role" required>
-                                <option value="" disabled {% if not employee.role %}selected{% endif %}>Select Role</option>
-                                <option value="admin" {% if employee.role == 'admin' %}selected{% endif %}>Admin</option>
-                                <option value="superadmin" {% if employee.role == 'superadmin' %}selected{% endif %}>Super Admin</option>
-                                <option value="accounts" {% if employee.role == 'accounts' %}selected{% endif %}>Accounts</option>
-                                <option value="hr" {% if employee.role == 'hr' %}selected{% endif %}>HR</option>
-                                <option value="manager" {% if employee.role == 'manager' %}selected{% endif %}>Manager</option>
-                                <option value="employee" {% if employee.role == 'employee' or not employee.role %}selected{% endif %}>Team Member</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <label class="d-flex align-items-center gap-2">
-                            <i class="bi bi-briefcase"></i>
-                            Designation <span class="text-danger">*</span>
-                        </label>
-                        <div class="field-wrap">
-                            <select class="form-select" name="designation" required>
-                                <option value="" disabled {% if not employee.designation %}selected{% endif %}>Select Designation</option>
-                                <option value="Software Engineer" {% if employee.designation == 'Software Engineer' %}selected{% endif %}>Software Engineer</option>
-                                <option value="Senior Software Engineer" {% if employee.designation == 'Senior Software Engineer' %}selected{% endif %}>Senior Software Engineer</option>
-                                <option value="HR Executive" {% if employee.designation == 'HR Executive' %}selected{% endif %}>HR Executive</option>
-                                <option value="HR Manager" {% if employee.designation == 'HR Manager' %}selected{% endif %}>HR Manager</option>
-                                <option value="Project Manager" {% if employee.designation == 'Project Manager' %}selected{% endif %}>Project Manager</option>
-                                <option value="Recruiter" {% if employee.designation == 'Recruiter' %}selected{% endif %}>Recruiter</option>
-                                <option value="Senior Developer" {% if employee.designation == 'Senior Developer' %}selected{% endif %}>Senior Developer</option>
-                                <option value="Team Lead" {% if employee.designation == 'Team Lead' %}selected{% endif %}>Team Lead</option>
-                                <option value="QA Engineer" {% if employee.designation == 'QA Engineer' %}selected{% endif %}>QA Engineer</option>
-                                <option value="DevOps Engineer" {% if employee.designation == 'DevOps Engineer' %}selected{% endif %}>DevOps Engineer</option>
-                                <option value="Business Analyst" {% if employee.designation == 'Business Analyst' %}selected{% endif %}>Business Analyst</option>
-                                <option value="Product Manager" {% if employee.designation == 'Product Manager' %}selected{% endif %}>Product Manager</option>
-                                <option value="Technical Lead" {% if employee.designation == 'Technical Lead' %}selected{% endif %}>Technical Lead</option>
-                                <option value="Data Analyst" {% if employee.designation == 'Data Analyst' %}selected{% endif %}>Data Analyst</option>
-                                <option value="UI/UX Designer" {% if employee.designation == 'UI/UX Designer' %}selected{% endif %}>UI/UX Designer</option>
-                                <option value="System Administrator" {% if employee.designation == 'System Administrator' %}selected{% endif %}>System Administrator</option>
-                                <option value="Intern" {% if employee.designation == 'Intern' %}selected{% endif %}>Intern</option>
-                                <option value="Trainee" {% if employee.designation == 'Trainee' %}selected{% endif %}>Trainee</option>
-                                {% if employee.designation and employee.designation not in ['Software Engineer', 'Senior Software Engineer', 'HR Executive', 'HR Manager', 'Project Manager', 'Recruiter', 'Senior Developer', 'Team Lead', 'QA Engineer', 'DevOps Engineer', 'Business Analyst', 'Product Manager', 'Technical Lead', 'Data Analyst', 'UI/UX Designer', 'System Administrator', 'Intern', 'Trainee'] %}
-                                <option value="{{ employee.designation }}" selected>{{ employee.designation }}</option>
-                                {% endif %}
-                            </select>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="row mb-3">
-                    <div class="col-md-6">
-                        <label class="d-flex align-items-center gap-2">
-                            <i class="bi bi-building"></i>
-                            Department <span class="text-danger">*</span>
-                        </label>
-                        <div class="field-wrap">
-                            <select class="form-select" name="department" required>
-                                <option value="" disabled {% if not employee.department %}selected{% endif %}>Select Department</option>
-                                <option value="Engineering" {% if employee.department == 'Engineering' %}selected{% endif %}>Engineering</option>
-                                <option value="HR" {% if employee.department == 'HR' %}selected{% endif %}>HR</option>
-                                <option value="Finance" {% if employee.department == 'Finance' %}selected{% endif %}>Finance</option>
-                                <option value="Recruitment" {% if employee.department == 'Recruitment' %}selected{% endif %}>Recruitment</option>
-                                <option value="Sales" {% if employee.department == 'Sales' %}selected{% endif %}>Sales</option>
-                                <option value="Marketing" {% if employee.department == 'Marketing' %}selected{% endif %}>Marketing</option>
-                                <option value="Operations" {% if employee.department == 'Operations' %}selected{% endif %}>Operations</option>
-                                <option value="IT" {% if employee.department == 'IT' %}selected{% endif %}>IT</option>
-                                <option value="Quality Assurance" {% if employee.department == 'Quality Assurance' %}selected{% endif %}>Quality Assurance</option>
-                                <option value="Research & Development" {% if employee.department == 'Research & Development' %}selected{% endif %}>Research & Development</option>
-                                <option value="Administration" {% if employee.department == 'Administration' %}selected{% endif %}>Administration</option>
-                                <option value="Legal" {% if employee.department == 'Legal' %}selected{% endif %}>Legal</option>
-                                <option value="Design" {% if employee.department == 'Design' %}selected{% endif %}>Design</option>
-                                {% if employee.department and employee.department not in ['Engineering', 'HR', 'Finance', 'Recruitment', 'Sales', 'Marketing', 'Operations', 'IT', 'Quality Assurance', 'Research & Development', 'Administration', 'Legal', 'Design'] %}
-                                <option value="{{ employee.department }}" selected>{{ employee.department }}</option>
-                                {% endif %}
-                            </select>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="divider"></div>
-
-                <div class="form-actions">
-                    <button type="submit" class="btn btn-primary"><i class="bi bi-check-lg"></i> Save Changes</button>
-                    <a href="{{ url_for('employees.employee_list') }}" class="btn btn-light"><i class="bi bi-x"></i> Cancel</a>
+                <!-- Actions -->
+                <div class="d-flex align-items-center gap-2 pt-2 border-top" style="border-color: #F1F5F9 !important;">
+                    <button type="submit" class="btn btn-soft-purple btn-sm rounded-pill px-4 shadow-sm" style="font-size: 0.85rem; font-weight: 600;">
+                        <i class="bi bi-check-circle me-1"></i> Save Changes
+                    </button>
+                    <a href="{{ url_for('employees.employee_list') }}" class="btn btn-light btn-sm rounded-pill px-4 border" style="font-size: 0.85rem; font-weight: 600; color: #64748B;">
+                        Cancel
+                    </a>
                 </div>
 
             </form>

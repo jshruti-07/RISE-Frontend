@@ -4,63 +4,99 @@
 {% block page_title %}Pending Timesheets{% endblock %}
 
 {% block content %}
-<div class="form-card p-4 rounded shadow-sm bg-white">
-    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
-        <h5 class="mb-0 text-primary fw-bold"><i class="fas fa-exclamation-circle me-2"></i>Pending Timesheets</h5>
-        
-        <form method="GET" action="{{ url_for('work.hr_missing_timesheets') }}" class="d-flex flex-nowrap gap-2 align-items-center">
-            <div class="input-group input-group-sm" style="max-width: 260px;">
-                <span class="input-group-text bg-light"><i class="fas fa-calendar-alt text-muted"></i></span>
-                <input type="date" name="start_date" class="form-control" value="{{ start_date }}" required title="From Date">
-            </div>
-            <span class="text-muted fw-semibold px-1">to</span>
-            <div class="input-group input-group-sm" style="max-width: 260px;">
-                <span class="input-group-text bg-light"><i class="fas fa-calendar-alt text-muted"></i></span>
-                <input type="date" name="end_date" class="form-control" value="{{ end_date }}" required title="To Date">
-            </div>
-            <button type="submit" class="btn btn-primary btn-sm px-3 ms-1" style="width: 173px; height: 30px;"><i class="bi bi-filter me-1"></i>Filter</button>
-        </form>
+<style>
+    .hd-dashboard-card {
+        background: #FFFFFF;
+        border: 1px solid #E8ECF4;
+        border-radius: 16px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+        overflow: hidden;
+    }
+</style>
+
+<div class="container-fluid py-4">
+    <!-- Header Outside Card -->
+    <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+        <h4 class="fw-bold text-dark mb-0">Pending Timesheets</h4>
+        <a href="{{ url_for('work.timesheets_list') }}" class="btn btn-outline-secondary btn-sm rounded-pill px-3 fw-semibold">
+            <i class="bi bi-arrow-left me-1"></i> Back to Timesheets
+        </a>
     </div>
 
-    <div class="table-responsive">
-        <table class="table table-hover align-middle mb-0 border">
-            <thead class="table-light">
-                <tr>
-                    <th class="ps-3 border-0">Employee Name</th>
-                    <th class="border-0">Project Name</th>
-                    <th class="border-0">Missing Period</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% if missing_timesheets %}
-                    {% for mt in missing_timesheets %}
-                    <tr>
-                        <td class="ps-3 fw-medium">
-                            {{ mt.employee_name | clean_name }}
-                        </td>
-                        <td>
-                            {% if mt.project and mt.project != '-' %}
-                                <span class="badge bg-info text-dark bg-opacity-10 px-2 py-1 rounded-pill">{{ mt.project }}</span>
-                            {% else %}
-                                <span class="text-muted">-</span>
-                            {% endif %}
-                        </td>
-                        <td class="text-muted"><small><i class="far fa-clock me-1 opacity-75"></i>{{ mt.missing_period }}</small></td>
-                    </tr>
-                    {% endfor %}
-                {% else %}
-                    <tr>
-                        <td colspan="3" class="text-center py-5">
-                            <div class="d-flex flex-column align-items-center justify-content-center text-muted">
-                                <i class="fas fa-clipboard-check fs-1 mb-3 text-success opacity-75"></i>
-                                <h5>No missing timesheets found</h5>
-                                <p class="mb-0 small">All employees have submitted their timesheets for the selected period.</p>
-                            </div>
-                        </td>
-                    </tr>
-                {% endif %}
-            </tbody>
-        </table>
+    <!-- Main Card -->
+    <div class="hd-dashboard-card">
+        <div class="p-4">
+            <!-- Filter Bar inside Card -->
+            <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+                <div>
+                    <h6 class="fw-bold text-dark mb-1"><i class="bi bi-clock-history text-warning me-2"></i>Missing Submissions</h6>
+                    <p class="text-muted small mb-0">Track employees with unsubmitted timesheets for selected date range</p>
+                </div>
+                
+                <form method="GET" action="{{ url_for('work.hr_missing_timesheets') }}" class="d-flex flex-wrap gap-2 align-items-center">
+                    <div class="input-group input-group-sm" style="max-width: 175px;">
+                        <span class="input-group-text bg-white border-end-0"><i class="bi bi-calendar-event text-muted"></i></span>
+                        <input type="date" name="start_date" class="form-control border-start-0 ps-0 rounded-end-3" value="{{ start_date }}" required title="From Date">
+                    </div>
+                    <span class="text-muted small fw-semibold px-1">to</span>
+                    <div class="input-group input-group-sm" style="max-width: 175px;">
+                        <span class="input-group-text bg-white border-end-0"><i class="bi bi-calendar-event text-muted"></i></span>
+                        <input type="date" name="end_date" class="form-control border-start-0 ps-0 rounded-end-3" value="{{ end_date }}" required title="To Date">
+                    </div>
+                    <button type="submit" class="btn btn-soft-purple btn-sm rounded-pill px-3 shadow-sm fw-semibold" style="font-size: 0.8rem;">
+                        <i class="bi bi-filter me-1"></i> Filter
+                    </button>
+                </form>
+            </div>
+
+            <!-- Table -->
+            <div class="table-responsive rounded-3 border" style="border-color: #E8ECF4 !important;">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light" style="background-color: #F8FAFC;">
+                        <tr>
+                            <th style="font-weight: 700; color: #475569; font-size: 0.85rem; padding: 12px 16px;">Employee Name</th>
+                            <th style="font-weight: 700; color: #475569; font-size: 0.85rem;">Project Name</th>
+                            <th style="font-weight: 700; color: #475569; font-size: 0.85rem;">Missing Period</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if missing_timesheets %}
+                            {% for mt in missing_timesheets %}
+                            <tr>
+                                <td class="ps-3">
+                                    <div class="fw-semibold text-dark">{{ mt.employee_name | clean_name }}</div>
+                                </td>
+                                <td>
+                                    {% if mt.project and mt.project != '-' %}
+                                        <span class="badge rounded-pill bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25 px-2.5 py-1 fw-semibold" style="font-size: 0.78rem;">
+                                            {{ mt.project }}
+                                        </span>
+                                    {% else %}
+                                        <span class="text-muted">—</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <span class="text-secondary small">
+                                        <i class="bi bi-clock me-1 text-muted"></i>{{ mt.missing_period }}
+                                    </span>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="3" class="text-center py-5">
+                                    <div class="d-flex flex-column align-items-center justify-content-center text-muted">
+                                        <i class="bi bi-clipboard-check fs-1 mb-2 text-success opacity-75"></i>
+                                        <h6 class="fw-bold text-dark mt-2">No missing timesheets found</h6>
+                                        <p class="mb-0 small text-muted">All employees have submitted their timesheets for the selected period.</p>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
 </div>
 {% endblock %}
@@ -69,7 +105,7 @@
 <script>
     document.addEventListener('DOMContentLoaded', () => {
         if (typeof applyPagination === 'function') {
-            applyPagination('table', 10);
+            applyPagination('table', 20);
         }
     });
 </script>

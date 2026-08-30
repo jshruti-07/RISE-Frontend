@@ -3,95 +3,152 @@
 {% block page_title %}Apply Leave{% endblock %}
 
 {% block content %}
-<div class="form-card">
+<style>
+    .hd-dashboard-card {
+        background: #FFFFFF;
+        border: 1px solid #E8ECF4;
+        border-radius: 16px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+        overflow: hidden;
+    }
 
-    <!-- HEADER ROW -->
-    <div class="d-flex justify-content-between align-items-start mb-3">
+    .form-section-title {
+        font-size: 0.95rem;
+        font-weight: 700;
+        color: #1E293B;
+        padding-bottom: 8px;
+        margin-bottom: 16px;
+        border-bottom: 1px solid #F1F5F9;
+    }
 
-        <!-- LEFT -->
-        <div>
-            <h5 class="mb-0">Apply Leave</h5>
-            <small class="text-muted">Fill details</small>
-        </div>
+    .form-label {
+        font-size: 0.82rem;
+        font-weight: 600;
+        color: #475569;
+        margin-bottom: 5px;
+    }
 
-        <!-- RIGHT: LEAVE BALANCE -->
-        <div class="card-ui p-1 leave-balance-box">
+    .form-control, .form-select {
+        border-radius: 8px;
+        border: 1px solid #E2E8F0;
+        font-size: 0.86rem;
+        padding: 8px 12px;
+    }
 
-            {% if summary.remaining_leaves or balance %}
-            <div class="mb-1">
-                <select class="form-control">
-                    <option value="">Leave Balance: {{ summary.remaining_leaves }} days</option>
-                    <option value="">Casual Leaves: {{ summary.casual_leaves }} days</option>
-                    <option value="">Sick Leaves: {{ summary.sick_leaves }} days</option>
-                    <option value="">Earned Leaves: {{ summary.earned_leaves }} days</option>
-                </select>
-            </div>
-            {% else %}
-            <div class="text-center text-muted py-1">
-                <i class="bi bi-info-circle"></i> No balance data available
-            </div>
-            {% endif %}
+    .form-control:focus, .form-select:focus {
+        border-color: #A5B4FC;
+        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.12);
+    }
+</style>
 
-        </div>
-
+<div class="container-fluid py-4">
+    <!-- Header Outside Card -->
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h4 class="fw-bold text-dark mb-0">Apply Leave</h4>
+        <a href="{{ url_for('work.leaves_list') }}" class="btn btn-outline-secondary btn-sm rounded-pill px-3 fw-semibold">
+            <i class="bi bi-arrow-left me-1"></i> Back to Leaves
+        </a>
     </div>
 
-    <!-- FORM -->
-    <form method="POST">
-
-        <input type="hidden" name="employee_name" value="{{ session.employee_name }}">
-
-        <div class="mb-3">
-            <label>Leave Type</label>
-            <select name="leave_type" class="form-control" required>
-                <option value="">Select Leave Type</option>
-                <option value="sick">Sick Leave</option>
-                <option value="casual">Casual Leave</option>
-                <option value="earned">Earned Leave</option>
-            </select>
-        </div>
-
-        <div class="mb-3">
-            <label>Leave Type Category</label>
-            <select name="leave_type_category" class="form-control" id="leaveTypeCategory" required>
-                <option value="full_day" selected>Full Day</option>
-                <option value="half_day">Half Day</option>
-            </select>
-        </div>
-
-        <div class="mb-3" id="halfDayPeriodContainer" style="display: none;">
-            <label>Half Day Period</label>
-            <select name="half_day_period" class="form-control" id="halfDayPeriod">
-                <option value="">Select Period</option>
-                <option value="first_half">First Half</option>
-                <option value="second_half">Second Half</option>
-            </select>
-        </div>
-
-        <div class="row mb-3">
-            <div class="col-md-6">
-                <label>Start Date</label>
-                <input type="date" name="start_date" class="form-control" id="startDate" required>
+    <div class="hd-dashboard-card">
+        <div class="p-4">
+            <!-- LEAVE BALANCE BANNER -->
+            <div class="mb-4 p-3 rounded-3 border" style="background-color: #F8FAFC; border-color: #E8ECF4 !important;">
+                <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                    <div>
+                        <h6 class="mb-0 fw-bold text-dark" style="font-size: 0.88rem;">
+                            <i class="bi bi-wallet2 text-primary me-1"></i> Leave Balance Summary
+                        </h6>
+                        <small class="text-muted">Available allocations for the current period</small>
+                    </div>
+                    {% if summary.remaining_leaves or balance %}
+                    <div class="d-flex align-items-center gap-2 flex-wrap">
+                        <span class="badge rounded-pill bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25 px-3 py-1.5 fw-semibold" style="font-size: 0.78rem;">
+                            Total: {{ summary.remaining_leaves }} days
+                        </span>
+                        <span class="badge rounded-pill bg-light text-secondary border px-3 py-1.5 fw-semibold" style="font-size: 0.78rem;">
+                            Planned: {{ summary.planned_leaves if summary.planned_leaves is defined else (summary.planned_total|default(12) - summary.planned_used|default(0)) }} days
+                        </span>
+                        <span class="badge rounded-pill bg-light text-secondary border px-3 py-1.5 fw-semibold" style="font-size: 0.78rem;">
+                            Unplanned: {{ summary.unplanned_leaves if summary.unplanned_leaves is defined else (summary.unplanned_total|default(4) - summary.unplanned_used|default(0)) }} days
+                        </span>
+                        <span class="badge rounded-pill bg-light text-secondary border px-3 py-1.5 fw-semibold" style="font-size: 0.78rem;">
+                            Optional: {{ summary.optional_leaves if summary.optional_leaves is defined else (summary.optional_total|default(2) - summary.optional_used|default(0)) }} days
+                        </span>
+                    </div>
+                    {% else %}
+                    <div class="text-muted small">
+                        <i class="bi bi-info-circle me-1"></i> No balance data available
+                    </div>
+                    {% endif %}
+                </div>
             </div>
 
-            <div class="col-md-6">
-                <label>End Date</label>
-                <input type="date" name="end_date" class="form-control" id="endDate" required>
-            </div>
+            <!-- FORM -->
+            <form method="POST">
+                <input type="hidden" name="employee_name" value="{{ session.employee_name }}">
+
+                <div class="form-section-title">
+                    <i class="bi bi-calendar-event me-1 text-primary"></i> Leave Details
+                </div>
+
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label">Leave Type <span class="text-danger">*</span></label>
+                        <select name="leave_type" class="form-select" required>
+                            <option value="" disabled selected>Select Leave Type</option>
+                            <option value="planned">Planned Leave</option>
+                            <option value="unplanned">Unplanned Leave</option>
+                            <option value="optional">Optional Leave</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label">Leave Duration Category <span class="text-danger">*</span></label>
+                        <select name="leave_type_category" class="form-select" id="leaveTypeCategory" required>
+                            <option value="full_day" selected>Full Day</option>
+                            <option value="half_day">Half Day</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-6" id="halfDayPeriodContainer" style="display: none;">
+                        <label class="form-label">Half Day Period <span class="text-danger">*</span></label>
+                        <select name="half_day_period" class="form-select" id="halfDayPeriod">
+                            <option value="">Select Period</option>
+                            <option value="first_half">First Half</option>
+                            <option value="second_half">Second Half</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label">Start Date <span class="text-danger">*</span></label>
+                        <input type="date" name="start_date" class="form-control" id="startDate" required>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label">End Date <span class="text-danger">*</span></label>
+                        <input type="date" name="end_date" class="form-control" id="endDate" required>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label">Reason for Leave</label>
+                    <textarea name="reason" class="form-control" rows="3" placeholder="Provide a brief explanation for your leave request..."></textarea>
+                </div>
+
+                <div class="d-flex align-items-center gap-2 pt-2 border-top" style="border-color: #F1F5F9 !important;">
+                    <button type="submit" class="btn btn-soft-purple btn-sm rounded-pill px-4 shadow-sm" style="font-size: 0.85rem; font-weight: 600;">
+                        <i class="bi bi-check-circle me-1"></i> Submit Leave Request
+                    </button>
+                    <a href="{{ url_for('work.leaves_list') }}" class="btn btn-light btn-sm rounded-pill px-4 border" style="font-size: 0.85rem; font-weight: 600; color: #64748B;">
+                        Cancel
+                    </a>
+                </div>
+            </form>
         </div>
-
-        <div class="mb-3">
-            <label>Reason</label>
-            <textarea name="reason" class="form-control"></textarea>
-        </div>
-
-        <div class="d-flex gap-2">
-            <button class="btn btn-primary">Submit</button>
-            <a href="{{ url_for('work.leaves_list') }}" class="btn btn-light">Cancel</a>
-        </div>
-
-    </form>
-
+    </div>
 </div>
 {% endblock %}
 

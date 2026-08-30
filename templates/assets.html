@@ -12,95 +12,71 @@
         font-size: 0.92rem;
     }
 
-    /* ── Hero Banner (matches onboarding-hero) ── */
-    .asset-hero {
-        background: linear-gradient(135deg, #deddff 0%, #dbdbff 50%, #e5e7ff 100%);
-        border-radius: 20px;
-        color: #0f172a;
-        padding: 1.5rem 1.75rem;
-        position: relative;
+    /* ── Dashboard Card (matches timesheets-card) ── */
+    .hd-dashboard-card {
+        background: #FFFFFF;
+        border: 1px solid #E8ECF4;
+        border-radius: 16px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
         overflow: hidden;
-        z-index: 0;
-        margin-bottom: 1.5rem;
     }
 
-    .asset-hero::after {
-        content: '';
-        position: absolute;
-        width: 260px;
-        height: 260px;
-        border-radius: 50%;
-        background: rgba(255, 255, 255, 0.08);
-        top: -80px;
-        right: -60px;
-        pointer-events: none;
+    .asset-panel {
+        background: #FFFFFF;
+        border: 1px solid #E8ECF4;
+        border-radius: 16px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+        overflow: hidden;
     }
 
-    .asset-hero::before {
-        content: '';
-        position: absolute;
-        width: 140px;
-        height: 140px;
-        border-radius: 50%;
-        background: rgba(255, 255, 255, 0.06);
-        bottom: -40px;
-        left: 120px;
-        pointer-events: none;
-    }
-
-    .asset-hero .hero-inner {
-        position: relative;
-        z-index: 1;
-    }
-
-    .asset-hero h4 {
-        font-weight: 700;
-        margin-bottom: 0.25rem;
-        font-size: 1.35rem;
-    }
-
-    .asset-hero p {
-        opacity: 0.88;
-        margin: 0;
-        font-size: 0.875rem;
+    /* ── Hero Banner ── */
+    .asset-hero {
+        background: #FFFFFF;
+        border: 1px solid #E8ECF4;
+        border-radius: 16px;
+        color: #0f172a;
+        padding: 1.25rem 1.5rem;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+        margin-bottom: 1.25rem;
     }
 
     .asset-hero .hero-stat {
-        background: rgba(255, 255, 255, 0.15);
-        backdrop-filter: blur(8px);
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        border-radius: 14px;
-        padding: 0.75rem 1.25rem;
+        background: #F8FAFC;
+        border: 1px solid #E2E8F0;
+        border-radius: 12px;
+        padding: 0.6rem 1.1rem;
         text-align: center;
-        min-width: 90px;
+        min-width: 85px;
     }
 
     .asset-hero .hero-stat-value {
-        font-size: 1.4rem;
+        font-size: 1.3rem;
         font-weight: 700;
+        color: #1E293B;
         line-height: 1;
         display: block;
     }
 
     .asset-hero .hero-stat-label {
         font-size: 0.7rem;
-        opacity: 0.85;
+        color: #64748B;
+        font-weight: 600;
         text-transform: uppercase;
         letter-spacing: 0.05em;
-        margin-top: 0.2rem;
+        margin-top: 0.25rem;
         display: block;
     }
 
     .btn-hero-action {
-        background: #fff;
-        color: #4f46e5;
+        background: #6366F1;
+        color: #fff;
         border: none;
         font-weight: 600;
         padding: 0.5rem 1.25rem;
-        border-radius: 10px;
-        font-size: 0.875rem;
-        box-shadow: 0 4px 14px rgba(15, 23, 42, 0.15);
-        transition: transform 0.2s, box-shadow 0.2s;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        box-shadow: 0 2px 6px rgba(99, 102, 241, 0.25);
+        transition: all 0.15s ease;
         display: inline-flex;
         align-items: center;
         gap: 0.4rem;
@@ -108,57 +84,40 @@
     }
 
     .btn-hero-action:hover {
-        background: #f8fafc;
-        color: #4338ca;
+        background: #4F46E5;
+        color: #fff;
         transform: translateY(-1px);
-        box-shadow: 0 6px 20px rgba(15, 23, 42, 0.2);
     }
 
-    /* ── Main Panel ── */
-    .asset-panel {
-        background: #fff;
-        border: 1px solid #e5e7eb;
-        border-radius: 20px;
-        box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
-        overflow: hidden;
-    }
-
-    /* ── Tabs (onboarding pill style) ── */
+    /* ── Tabs (matching timesheets filter pills) ── */
     .asset-tabs-bar {
         display: flex;
         flex-wrap: wrap;
         gap: 0.5rem;
-        padding: 1rem 1.25rem 0;
-        border-bottom: 1px solid #f1f5f9;
-        background: #fafbfc;
+        padding: 1rem 1.25rem 1rem;
+        border-bottom: 1px solid #E8ECF4;
+        background: #FAFAFA;
     }
 
     .asset-tab-pill {
-        color: #64748b;
+        border: 1px solid #E2E8F0;
+        background: #FFFFFF;
+        color: #64748B;
+        border-radius: 20px;
+        padding: 5px 16px;
+        font-size: 0.82rem;
         font-weight: 600;
-        font-size: 0.875rem;
-        padding: 0.5rem 1.1rem;
-        border-radius: 999px;
-        border: 1px solid transparent;
-        background: transparent;
         cursor: pointer;
-        transition: all 0.2s;
+        transition: all 0.15s ease;
         display: inline-flex;
         align-items: center;
         gap: 0.4rem;
     }
 
-    .asset-tab-pill:hover {
-        background: #fff;
-        color: #334155;
-        border-color: #e2e8f0;
-    }
-
-    .asset-tab-pill.active {
-        background: #4f46e5;
-        color: #fff;
-        border-color: #4f46e5;
-        box-shadow: 0 4px 12px rgba(79, 70, 229, 0.28);
+    .asset-tab-pill:hover, .asset-tab-pill.active {
+        background: #6366F1;
+        color: #FFFFFF;
+        border-color: #6366F1;
     }
 
     /* ── Section ── */
@@ -1226,185 +1185,190 @@
     </div>
 </div>
 
-<div class="asset-page">
-    <!-- ── Hero Banner ── -->
-    <div class="asset-hero">
-        <div class="mb-4 d-flex flex-wrap justify-content-between align-items-center gap-3">
-            <div>
-                <h4><i class="bi bi-box-seam me-2"></i>Asset Management</h4>
-                <p>Track, allocate and manage company hardware assets</p>
-            </div>
-            <div class="d-flex align-items-center gap-2">
-                <div class="hero-stat">
-                    <span class="hero-stat-value" id="heroStatTotal">—</span>
-                    <span class="hero-stat-label">Total</span>
-                </div>
-                <div class="hero-stat">
-                    <span class="hero-stat-value" id="heroStatAssigned">—</span>
-                    <span class="hero-stat-label">Assigned</span>
-                </div>
-                <div class="hero-stat">
-                    <span class="hero-stat-value" id="heroStatFree">—</span>
-                    <span class="hero-stat-label">Available</span>
-                </div>
-                <div class="input-group ms-2"
-                    style="width: 250px; background: rgba(255,255,255,0.7); border-radius: 8px; overflow: hidden; border: 1px solid rgba(0,0,0,0.1);">
-                    <span class="input-group-text bg-transparent border-0"><i
-                            class="bi bi-search text-muted"></i></span>
-                    <input type="text" id="assetSearchInput" class="form-control border-0 bg-transparent shadow-none"
-                        placeholder="Search assets..." oninput="applyFilters()">
-                </div>
-                <button class="btn btn-light shadow-sm ms-2 position-relative"
-                    style="border-radius: 8px; font-weight: 500;" onclick="toggleFilterPanel()" title="Filters">
-                    <i class="bi bi-funnel text-secondary"></i> Filters
-                    <span id="filterCountBadge"
-                        class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
-                        style="display: none; font-size: 0.65rem;">
-                        0
-                    </span>
-                </button>
-                <button class="btn btn-light shadow-sm ms-2"
-                    style="border-radius: 8px; font-weight: 500; color: #4f46e5;" id="btnExportModal"
-                    onclick="openExportModal()" title="Export Assets to Excel">
-                    <i class="bi bi-download me-1"></i> Export
-                </button>
-                <button class="btn-hero-action ms-2" id="tabAddAsset" onclick="switchTab('add')">
-                    <i class="bi bi-plus-lg"></i> Add New Asset
-                </button>
-            </div>
-        </div>
+<div class="container-fluid py-4">
+    <!-- Title Outside Table Card -->
+    <div class="mb-3">
+        <h4 class="fw-bold text-dark mb-0">Assets</h4>
     </div>
 
-    <!-- ── Filter Panel ── -->
-    <div id="assetFilterPanel" class="bg-white rounded-3 shadow-sm mb-3 p-3 border border-light" style="display: none;">
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <h6 class="m-0 fw-bold text-primary"><i class="bi bi-funnel-fill me-2"></i>Filter Assets</h6>
-            <button class="btn btn-sm btn-link text-muted p-0" onclick="clearFilters()">Clear All Filters</button>
-        </div>
-        <div class="row g-3">
-            <div class="col-md-3 col-sm-6">
-                <label class="form-label small text-muted mb-1">Category</label>
-                <select id="filterCategory" class="form-select form-select-sm" onchange="applyFilters()">
-                    <option value="">All Categories</option>
-                    <option value="Laptop">Laptop</option>
-                    <option value="Desktop">Desktop</option>
-                    <option value="Mobile">Mobile</option>
-                    <option value="Tablet">Tablet</option>
-                    <option value="Monitor">Monitor</option>
-                    <option value="Accessory">Accessory</option>
-                    <option value="Other">Other</option>
-                </select>
-            </div>
-            <div class="col-md-3 col-sm-6">
-                <label class="form-label small text-muted mb-1">Status</label>
-                <select id="filterStatus" class="form-select form-select-sm" onchange="applyFilters()">
-                    <option value="">All Statuses</option>
-                    <option value="Available">Available</option>
-                    <option value="Assigned">Assigned</option>
-                    <option value="Under Repair">Under Repair</option>
-                    <option value="Retired">Retired</option>
-                </select>
-            </div>
-            <div class="col-md-3 col-sm-6">
-                <label class="form-label small text-muted mb-1">Ownership Type</label>
-                <select id="filterOwnership" class="form-select form-select-sm" onchange="applyFilters()">
-                    <option value="">All Types</option>
-                    <option value="Purchased">Purchased</option>
-                    <option value="Rented">Rented</option>
-                </select>
-            </div>
-            <div class="col-md-3 col-sm-6">
-                <label class="form-label small text-muted mb-1">Allotment</label>
-                <select id="filterAllotment" class="form-select form-select-sm" onchange="applyFilters()">
-                    <option value="">All</option>
-                    <option value="Assigned">Assigned</option>
-                    <option value="Available">Available</option>
-                </select>
-            </div>
-            <div class="col-md-3 col-sm-6">
-                <label class="form-label small text-muted mb-1">Vendor</label>
-                <select id="filterVendor" class="form-select form-select-sm" onchange="applyFilters()">
-                    <option value="">All Vendors</option>
-                </select>
-            </div>
-            <div class="col-md-3 col-sm-6">
-                <label class="form-label small text-muted mb-1">Location</label>
-                <select id="filterLocation" class="form-select form-select-sm" onchange="applyFilters()">
-                    <option value="">All Locations</option>
-                </select>
-            </div>
-            <div class="col-md-3 col-sm-6">
-                <label class="form-label small text-muted mb-1">Allotted To</label>
-                <select id="filterAllottedTo" class="form-select form-select-sm" onchange="applyFilters()">
-                    <option value="">All Employees</option>
-                </select>
-            </div>
-            <div class="col-md-3 col-sm-6">
-                <div class="d-flex gap-2">
-                    <div class="flex-grow-1">
-                        <label class="form-label small text-muted mb-1">Purchase Date</label>
-                        <input type="date" id="filterPurchaseFrom" class="form-control form-control-sm"
-                            placeholder="From" onchange="applyFilters()" title="Purchase Date From">
-                    </div>
-                    <div class="flex-grow-1">
-                        <label class="form-label small text-muted mb-1">&nbsp;</label>
-                        <input type="date" id="filterPurchaseTo" class="form-control form-control-sm" placeholder="To"
-                            onchange="applyFilters()" title="Purchase Date To">
-                    </div>
+    <div class="asset-page">
+        <!-- ── Hero Banner ── -->
+        <div class="asset-hero">
+            <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+                <div>
+                    <h5 class="fw-bold text-dark mb-1"><i class="bi bi-box-seam me-2 text-primary"></i>Hardware & Assets</h5>
+                    <p class="text-muted small mb-0">Track, allocate and manage company hardware assets</p>
                 </div>
-            </div>
-            <div class="col-md-3 col-sm-6">
-                <div class="d-flex gap-2">
-                    <div class="flex-grow-1">
-                        <label class="form-label small text-muted mb-1">Warranty Expires</label>
-                        <input type="date" id="filterWarrantyFrom" class="form-control form-control-sm"
-                            placeholder="From" onchange="applyFilters()" title="Warranty Expiry From">
+                <div class="d-flex align-items-center gap-2 flex-wrap">
+                    <div class="hero-stat">
+                        <span class="hero-stat-value" id="heroStatTotal">—</span>
+                        <span class="hero-stat-label">Total</span>
                     </div>
-                    <div class="flex-grow-1">
-                        <label class="form-label small text-muted mb-1">&nbsp;</label>
-                        <input type="date" id="filterWarrantyTo" class="form-control form-control-sm" placeholder="To"
-                            onchange="applyFilters()" title="Warranty Expiry To">
+                    <div class="hero-stat">
+                        <span class="hero-stat-value" id="heroStatAssigned">—</span>
+                        <span class="hero-stat-label">Assigned</span>
                     </div>
+                    <div class="hero-stat">
+                        <span class="hero-stat-value" id="heroStatFree">—</span>
+                        <span class="hero-stat-label">Available</span>
+                    </div>
+                    <div class="input-group ms-2"
+                        style="width: 220px; border-radius: 8px; overflow: hidden;">
+                        <span class="input-group-text bg-white border-end-0"><i
+                                class="bi bi-search text-muted"></i></span>
+                        <input type="text" id="assetSearchInput" class="form-control border-start-0 ps-0 form-control-sm"
+                            placeholder="Search assets..." oninput="applyFilters()">
+                    </div>
+                    <button class="btn btn-outline-secondary btn-sm rounded-pill px-3 position-relative"
+                        onclick="toggleFilterPanel()" title="Filters">
+                        <i class="bi bi-funnel me-1"></i> Filters
+                        <span id="filterCountBadge"
+                            class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
+                            style="display: none; font-size: 0.65rem;">
+                            0
+                        </span>
+                    </button>
+                    <button class="btn btn-outline-success btn-sm rounded-pill px-3" id="btnExportModal"
+                        onclick="openExportModal()" title="Export Assets to Excel">
+                        <i class="bi bi-download me-1"></i> Export
+                    </button>
+                    <button class="btn btn-soft-purple btn-sm rounded-pill px-3 shadow-sm" id="tabAddAsset" onclick="switchTab('add')" style="font-size: 0.8rem; font-weight: 600;">
+                        <i class="bi bi-plus-circle me-1"></i> Add Asset
+                    </button>
                 </div>
             </div>
         </div>
-    </div>
 
-    <!-- ── Main Panel ── -->
-    <div class="asset-panel">
-        <!-- Tabs -->
-        <div class="asset-tabs-bar d-flex align-items-center justify-content-between">
-            <div class="d-flex align-items-center gap-2">
-                <button class="asset-tab-pill active" id="tabInventory" onclick="switchTab('inventory')">
-                    <i class="bi bi-list-ul"></i> Asset Inventory
-                </button>
-                <button class="asset-tab-pill" id="tabRentals" onclick="switchTab('rentals')">
-                    <i class="bi bi-cash-coin"></i> Rental Management
-                </button>
+        <!-- ── Filter Panel ── -->
+        <div id="assetFilterPanel" class="bg-white rounded-3 shadow-sm mb-3 p-3 border" style="border-color: #E8ECF4 !important; display: none;">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h6 class="m-0 fw-bold text-dark"><i class="bi bi-funnel-fill me-2 text-primary"></i>Filter Assets</h6>
+                <button class="btn btn-sm btn-link text-muted p-0 text-decoration-none" onclick="clearFilters()">Clear All Filters</button>
             </div>
-            <button class="asset-tab-pill" id="tabAddAsset" onclick="switchTab('add')">
-                <i class="bi bi-plus-circle"></i> Add New Asset
-            </button>
+            <div class="row g-3">
+                <div class="col-md-3 col-sm-6">
+                    <label class="form-label small text-muted mb-1">Category</label>
+                    <select id="filterCategory" class="form-select form-select-sm rounded-3" onchange="applyFilters()">
+                        <option value="">All Categories</option>
+                        <option value="Laptop">Laptop</option>
+                        <option value="Desktop">Desktop</option>
+                        <option value="Mobile">Mobile</option>
+                        <option value="Tablet">Tablet</option>
+                        <option value="Monitor">Monitor</option>
+                        <option value="Accessory">Accessory</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                <div class="col-md-3 col-sm-6">
+                    <label class="form-label small text-muted mb-1">Status</label>
+                    <select id="filterStatus" class="form-select form-select-sm rounded-3" onchange="applyFilters()">
+                        <option value="">All Statuses</option>
+                        <option value="Available">Available</option>
+                        <option value="Assigned">Assigned</option>
+                        <option value="Under Repair">Under Repair</option>
+                        <option value="Retired">Retired</option>
+                    </select>
+                </div>
+                <div class="col-md-3 col-sm-6">
+                    <label class="form-label small text-muted mb-1">Ownership Type</label>
+                    <select id="filterOwnership" class="form-select form-select-sm rounded-3" onchange="applyFilters()">
+                        <option value="">All Types</option>
+                        <option value="Purchased">Purchased</option>
+                        <option value="Rented">Rented</option>
+                    </select>
+                </div>
+                <div class="col-md-3 col-sm-6">
+                    <label class="form-label small text-muted mb-1">Allotment</label>
+                    <select id="filterAllotment" class="form-select form-select-sm rounded-3" onchange="applyFilters()">
+                        <option value="">All</option>
+                        <option value="Assigned">Assigned</option>
+                        <option value="Available">Available</option>
+                    </select>
+                </div>
+                <div class="col-md-3 col-sm-6">
+                    <label class="form-label small text-muted mb-1">Vendor</label>
+                    <select id="filterVendor" class="form-select form-select-sm rounded-3" onchange="applyFilters()">
+                        <option value="">All Vendors</option>
+                    </select>
+                </div>
+                <div class="col-md-3 col-sm-6">
+                    <label class="form-label small text-muted mb-1">Location</label>
+                    <select id="filterLocation" class="form-select form-select-sm rounded-3" onchange="applyFilters()">
+                        <option value="">All Locations</option>
+                    </select>
+                </div>
+                <div class="col-md-3 col-sm-6">
+                    <label class="form-label small text-muted mb-1">Allotted To</label>
+                    <select id="filterAllottedTo" class="form-select form-select-sm rounded-3" onchange="applyFilters()">
+                        <option value="">All Employees</option>
+                    </select>
+                </div>
+                <div class="col-md-3 col-sm-6">
+                    <div class="d-flex gap-2">
+                        <div class="flex-grow-1">
+                            <label class="form-label small text-muted mb-1">Purchase Date</label>
+                            <input type="date" id="filterPurchaseFrom" class="form-control form-control-sm rounded-3"
+                                placeholder="From" onchange="applyFilters()" title="Purchase Date From">
+                        </div>
+                        <div class="flex-grow-1">
+                            <label class="form-label small text-muted mb-1">&nbsp;</label>
+                            <input type="date" id="filterPurchaseTo" class="form-control form-control-sm rounded-3" placeholder="To"
+                                onchange="applyFilters()" title="Purchase Date To">
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-6">
+                    <div class="d-flex gap-2">
+                        <div class="flex-grow-1">
+                            <label class="form-label small text-muted mb-1">Warranty Expires</label>
+                            <input type="date" id="filterWarrantyFrom" class="form-control form-control-sm rounded-3"
+                                placeholder="From" onchange="applyFilters()" title="Warranty Expiry From">
+                        </div>
+                        <div class="flex-grow-1">
+                            <label class="form-label small text-muted mb-1">&nbsp;</label>
+                            <input type="date" id="filterWarrantyTo" class="form-control form-control-sm rounded-3" placeholder="To"
+                                onchange="applyFilters()" title="Warranty Expiry To">
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
 
-        <!-- Section 1: Inventory -->
-        <section id="sectionInventory" class="view-section active">
-            <div class="asset-table-wrap">
-                <table class="table table-hover align-middle">
-                    <thead>
-                        <tr>
-                            <th class="border-0">Device Name</th>
-                            <th class="border-0">Allotted To</th>
-                            <th class="border-0">Assignment Duration</th>
-                            <th class="border-0">Agreement</th>
-                            <th class="border-0">Rental Start Date</th>
-                            <th class="border-0 text-end">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody id="assetsTableBody"></tbody>
-                </table>
+        <!-- ── Main Panel ── -->
+        <div class="asset-panel hd-dashboard-card">
+            <!-- Tabs -->
+            <div class="asset-tabs-bar d-flex align-items-center justify-content-between">
+                <div class="d-flex align-items-center gap-2">
+                    <button class="asset-tab-pill active" id="tabInventory" onclick="switchTab('inventory')">
+                        <i class="bi bi-list-ul"></i> Asset Inventory
+                    </button>
+                    <button class="asset-tab-pill" id="tabRentals" onclick="switchTab('rentals')">
+                        <i class="bi bi-cash-coin"></i> Rental Management
+                    </button>
+                </div>
+                <button class="asset-tab-pill" id="tabAddAsset" onclick="switchTab('add')">
+                    <i class="bi bi-plus-circle"></i> Add New Asset
+                </button>
             </div>
-        </section>
+
+            <!-- Section 1: Inventory -->
+            <section id="sectionInventory" class="view-section active p-4">
+                <div class="table-responsive rounded-3 border" style="border-color: #E8ECF4 !important;">
+                    <table class="table table-hover align-middle mb-0 asset-table">
+                        <thead class="table-light" style="background-color: #F8FAFC;">
+                            <tr>
+                                <th style="font-weight: 700; color: #475569; font-size: 0.85rem; padding: 12px 16px;">Device Name</th>
+                                <th style="font-weight: 700; color: #475569; font-size: 0.85rem;">Allotted To</th>
+                                <th style="font-weight: 700; color: #475569; font-size: 0.85rem;">Assignment Duration</th>
+                                <th style="font-weight: 700; color: #475569; font-size: 0.85rem;">Agreement</th>
+                                <th style="font-weight: 700; color: #475569; font-size: 0.85rem;">Rental Start Date</th>
+                                <th style="font-weight: 700; color: #475569; font-size: 0.85rem; text-align: center; padding-right: 16px;">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="assetsTableBody"></tbody>
+                    </table>
+                </div>
+            </section>
 
         <!-- Section 2: Add Asset Form -->
         <section id="sectionAddAsset" class="view-section">
@@ -1695,31 +1659,28 @@
 
     </div>
 </div>
+</div>
 
 <!-- ── Detail Modal (Enhanced) ── -->
 <div class="modal fade" id="assetDetailModal" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable" style="max-width: 960px;">
         <div class="modal-content">
 
-            <!-- Gradient Header -->
-            <div class="adm-header">
-                <div class="d-flex align-items-center gap-3">
-                    <div class="adm-header-icon">
-                        <i class="bi bi-laptop"></i>
+            <!-- Standard Header -->
+            <div class="modal-header">
+                <div class="d-flex align-items-center gap-2">
+                    <i class="bi bi-laptop text-primary fs-5"></i>
+                    <div>
+                        <h5 class="modal-title fw-bold mb-0 text-dark" id="detailAssetTag">Asset Details</h5>
+                        <small class="text-muted" id="detailAssetSubtitle">Asset Specifications & Assignment</small>
                     </div>
-                    <div style="position:relative;z-index:1;flex:1;min-width:0;">
-                        <div class="adm-header-title" id="detailAssetTag">Asset Details</div>
-                        <div class="adm-header-sub" id="detailAssetSubtitle">Loading details…</div>
-                        <div class="mt-2" id="detailStatus"></div>
-                    </div>
+                    <div class="ms-2" id="detailStatus"></div>
                 </div>
-                <button type="button" class="adm-close-btn" data-bs-dismiss="modal" aria-label="Close">
-                    <i class="bi bi-x-lg"></i>
-                </button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
 
             <!-- Scrollable Body -->
-            <div class="adm-body">
+            <div class="modal-body modal-body-detail p-4">
                 <div id="detailImageContainer" class="mb-4 text-center" style="display: none;">
                     <div id="imageCarousel" class="carousel slide" data-bs-ride="carousel">
                         <div class="carousel-inner rounded-4 shadow-sm" id="carouselInner"></div>
@@ -1735,131 +1696,137 @@
                 </div>
 
                 <!-- ── Device Identity ── -->
-                <div class="adm-section">
-                    <div class="adm-section-label"><i class="bi bi-cpu"></i> Device Identity</div>
-                    <div class="adm-card">
-                        <div class="adm-grid">
-                            <div>
-                                <span class="adm-field-label">Device Name</span>
-                                <div class="adm-field-value" id="detailDeviceName"></div>
-                            </div>
-                            <div>
-                                <span class="adm-field-label">Model</span>
-                                <div class="adm-field-value" id="detailModel"></div>
-                            </div>
-                            <div>
-                                <span class="adm-field-label">Serial Number</span>
-                                <div class="adm-field-value" id="detailSerial"></div>
-                            </div>
-                            <div>
-                                <span class="adm-field-label">Asset ID / Tag</span>
-                                <div class="adm-field-value" style="color:#4f46e5;" id="detailCustomAssetId"></div>
-                            </div>
+                <div class="detail-card mb-3">
+                    <h6 class="fw-bold text-dark mb-3 d-flex align-items-center gap-2" style="font-size: 0.9rem;">
+                        <i class="bi bi-cpu text-primary"></i> Device Identity
+                    </h6>
+                    <div class="row g-3">
+                        <div class="col-sm-6">
+                            <span class="detail-label small text-muted fw-semibold d-block">Device Name</span>
+                            <span class="detail-value fw-bold text-dark" id="detailDeviceName">—</span>
+                        </div>
+                        <div class="col-sm-6">
+                            <span class="detail-label small text-muted fw-semibold d-block">Model</span>
+                            <span class="detail-value fw-bold text-dark" id="detailModel">—</span>
+                        </div>
+                        <div class="col-sm-6">
+                            <span class="detail-label small text-muted fw-semibold d-block">Serial Number</span>
+                            <span class="detail-value fw-semibold text-dark" id="detailSerial">—</span>
+                        </div>
+                        <div class="col-sm-6">
+                            <span class="detail-label small text-muted fw-semibold d-block">Asset ID / Tag</span>
+                            <span class="detail-value fw-bold text-primary" id="detailCustomAssetId">—</span>
                         </div>
                     </div>
                 </div>
 
                 <!-- ── Hardware Specs ── -->
-                <div class="adm-section">
-                    <div class="adm-section-label"><i class="bi bi-motherboard"></i> Hardware Specs</div>
-                    <div class="adm-card">
-                        <div class="adm-grid three">
-                            <div>
-                                <span class="adm-field-label">Processor</span>
-                                <div class="adm-field-value" id="detailProcessor"></div>
-                            </div>
-                            <div>
-                                <span class="adm-field-label">RAM</span>
-                                <div class="adm-field-value" id="detailRam"></div>
-                            </div>
-                            <div>
-                                <span class="adm-field-label">Storage</span>
-                                <div class="adm-field-value" id="detailStorage"></div>
-                            </div>
+                <div class="detail-card mb-3">
+                    <h6 class="fw-bold text-dark mb-3 d-flex align-items-center gap-2" style="font-size: 0.9rem;">
+                        <i class="bi bi-motherboard text-primary"></i> Hardware Specs
+                    </h6>
+                    <div class="row g-3">
+                        <div class="col-sm-4">
+                            <span class="detail-label small text-muted fw-semibold d-block">Processor</span>
+                            <span class="detail-value fw-semibold text-dark" id="detailProcessor">—</span>
+                        </div>
+                        <div class="col-sm-4">
+                            <span class="detail-label small text-muted fw-semibold d-block">RAM</span>
+                            <span class="detail-value fw-semibold text-dark" id="detailRam">—</span>
+                        </div>
+                        <div class="col-sm-4">
+                            <span class="detail-label small text-muted fw-semibold d-block">Storage</span>
+                            <span class="detail-value fw-semibold text-dark" id="detailStorage">—</span>
                         </div>
                     </div>
                 </div>
 
                 <!-- ── Ownership Details ── -->
-                <div class="adm-section">
-                    <div class="adm-section-label"><i class="bi bi-receipt"></i> Ownership Details</div>
-                    <div class="adm-card">
-                        <div class="d-flex align-items-center gap-2 mb-3">
-                            <span class="adm-field-label mb-0" style="text-transform:uppercase;">Type:</span>
-                            <span class="badge" id="detailOwnershipType">Purchased</span>
+                <div class="detail-card mb-3">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h6 class="fw-bold text-dark mb-0 d-flex align-items-center gap-2" style="font-size: 0.9rem;">
+                            <i class="bi bi-receipt text-primary"></i> Ownership Details
+                        </h6>
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="small text-muted fw-semibold text-uppercase">Type:</span>
+                            <span class="badge bg-light text-dark border px-2 py-1 fw-semibold" id="detailOwnershipType">Purchased</span>
                         </div>
+                    </div>
 
-                        <!-- Purchased Fields -->
-                        <div id="detailPurchasedFields" class="adm-grid">
-                            <div>
-                                <span class="adm-field-label">Purchase Date</span>
-                                <div class="adm-field-value" id="detailPurchaseDate"></div>
+                    <!-- Purchased Fields -->
+                    <div id="detailPurchasedFields" class="row g-3">
+                        <div class="col-sm-6">
+                            <span class="detail-label small text-muted fw-semibold d-block">Purchase Date</span>
+                            <span class="detail-value fw-semibold text-dark" id="detailPurchaseDate">—</span>
+                        </div>
+                        <div class="col-sm-6">
+                            <span class="detail-label small text-muted fw-semibold d-block">Warranty Expiry</span>
+                            <span class="detail-value fw-semibold text-dark" id="detailWarranty">—</span>
+                        </div>
+                    </div>
+
+                    <!-- Rented Fields -->
+                    <div id="detailRentedFields" style="display:none;">
+                        <div class="row g-3 mb-2">
+                            <div class="col-sm-6">
+                                <span class="detail-label small text-muted fw-semibold d-block">Vendor Name</span>
+                                <span class="detail-value fw-semibold text-dark" id="detailVendorName">—</span>
                             </div>
-                            <div>
-                                <span class="adm-field-label">Warranty Expiry</span>
-                                <div class="adm-field-value" id="detailWarranty"></div>
+                            <div class="col-sm-6">
+                                <span class="detail-label small text-muted fw-semibold d-block">Vendor Contact</span>
+                                <span class="detail-value fw-semibold text-dark" id="detailVendorContact">—</span>
                             </div>
                         </div>
-
-                        <!-- Rented Fields -->
-                        <div id="detailRentedFields" style="display:none;">
-                            <div class="adm-grid mb-3">
-                                <div>
-                                    <span class="adm-field-label">Vendor Name</span>
-                                    <div class="adm-field-value" id="detailVendorName"></div>
-                                </div>
-                                <div>
-                                    <span class="adm-field-label">Vendor Contact</span>
-                                    <div class="adm-field-value" id="detailVendorContact"></div>
-                                </div>
+                        <hr class="my-2 border-slate-200">
+                        <div class="row g-3 mb-2">
+                            <div class="col-sm-6">
+                                <span class="detail-label small text-muted fw-semibold d-block">Rental Start</span>
+                                <span class="detail-value fw-semibold text-dark" id="detailRentalStart">—</span>
                             </div>
-                            <div class="adm-divider"></div>
-                            <div class="adm-grid mb-3">
-                                <div>
-                                    <span class="adm-field-label">Rental Start</span>
-                                    <div class="adm-field-value" id="detailRentalStart"></div>
-                                </div>
-                                <div>
-                                    <span class="adm-field-label">Rental End</span>
-                                    <div class="adm-field-value" id="detailRentalEnd"></div>
-                                </div>
+                            <div class="col-sm-6">
+                                <span class="detail-label small text-muted fw-semibold d-block">Rental End</span>
+                                <span class="detail-value fw-semibold text-dark" id="detailRentalEnd">—</span>
                             </div>
-                            <div class="adm-grid">
-                                <div>
-                                    <span class="adm-field-label">Rental Cost</span>
-                                    <div class="adm-field-value" id="detailRentalCost"></div>
-                                </div>
-                                <div>
-                                    <span class="adm-field-label">Billing Frequency</span>
-                                    <div class="adm-field-value" id="detailRentalFrequency"></div>
-                                </div>
+                        </div>
+                        <div class="row g-3">
+                            <div class="col-sm-6">
+                                <span class="detail-label small text-muted fw-semibold d-block">Rental Cost</span>
+                                <span class="detail-value fw-bold text-primary" id="detailRentalCost">—</span>
+                            </div>
+                            <div class="col-sm-6">
+                                <span class="detail-label small text-muted fw-semibold d-block">Billing Frequency</span>
+                                <span class="detail-value fw-semibold text-dark" id="detailRentalFrequency">—</span>
                             </div>
                         </div>
                     </div>
                 </div>
 
                 <!-- ── Notes ── -->
-                <div class="adm-section">
-                    <div class="adm-section-label"><i class="bi bi-journal-text"></i> Notes</div>
-                    <div class="adm-note-box" id="detailNotes">No notes available.</div>
+                <div class="detail-card mb-3">
+                    <h6 class="fw-bold text-dark mb-2 d-flex align-items-center gap-2" style="font-size: 0.9rem;">
+                        <i class="bi bi-journal-text text-primary"></i> Notes
+                    </h6>
+                    <div class="detail-note p-3 rounded-3 bg-light border text-muted small" id="detailNotes">No notes available.</div>
                 </div>
 
                 <!-- ── Assignment ── -->
-                <div class="adm-section">
-                    <div class="adm-section-label"><i class="bi bi-person-badge"></i> Assignment</div>
+                <div class="detail-card mb-3">
+                    <h6 class="fw-bold text-dark mb-3 d-flex align-items-center gap-2" style="font-size: 0.9rem;">
+                        <i class="bi bi-person-badge text-primary"></i> Assignment
+                    </h6>
                     <div id="detailOwnerSection">
-                        <div class="adm-available-card">
+                        <div class="d-flex align-items-center gap-3 p-3 rounded-3 bg-light border">
                             <div
-                                style="width:42px;height:42px;border-radius:50%;background:#dcfce7;border:2px solid #bbf7d0;display:flex;align-items:center;justify-content:center;color:#16a34a;font-size:1.1rem;flex-shrink:0;">
+                                style="width:40px;height:40px;border-radius:50%;background:#dcfce7;border:2px solid #bbf7d0;display:flex;align-items:center;justify-content:center;color:#16a34a;font-size:1.1rem;flex-shrink:0;">
                                 <i class="bi bi-check-circle-fill"></i>
                             </div>
                             <div>
-                                <div style="font-weight:700;color:#16a34a;font-size:0.85rem;">Available</div>
-                                <div style="font-size:0.78rem;color:#64748b;">No employee assigned</div>
+                                <div class="fw-bold text-success" style="font-size:0.88rem;">Available</div>
+                                <div class="text-muted small">No employee assigned</div>
                             </div>
                         </div>
                         <div id="returnAssetContainer" class="mt-2" style="display:none;">
-                            <button type="button" class="btn btn-sm btn-outline-danger rounded-pill fw-bold"
+                            <button type="button" class="btn btn-sm btn-outline-danger rounded-pill fw-semibold"
                                 onclick="promptReturnAsset()">
                                 <i class="bi bi-arrow-return-left me-1"></i> Return Asset
                             </button>
@@ -1868,24 +1835,29 @@
                 </div>
 
                 <!-- ── Agreement ── -->
-                <div class="adm-section" id="detailAgreementSection" style="display:none;">
-                    <div class="adm-section-label"><i class="bi bi-file-earmark-check"></i> Usage Agreement</div>
-                    <div class="adm-card">
-                        <div id="detailAgreementStatus" class="mb-2"></div>
-                        <div id="detailAgreementAction"></div>
-                    </div>
+                <div class="detail-card mb-3" id="detailAgreementSection" style="display:none;">
+                    <h6 class="fw-bold text-dark mb-2 d-flex align-items-center gap-2" style="font-size: 0.9rem;">
+                        <i class="bi bi-file-earmark-check text-primary"></i> Usage Agreement
+                    </h6>
+                    <div id="detailAgreementStatus" class="mb-2"></div>
+                    <div id="detailAgreementAction"></div>
                 </div>
 
                 <!-- ── Update / Assign Owner ── -->
-                <div class="adm-section" id="updateOwnerContainer">
-                    <div class="adm-section-label"><i class="bi bi-person-gear"></i> Update Owner</div>
-                    <div class="adm-assign-row">
-                        <select class="form-select" id="reassignSelect"></select>
-                        <button type="button" class="btn-primary-indigo" style="white-space:nowrap;"
-                            onclick="reassignAsset()">Save</button>
+                <div class="detail-card" id="updateOwnerContainer">
+                    <h6 class="fw-bold text-dark mb-3 d-flex align-items-center gap-2" style="font-size: 0.9rem;">
+                        <i class="bi bi-person-gear text-primary"></i> Assign / Update Owner
+                    </h6>
+                    <div class="d-flex align-items-center gap-2">
+                        <select class="form-select rounded-3" id="reassignSelect"></select>
+                        <button type="button" class="btn btn-soft-purple btn-sm rounded-pill px-4 shadow-sm fw-semibold" style="white-space:nowrap;"
+                            onclick="reassignAsset()">Save Assignment</button>
                     </div>
                 </div>
 
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light btn-sm rounded-pill px-4 border" data-bs-dismiss="modal" style="color: #64748B; font-weight: 600;">Close</button>
             </div>
         </div>
     </div>
@@ -1893,39 +1865,36 @@
 
 <!-- ── Edit Asset Modal ── -->
 <div class="modal fade" id="editAssetModal" tabindex="-1">
-    <div class="modal-dialog modal-lg modal-dialog-centered">
-        <div class="modal-content"
-            style="border-radius: 20px; overflow: hidden; border: 0; box-shadow: 0 25px 50px rgba(0,0,0,0.15);">
-            <!-- Gradient Header -->
-            <div class="adm-header">
-                <div class="d-flex align-items-center gap-3">
-                    <div class="adm-header-icon">
-                        <i class="bi bi-pencil-square"></i>
-                    </div>
-                    <div style="position:relative;z-index:1;flex:1;min-width:0;">
-                        <div class="adm-header-title">Edit Asset</div>
-                        <div class="adm-header-sub" id="editAssetSubtitle">Loading asset…</div>
+    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable" style="max-width: 960px;">
+        <div class="modal-content">
+            <!-- Standard Header -->
+            <div class="modal-header">
+                <div class="d-flex align-items-center gap-2">
+                    <i class="bi bi-pencil-square text-primary fs-5"></i>
+                    <div>
+                        <h5 class="modal-title fw-bold mb-0 text-dark">Edit Asset</h5>
+                        <small class="text-muted" id="editAssetSubtitle">Loading asset…</small>
                     </div>
                 </div>
-                <button type="button" class="adm-close-btn" data-bs-dismiss="modal" aria-label="Close">
-                    <i class="bi bi-x-lg"></i>
-                </button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
 
-            <div class="modal-body p-4 bg-light">
+            <div class="modal-body modal-body-form p-4">
                 <form id="editAssetForm">
                     <!-- Device Identity -->
-                    <div class="adm-section bg-white rounded-4 p-4 shadow-sm mb-4">
-                        <div class="adm-section-label mb-3"><i class="bi bi-cpu text-primary"></i> Device Identity</div>
+                    <div class="detail-card mb-4">
+                        <h6 class="fw-bold text-dark mb-3 d-flex align-items-center gap-2" style="font-size: 0.9rem;">
+                            <i class="bi bi-cpu text-primary"></i> Device Identity
+                        </h6>
                         <div class="row g-3">
                             <div class="col-md-6">
-                                <label class="detail-label">Device Name</label>
-                                <input type="text" class="form-control" id="editDeviceName"
+                                <label class="form-label small fw-semibold text-dark">Device Name</label>
+                                <input type="text" class="form-control rounded-3" id="editDeviceName"
                                     placeholder="e.g. MacBook Pro">
                             </div>
                             <div class="col-md-6">
-                                <label class="detail-label">Device Type / Category</label>
-                                <select class="form-select" id="editDeviceType">
+                                <label class="form-label small fw-semibold text-dark">Device Type / Category</label>
+                                <select class="form-select rounded-3" id="editDeviceType">
                                     <option value="Laptop">Laptop</option>
                                     <option value="Desktop">Desktop</option>
                                     <option value="Mobile">Mobile</option>
@@ -1936,50 +1905,52 @@
                                 </select>
                             </div>
                             <div class="col-md-6">
-                                <label class="detail-label">Asset Tag / ID</label>
-                                <input type="text" class="form-control" id="editAssetId"
+                                <label class="form-label small fw-semibold text-dark">Asset Tag / ID</label>
+                                <input type="text" class="form-control rounded-3" id="editAssetId"
                                     placeholder="e.g. LT-2026-VASANTH">
-                                <small class="text-muted mt-1 d-block">Must be unique across all assets.</small>
+                                <small class="text-muted mt-1 d-block" style="font-size: 0.75rem;">Must be unique across all assets.</small>
                             </div>
                             <div class="col-md-6">
-                                <label class="detail-label">Model</label>
-                                <input type="text" class="form-control" id="editModel" placeholder="e.g. M2 Pro">
+                                <label class="form-label small fw-semibold text-dark">Model</label>
+                                <input type="text" class="form-control rounded-3" id="editModel" placeholder="e.g. M2 Pro">
                             </div>
                             <div class="col-12">
-                                <label class="detail-label">Serial Number</label>
-                                <input type="text" class="form-control" id="editSerial" placeholder="e.g. SN-123456">
+                                <label class="form-label small fw-semibold text-dark">Serial Number</label>
+                                <input type="text" class="form-control rounded-3" id="editSerial" placeholder="e.g. SN-123456">
                             </div>
                         </div>
                     </div>
 
                     <!-- Hardware Specs -->
-                    <div class="adm-section bg-white rounded-4 p-4 shadow-sm mb-4">
-                        <div class="adm-section-label mb-3"><i class="bi bi-memory text-primary"></i> Hardware Specs
-                        </div>
+                    <div class="detail-card mb-4">
+                        <h6 class="fw-bold text-dark mb-3 d-flex align-items-center gap-2" style="font-size: 0.9rem;">
+                            <i class="bi bi-motherboard text-primary"></i> Hardware Specs
+                        </h6>
                         <div class="row g-3">
                             <div class="col-md-4">
-                                <label class="detail-label">Processor</label>
-                                <input type="text" class="form-control" id="editProcessor" placeholder="e.g. Intel i7">
+                                <label class="form-label small fw-semibold text-dark">Processor</label>
+                                <input type="text" class="form-control rounded-3" id="editProcessor" placeholder="e.g. Intel i7">
                             </div>
                             <div class="col-md-4">
-                                <label class="detail-label">RAM</label>
-                                <input type="text" class="form-control" id="editRam" placeholder="e.g. 16GB">
+                                <label class="form-label small fw-semibold text-dark">RAM</label>
+                                <input type="text" class="form-control rounded-3" id="editRam" placeholder="e.g. 16GB">
                             </div>
                             <div class="col-md-4">
-                                <label class="detail-label">Storage</label>
-                                <input type="text" class="form-control" id="editStorage" placeholder="e.g. 512GB SSD">
+                                <label class="form-label small fw-semibold text-dark">Storage</label>
+                                <input type="text" class="form-control rounded-3" id="editStorage" placeholder="e.g. 512GB SSD">
                             </div>
                         </div>
                     </div>
 
                     <!-- Ownership Details -->
-                    <div class="adm-section bg-white rounded-4 p-4 shadow-sm mb-4">
-                        <div class="adm-section-label mb-3"><i class="bi bi-shield-check text-primary"></i> Ownership
-                            Details</div>
+                    <div class="detail-card mb-4">
+                        <h6 class="fw-bold text-dark mb-3 d-flex align-items-center gap-2" style="font-size: 0.9rem;">
+                            <i class="bi bi-shield-check text-primary"></i> Ownership Details
+                        </h6>
                         <div class="row g-3 mb-3">
                             <div class="col-md-6">
-                                <label class="detail-label">Status</label>
-                                <select class="form-select" id="editStatus">
+                                <label class="form-label small fw-semibold text-dark">Status</label>
+                                <select class="form-select rounded-3" id="editStatus">
                                     <option value="Available">Available</option>
                                     <option value="Assigned">Assigned</option>
                                     <option value="Under Repair">Under Repair</option>
@@ -1987,8 +1958,8 @@
                                 </select>
                             </div>
                             <div class="col-md-6">
-                                <label class="detail-label">Ownership Type</label>
-                                <select class="form-select" id="editOwnershipType"
+                                <label class="form-label small fw-semibold text-dark">Ownership Type</label>
+                                <select class="form-select rounded-3" id="editOwnershipType"
                                     onchange="toggleEditOwnershipFields()">
                                     <option value="Purchased">Purchased</option>
                                     <option value="Rented">Rented</option>
@@ -1999,12 +1970,12 @@
                         <!-- Purchased Fields -->
                         <div id="editPurchasedFields" class="row g-3">
                             <div class="col-md-6">
-                                <label class="detail-label">Purchase Date</label>
-                                <input type="date" class="form-control" id="editPurchaseDate">
+                                <label class="form-label small fw-semibold text-dark">Purchase Date</label>
+                                <input type="date" class="form-control rounded-3" id="editPurchaseDate">
                             </div>
                             <div class="col-md-6">
-                                <label class="detail-label">Warranty Expiry</label>
-                                <input type="date" class="form-control" id="editWarrantyExpiry">
+                                <label class="form-label small fw-semibold text-dark">Warranty Expiry</label>
+                                <input type="date" class="form-control rounded-3" id="editWarrantyExpiry">
                             </div>
                         </div>
 
@@ -2012,33 +1983,33 @@
                         <div id="editRentedFields" style="display:none;">
                             <div class="row g-3 mb-3">
                                 <div class="col-md-6">
-                                    <label class="detail-label">Vendor Name</label>
-                                    <input type="text" class="form-control" id="editVendorName"
+                                    <label class="form-label small fw-semibold text-dark">Vendor Name</label>
+                                    <input type="text" class="form-control rounded-3" id="editVendorName"
                                         placeholder="e.g. Tech Rentals Inc">
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="detail-label">Vendor Contact</label>
-                                    <input type="text" class="form-control" id="editVendorContact"
+                                    <label class="form-label small fw-semibold text-dark">Vendor Contact</label>
+                                    <input type="text" class="form-control rounded-3" id="editVendorContact"
                                         placeholder="e.g. contact@vendor.com">
                                 </div>
                             </div>
                             <div class="row g-3">
                                 <div class="col-md-6">
-                                    <label class="detail-label">Rental Start</label>
-                                    <input type="date" class="form-control" id="editRentalStart">
+                                    <label class="form-label small fw-semibold text-dark">Rental Start</label>
+                                    <input type="date" class="form-control rounded-3" id="editRentalStart">
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="detail-label">Rental End</label>
-                                    <input type="date" class="form-control" id="editRentalEnd">
+                                    <label class="form-label small fw-semibold text-dark">Rental End</label>
+                                    <input type="date" class="form-control rounded-3" id="editRentalEnd">
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="detail-label">Rental Cost</label>
-                                    <input type="number" step="0.01" class="form-control" id="editRentalCost"
+                                    <label class="form-label small fw-semibold text-dark">Rental Cost</label>
+                                    <input type="number" step="0.01" class="form-control rounded-3" id="editRentalCost"
                                         placeholder="e.g. 500.00">
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="detail-label">Billing Frequency</label>
-                                    <select class="form-select" id="editRentalFrequency">
+                                    <label class="form-label small fw-semibold text-dark">Billing Frequency</label>
+                                    <select class="form-select rounded-3" id="editRentalFrequency">
                                         <option value="Monthly">Monthly</option>
                                         <option value="Quarterly">Quarterly</option>
                                         <option value="Annually">Annually</option>
@@ -2050,19 +2021,21 @@
                     </div>
 
                     <!-- Notes -->
-                    <div class="adm-section bg-white rounded-4 p-4 shadow-sm mb-4">
-                        <div class="adm-section-label mb-3"><i class="bi bi-journal-text text-primary"></i> Notes</div>
+                    <div class="detail-card">
+                        <h6 class="fw-bold text-dark mb-3 d-flex align-items-center gap-2" style="font-size: 0.9rem;">
+                            <i class="bi bi-journal-text text-primary"></i> Notes
+                        </h6>
                         <div>
-                            <textarea class="form-control" id="editNotes" rows="3"
+                            <textarea class="form-control rounded-3" id="editNotes" rows="3"
                                 placeholder="Any condition notes..."></textarea>
                         </div>
                     </div>
                 </form>
             </div>
 
-            <div class="modal-footer border-0 bg-white" style="border-radius: 0 0 20px 20px;">
-                <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-primary rounded-pill px-4 fw-bold" id="btnSaveEdit"
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light btn-sm rounded-pill px-4 border" data-bs-dismiss="modal" style="color: #64748B; font-weight: 600;">Cancel</button>
+                <button type="button" class="btn btn-soft-purple btn-sm rounded-pill px-4 shadow-sm fw-semibold" id="btnSaveEdit"
                     onclick="saveAssetEdits()">
                     <i class="bi bi-check2 me-1"></i> Save Changes
                 </button>
@@ -2073,24 +2046,16 @@
 
 <!-- ── Return Asset Modal ── -->
 <div class="modal fade" id="returnAssetModal" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered" style="max-width: 440px;">
+    <div class="modal-dialog modal-dialog-centered" style="max-width: 520px;">
         <div class="modal-content">
-            <div class="modal-header border-0 pb-2">
-                <div class="d-flex align-items-center gap-3">
-                    <div class="return-icon-wrap">
-                        <i class="bi bi-arrow-return-left"></i>
-                    </div>
-                    <div>
-                        <h5 class="modal-title fw-bold text-dark mb-0">Return Asset</h5>
-                        <p class="text-muted small mb-0">This action will free the asset for reallocation</p>
-                    </div>
-                </div>
+            <div class="modal-header">
+                <h5 class="modal-title fw-bold text-dark mb-0"><i class="bi bi-arrow-return-left text-danger me-2"></i>Return Asset</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <div class="modal-body pt-1">
-                <p class="text-muted small">Are you sure you want to return this asset? The current owner assignment
+            <div class="modal-body p-4">
+                <p class="text-muted small mb-3">Are you sure you want to return this asset? The current owner assignment
                     will be removed and the asset will become available for future allocation.</p>
-                <div class="return-confirm-check">
+                <div class="return-confirm-check p-3 rounded-3 bg-light border">
                     <div class="form-check">
                         <input class="form-check-input" type="checkbox" id="confirmReturnCheck"
                             onchange="toggleReturnButton()">
@@ -2100,9 +2065,9 @@
                     </div>
                 </div>
             </div>
-            <div class="modal-footer border-0 pt-2">
-                <button type="button" class="btn-light-cancel" data-bs-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-danger rounded-pill px-4 fw-bold" id="btnConfirmReturn" disabled
+            <div class="modal-footer justify-content-center">
+                <button type="button" class="btn btn-light btn-sm rounded-pill px-4 border" data-bs-dismiss="modal" style="color: #64748B; font-weight: 600;">Cancel</button>
+                <button type="button" class="btn btn-danger btn-sm rounded-pill px-4 fw-semibold" id="btnConfirmReturn" disabled
                     onclick="confirmReturnAsset()">
                     <i class="bi bi-arrow-return-left me-1"></i> Return Asset
                 </button>
@@ -2113,18 +2078,17 @@
 
 <!-- ── Export Assets Modal ── -->
 <div class="modal fade" id="exportAssetsModal" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered" style="max-width: 500px;">
-        <div class="modal-content border-0 rounded-4 shadow">
-            <div class="modal-header border-0 pb-0 px-4 pt-4">
-                <h5 class="fw-bold m-0"><i class="bi bi-file-earmark-excel text-success me-2"></i>Export Asset Inventory
-                </h5>
+    <div class="modal-dialog modal-dialog-centered" style="max-width: 640px;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title fw-bold mb-0"><i class="bi bi-file-earmark-excel text-success me-2"></i>Export Asset Inventory</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <div class="modal-body px-4 pt-4 pb-4">
+            <div class="modal-body p-4">
                 <form id="exportAssetsForm">
                     <div class="mb-3">
                         <label class="form-label fw-semibold text-muted small">Export Type</label>
-                        <select class="form-select shadow-sm" id="exportType" name="export_type">
+                        <select class="form-select rounded-3" id="exportType" name="export_type">
                             <option value="all">All Assets</option>
                             <option value="available">Only Available Assets</option>
                             <option value="assigned">Only Assigned Assets</option>
@@ -2138,7 +2102,7 @@
                     <div class="row g-3 mb-3">
                         <div class="col-6">
                             <label class="form-label fw-semibold text-muted small">Category Filter</label>
-                            <select class="form-select shadow-sm" id="exportCategory" name="category">
+                            <select class="form-select rounded-3" id="exportCategory" name="category">
                                 <option value="">Any Category</option>
                                 <option value="Laptop">Laptop</option>
                                 <option value="Desktop">Desktop</option>
@@ -2151,7 +2115,7 @@
                         </div>
                         <div class="col-6">
                             <label class="form-label fw-semibold text-muted small">Status Filter</label>
-                            <select class="form-select shadow-sm" id="exportStatus" name="status">
+                            <select class="form-select rounded-3" id="exportStatus" name="status">
                                 <option value="">Any Status</option>
                                 <option value="available">Available</option>
                                 <option value="assigned">Assigned</option>
@@ -2161,10 +2125,10 @@
                         </div>
                     </div>
 
-                    <div class="row g-3 mb-4">
+                    <div class="row g-3 mb-3">
                         <div class="col-6">
                             <label class="form-label fw-semibold text-muted small">Sort By</label>
-                            <select class="form-select shadow-sm" id="exportSortBy" name="sort_by">
+                            <select class="form-select rounded-3" id="exportSortBy" name="sort_by">
                                 <option value="device_name">Asset Name</option>
                                 <option value="id">Asset ID (System)</option>
                                 <option value="tag">Asset Tag</option>
@@ -2176,7 +2140,7 @@
                         </div>
                         <div class="col-6">
                             <label class="form-label fw-semibold text-muted small">Sort Direction</label>
-                            <select class="form-select shadow-sm" id="exportSortDir" name="sort_dir">
+                            <select class="form-select rounded-3" id="exportSortDir" name="sort_dir">
                                 <option value="asc">Ascending</option>
                                 <option value="desc">Descending</option>
                             </select>
@@ -2184,9 +2148,9 @@
                     </div>
                 </form>
             </div>
-            <div class="modal-footer border-0 pt-0 px-4 pb-4">
-                <button type="button" class="btn btn-light px-4 rounded-pill" data-bs-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-success px-4 rounded-pill fw-bold" id="btnSubmitExport"
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light btn-sm px-4 rounded-pill border" data-bs-dismiss="modal" style="color: #64748B; font-weight: 600;">Cancel</button>
+                <button type="button" class="btn btn-soft-purple btn-sm px-4 rounded-pill shadow-sm fw-semibold" id="btnSubmitExport"
                     onclick="submitExportAssets()">
                     <i class="bi bi-download me-1"></i> <span id="exportBtnText">Download Excel</span>
                 </button>
@@ -2210,11 +2174,11 @@
 
 <!-- Mark as Paid Modal -->
 <div class="modal fade" id="payInvoiceModal" tabindex="-1" aria-hidden="true" style="z-index: 1060;">
-    <div class="modal-dialog modal-dialog-centered" style="max-width: 400px;">
-        <div class="modal-content" style="border-radius: 16px; border: 0; box-shadow: 0 10px 30px rgba(0,0,0,0.15);">
-            <div class="modal-header bg-success text-white">
-                <h5 class="modal-title fw-bold"><i class="bi bi-cash-coin me-2"></i>Mark as Paid</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+    <div class="modal-dialog modal-dialog-centered" style="max-width: 500px;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title fw-bold text-success mb-0"><i class="bi bi-cash-coin me-2 text-success"></i>Mark as Paid</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"
                     aria-label="Close"></button>
             </div>
             <div class="modal-body p-4">
@@ -2222,11 +2186,11 @@
                     <input type="hidden" id="payInvoiceId">
                     <div class="mb-3">
                         <label class="form-label fw-semibold text-muted small">Payment Date</label>
-                        <input type="date" class="form-control" id="payPaymentDate" required>
+                        <input type="date" class="form-control rounded-3" id="payPaymentDate" required>
                     </div>
                     <div class="mb-3">
                         <label class="form-label fw-semibold text-muted small">Payment Mode</label>
-                        <select class="form-select" id="payPaymentMode" required>
+                        <select class="form-select rounded-3" id="payPaymentMode" required>
                             <option value="Bank Transfer">Bank Transfer</option>
                             <option value="UPI">UPI</option>
                             <option value="Cash">Cash</option>
@@ -2235,18 +2199,18 @@
                     </div>
                     <div class="mb-3">
                         <label class="form-label fw-semibold text-muted small">Reference Number</label>
-                        <input type="text" class="form-control" id="payRefNum" placeholder="e.g. TXN12345678">
+                        <input type="text" class="form-control rounded-3" id="payRefNum" placeholder="e.g. TXN12345678">
                     </div>
                     <div class="mb-3">
                         <label class="form-label fw-semibold text-muted small">Remarks</label>
-                        <textarea class="form-control" id="payRemarks" rows="2"
+                        <textarea class="form-control rounded-3" id="payRemarks" rows="2"
                             placeholder="Optional notes..."></textarea>
                     </div>
                 </form>
             </div>
-            <div class="modal-footer border-0">
-                <button type="button" class="btn btn-light px-4 rounded-pill" data-bs-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-success px-4 rounded-pill fw-bold"
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light btn-sm px-4 rounded-pill border" data-bs-dismiss="modal" style="color: #64748B; font-weight: 600;">Cancel</button>
+                <button type="button" class="btn btn-soft-purple btn-sm px-4 rounded-pill shadow-sm fw-semibold"
                     onclick="confirmInvoicePayment()">Confirm</button>
             </div>
         </div>
@@ -2255,23 +2219,23 @@
 
 <!-- Asset Invoice & Payment History Modal -->
 <div class="modal fade" id="assetInvoiceHistoryModal" tabindex="-1" aria-hidden="true" style="z-index: 1050;">
-    <div class="modal-dialog modal-lg modal-dialog-centered">
-        <div class="modal-content border-0 rounded-4 shadow">
-            <div class="modal-header border-0 pb-0 px-4 pt-4">
-                <h5 class="modal-title fw-bold" id="assetHistoryModalTitle">
+    <div class="modal-dialog modal-xl modal-dialog-centered" style="max-width: 960px;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title fw-bold mb-0 text-dark" id="assetHistoryModalTitle">
                     <i class="bi bi-clock-history text-primary me-2"></i>Invoice History
                 </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body p-4 bg-light bg-opacity-50 mt-3" style="border-radius: 0 0 16px 16px;">
+            <div class="modal-body p-4">
                 <div class="row g-3">
                     <div class="col-md-7">
-                        <div class="card border-0 shadow-sm p-3 h-100" style="border-radius: 12px;">
-                            <h6 class="fw-bold text-muted mb-3" style="font-size:0.85rem;"><i
-                                    class="bi bi-receipt me-1"></i>Invoices</h6>
+                        <div class="detail-card p-3 h-100">
+                            <h6 class="fw-bold text-dark mb-3" style="font-size:0.85rem;"><i
+                                    class="bi bi-receipt me-1 text-primary"></i>Invoices</h6>
                             <div class="table-responsive" style="max-height: 250px;">
                                 <table class="table table-sm table-hover align-middle" style="font-size: 0.8rem;">
-                                    <thead>
+                                    <thead class="table-light">
                                         <tr>
                                             <th>Invoice No.</th>
                                             <th>Due Date</th>
@@ -2286,12 +2250,12 @@
                         </div>
                     </div>
                     <div class="col-md-5">
-                        <div class="card border-0 shadow-sm p-3 h-100" style="border-radius: 12px;">
-                            <h6 class="fw-bold text-muted mb-3" style="font-size:0.85rem;"><i
-                                    class="bi bi-credit-card me-1"></i>Payments</h6>
+                        <div class="detail-card p-3 h-100">
+                            <h6 class="fw-bold text-dark mb-3" style="font-size:0.85rem;"><i
+                                    class="bi bi-credit-card me-1 text-primary"></i>Payments</h6>
                             <div class="table-responsive" style="max-height: 250px;">
                                 <table class="table table-sm table-hover align-middle" style="font-size: 0.8rem;">
-                                    <thead>
+                                    <thead class="table-light">
                                         <tr>
                                             <th>Date</th>
                                             <th>Amount</th>
@@ -2305,6 +2269,9 @@
                         </div>
                     </div>
                 </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light btn-sm rounded-pill px-4 border" data-bs-dismiss="modal" style="color: #64748B; font-weight: 600;">Close</button>
             </div>
         </div>
     </div>
@@ -3044,7 +3011,7 @@
         rentalCurrentPage = page || 1;
         vendorBoxes.innerHTML = '<div class="text-center py-4 text-muted"><span class="spinner-border spinner-border-sm me-2"></span>Loading&hellip;</div>';
         try {
-            const qs = buildRentalQueryString(getRentalFilters(), { page: rentalCurrentPage, page_size: 25 });
+            const qs = buildRentalQueryString(getRentalFilters(), { page: rentalCurrentPage, page_size: 20 });
             const res = await fetch(`/api/rentals/matrix?${qs}`, { headers: getHeaders() });
             const data = await res.json();
             if (!data.success) { throw new Error(data.error || 'API error'); }
@@ -3885,7 +3852,7 @@
         const info = document.getElementById('rentalPaginationInfo');
         const btns = document.getElementById('rentalPaginationBtns');
         const total = data.total_count || 0;
-        const ps = data.page_size || 25;
+        const ps = data.page_size || 20;
         const page = data.page || 1;
         const from = total ? (page - 1) * ps + 1 : 0;
         const to = Math.min(page * ps, total);
@@ -4441,6 +4408,8 @@
         if (detailPane) detailPane.scrollTop = 0;
         if (secondaryPane) secondaryPane.scrollTop = 0;
         document.getElementById('detailDeviceName').innerHTML = '<span class="spinner-border spinner-border-sm text-primary"></span>';
+        const subEl = document.getElementById('detailAssetSubtitle');
+        if (subEl) subEl.innerText = 'Loading details…';
         const histEl = document.getElementById('assetHistory');
         if (histEl) histEl.innerHTML = '<div class="text-center py-4"><div class="spinner-border text-primary"></div></div>';
         const ticketsEl = document.getElementById('assetTickets');
@@ -4574,6 +4543,11 @@
         // ---- 4. Populate Fields ----
         const deviceName = a.device_name || a.brand || a.name || 'Unknown Device';
         document.getElementById('detailAssetTag').innerText = deviceName;
+        const subEl = document.getElementById('detailAssetSubtitle');
+        if (subEl) {
+            const subParts = [a.device_type || a.type, a.model].filter(Boolean);
+            subEl.innerText = subParts.length ? subParts.join(' • ') : 'Asset Specifications & Assignment';
+        }
         document.getElementById('detailDeviceName').innerText = deviceName;
         document.getElementById('detailModel').innerText = a.model || a.device_type || a.type || 'N/A';
         document.getElementById('detailSerial').innerText = a.serial_number || a.serialNumber || a.sn || 'N/A';
