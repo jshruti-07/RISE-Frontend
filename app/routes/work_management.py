@@ -342,7 +342,7 @@ def edit_timesheet(timesheet_id):
     current_user = session.get('employee_name')
     user_role = session.get('role')
     
-    if user_role not in ['employee', 'hr', 'admin']:
+    if user_role not in ['employee', 'hr', 'admin', 'superadmin']:
         flash("Only authorized roles can edit their own timesheets", "danger")
         return redirect(url_for('work.timesheets_list'))
     
@@ -903,7 +903,7 @@ def attendance_view():
         
         if emp_res.status_code == 200:
             emp_list = extract_list(emp_res.json(), 'employees', 'data')
-            if user_role in ['hr', 'admin', 'manager']:
+            if user_role in ['hr', 'admin', 'manager', 'superadmin']:
                 all_employees = emp_list
             
             for emp in emp_list:
