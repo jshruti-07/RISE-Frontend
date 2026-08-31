@@ -1,123 +1,55 @@
 {% extends "base.html" %}
 
-{% block title %}Access Control | Altzor{% endblock %}
+{% block title %}Access Control | RISE{% endblock %}
+{% block page_title %}Access Control{% endblock %}
 
 {% block head %}
 <style>
-    :root {
-        --glass-bg: rgba(255, 255, 255, 0.85);
-        --glass-border: rgba(255, 255, 255, 0.4);
-        --primary-gradient: linear-gradient(135deg, #4f46e5, #7c3aed);
-        --danger-gradient: linear-gradient(135deg, #ef4444, #b91c1c);
-    }
-
-    .access-container {
-        padding: 2rem;
-        background: #f8fafc;
-        min-height: 100vh;
-    }
-
-    .page-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 2rem;
-    }
-
-    .page-title {
-        font-size: 1.8rem;
-        font-weight: 700;
-        color: #1e293b;
-        margin: 0;
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-    }
-
-    .page-title i {
-        color: #4f46e5;
-    }
-
-    .glass-card {
-        background: var(--glass-bg);
-        border: 1px solid var(--glass-border);
+    .hd-dashboard-card {
+        background: #FFFFFF;
+        border: 1px solid #E8ECF4;
         border-radius: 16px;
-        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
-        backdrop-filter: blur(10px);
-        padding: 1.5rem;
-        margin-bottom: 2rem;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
         overflow: hidden;
     }
 
-    .module-header {
-        background: #f1f5f9;
-        padding: 1rem 1.5rem;
+    .leave-filter-pill {
+        border: 1px solid #E2E8F0;
+        background: #FFFFFF;
+        color: #64748B;
+        border-radius: 20px;
+        padding: 5px 14px;
+        font-size: 0.8rem;
         font-weight: 600;
-        color: #334155;
-        border-radius: 8px;
-        margin-top: 2rem;
-        margin-bottom: 1rem;
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
+        cursor: pointer;
+        transition: all 0.15s ease;
     }
 
-    .matrix-table {
-        width: 100%;
-        border-collapse: separate;
-        border-spacing: 0;
+    .leave-filter-pill:hover, .leave-filter-pill.active {
+        background: #6366F1;
+        color: #FFFFFF;
+        border-color: #6366F1;
     }
 
-    .matrix-table th {
-        padding: 1rem;
-        text-align: center;
-        font-weight: 600;
-        color: #475569;
-        border-bottom: 2px solid #e2e8f0;
-        position: sticky;
-        top: 0;
-        background: rgba(255, 255, 255, 0.9);
-        backdrop-filter: blur(5px);
-        z-index: 10;
+    .timesheet-table {
+        font-size: 0.85rem;
     }
 
-    .matrix-table th:first-child {
-        text-align: left;
+    .timesheet-table th {
+        white-space: nowrap;
     }
 
-    .matrix-table td {
-        padding: 1rem;
-        border-bottom: 1px solid #f1f5f9;
+    .timesheet-table td {
         vertical-align: middle;
-    }
-
-    .matrix-table tr:hover {
-        background: #f8fafc;
-    }
-
-    .perm-info {
-        display: flex;
-        flex-direction: column;
-    }
-
-    .perm-label {
-        font-weight: 500;
-        color: #1e293b;
-    }
-
-    .perm-route {
-        font-size: 0.75rem;
-        color: #64748b;
-        font-family: monospace;
-        margin-top: 0.25rem;
     }
 
     /* Toggle Switch */
     .switch {
         position: relative;
         display: inline-block;
-        width: 44px;
-        height: 24px;
+        width: 42px;
+        height: 22px;
+        margin: 0 auto;
     }
 
     .switch input {
@@ -133,146 +65,90 @@
         left: 0;
         right: 0;
         bottom: 0;
-        background-color: #cbd5e1;
-        transition: .3s;
-        border-radius: 34px;
+        background-color: #CBD5E1;
+        transition: .25s ease;
+        border-radius: 22px;
     }
 
     .slider:before {
         position: absolute;
         content: "";
-        height: 18px;
-        width: 18px;
+        height: 16px;
+        width: 16px;
         left: 3px;
         bottom: 3px;
         background-color: white;
-        transition: .3s;
+        transition: .25s ease;
         border-radius: 50%;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
     }
 
-    input:checked+.slider {
-        background: var(--primary-gradient);
+    input:checked + .slider {
+        background: linear-gradient(135deg, #6366F1, #4F46E5);
     }
 
-    input:checked+.slider:before {
+    input:checked + .slider:before {
         transform: translateX(20px);
     }
 
-    input:disabled+.slider {
-        opacity: 0.5;
+    input:disabled + .slider {
+        opacity: 0.45;
         cursor: not-allowed;
     }
 
-    /* Buttons */
-    .btn-reset {
-        background: white;
-        border: 1px solid #e2e8f0;
-        color: #64748b;
-        padding: 0.4rem 0.8rem;
-        border-radius: 6px;
-        font-size: 0.75rem;
-        font-weight: 500;
-        cursor: pointer;
-        transition: all 0.2s;
-        display: flex;
-        align-items: center;
-        gap: 0.25rem;
-        margin: 0 auto;
-        margin-top: 0.5rem;
-    }
-
-    .btn-reset:hover {
-        background: #f8fafc;
-        color: #ef4444;
-        border-color: #ef4444;
-    }
-
-    /* Audit Log Panel */
-    .audit-panel {
-        margin-top: 2rem;
-    }
-
-    .audit-header {
-        background: var(--primary-gradient);
-        color: white;
-        padding: 1rem 1.5rem;
+    /* Module Header Accordion */
+    .module-header-row {
+        background: #F8FAFC;
+        border: 1px solid #E8ECF4;
         border-radius: 12px;
+        padding: 12px 16px;
         cursor: pointer;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        font-weight: 600;
-        box-shadow: 0 4px 15px rgba(79, 70, 229, 0.2);
+        transition: all 0.15s ease;
+        user-select: none;
     }
 
-    .audit-content {
-        display: none;
-        background: white;
-        border-radius: 12px;
-        padding: 1.5rem;
-        margin-top: 1rem;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-        border: 1px solid #e2e8f0;
-        max-height: 400px;
+    .module-header-row:hover {
+        background: #F1F5F9;
+    }
+
+    .module-header-row .toggle-icon {
+        transition: transform 0.2s ease;
+    }
+
+    .module-header-row.collapsed .toggle-icon {
+        transform: rotate(-90deg);
+    }
+
+    /* Audit Timeline */
+    .audit-timeline {
+        max-height: 420px;
         overflow-y: auto;
     }
 
-    .audit-timeline {
-        list-style: none;
-        padding: 0;
-        margin: 0;
-    }
-
     .audit-item {
-        padding: 1rem 0;
-        border-bottom: 1px solid #f1f5f9;
+        padding: 12px 0;
+        border-bottom: 1px solid #F1F5F9;
         display: flex;
-        gap: 1rem;
+        align-items: flex-start;
+        gap: 12px;
     }
 
     .audit-item:last-child {
         border-bottom: none;
     }
 
-    .audit-icon {
+    .audit-icon-box {
         width: 32px;
         height: 32px;
-        border-radius: 50%;
-        background: #f1f5f9;
+        border-radius: 8px;
         display: flex;
         align-items: center;
         justify-content: center;
-        color: #4f46e5;
+        font-size: 0.95rem;
+        flex-shrink: 0;
     }
 
-    .audit-details {
-        flex: 1;
-    }
-
-    .audit-meta {
-        font-size: 0.75rem;
-        color: #94a3b8;
-        margin-top: 0.25rem;
-    }
-
-    .badge {
-        padding: 0.2rem 0.5rem;
-        border-radius: 4px;
-        font-size: 0.7rem;
-        font-weight: 600;
-    }
-
-    .badge-granted {
-        background: #dcfce7;
-        color: #166534;
-    }
-
-    .badge-revoked {
-        background: #fee2e2;
-        color: #991b1b;
-    }
-
+    /* Loading Overlay */
     .loading-overlay {
         position: fixed;
         top: 0;
@@ -280,64 +156,92 @@
         right: 0;
         bottom: 0;
         background: rgba(255, 255, 255, 0.7);
-        backdrop-filter: blur(3px);
+        backdrop-filter: blur(2px);
         display: none;
         justify-content: center;
         align-items: center;
         z-index: 9999;
     }
-
-    .spinner {
-        width: 40px;
-        height: 40px;
-        border: 4px solid #f3f3f3;
-        border-top: 4px solid #4f46e5;
-        border-radius: 50%;
-        animation: spin 1s linear infinite;
-    }
-
-    @keyframes spin {
-        0% {
-            transform: rotate(0deg);
-        }
-
-        100% {
-            transform: rotate(360deg);
-        }
-    }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="access-container">
-    <div class="page-header">
-        <h1 class="page-title"><i class="bi bi-shield-lock-fill"></i> Access Control</h1>
-        <button class="btn btn-outline-danger" onclick="resetDefaults('')">
-            <i class="bi bi-arrow-counterclockwise"></i> Reset All to Defaults
-        </button>
-    </div>
-
-    <div class="glass-card">
-        <div id="matrix-container">
-            <!-- Table generated by JS -->
+<div class="container-fluid py-4">
+    <!-- Title Outside Table Card -->
+    <div class="mb-3 d-flex justify-content-between align-items-center flex-wrap gap-3">
+        <div>
+            <h4 class="fw-bold text-dark mb-0">Access Control</h4>
+            <p class="text-muted small mb-0">Manage role-based permissions matrix and view audit history</p>
+        </div>
+        <div class="d-flex align-items-center gap-2 flex-wrap">
+            <button type="button" class="btn btn-outline-danger btn-sm rounded-pill px-3 shadow-sm" onclick="resetDefaults('')" style="font-size: 0.8rem; font-weight: 600;">
+                <i class="bi bi-arrow-counterclockwise me-1"></i> Reset All to Defaults
+            </button>
         </div>
     </div>
 
-    <div class="audit-panel">
-        <div class="audit-header" onclick="toggleAuditLog()">
-            <span><i class="bi bi-journal-text"></i> Permission Change History</span>
-            <i class="bi bi-chevron-down" id="audit-chevron"></i>
+    <!-- Main Permission Matrix Card -->
+    <div class="hd-dashboard-card mb-4">
+        <div class="p-4">
+            <!-- Search & Quick Actions Bar -->
+            <div class="row g-2 mb-3 align-items-center p-2 rounded-3 bg-light bg-opacity-50 border" style="border-color: #F1F5F9 !important;">
+                <div class="col-md-6 col-sm-12">
+                    <div class="input-group input-group-sm">
+                        <span class="input-group-text bg-white border-end-0"><i class="bi bi-search text-muted"></i></span>
+                        <input type="text" id="permissionSearchInput" class="form-control border-start-0 ps-0"
+                            placeholder="Search permission name, action, or route..." onkeyup="filterPermissionMatrix()">
+                    </div>
+                </div>
+                <div class="col-md-6 col-sm-12 text-md-end text-start">
+                    <button class="btn btn-outline-secondary btn-sm rounded-pill px-3 me-2" onclick="expandAllModules(true)" style="font-size: 0.8rem; font-weight: 600;">
+                        <i class="bi bi-arrows-expand me-1"></i> Expand All
+                    </button>
+                    <button class="btn btn-outline-secondary btn-sm rounded-pill px-3" onclick="expandAllModules(false)" style="font-size: 0.8rem; font-weight: 600;">
+                        <i class="bi bi-arrows-collapse me-1"></i> Collapse All
+                    </button>
+                </div>
+            </div>
+
+            <!-- Modules & Permissions Container -->
+            <div id="matrix-container">
+                <!-- Dynamically populated by JS -->
+            </div>
         </div>
-        <div class="audit-content" id="audit-content">
-            <ul class="audit-timeline" id="audit-timeline">
-                <!-- Audit logs generated by JS -->
-            </ul>
+    </div>
+
+    <!-- Audit History Panel -->
+    <div class="hd-dashboard-card">
+        <div class="p-4">
+            <div class="d-flex justify-content-between align-items-center" onclick="toggleAuditLog()" style="cursor: pointer;">
+                <div class="d-flex align-items-center gap-2">
+                    <div class="avatar-circle-sm" style="width: 34px; height: 34px; border-radius: 10px; background: #EEF2FF; color: #4F46E5; display: flex; align-items: center; justify-content: center;">
+                        <i class="bi bi-journal-text fs-5"></i>
+                    </div>
+                    <div>
+                        <h6 class="fw-bold text-dark mb-0">Permission Change History</h6>
+                        <small class="text-muted">Review real-time audit logs of permission changes</small>
+                    </div>
+                </div>
+                <button type="button" class="btn btn-light btn-sm rounded-circle border" style="width: 32px; height: 32px; padding: 0;">
+                    <i class="bi bi-chevron-down" id="audit-chevron" style="transition: transform 0.2s ease;"></i>
+                </button>
+            </div>
+            
+            <div class="audit-content mt-3" id="audit-content" style="display: none;">
+                <hr class="my-3 text-muted opacity-25">
+                <ul class="audit-timeline list-unstyled mb-0" id="audit-timeline">
+                    <!-- Populated by JS -->
+                </ul>
+            </div>
         </div>
     </div>
 </div>
 
+<!-- Fullscreen Spinner Loading Overlay -->
 <div class="loading-overlay" id="loading-overlay">
-    <div class="spinner"></div>
+    <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
+        <span class="visually-hidden">Loading...</span>
+    </div>
 </div>
 
 <script>
@@ -345,8 +249,9 @@
 
     function formatRoleName(r) {
         if (!r) return '';
-        if (r.toLowerCase() === 'superadmin') return 'SUPER ADMIN';
-        return r.replace(/_/g, ' ').toUpperCase();
+        if (r.toLowerCase() === 'superadmin') return 'Super Admin';
+        if (r.toLowerCase() === 'team_member') return 'Team Member';
+        return r.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
     }
 
     document.addEventListener('DOMContentLoaded', () => {
@@ -362,7 +267,7 @@
             if (data.success) {
                 renderMatrix(data.modules);
             } else {
-                alert('Failed to load permissions: ' + data.error);
+                alert('Failed to load permissions: ' + (data.error || 'Unknown error'));
             }
         } catch (e) {
             alert('Error loading permissions');
@@ -374,46 +279,71 @@
 
     function renderMatrix(modules) {
         const container = document.getElementById('matrix-container');
+        if (!container) return;
         let html = '';
 
-        // Iterate over modules
-        for (const [modName, perms] of Object.entries(modules)) {
-            const collapseId = 'collapse-' + modName.replace(/[^a-zA-Z0-9]/g, '-');
-            html += `<div class="module-header collapsed" data-bs-toggle="collapse" data-bs-target="#${collapseId}" style="cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
-                        <div><i class="bi bi-box"></i> ${modName.toUpperCase()}</div>
-                        <i class="bi bi-chevron-down toggle-icon" style="transition: transform 0.3s; transform: rotate(-90deg);"></i>
-                     </div>`;
+        const moduleEntries = Object.entries(modules || {});
+        if (moduleEntries.length === 0) {
+            container.innerHTML = `
+                <div class="text-center py-5 text-muted">
+                    <i class="bi bi-shield-x fs-1 d-block mb-2 text-secondary"></i>
+                    No permission modules found.
+                </div>
+            `;
+            return;
+        }
 
-            html += `<div class="collapse" id="${collapseId}">
-                <table class="matrix-table">
-                <thead>
-                    <tr>
-                        <th style="width: 28%">Permission</th>`;
+        // Iterate over modules
+        moduleEntries.forEach(([modName, perms], idx) => {
+            const collapseId = 'collapse-' + modName.replace(/[^a-zA-Z0-9]/g, '-');
+            const cleanModTitle = modName.replace(/_/g, ' ').toUpperCase();
+
+            html += `
+            <div class="module-block mb-3">
+                <div class="module-header-row d-flex justify-content-between align-items-center mb-2" 
+                     data-bs-toggle="collapse" data-bs-target="#${collapseId}">
+                    <div class="d-flex align-items-center gap-2 fw-bold text-dark" style="font-size: 0.92rem;">
+                        <i class="bi bi-folder2-open text-primary"></i> ${cleanModTitle}
+                    </div>
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="badge border" style="font-size: 0.75rem; font-weight: 600; color: #0F172A !important; background-color: #F1F5F9;">${perms.length} Permissions</span>
+                        <i class="bi bi-chevron-down toggle-icon text-muted"></i>
+                    </div>
+                </div>
+
+                <div class="collapse show" id="${collapseId}">
+                    <div class="table-responsive rounded-3 border" style="border-color: #E8ECF4 !important;">
+                        <table class="table table-hover align-middle mb-0 timesheet-table">
+                            <thead class="table-light" style="background-color: #F8FAFC;">
+                                <tr>
+                                    <th style="width: 28%; font-weight: 700; color: #475569; font-size: 0.85rem; padding: 12px 16px;">Permission</th>`;
 
             ROLES.forEach(r => {
-                html += `<th style="width: 12%">
-                    ${formatRoleName(r)}
-                    <button class="btn-reset" onclick="resetDefaults('${r}')" title="Reset ${formatRoleName(r)} to defaults">
-                        <i class="bi bi-arrow-counterclockwise"></i> Reset
-                    </button>
-                </th>`;
+                html += `
+                    <th style="width: 12%; font-weight: 700; color: #475569; font-size: 0.85rem; text-align: center;">
+                        <div>${formatRoleName(r)}</div>
+                        <button type="button" class="btn btn-light btn-sm border rounded-pill px-2 py-0 mt-1" onclick="resetDefaults('${r}')" style="font-size: 0.7rem; font-weight: 600; color: #64748B;" title="Reset ${formatRoleName(r)} to defaults">
+                            <i class="bi bi-arrow-counterclockwise"></i> Reset
+                        </button>
+                    </th>`;
             });
 
             html += `</tr></thead><tbody>`;
 
             perms.forEach(p => {
-                html += `<tr>
-                    <td>
-                        <div class="perm-info">
-                            <span class="perm-label">${p.label}</span>
-                            <span class="perm-route">${p.route || ''}</span>
-                        </div>
+                const searchData = `${p.label || ''} ${p.route || ''} ${cleanModTitle}`.toLowerCase();
+                html += `
+                <tr class="perm-row" data-search="${searchData}">
+                    <td style="padding: 12px 16px;">
+                        <div class="fw-semibold text-slate-900" style="font-size: 0.88rem;">${p.label}</div>
+                        ${p.route ? `<small class="text-muted font-monospace" style="font-size: 0.75rem;">${p.route}</small>` : ''}
                     </td>`;
 
                 ROLES.forEach(r => {
-                    const isGranted = p.grants && p.grants[r];
-                    html += `<td style="text-align: center;">
-                        <label class="switch">
+                    const isGranted = Boolean(p.grants && p.grants[r]);
+                    html += `
+                    <td style="text-align: center;">
+                        <label class="switch" title="${formatRoleName(r)}: ${p.label}">
                             <input type="checkbox" 
                                 ${isGranted ? 'checked' : ''} 
                                 onchange="togglePermission(${p.id}, '${r}', this.checked)">
@@ -425,11 +355,65 @@
                 html += `</tr>`;
             });
 
-            html += `</tbody></table>
+            html += `
+                        </tbody>
+                    </table>
+                </div>
+            </div>
             </div>`;
-        }
+        });
 
         container.innerHTML = html;
+        bindCollapseListeners();
+    }
+
+    function bindCollapseListeners() {
+        const collapses = document.querySelectorAll('.collapse');
+        collapses.forEach(col => {
+            col.addEventListener('hide.bs.collapse', function () {
+                const header = document.querySelector(`[data-bs-target="#${this.id}"]`);
+                if (header) header.classList.add('collapsed');
+            });
+            col.addEventListener('show.bs.collapse', function () {
+                const header = document.querySelector(`[data-bs-target="#${this.id}"]`);
+                if (header) header.classList.remove('collapsed');
+            });
+        });
+    }
+
+    function expandAllModules(expand) {
+        const collapses = document.querySelectorAll('#matrix-container .collapse');
+        collapses.forEach(c => {
+            const bsCollapse = bootstrap.Collapse.getOrCreateInstance(c, { toggle: false });
+            if (expand) bsCollapse.show();
+            else bsCollapse.hide();
+        });
+    }
+
+    function filterPermissionMatrix() {
+        const input = document.getElementById('permissionSearchInput');
+        const query = (input ? input.value : '').toLowerCase().trim();
+        const moduleBlocks = document.querySelectorAll('#matrix-container .module-block');
+
+        moduleBlocks.forEach(mod => {
+            const rows = mod.querySelectorAll('.perm-row');
+            let visibleCount = 0;
+
+            rows.forEach(tr => {
+                const searchStr = tr.dataset.search || '';
+                const matches = !query || searchStr.includes(query);
+                tr.style.display = matches ? '' : 'none';
+                if (matches) visibleCount++;
+            });
+
+            mod.style.display = visibleCount > 0 ? '' : 'none';
+
+            // Auto-expand module if searching
+            if (query && visibleCount > 0) {
+                const col = mod.querySelector('.collapse');
+                if (col) bootstrap.Collapse.getOrCreateInstance(col, { toggle: false }).show();
+            }
+        });
     }
 
     async function togglePermission(permId, role, isGranted) {
@@ -443,7 +427,7 @@
 
             const data = await res.json();
             if (!data.success) {
-                alert('Failed to update permission: ' + data.error);
+                alert('Failed to update permission: ' + (data.error || 'Unknown error'));
                 loadPermissions(); // Revert UI
             } else {
                 if (document.getElementById('audit-content').style.display === 'block') {
@@ -459,7 +443,8 @@
     }
 
     async function resetDefaults(role) {
-        if (!confirm(`Are you sure you want to reset permissions${role ? ` for ${formatRoleName(role)}` : ' for all roles'} to system defaults?`)) return;
+        const targetDesc = role ? formatRoleName(role) : 'all roles';
+        if (!confirm(`Are you sure you want to reset permissions for ${targetDesc} to system defaults?`)) return;
 
         showLoading();
         try {
@@ -476,7 +461,7 @@
                     loadAuditLog(); // Refresh log if open
                 }
             } else {
-                alert('Failed to reset defaults: ' + data.error);
+                alert('Failed to reset defaults: ' + (data.error || 'Unknown error'));
             }
         } catch (e) {
             alert('Error resetting defaults');
@@ -509,31 +494,37 @@
                 const list = document.getElementById('audit-timeline');
                 list.innerHTML = '';
 
-                if (data.logs.length === 0) {
-                    list.innerHTML = '<li class="audit-item"><div class="audit-details">No changes recorded yet.</div></li>';
+                if (!data.logs || data.logs.length === 0) {
+                    list.innerHTML = '<li class="audit-item text-muted py-3">No change logs recorded yet.</li>';
                     return;
                 }
 
                 data.logs.forEach(l => {
-                    const statusClass = l.new_value ? 'badge-granted' : 'badge-revoked';
-                    const statusText = l.new_value ? 'Granted' : 'Revoked';
-                    const icon = l.new_value ? 'bi-check-circle-fill' : 'bi-x-circle-fill';
-                    const color = l.new_value ? '#16a34a' : '#dc2626';
+                    const isGranted = Boolean(l.new_value);
+                    const statusText = isGranted ? 'Granted' : 'Revoked';
+                    const badgeClass = isGranted ? 'bg-success bg-opacity-10 text-success border border-success border-opacity-25' : 'bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25';
+                    const iconBoxBg = isGranted ? '#ECFDF5' : '#FEF2F2';
+                    const iconColor = isGranted ? '#059669' : '#DC2626';
+                    const icon = isGranted ? 'bi-check-lg' : 'bi-x-lg';
 
                     list.innerHTML += `
                         <li class="audit-item">
-                            <div class="audit-icon" style="color: ${color}; background: ${color}20;">
+                            <div class="audit-icon-box" style="background: ${iconBoxBg}; color: ${iconColor};">
                                 <i class="bi ${icon}"></i>
                             </div>
-                            <div class="audit-details">
-                                <div>
-                                    <strong>${l.changed_by_name}</strong> 
-                                    ${l.new_value ? 'granted' : 'revoked'} access to 
-                                    <strong>${l.label}</strong> for role <strong>${formatRoleName(l.role)}</strong>.
+                            <div class="flex-grow-1 min-w-0">
+                                <div class="text-dark" style="font-size: 0.88rem;">
+                                    <strong>${l.changed_by_name || 'Administrator'}</strong> 
+                                    ${isGranted ? 'granted' : 'revoked'} access to 
+                                    <strong class="text-primary">${l.label || 'Permission'}</strong> for role 
+                                    <span class="badge border" style="font-size: 0.75rem; font-weight: 600; color: #0F172A !important; background-color: #F1F5F9;">${formatRoleName(l.role)}</span>
                                 </div>
-                                <div class="audit-meta">
-                                    <span class="badge ${statusClass}">${statusText}</span> • 
-                                    ${new Date(l.changed_at).toLocaleString()} • Module: ${l.module}
+                                <div class="text-muted small mt-1" style="font-size: 0.76rem;">
+                                    <span class="badge ${badgeClass} rounded-pill px-2 py-0 fw-semibold">${statusText}</span>
+                                    <span class="mx-1">•</span>
+                                    ${new Date(l.changed_at).toLocaleString()}
+                                    <span class="mx-1">•</span>
+                                    Module: <span class="fw-medium">${(l.module || '').toUpperCase()}</span>
                                 </div>
                             </div>
                         </li>
@@ -547,27 +538,13 @@
     }
 
     function showLoading() {
-        document.getElementById('loading-overlay').style.display = 'flex';
+        const el = document.getElementById('loading-overlay');
+        if (el) el.style.display = 'flex';
     }
 
     function hideLoading() {
-        document.getElementById('loading-overlay').style.display = 'none';
+        const el = document.getElementById('loading-overlay');
+        if (el) el.style.display = 'none';
     }
-
-    document.getElementById('matrix-container').addEventListener('hide.bs.collapse', function (e) {
-        const header = document.querySelector(`[data-bs-target="#${e.target.id}"]`);
-        if (header) {
-            const icon = header.querySelector('.toggle-icon');
-            if (icon) icon.style.transform = 'rotate(-90deg)';
-        }
-    });
-
-    document.getElementById('matrix-container').addEventListener('show.bs.collapse', function (e) {
-        const header = document.querySelector(`[data-bs-target="#${e.target.id}"]`);
-        if (header) {
-            const icon = header.querySelector('.toggle-icon');
-            if (icon) icon.style.transform = 'rotate(0deg)';
-        }
-    });
 </script>
 {% endblock %}

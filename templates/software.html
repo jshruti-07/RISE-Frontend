@@ -4,108 +4,61 @@
 
 {% block content %}
 <style>
-    .software-card {
-        background: #ffffff;
+    .hd-dashboard-card {
+        background: #FFFFFF;
+        border: 1px solid #E8ECF4;
         border-radius: 16px;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
-        padding: 24px;
-        border: 1px solid #f1f5f9;
-        margin-bottom: 24px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+        overflow: hidden;
     }
 
-    .icon-box {
-        width: 48px;
-        height: 48px;
-        border-radius: 12px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1.5rem;
-        color: white;
-    }
-
-    .badge-soft {
-        padding: 6px 12px;
-        border-radius: 8px;
+    .leave-filter-pill {
+        border: 1px solid #E2E8F0;
+        background: #FFFFFF;
+        color: #64748B;
+        border-radius: 20px;
+        padding: 5px 14px;
+        font-size: 0.8rem;
         font-weight: 600;
-        font-size: 0.75rem;
-        display: inline-block;
-    }
-
-    .status-active {
-        background: #dcfce7;
-        color: #166534;
-    }
-
-    .status-pending {
-        background: #fef3c7;
-        color: #92400e;
-    }
-
-    .status-expired {
-        background: #fee2e2;
-        color: #b91c1c;
-    }
-
-    .btn-action-edit {
-        width: 34px;
-        height: 34px;
-        border-radius: 10px;
-        border: 1px solid #6366f1;
-        background: transparent;
-        color: #6366f1;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 0.95rem;
-        transition: all 0.2s ease;
         cursor: pointer;
+        transition: all 0.15s ease;
     }
 
-    .btn-action-edit:hover {
-        background: #6366f1;
-        color: #fff;
-        box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+    .leave-filter-pill:hover, .leave-filter-pill.active {
+        background: #6366F1;
+        color: #FFFFFF;
+        border-color: #6366F1;
     }
 
-    .btn-action-delete {
-        width: 34px;
-        height: 34px;
-        border-radius: 10px;
-        border: 1px solid #ef4444;
-        background: transparent;
-        color: #ef4444;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 0.95rem;
-        transition: all 0.2s ease;
-        cursor: pointer;
+    .timesheet-table {
+        font-size: 0.85rem;
     }
 
-    .btn-action-delete:hover {
-        background: #ef4444;
-        color: #fff;
-        box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+    .timesheet-table th {
+        white-space: nowrap;
+    }
+
+    .timesheet-table td {
+        vertical-align: middle;
     }
 
     .software-app-icon {
-        width: 40px;
-        height: 40px;
+        width: 36px;
+        height: 36px;
         border-radius: 10px;
         background: #f1f5f9;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 1.25rem;
+        font-size: 1.15rem;
         color: #4f46e5;
         overflow: hidden;
         flex-shrink: 0;
     }
 
     .software-app-icon img {
-        width: 28px;
-        height: 28px;
+        width: 24px;
+        height: 24px;
         object-fit: contain;
         display: block;
     }
@@ -272,111 +225,85 @@
     }
 </style>
 
-<div class="software-card" id="softwareMainCard">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div class="d-flex align-items-center gap-3">
-            <div class="icon-box bg-primary shadow-sm">
-                <i class="bi bi-box-seam"></i>
-            </div>
-            <div>
-                <h4 class="mb-0 fw-bold">Software & Licenses</h4>
-                <p class="text-muted small mb-0">Manage applications, developer tools, and license allocations</p>
-            </div>
-        </div>
-        <div class="d-flex gap-2">
-            <button class="btn btn-primary px-4 py-2 rounded-pill shadow-sm fw-bold" data-bs-toggle="modal"
-                data-bs-target="#addSoftwareModal">
-                <i class="bi bi-plus-lg me-2"></i> Add Software
-            </button>
-        </div>
+<div class="container-fluid py-4">
+    <!-- Title Outside Table Card -->
+    <div class="mb-3">
+        <h4 class="fw-bold text-dark mb-0">Software &amp; Licenses</h4>
     </div>
 
-    <!-- Stats Summary Row -->
-    <div class="row g-3 mb-4">
-        <div class="col-md-3">
-            <div class="p-3 bg-light rounded-4 d-flex align-items-center gap-3">
-                <div class="rounded-circle p-3 bg-primary bg-opacity-10 text-primary">
-                    <i class="bi bi-app-indicator fs-4"></i>
+    <div class="hd-dashboard-card" id="softwareMainCard">
+        <div class="p-4">
+            <!-- Top Actions & Navigation Bar -->
+            <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-3">
+                <!-- Status Filter Pills -->
+                <div class="d-flex align-items-center gap-2 flex-wrap" id="statusFilterPills">
+                    <button type="button" class="leave-filter-pill active" onclick="quickFilterStatus('', this)">All (<span id="pillCountAll">0</span>)</button>
+                    <button type="button" class="leave-filter-pill" onclick="quickFilterStatus('active', this)">Active (<span id="pillCountActive">0</span>)</button>
+                    <button type="button" class="leave-filter-pill" onclick="quickFilterStatus('renewal soon', this)">Renewal Soon (<span id="pillCountRenewal">0</span>)</button>
+                    <button type="button" class="leave-filter-pill" onclick="quickFilterStatus('expired', this)">Expired (<span id="pillCountExpired">0</span>)</button>
                 </div>
-                <div>
-                    <div class="text-muted small">Total Software</div>
-                    <h5 class="fw-bold mb-0" id="totalAppsCount">0 Apps</h5>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="p-3 bg-light rounded-4 d-flex align-items-center gap-3">
-                <div class="rounded-circle p-3 bg-success bg-opacity-10 text-success">
-                    <i class="bi bi-key fs-4"></i>
-                </div>
-                <div>
-                    <div class="text-muted small">Active Licenses</div>
-                    <h5 class="fw-bold mb-0" id="activeLicensesCount">0 Assigned</h5>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="p-3 bg-light rounded-4 d-flex align-items-center gap-3">
-                <div class="rounded-circle p-3 bg-warning bg-opacity-10 text-warning">
-                    <i class="bi bi-clock-history fs-4"></i>
-                </div>
-                <div>
-                    <div class="text-muted small">Renewal Due</div>
-                    <h5 class="fw-bold mb-0" id="renewalDueCount">0 Licenses</h5>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="p-3 bg-light rounded-4 d-flex align-items-center gap-3">
-                <div class="rounded-circle p-3 bg-info bg-opacity-10 text-info">
-                    <i class="bi bi-shield-check fs-4"></i>
-                </div>
-                <div>
-                    <div class="text-muted small">Compliance</div>
-                    <h5 class="fw-bold mb-0" id="complianceCount">0% Compliant</h5>
-                </div>
-            </div>
-        </div>
-    </div>
 
-    <!-- Filters Strip -->
-    <div class="row g-3 mb-4 p-3 bg-light rounded-4">
-        <div class="col-md-4">
-            <select class="form-select border-0 shadow-sm" id="filterCategory" onchange="filterSoftwareTable()">
-                <option value="">All Categories</option>
-                <option value="developer">Developer Tools</option>
-                <option value="productivity">Productivity</option>
-                <option value="security">Security</option>
-                <option value="design">Design</option>
-                <option value="cloud">Cloud Services</option>
-            </select>
-        </div>
-        <div class="col-md-8">
-            <div class="input-group">
-                <span class="input-group-text bg-white border-0 shadow-sm"><i class="bi bi-search"></i></span>
-                <input type="text" class="form-control border-0 shadow-sm" id="softwareSearchInput"
-                    placeholder="Search software or publisher..." onkeyup="filterSoftwareTable()">
+                <!-- Action Buttons -->
+                <div class="d-flex align-items-center gap-2 flex-wrap">
+                    <button type="button" class="btn btn-soft-purple btn-sm rounded-pill px-3 shadow-sm" data-bs-toggle="modal"
+                        data-bs-target="#addSoftwareModal" style="font-size: 0.8rem; font-weight: 600;">
+                        <i class="bi bi-plus-circle me-1"></i> Add Software
+                    </button>
+                </div>
+            </div>
+
+            <!-- Filters Section -->
+            <div class="row g-2 mb-3 align-items-center p-2 rounded-3 bg-light bg-opacity-50 border" style="border-color: #F1F5F9 !important;">
+                <div class="col-md-4 col-sm-6">
+                    <div class="input-group input-group-sm">
+                        <span class="input-group-text bg-white border-end-0"><i class="bi bi-search text-muted"></i></span>
+                        <input type="text" id="softwareSearchInput" class="form-control border-start-0 ps-0"
+                            placeholder="Search software or publisher..." onkeyup="filterSoftwareTable()">
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-6">
+                    <select class="form-select form-select-sm rounded-3" id="filterCategory" onchange="filterSoftwareTable()">
+                        <option value="">All Categories</option>
+                        <option value="developer tools">Developer Tools</option>
+                        <option value="productivity">Productivity</option>
+                        <option value="security">Security</option>
+                        <option value="design">Design</option>
+                        <option value="cloud services">Cloud Services</option>
+                        <option value="others">Others</option>
+                    </select>
+                </div>
+                <div class="col-md-3 col-sm-6">
+                    <select class="form-select form-select-sm rounded-3" id="filterStatus" onchange="onStatusSelectChange()">
+                        <option value="">All Statuses</option>
+                        <option value="active">Active</option>
+                        <option value="renewal soon">Renewal Soon</option>
+                        <option value="expired">Expired</option>
+                    </select>
+                </div>
+                <div class="col-md-2 col-sm-12 text-end">
+                    <button class="btn btn-outline-secondary btn-sm w-100 rounded-3" id="clearFilters" onclick="resetSoftwareFilters()">Clear</button>
+                </div>
+            </div>
+
+            <!-- Software Inventory Table -->
+            <div class="table-responsive rounded-3 border" style="border-color: #E8ECF4 !important;">
+                <table class="table table-hover align-middle mb-0 timesheet-table" id="softwareTable">
+                    <thead class="table-light" style="background-color: #F8FAFC;">
+                        <tr>
+                            <th style="font-weight: 700; color: #475569; font-size: 0.85rem; padding: 12px 16px;">Application</th>
+                            <th style="font-weight: 700; color: #475569; font-size: 0.85rem;">Category</th>
+                            <th style="font-weight: 700; color: #475569; font-size: 0.85rem;">Version</th>
+                            <th style="font-weight: 700; color: #475569; font-size: 0.85rem;">License Type</th>
+                            <th style="font-weight: 700; color: #475569; font-size: 0.85rem; text-align: center;">Allocated</th>
+                            <th style="font-weight: 700; color: #475569; font-size: 0.85rem; text-align: center;">Status</th>
+                            <th style="font-weight: 700; color: #475569; font-size: 0.85rem; text-align: center; padding-right: 16px;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="softwareTableBody">
+                    </tbody>
+                </table>
             </div>
         </div>
-    </div>
-
-    <!-- Software Inventory Table -->
-    <div class="table-responsive">
-        <table class="table table-hover align-middle" id="softwareTable">
-            <thead class="bg-light">
-                <tr>
-                    <th class="border-0 rounded-start-3">Application</th>
-                    <th class="border-0">Category</th>
-                    <th class="border-0">Version</th>
-                    <th class="border-0">License Type</th>
-                    <th class="border-0">Allocated</th>
-                    <th class="border-0">Status</th>
-                    <th class="border-0 text-end rounded-end-3">Actions</th>
-                </tr>
-            </thead>
-            <tbody id="softwareTableBody">
-            </tbody>
-        </table>
     </div>
 </div>
 
@@ -847,64 +774,79 @@
         }
     }
 
-    async function loadSoftware() {
-        try {
-            const res = await fetch('/api/software');
-            if (res.ok) {
-                const data = await res.json();
-                if (data.success && Array.isArray(data.software)) {
-                    renderSoftwareTable(data.software);
-                    updateSoftwareStats(data.stats);
-                }
-            }
-        } catch (e) {
-            console.error('Failed to load software inventory:', e);
-        }
-    }
-
     function renderSoftwareTable(softwareList) {
         const tbody = document.getElementById('softwareTableBody');
         if (!tbody) return;
         tbody.innerHTML = '';
 
+        if (!softwareList || softwareList.length === 0) {
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="7" class="text-center py-4 text-muted">
+                        <i class="bi bi-inbox fs-3 d-block mb-2 text-secondary"></i>
+                        No software assets found.
+                    </td>
+                </tr>
+            `;
+            return;
+        }
+
         softwareList.forEach(item => {
             const tr = document.createElement('tr');
+            tr.className = 'software-row';
             tr.dataset.id = item.id;
-            tr.dataset.name = item.name;
-            tr.dataset.publisher = item.publisher;
-            tr.dataset.category = item.category;
-            tr.dataset.version = item.version;
-            tr.dataset.licenseType = item.license_type;
-            tr.dataset.allocated = item.allocated;
-            tr.dataset.status = item.status;
+            tr.dataset.name = (item.name || '').toLowerCase();
+            tr.dataset.publisher = (item.publisher || '').toLowerCase();
+            tr.dataset.category = (item.category || '').toLowerCase();
+            tr.dataset.version = item.version || '';
+            tr.dataset.licenseType = item.license_type || '';
+            tr.dataset.allocated = item.allocated || '0';
+            tr.dataset.status = (item.status || 'Active').toLowerCase();
             tr.dataset.assignedNames = JSON.stringify(item.assigned_names || []);
 
-            let statusBadge = '<span class="badge-soft status-active">Active</span>';
-            if (item.status === 'Renewal Soon') {
-                statusBadge = '<span class="badge-soft status-pending">Renewal Soon</span>';
-            } else if (item.status === 'Expired') {
-                statusBadge = '<span class="badge-soft status-expired">Expired</span>';
+            const rawStatus = (item.status || 'Active').trim();
+            let statusBadge = '<span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 rounded-pill px-3 py-1 fw-semibold" style="font-size: 0.75rem;">Active</span>';
+            if (rawStatus.toLowerCase() === 'renewal soon') {
+                statusBadge = '<span class="badge bg-warning bg-opacity-10 text-warning border border-warning border-opacity-25 rounded-pill px-3 py-1 fw-semibold" style="font-size: 0.75rem;">Renewal Soon</span>';
+            } else if (rawStatus.toLowerCase() === 'expired') {
+                statusBadge = '<span class="badge bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25 rounded-pill px-3 py-1 fw-semibold" style="font-size: 0.75rem;">Expired</span>';
             }
 
             tr.innerHTML = `
-            <td>
+            <td style="padding: 12px 16px;">
                 <div class="d-flex align-items-center gap-3">
-                    ${softwareIconHtml(item.name)}
+                    ${softwareIconHtml(item.name || '')}
                     <div>
-                        <span class="app-name-link fw-bold" onclick="openAssignModal(this.closest('tr'))">${item.name}</span>
-                        <div class="text-muted small">${item.publisher}</div>
+                        <div class="fw-bold text-slate-900 app-name-link" style="font-size: 0.9rem;" onclick="openAssignModal(this.closest('tr'))">${item.name || 'Untitled'}</div>
+                        <small class="text-muted">${item.publisher || ''}</small>
                     </div>
                 </div>
             </td>
-            <td><span class="badge bg-light text-dark fw-normal">${item.category}</span></td>
-            <td>${item.version}</td>
-            <td>${item.license_type}</td>
-            <td>${item.allocated}</td>
-            <td>${statusBadge}</td>
-            <td class="text-end">
-                <div class="d-flex justify-content-end gap-2">
-                    <button class="btn-action-edit" title="Edit" onclick="editSoftwareRow(this)"><i class="bi bi-pencil-fill"></i></button>
-                    <button class="btn-action-delete" title="Delete" onclick="deleteSoftwareRow(this)"><i class="bi bi-trash3-fill"></i></button>
+            <td>
+                <span class="badge bg-light text-slate-700 border" style="font-size: 0.78rem; font-weight: 500;">${item.category || 'General'}</span>
+            </td>
+            <td>
+                <div class="text-slate-700 fw-medium" style="font-size: 0.85rem;">${item.version || '-'}</div>
+            </td>
+            <td>
+                <div class="text-slate-700" style="font-size: 0.85rem;">${item.license_type || '-'}</div>
+            </td>
+            <td style="text-align: center;">
+                <span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25 rounded-pill px-3 py-1 fw-semibold" style="font-size: 0.78rem; cursor: pointer;" onclick="openAssignModal(this.closest('tr'))" title="Manage allocations">
+                    ${item.allocated || '0'}
+                </span>
+            </td>
+            <td style="text-align: center;">
+                ${statusBadge}
+            </td>
+            <td style="text-align: center; padding-right: 16px;">
+                <div class="d-flex justify-content-center gap-1">
+                    <button class="btn btn-sm btn-outline-primary rounded-circle" style="width: 32px; height: 32px; padding: 0; display: inline-flex; align-items: center; justify-content: center;" title="Edit" onclick="editSoftwareRow(this)">
+                        <i class="bi bi-pencil" style="font-size: 0.85rem;"></i>
+                    </button>
+                    <button class="btn btn-sm btn-outline-danger rounded-circle" style="width: 32px; height: 32px; padding: 0; display: inline-flex; align-items: center; justify-content: center;" title="Delete" onclick="deleteSoftwareRow(this)">
+                        <i class="bi bi-trash" style="font-size: 0.85rem;"></i>
+                    </button>
                 </div>
             </td>
         `;
@@ -912,17 +854,40 @@
         });
     }
 
-    function updateSoftwareStats(stats) {
-        if (!stats) return;
-        const total = stats.total;
-        const activeAllocated = stats.active_licenses;
-        const renewalDue = stats.renewal_due;
-        const compliance = stats.compliance;
+    function updateSoftwareStats(stats, softwareList) {
+        let allCount = 0, activeCount = 0, renewalCount = 0, expiredCount = 0;
+        if (Array.isArray(softwareList)) {
+            allCount = softwareList.length;
+            softwareList.forEach(item => {
+                const s = (item.status || '').toLowerCase().trim();
+                if (s === 'active') activeCount++;
+                else if (s === 'renewal soon') renewalCount++;
+                else if (s === 'expired') expiredCount++;
+            });
+        }
+        const pillAll = document.getElementById('pillCountAll');
+        const pillActive = document.getElementById('pillCountActive');
+        const pillRenewal = document.getElementById('pillCountRenewal');
+        const pillExpired = document.getElementById('pillCountExpired');
+        if (pillAll) pillAll.textContent = allCount;
+        if (pillActive) pillActive.textContent = activeCount;
+        if (pillRenewal) pillRenewal.textContent = renewalCount;
+        if (pillExpired) pillExpired.textContent = expiredCount;
+    }
 
-        document.getElementById('totalAppsCount').textContent = `${total} App${total === 1 ? '' : 's'}`;
-        document.getElementById('activeLicensesCount').textContent = `${activeAllocated} Assigned`;
-        document.getElementById('renewalDueCount').textContent = `${renewalDue} License${renewalDue === 1 ? '' : 's'}`;
-        document.getElementById('complianceCount').textContent = `${compliance}% Compliant`;
+    async function loadSoftware() {
+        try {
+            const res = await fetch('/api/software');
+            if (res.ok) {
+                const data = await res.json();
+                if (data.success && Array.isArray(data.software)) {
+                    renderSoftwareTable(data.software);
+                    updateSoftwareStats(data.stats, data.software);
+                }
+            }
+        } catch (e) {
+            console.error('Failed to load software inventory:', e);
+        }
     }
 
     document.addEventListener('DOMContentLoaded', () => {
@@ -1196,19 +1161,87 @@
     </div>`;
     }
 
+    let _currentStatusFilter = '';
+
+    function quickFilterStatus(status, btn) {
+        _currentStatusFilter = (status || '').toLowerCase().trim();
+        
+        // Update pill active classes
+        const pills = document.querySelectorAll('#statusFilterPills .leave-filter-pill');
+        pills.forEach(p => p.classList.remove('active'));
+        if (btn) btn.classList.add('active');
+
+        // Sync dropdown
+        const statusSelect = document.getElementById('filterStatus');
+        if (statusSelect) {
+            statusSelect.value = _currentStatusFilter;
+        }
+
+        filterSoftwareTable();
+    }
+
+    function onStatusSelectChange() {
+        const statusSelect = document.getElementById('filterStatus');
+        _currentStatusFilter = statusSelect ? statusSelect.value.toLowerCase().trim() : '';
+
+        // Sync pill buttons
+        const pills = document.querySelectorAll('#statusFilterPills .leave-filter-pill');
+        pills.forEach(p => {
+            const onclickAttr = p.getAttribute('onclick') || '';
+            if (!_currentStatusFilter && onclickAttr.includes("quickFilterStatus('',")) {
+                p.classList.add('active');
+            } else if (_currentStatusFilter && onclickAttr.toLowerCase().includes(`'${_currentStatusFilter}'`)) {
+                p.classList.add('active');
+            } else {
+                p.classList.remove('active');
+            }
+        });
+
+        filterSoftwareTable();
+    }
+
+    function resetSoftwareFilters() {
+        const searchInput = document.getElementById('softwareSearchInput');
+        const catSelect = document.getElementById('filterCategory');
+        const statusSelect = document.getElementById('filterStatus');
+
+        if (searchInput) searchInput.value = '';
+        if (catSelect) catSelect.value = '';
+        if (statusSelect) statusSelect.value = '';
+        _currentStatusFilter = '';
+
+        const pills = document.querySelectorAll('#statusFilterPills .leave-filter-pill');
+        pills.forEach((p, idx) => {
+            if (idx === 0) p.classList.add('active');
+            else p.classList.remove('active');
+        });
+
+        filterSoftwareTable();
+    }
+
     function filterSoftwareTable() {
         const input = document.getElementById('softwareSearchInput');
-        const filter = input.value.toLowerCase();
+        const filter = (input ? input.value : '').toLowerCase().trim();
         const catSelect = document.getElementById('filterCategory');
-        const catFilter = catSelect.value.toLowerCase();
+        const catFilter = (catSelect ? catSelect.value : '').toLowerCase().trim();
+        const statusFilter = _currentStatusFilter;
+
         const table = document.getElementById('softwareTable');
-        const tr = table.getElementsByTagName('tr');
-        for (let i = 1; i < tr.length; i++) {
-            const textContent = tr[i].textContent || tr[i].innerText;
-            const matchesSearch = textContent.toLowerCase().indexOf(filter) > -1;
-            const matchesCategory = !catFilter || textContent.toLowerCase().indexOf(catFilter) > -1;
-            tr[i].style.display = (matchesSearch && matchesCategory) ? '' : 'none';
-        }
+        if (!table) return;
+        const rows = table.querySelectorAll('tbody tr.software-row');
+
+        rows.forEach(tr => {
+            const name = tr.dataset.name || '';
+            const publisher = tr.dataset.publisher || '';
+            const category = tr.dataset.category || '';
+            const status = tr.dataset.status || '';
+
+            const matchesSearch = !filter || name.includes(filter) || publisher.includes(filter) || category.includes(filter);
+            const matchesCategory = !catFilter || category.includes(catFilter);
+            const matchesStatus = !statusFilter || status === statusFilter || (statusFilter === 'active' && status === 'active');
+
+            tr.style.display = (matchesSearch && matchesCategory && matchesStatus) ? '' : 'none';
+        });
     }
 
     function editSoftwareRow(btn) {

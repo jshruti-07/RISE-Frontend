@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const payloadBase64 = token.split('.')[1];
         // base64 decode and parse JWT payload
         const payloadDecoded = JSON.parse(atob(payloadBase64.replace(/-/g, '+').replace(/_/g, '/')));
-        if (!['admin', 'hr'].includes(payloadDecoded.role)) {
+        if (!['admin', 'hr', 'superadmin'].includes(payloadDecoded.role)) {
             window.location.href = '/login';
             return;
         }
