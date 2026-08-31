@@ -356,7 +356,7 @@
     function canReviewReimbursement(userRole, status) {
         const role = String(userRole || '').toLowerCase();
         const normalizedStatus = String(status || '').toLowerCase();
-        return ['hr', 'manager', 'admin'].includes(role) && normalizedStatus === 'pending';
+        return ['hr', 'manager', 'admin', 'superadmin'].includes(role) && normalizedStatus === 'pending';
     }
 
     function loadReimbursements() {
@@ -434,19 +434,15 @@
             if (userRole === 'employee' && namesMatchJS(r.employee_name, employeeName) && r.status === 'pending') {
                 actions += `<button class="btn btn-sm btn-outline-danger rounded-pill px-3 py-0.5" onclick="withdrawClaim(${r.id})">Withdraw</button>`;
             }
-            // Manager/HR actions
-            if (userRole === 'hr' || userRole === 'manager') {
-                if (r.status === 'pending') {
-                    actions += `<button class="btn btn-sm btn-outline-success rounded-pill px-3 py-0.5 me-1" onclick="approveClaim(${r.id})">Approve</button>`;
-                    actions += `<button class="btn btn-sm btn-outline-danger rounded-pill px-3 py-0.5" onclick="showRejectModal(${r.id})">Reject</button>`;
-                }
-            }
-            // Admin actions
-            if (userRole === 'admin') {
+            // Manager/HR/Admin/Superadmin actions
+            if (userRole === 'hr' || userRole === 'manager' || userRole === 'admin' || userRole === 'superadmin') {
                 if (r.status === 'pending') {
                     actions += `<button class="btn btn-sm btn-outline-success rounded-pill px-3 py-0.5 me-1" onclick="approveClaim(${r.id})">Approve</button>`;
                     actions += `<button class="btn btn-sm btn-outline-danger rounded-pill px-3 py-0.5 me-1" onclick="showRejectModal(${r.id})">Reject</button>`;
                 }
+            }
+            // Admin/Superadmin actions
+            if (userRole === 'admin' || userRole === 'superadmin') {
                 if (r.status === 'approved') {
                     actions += `<button class="btn btn-sm btn-outline-primary rounded-pill px-3 py-0.5 me-1" onclick="showPayModal(${r.id})">Pay</button>`;
                 }

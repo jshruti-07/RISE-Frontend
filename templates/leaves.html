@@ -279,7 +279,7 @@
                         <h5 class="card-title mb-0 fw-semibold">
                             Holidays
                         </h5>
-                        {% if session.role == 'hr' %}
+                        {% if session.role in ['hr', 'superadmin'] %}
                         <button type="button" class="btn btn-sm btn-outline-primary rounded-pill px-3 shadow-xs" data-bs-toggle="modal"
                             data-bs-target="#addHolidayModal" style="font-size: 0.8rem; font-weight: 600;">
                             <i class="bi bi-plus-circle me-1"></i> Add Holiday
@@ -312,7 +312,7 @@
     </div>
 
     <!-- LEAVE APPLICATIONS DASHBOARD CARD (Helpdesk / Reimbursement Style) -->
-    {% set is_admin_or_hr = (session.role in ['admin', 'hr', 'manager']) %}
+    {% set is_admin_or_hr = (session.role in ['admin', 'hr', 'manager', 'superadmin']) %}
     
     {# Compute All Leaves Stats #}
     {% set ns_all = namespace(pending=0, approved=0, rejected=0, total=0) %}
@@ -620,7 +620,7 @@
     </div>
 </div>
 
-{% if session.role == 'hr' %}
+{% if session.role in ['hr', 'superadmin'] %}
 <!-- Add Holiday Modal -->
 <div class="modal fade" id="addHolidayModal" tabindex="-1" aria-labelledby="addHolidayModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">

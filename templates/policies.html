@@ -62,7 +62,7 @@
                                         {% for policy in policy_list %}
                                         <div class="d-flex justify-content-between align-items-center mb-2 pe-2">
                                             <span class="small text-slate-700 fw-medium"><i class="bi bi-file-text me-1 text-muted"></i>{{ policy.title }}</span>
-                                            {% if session.role == 'hr' %}
+                                            {% if session.role in ['hr', 'superadmin'] %}
                                             <button class="btn btn-sm btn-link p-0 text-primary edit-policy-btn text-decoration-none"
                                                 data-policy-id="{{ policy.id }}"
                                                 onclick="event.stopPropagation(); openEditModal(this.dataset.policyId);"
@@ -138,8 +138,8 @@
     </div>
 </div>
 
-{% if session.role == 'hr' %}
-<!-- Edit Policy Modal (HR only) -->
+{% if session.role in ['hr', 'superadmin'] %}
+<!-- Edit Policy Modal (HR and Superadmin) -->
 <div class="modal fade" id="editPolicyModal" tabindex="-1" aria-hidden="true" style="z-index: 1060;">
     <div class="modal-dialog modal-lg modal-dialog-centered">
         <div class="modal-content">
@@ -182,7 +182,7 @@
 {% endif %}
 
 <script>
-    var canEditPolicies = {{ 'true' if session.role == 'hr' else 'false' }};
+    var canEditPolicies = {{ 'true' if session.role in ['hr', 'superadmin'] else 'false' }};
     // Global variable to store policies data
     var policiesDataGlobal = null;
 

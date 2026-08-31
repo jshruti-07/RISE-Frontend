@@ -170,7 +170,6 @@
             </a>
             {% endif %}
 
-            {% if session.role != 'superadmin' %}
             <!-- DASHBOARD -->
             <a class="ribbon-left" style="margin-bottom: 0; display: block;"
                 href="{{ url_for('dashboard.dashboard') }}">
@@ -206,7 +205,7 @@
             {% endif %}
 
             <!-- TIMESHEETS -->
-            {% if session.role in ['employee','manager','hr'] %}
+            {% if session.role in ['employee','manager','hr', 'superadmin'] %}
             <a class="ribbon-left" style="margin-bottom: 0; display: block;"
                 href="{{ url_for('work.timesheets_list') }}">
                 <div class="ribbon-inner">
@@ -224,7 +223,7 @@
             {% endif %}
 
             <!-- LEAVES -->
-            {% if session.role in ['employee','hr','manager','admin'] %}
+            {% if session.role in ['employee','hr','manager','admin', 'superadmin'] %}
             <a class="ribbon-left" style="margin-bottom: 0; display: block;" href="{{ url_for('work.leaves_list') }}">
                 <div class="ribbon-inner">
                     <div class="ribbon-accent-left" style="background: linear-gradient(to bottom, #93C5FD, #3B82F6);">
@@ -241,7 +240,7 @@
             {% endif %}
 
             <!-- PROJECTS -->
-            {% if session.role != 'admin' %}
+            {% if session.role != 'admin' or session.role == 'superadmin' %}
             <a class="ribbon-left" style="margin-bottom: 0; display: block;"
                 href="{{ url_for('projects.projects_list') }}">
                 <div class="ribbon-inner">
@@ -259,7 +258,7 @@
             {% endif %}
 
             <!-- REIMBURSEMENTS -->
-            {% if session.role != 'admin' %}
+            {% if session.role != 'admin' or session.role == 'superadmin' %}
             <a class="ribbon-left" style="margin-bottom: 0; display: block;"
                 href="{{ url_for('admin.reimbursement') }}">
                 <div class="ribbon-inner">
@@ -280,7 +279,7 @@
 
 
             <!-- ASSETS -->
-            {% if session.role in ['hr', 'admin'] %}
+            {% if session.role in ['hr', 'admin', 'superadmin'] %}
             <a class="ribbon-left" style="margin-bottom: 0; display: block;" href="{{ url_for('admin.assets') }}">
                 <div class="ribbon-inner">
                     <div class="ribbon-accent-left" style="background: linear-gradient(to bottom, #93C5FD, #3B82F6);">
@@ -297,7 +296,7 @@
             {% endif %}
 
             <!-- SOFTWARE -->
-            {% if session.role in ['admin'] %}
+            {% if session.role in ['admin', 'superadmin'] %}
             <a class="ribbon-left" style="margin-bottom: 0; display: block;" href="{{ url_for('admin.software') }}">
                 <div class="ribbon-inner">
                     <div class="ribbon-accent-left" style="background: linear-gradient(to bottom, #93C5FD, #3B82F6);">
@@ -314,7 +313,7 @@
             {% endif %}
 
             <!-- ONBOARDING -->
-            {% if session.role == 'hr' %}
+            {% if session.role in ['hr', 'superadmin'] %}
             <a class="ribbon-left" style="margin-bottom: 0; display: block;"
                 href="{{ url_for('onboarding.dashboard') }}">
                 <div class="ribbon-inner">
@@ -332,7 +331,7 @@
             {% endif %}
 
             <!-- OFFBOARDING (ribbon-left: rose accent) -->
-            {% if session.role in ['hr', 'accounts', 'admin'] %}
+            {% if session.role in ['hr', 'accounts', 'admin', 'superadmin'] %}
             <a class="ribbon-left" style="margin-bottom: 0; display: block;"
                 href="{{ url_for('offboarding_ui.dashboard') }}">
                 <div class="ribbon-inner">
@@ -378,8 +377,6 @@
                     </div>
                 </div>
             </a>
-
-            {% endif %}
         </div>
 
     </div>
@@ -417,7 +414,7 @@
             <div class="topbar-right d-flex align-items-center gap-3" style="flex-shrink: 0;">
 
                 <!-- NOTIFICATIONS -->
-                {% if session.role in ['employee','hr','manager', 'admin'] %}
+                {% if session.role in ['employee','hr','manager', 'admin', 'superadmin'] %}
                 <a href="#" onclick="loadNotificationsPage(); return false;"
                     class="text-secondary position-relative text-decoration-none">
                     <i class="bi bi-bell" style="font-size: 1.2rem; color: #475569;"></i>
@@ -436,6 +433,8 @@
                     <span style="font-size: 0.75rem; color: #64748b;">
                         {% if session.role == 'employee' %}
                         {{ labels.EMPLOYEE if labels else 'Employee' }}
+                        {% elif session.role == 'superadmin' %}
+                        Super Admin
                         {% else %}
                         {{ session.role | capitalize if session.role else 'Role' }}
                         {% endif %}

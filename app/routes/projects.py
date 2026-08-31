@@ -115,7 +115,7 @@ def projects_list():
         
         # 2. Filter projects based on role
         projects_to_show = []
-        if user_role in ['hr', 'admin']:
+        if user_role in ['hr', 'admin', 'superadmin']:
             projects_to_show = all_projects
         elif user_role in ['manager', 'employee']:
             # Backend GET /projects/ is already scoped by role (manager_name or

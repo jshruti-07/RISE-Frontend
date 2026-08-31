@@ -670,7 +670,7 @@
                         </div>
 
                         <!-- Admin Actions bar if HR -->
-                        {% if is_hr_view and session.role in ['hr', 'admin'] %}
+                        {% if is_hr_view and session.role in ['hr', 'admin', 'superadmin'] %}
                         <div class="pt-3 mt-3 border-top d-flex align-items-center justify-content-between">
                             <span class="text-xs fw-semibold text-muted text-uppercase">Admin Quick Actions</span>
                             <div class="d-flex gap-2">
@@ -683,7 +683,7 @@
                                     onclick="setDeleteData('{{ employee.id }}', '{{ employee.name }}')">
                                     <i class="bi bi-trash me-1"></i> Delete
                                 </button>
-                                {% if session.role == 'hr' %}
+                                {% if session.role in ['hr', 'superadmin'] %}
                                 <button type="button" class="btn btn-sm btn-danger py-1 rounded-2"
                                     data-bs-toggle="modal" data-bs-target="#offboardModal"
                                     onclick="setOffboardData('{{ employee.id }}', '{{ employee.name }}')">
@@ -817,7 +817,7 @@
                         aria-labelledby="assets-tab" tabindex="0">
                         <div class="d-flex justify-content-between align-items-center mb-3">
                             <span class="text-muted small">Company equipment & hardware allocated to employee</span>
-                            {% if is_hr_view and session.role in ['hr', 'admin'] %}
+                            {% if is_hr_view and session.role in ['hr', 'admin', 'superadmin'] %}
                             <a href="/assets" class="btn btn-sm btn-hrms-purple">
                                 <i class="bi bi-plus-lg me-1"></i> Assign Asset
                             </a>

@@ -341,7 +341,13 @@
 </div>
 
 <script>
-    const ROLES = ['hr', 'manager', 'employee', 'team_member', 'admin'];
+    const ROLES = ['superadmin', 'admin', 'hr', 'manager', 'employee', 'team_member'];
+
+    function formatRoleName(r) {
+        if (!r) return '';
+        if (r.toLowerCase() === 'superadmin') return 'SUPER ADMIN';
+        return r.replace(/_/g, ' ').toUpperCase();
+    }
 
     document.addEventListener('DOMContentLoaded', () => {
         loadPermissions();
@@ -382,12 +388,12 @@
                 <table class="matrix-table">
                 <thead>
                     <tr>
-                        <th style="width: 30%">Permission</th>`;
+                        <th style="width: 28%">Permission</th>`;
 
             ROLES.forEach(r => {
-                html += `<th style="width: 14%">
-                    ${r.toUpperCase()}
-                    <button class="btn-reset" onclick="resetDefaults('${r}')" title="Reset ${r} to defaults">
+                html += `<th style="width: 12%">
+                    ${formatRoleName(r)}
+                    <button class="btn-reset" onclick="resetDefaults('${r}')" title="Reset ${formatRoleName(r)} to defaults">
                         <i class="bi bi-arrow-counterclockwise"></i> Reset
                     </button>
                 </th>`;
@@ -405,7 +411,7 @@
                     </td>`;
 
                 ROLES.forEach(r => {
-                    const isGranted = p.grants[r];
+                    const isGranted = p.grants && p.grants[r];
                     html += `<td style="text-align: center;">
                         <label class="switch">
                             <input type="checkbox" 
@@ -453,7 +459,7 @@
     }
 
     async function resetDefaults(role) {
-        if (!confirm(`Are you sure you want to reset permissions${role ? ` for ${role.toUpperCase()}` : ' for all roles'} to system defaults?`)) return;
+        if (!confirm(`Are you sure you want to reset permissions${role ? ` for ${formatRoleName(role)}` : ' for all roles'} to system defaults?`)) return;
 
         showLoading();
         try {
@@ -523,7 +529,7 @@
                                 <div>
                                     <strong>${l.changed_by_name}</strong> 
                                     ${l.new_value ? 'granted' : 'revoked'} access to 
-                                    <strong>${l.label}</strong> for role <strong>${l.role.toUpperCase()}</strong>.
+                                    <strong>${l.label}</strong> for role <strong>${formatRoleName(l.role)}</strong>.
                                 </div>
                                 <div class="audit-meta">
                                     <span class="badge ${statusClass}">${statusText}</span> • 

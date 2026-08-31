@@ -132,7 +132,7 @@ def timesheets_list():
             
             # Visibility Logic
             show = False
-            if user_role in ['admin', 'hr']:
+            if user_role in ['admin', 'hr', 'superadmin']:
                 show = True
             elif is_own:
                 show = True
@@ -1056,7 +1056,7 @@ def get_pending_timesheets():
                 is_own = names_match(emp_name, current_user)
                 if is_own: continue
                 
-                if user_role in ['admin', 'hr']:
+                if user_role in ['admin', 'hr', 'superadmin']:
                     pending.append(t)
                 elif user_role == 'manager':
                     assigned_mgr = t.get('manager_name') or t.get('manager') or t.get('assigned_manager')

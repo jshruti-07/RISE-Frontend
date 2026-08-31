@@ -184,7 +184,7 @@ def dashboard():
         holidays = holidays_list
         all_birthdays = all_birthdays_sorted
 
-        if session.get('role') in ['hr', 'admin']:
+        if session.get('role') in ['hr', 'admin', 'superadmin']:
             try:
                 hd_res = requests.get(f"{BASE_URL}/helpdesk/stats/", headers=get_headers(), timeout=5)
                 if hd_res.status_code == 200: hd_stats = hd_res.json()

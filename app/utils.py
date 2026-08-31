@@ -36,6 +36,20 @@ def role_required(allowed_roles):
             user_role = str(session.get('role', '')).lower().strip()
             allowed_roles_lower = [r.lower().strip() for r in allowed_roles]
 
+            # Role Bypass for Super Admin
+            if user_role == 'superadmin':
+                sig = inspect.signature(f)
+                if 'current_user' in sig.parameters:
+                    current_user = {
+                        'user_id': session.get('user_id'),
+                        'username': session.get('username'),
+                        'role': user_role,
+                        'employee_name': session.get('employee_name')
+                    }
+                    return f(current_user, *args, **kwargs)
+                else:
+                    return f(*args, **kwargs)
+
             if user_role not in allowed_roles_lower:
                 # Return JSON for API/AJAX calls instead of HTML redirect
                 if request.path.startswith('/api/') or request.is_json:

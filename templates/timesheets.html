@@ -109,12 +109,12 @@
                     <button type="button" class="btn btn-sm btn-outline-success rounded-pill px-3 shadow-sm" id="exportExcelBtn" style="font-size: 0.8rem; font-weight: 600;">
                         <i class="bi bi-file-earmark-excel me-1"></i> Export Excel
                     </button>
-                    {% if session.role in ['hr', 'admin'] %}
+                    {% if session.role in ['hr', 'admin', 'superadmin'] %}
                     <a href="{{ url_for('work.hr_missing_timesheets') }}" class="btn btn-sm btn-outline-warning rounded-pill px-3 shadow-sm text-dark" style="font-size: 0.8rem; font-weight: 600;">
                         <i class="bi bi-clock-history me-1"></i> Pending Timesheets
                     </a>
                     {% endif %}
-                    {% if session.role in ['employee','hr','admin', 'manager'] %}
+                    {% if session.role in ['employee','hr','admin', 'manager', 'superadmin'] %}
                     <a href="{{ url_for('work.add_timesheet') }}" class="btn btn-soft-purple btn-sm rounded-pill px-3 shadow-sm" style="font-size: 0.8rem; font-weight: 600;">
                         <i class="bi bi-plus-circle me-1"></i> Add Timesheet
                     </a>
@@ -124,7 +124,7 @@
 
             <!-- Filters Section -->
             <div class="row g-2 mb-3 align-items-center p-2 rounded-3 bg-light bg-opacity-50 border" style="border-color: #F1F5F9 !important;">
-                {% if session.role in ['hr', 'admin'] %}
+                {% if session.role in ['hr', 'admin', 'superadmin'] %}
                 <div class="col-md-3 col-sm-6">
                     <div class="input-group input-group-sm">
                         <span class="input-group-text bg-white border-end-0"><i class="bi bi-search text-muted"></i></span>
@@ -132,10 +132,10 @@
                     </div>
                 </div>
                 {% endif %}
-                <div class="{% if session.role in ['hr', 'admin'] %}col-md-2 col-sm-6{% else %}col-md-3 col-sm-6{% endif %}">
+                <div class="{% if session.role in ['hr', 'admin', 'superadmin'] %}col-md-2 col-sm-6{% else %}col-md-3 col-sm-6{% endif %}">
                     <input type="text" id="filterProject" class="form-control form-control-sm rounded-3" placeholder="Search Project...">
                 </div>
-                <div class="{% if session.role in ['hr', 'admin'] %}col-md-2 col-sm-6{% else %}col-md-3 col-sm-6{% endif %}">
+                <div class="{% if session.role in ['hr', 'admin', 'superadmin'] %}col-md-2 col-sm-6{% else %}col-md-3 col-sm-6{% endif %}">
                     <input type="text" id="filterManager" class="form-control form-control-sm rounded-3" placeholder="Search Manager...">
                 </div>
                 <div class="col-md-2 col-sm-6">
@@ -149,7 +149,7 @@
                         <option value="rejected">Rejected</option>
                     </select>
                 </div>
-                <div class="{% if session.role in ['hr', 'admin'] %}col-md-1 col-sm-12{% else %}col-md-2 col-sm-12{% endif %} text-end">
+                <div class="{% if session.role in ['hr', 'admin', 'superadmin'] %}col-md-1 col-sm-12{% else %}col-md-2 col-sm-12{% endif %} text-end">
                     <button class="btn btn-outline-secondary btn-sm w-100 rounded-3" id="clearFilters">Clear</button>
                 </div>
             </div>
@@ -234,13 +234,13 @@
                             </td>
                             <td class="text-center" style="padding-right: 16px;">
                                 <div class="d-flex flex-wrap gap-1.5 justify-content-center">
-                                    {% if session.get('role') in ['employee','hr','admin'] and (t.is_own or (t.employee_name|names_match(session.get('employee_name')))) and t.status == 'submitted' %}
+                                    {% if session.get('role') in ['employee','hr','admin', 'superadmin'] and (t.is_own or (t.employee_name|names_match(session.get('employee_name')))) and t.status == 'submitted' %}
                                     <a href="/edit-timesheet/{{ t.id }}" class="btn btn-sm btn-outline-primary rounded-pill px-2.5 py-1" style="font-size: 0.76rem; display: inline-flex; align-items: center; gap: 4px;">
                                         <i class="bi bi-pencil"></i> Edit
                                     </a>
                                     {% endif %}
 
-                                    {% if session.role in ['admin', 'manager', 'hr'] %}
+                                    {% if session.role in ['admin', 'manager', 'hr', 'superadmin'] %}
                                     {% if t.status == 'submitted' %}
                                     {% if not (t.is_own or (t.employee_name|names_match(session.get('employee_name')))) %}
                                     <button class="btn btn-sm approve-btn rounded-pill px-2.5 py-1 border shadow-xs" data-timesheet-id="{{ t.id }}" data-employee-name="{{ t.employee_name }}"
@@ -294,7 +294,7 @@
 </script>
 
 <!-- Reject Timesheet Modal -->
-{% if session.role in ['manager', 'hr', 'admin'] %}
+{% if session.role in ['manager', 'hr', 'admin', 'superadmin'] %}
 <div class="modal fade" id="rejectTimesheetModal" tabindex="-1" aria-labelledby="rejectTimesheetModalLabel"
     aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
@@ -1004,8 +1004,8 @@
             }
         });
 
-        // Only load pending timesheets if user is a manager, HR, or admin
-        if (userRole === 'manager' || userRole === 'hr' || userRole === 'admin') {
+        // Only load pending timesheets if user is a manager, HR, or admin/superadmin
+        if (userRole === 'manager' || userRole === 'hr' || userRole === 'admin' || userRole === 'superadmin') {
             testAPIConnectivity();
 
             setTimeout(() => {

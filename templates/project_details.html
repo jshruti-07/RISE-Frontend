@@ -66,7 +66,7 @@
                     <h6 class="mb-3">Project Information</h6>
                     <div class="card">
                         <div class="card-body">
-                            {% if user_role == 'manager' or user_role == 'hr' or user_role == 'admin' %}
+                            {% if user_role in ['manager', 'hr', 'admin', 'superadmin'] %}
                             <div class="mb-3">
                                 <strong>Customer:</strong> {{ project.customer_name or 'Not Set' }}
                             </div>
@@ -117,7 +117,7 @@
                     <div class="card">
                         <div class="card-body">
                             <div class="mb-3">
-                                {% if user_role == 'manager' %}
+                                {% if user_role in ['manager', 'hr', 'admin', 'superadmin'] %}
                                 <div class="d-flex justify-content-between align-items-center">
                                     <strong>{{ labels.EMPLOYEES }}:</strong>
                                     <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal"
@@ -168,7 +168,7 @@
                                              </span>
                                          </small>
                                      </div>
-                                     {% if user_role == 'manager' or user_role == 'hr' %}
+                                     {% if user_role in ['manager', 'hr', 'admin', 'superadmin'] %}
                                      <button type="button" class="btn btn-sm btn-outline-danger"
                                          onclick="removeTeamMember('{{ (member.name or member.employee_name or member.employee or member.member_name or member.m_name or member) if member is mapping else member }}')">
                                          <i class="bi bi-person-dash"></i>

@@ -42,26 +42,6 @@ def create_app():
     app.register_blueprint(superadmin_bp)
     app.register_blueprint(offboarding_ui_bp, url_prefix='/offboarding')
 
-    @app.before_request
-    def restrict_superadmin_navigation():
-        from flask import session, request, redirect, url_for
-        if session.get('role') != 'superadmin':
-            return  # not superadmin, nothing to do here
-
-        allowed_endpoints = {
-            'superadmin.access_control',
-            'superadmin.api_get_permissions',
-            'superadmin.api_toggle_permission',
-            'superadmin.api_reset_defaults',
-            'superadmin.api_get_audit_log',
-            'auth.logout',
-            'auth.login',
-            'auth.change_password',
-            'static',
-        }
-        if request.endpoint not in allowed_endpoints:
-            return redirect(url_for('superadmin.access_control'))
-
     @app.context_processor
     def inject_user():
         from flask import session

@@ -394,7 +394,7 @@
 
                 </div>
             </div>
-            {% if session.role == 'hr' %}
+            {% if session.role in ['hr', 'superadmin'] %}
             <div class="modal-footer">
                 <button type="button" class="btn btn-light btn-sm rounded-pill px-3 border" data-bs-dismiss="modal" style="color: #64748B; font-weight: 600;">Close</button>
                 <button class="btn btn-soft-purple btn-sm rounded-pill px-3 shadow-sm" id="dashDetailEditBtn">
@@ -413,8 +413,8 @@
     </div>
 </div>
 
-<!-- Create / Edit Announcement Modal (HR Only) -->
-{% if session.role == 'hr' %}
+<!-- Create / Edit Announcement Modal (HR & Superadmin) -->
+{% if session.role in ['hr', 'superadmin'] %}
 <div class="modal fade" id="dashboardAnnouncementModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content">
@@ -779,7 +779,7 @@
         }
 
         var isAssignedManager = (userRole === 'manager' && projectManager === employeeName);
-        var isHr = (userRole === 'hr' || userRole === 'admin');
+        var isHr = (userRole === 'hr' || userRole === 'admin' || userRole === 'superadmin');
 
         if (isHr || isAssignedManager || userRole === 'manager') {
             detailsHtml += '<div class="row mt-3">' +

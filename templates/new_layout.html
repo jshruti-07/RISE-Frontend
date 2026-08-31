@@ -4,8 +4,8 @@
         <div class="d-flex flex-column" style="gap: 24px; min-width: 0;">
 
             <!-- KPI GRID -->
-            {% if session.role in ['hr', 'admin'] %}
-            {% if session.role == 'hr' %}
+            {% if session.role in ['hr', 'admin', 'superadmin'] %}
+            {% if session.role in ['hr', 'superadmin'] %}
             <div
                 style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 24px; margin-bottom: 0;">
                 <!-- Total Team -->
@@ -703,7 +703,7 @@
             {% endif %}
 
             <!-- HELP DESK & REIMBURSEMENT TABS -->
-            {% if session.role in ['hr', 'admin'] %}
+            {% if session.role in ['hr', 'admin', 'superadmin'] %}
             <style>
                 .hd-dashboard-card {
                     background: #FFFFFF;
@@ -806,7 +806,7 @@
 
             <div class="hd-dashboard-card mb-4">
                 <!-- Tab Header -->
-                {% if session.role != 'admin' %}
+                {% if session.role != 'admin' or session.role == 'superadmin' %}
                 <ul class="nav hd-nav-tabs" id="dashboardTabs" role="tablist">
                     <li class="nav-item" role="presentation">
                         <button class="nav-link active" id="helpdesk-tab" data-bs-toggle="tab"
@@ -1271,7 +1271,7 @@
                 <div
                     class="px-4 py-3 border-bottom d-flex justify-content-between align-items-center bg-light bg-opacity-50">
                     <h5 class="mb-0 fw-bold text-dark" style="font-size: 1.05rem;">Announcements</h5>
-                    {% if session.role == 'hr' %}
+                    {% if session.role in ['hr', 'superadmin'] %}
                     <div class="dropdown">
                         <button class="btn btn-link text-secondary p-0 text-decoration-none" data-bs-toggle="dropdown">
                             <i class="bi bi-three-dots fs-5"></i>
@@ -1425,7 +1425,7 @@
             });
 
             // Fetch and populate rental invoice widgets for Admin and HR
-            {% if session.role in ['hr', 'admin'] %}
+            {% if session.role in ['hr', 'admin', 'superadmin'] %}
             const token = {{ session.token | tojson
         }};
         if (token) {
