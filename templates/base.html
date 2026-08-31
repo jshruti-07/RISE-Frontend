@@ -188,7 +188,7 @@
             </a>
 
             <!-- TEAM MEMBERS -->
-            {% if session.role in ['hr', 'manager'] %}
+            {% if session.role in ['hr', 'manager', 'admin', 'superadmin'] %}
             <a class="ribbon-left" style="margin-bottom: 0; display: block;"
                 href="{{ url_for('employees.employee_list') }}">
                 <div class="ribbon-inner">

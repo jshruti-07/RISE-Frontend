@@ -149,7 +149,15 @@ def add_employee():
 @employees_bp.route('/delete/<int:id>', methods=['POST'])
 @role_required(['admin', 'hr'])
 def delete_employee(id):
-    requests.delete(f"{BASE_URL}/employees/{id}", headers=get_headers())
+    try:
+        res = requests.delete(f"{BASE_URL}/employees/{id}", headers=get_headers())
+        if res.status_code == 200 and res.json().get('success') is not False:
+            flash(UI_LABELS.get('EMPLOYEE_DELETED_SUCCESS', 'Team member deleted successfully.'), 'success')
+        else:
+            err_msg = res.json().get('error') if res.content and res.json() else res.text
+            flash(f"Failed to delete team member: {err_msg}", 'danger')
+    except Exception as e:
+        flash(f"Error during deletion: {str(e)}", 'danger')
     return redirect(url_for('employees.employee_list'))
 
 @employees_bp.route('/edit/<int:id>', methods=['GET', 'POST'])
