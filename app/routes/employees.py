@@ -385,11 +385,13 @@ def view_profile(employee_name):
 
     is_own_profile = names_match(employee.get('name'), session.get('employee_name'))
 
-    # ── Assets (via new /devices/employee/<name> route) ──────────────────────
+    lookup_identifier = str(emp_id) if emp_id else (employee.get("name") or display_name)
+
+    # ── Assets (via /devices/employee/<id_or_name> route) ────────────────────
     assets = []
     try:
         assets_res = requests.get(
-            f"{BASE_URL}/devices/employee/{quote(display_name, safe='')}",
+            f"{BASE_URL}/devices/employee/{quote(str(lookup_identifier), safe='')}",
             headers=headers, timeout=5
         )
         if assets_res.status_code == 200:
@@ -397,11 +399,11 @@ def view_profile(employee_name):
     except Exception as e:
         print(f"Assets fetch failed: {e}")
 
-    # ── Employee Projects ─────────────────────────────────────────────────────
+    # ── Employee Projects (via /projects/employee/<id_or_name> route) ─────────
     employee_projects = []
     try:
         proj_res = requests.get(
-            f"{BASE_URL}/projects/employee/{quote(display_name, safe='')}",
+            f"{BASE_URL}/projects/employee/{quote(str(lookup_identifier), safe='')}",
             headers=headers, timeout=5
         )
         if proj_res.status_code == 200:

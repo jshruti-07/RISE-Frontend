@@ -839,16 +839,18 @@
                                 <tbody>
                                     {% for asset in assets %}
                                     <tr>
-                                        <td class="fw-semibold text-slate-800 px-3 py-3">{{ asset.device_name or
-                                            asset.name or '—' }}</td>
-                                        <td class="text-muted px-3 py-3">{{ asset.brand or asset.type or 'Hardware' }}
+                                        <td class="fw-semibold text-slate-800 px-3 py-3">
+                                            {{ asset.brand or asset.device_name or asset.name or 'Asset' }}
+                                            {% if asset.model and asset.model != asset.brand %}
+                                            <span class="text-muted fw-normal" style="font-size: 0.82rem;">({{ asset.model }})</span>
+                                            {% endif %}
                                         </td>
-                                        <td class="text-muted px-3 py-3">{{ asset.assigned_at[:10] if asset.assigned_at
-                                            else '—' }}</td>
+                                        <td class="text-muted px-3 py-3">{{ asset.device_type or asset.brand or 'Hardware' }}</td>
+                                        <td class="text-muted px-3 py-3">{{ (asset.assigned_date or asset.assigned_at or '')[:10] if (asset.assigned_date or asset.assigned_at) else '—' }}</td>
                                         <td class="px-3 py-3">
-                                            <span
-                                                class="badge rounded-pill {{ 'badge-soft-success' if asset.acceptance_status == 'accepted' else 'badge-soft-warning' }}">
-                                                {{ asset.acceptance_status or 'pending' }}
+                                            {% set ast_status = (asset.status or asset.acceptance_status or 'Assigned')|lower %}
+                                            <span class="badge rounded-pill {{ 'badge-soft-success' if ast_status in ['assigned', 'accepted', 'active'] else 'badge-soft-warning' }}">
+                                                {{ ast_status | title }}
                                             </span>
                                         </td>
                                         <td class="px-3 py-3 text-end">
@@ -865,8 +867,7 @@
                         <div class="hrms-empty-state">
                             <i class="bi bi-laptop"></i>
                             <div class="fw-semibold text-slate-700">No assets assigned</div>
-                            <small class="text-muted">Company devices and equipment assigned to this employee will
-                                appear here.</small>
+                            <small class="text-muted">Company devices and equipment assigned to this employee will appear here.</small>
                         </div>
                         {% endif %}
                     </div>
@@ -894,25 +895,25 @@
                                 <tbody>
                                     {% for proj in employee_projects %}
                                     <tr>
-                                        <td class="fw-semibold text-slate-800 px-3 py-3">{{ proj.name or
-                                            proj.project_name or '—' }}</td>
-                                        <td class="text-muted px-3 py-3">{{ proj.client or proj.company or 'Internal' }}
+                                        <td class="fw-semibold text-slate-800 px-3 py-3">{{ proj.name or proj.project_name or '—' }}</td>
+                                        <td class="text-muted px-3 py-3">{{ proj.customer_name or proj.client or proj.company or 'Internal' }}</td>
+                                        <td class="text-muted px-3 py-3">{{ proj.role or employee.designation or 'Contributor' }}</td>
+                                        <td class="text-muted px-3 py-3">
+                                            {{ (proj.start_date or proj.startDate or '')[:10] if (proj.start_date or proj.startDate) else '—' }}
+                                            {% if proj.end_date or proj.endDate or proj.deadline %}
+                                            &bull; {{ (proj.end_date or proj.endDate or proj.deadline)[:10] }}
+                                            {% endif %}
                                         </td>
-                                        <td class="text-muted px-3 py-3">{{ proj.role or employee.designation or
-                                            'Contributor' }}</td>
-                                        <td class="text-muted px-3 py-3">{{ proj.deadline[:10] if proj.deadline else '—'
-                                            }}</td>
                                         <td class="px-3 py-3">
-                                            {% set s = proj.status or '' %}
-                                            <span
-                                                class="badge rounded-pill {% if s == 'active' %}badge-soft-success{% elif s == 'completed' %}badge-soft-secondary{% else %}badge-soft-primary{% endif %}">
-                                                {{ s | title or 'Active' }}
+                                            {% set s = (proj.status or 'active')|lower %}
+                                            <span class="badge rounded-pill {% if s == 'active' %}badge-soft-success{% elif s == 'completed' %}badge-soft-secondary{% else %}badge-soft-primary{% endif %}">
+                                                {{ s | title }}
                                             </span>
                                         </td>
                                         <td class="px-3 py-3 text-end">
-                                            <button class="btn btn-sm btn-hrms-outline py-1 px-2">
+                                            <a href="/projects" class="btn btn-sm btn-hrms-outline py-1 px-2">
                                                 <i class="bi bi-arrow-right me-1"></i> View Project
-                                            </button>
+                                            </a>
                                         </td>
                                     </tr>
                                     {% endfor %}

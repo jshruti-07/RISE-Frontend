@@ -108,16 +108,9 @@
                         {% set emp_role = (emp.role or 'employee')|lower %}
                         <tr data-role="{{ emp_role }}" class="team-member-row" style="cursor: pointer;" onclick="window.location.href='{{ url_for('employees.view_profile', employee_name=emp.name) }}'">
                             <td style="padding: 12px 16px;">
-                                <div class="d-flex align-items-center gap-2">
-                                    {% set role_bg = '#EEF2FF' if emp_role == 'employee' else ('#F5F3FF' if emp_role == 'manager' else ('#ECFDF5' if emp_role == 'hr' else ('#FEF2F2' if emp_role == 'superadmin' else '#EFF6FF'))) %}
-                                    {% set role_fg = '#4F46E5' if emp_role == 'employee' else ('#6D28D9' if emp_role == 'manager' else ('#047857' if emp_role == 'hr' else ('#B91C1C' if emp_role == 'superadmin' else '#1D4ED8'))) %}
-                                    <div class="avatar-circle-sm" style="background: {{ role_bg }}; color: {{ role_fg }}; border: 1px solid rgba(0,0,0,0.04);">
-                                        {{ (emp.name or 'E')[:2]|upper }}
-                                    </div>
-                                    <div>
-                                        <div class="fw-bold text-slate-900" style="font-size: 0.9rem;">{{ emp.name | clean_name }}</div>
-                                        <small class="text-muted">{{ emp.designation or ('Super Admin' if emp_role == 'superadmin' else emp_role|capitalize) }}</small>
-                                    </div>
+                                <div>
+                                    <div class="fw-bold text-slate-900" style="font-size: 0.9rem;">{{ emp.name | clean_name }}</div>
+                                    <small class="text-muted">{{ emp.designation or ('Super Admin' if emp_role == 'superadmin' else emp_role|capitalize) }}</small>
                                 </div>
                             </td>
                             <td>

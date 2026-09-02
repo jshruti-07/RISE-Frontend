@@ -5,6 +5,7 @@
 
 {% block head %}
 <style>
+    /* Card & Panel Styles */
     .hd-dashboard-card {
         background: #FFFFFF;
         border: 1px solid #E8ECF4;
@@ -13,52 +14,218 @@
         overflow: hidden;
     }
 
-    .leave-filter-pill {
+    .section-toolbar {
+        background: #F8FAFC;
         border: 1px solid #E2E8F0;
+        border-radius: 12px;
+        padding: 12px 16px;
+    }
+
+    /* Module Accordion Card */
+    .module-card {
         background: #FFFFFF;
-        color: #64748B;
-        border-radius: 20px;
-        padding: 5px 14px;
-        font-size: 0.8rem;
-        font-weight: 600;
+        border: 1px solid #E2E8F0;
+        border-radius: 12px;
+        margin-bottom: 14px;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+        transition: all 0.2s ease;
+        overflow: hidden;
+    }
+
+    .module-card:hover {
+        border-color: #CBD5E1;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    }
+
+    .module-header {
+        padding: 14px 18px;
+        background: #FFFFFF;
         cursor: pointer;
-        transition: all 0.15s ease;
+        user-select: none;
+        transition: background-color 0.15s ease;
     }
 
-    .leave-filter-pill:hover, .leave-filter-pill.active {
-        background: #6366F1;
-        color: #FFFFFF;
-        border-color: #6366F1;
+    .module-header:hover {
+        background: #F8FAFC;
     }
 
-    .timesheet-table {
-        font-size: 0.85rem;
+    .module-icon-box {
+        width: 38px;
+        height: 38px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.15rem;
+        flex-shrink: 0;
+        transition: transform 0.2s ease;
     }
 
-    .timesheet-table th {
+    .module-header:hover .module-icon-box {
+        transform: scale(1.05);
+    }
+
+    .module-chevron {
+        transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        font-size: 0.95rem;
+        color: #64748B;
+    }
+
+    .module-card.is-collapsed .module-chevron {
+        transform: rotate(-90deg);
+    }
+
+    /* Permission Count Badge */
+    .perm-count-badge {
+        font-size: 0.78rem;
+        font-weight: 600;
+        padding: 4px 11px;
+        border-radius: 20px;
+        background: #F1F5F9;
+        color: #334155;
+        border: 1px solid #E2E8F0;
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .perm-count-badge.has-active {
+        background: #EEF2FF;
+        color: #4F46E5;
+        border-color: #C7D2FE;
+    }
+
+    /* Table Styles */
+    .permission-table-wrapper {
+        position: relative;
+        max-height: 560px;
+        overflow: auto;
+        border-top: 1px solid #F1F5F9;
+    }
+
+    .perm-table {
+        margin-bottom: 0;
+        font-size: 0.86rem;
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+    }
+
+    .perm-table thead th {
+        position: sticky;
+        top: 0;
+        background: #F8FAFC;
+        z-index: 10;
+        font-weight: 700;
+        font-size: 0.78rem;
+        letter-spacing: 0.03em;
+        text-transform: uppercase;
+        color: #475569;
+        border-bottom: 1px solid #E2E8F0;
+        padding: 11px 14px;
         white-space: nowrap;
     }
 
-    .timesheet-table td {
+    .perm-table tbody td {
         vertical-align: middle;
+        padding: 12px 14px;
+        border-bottom: 1px solid #F1F5F9;
+        background: #FFFFFF;
     }
 
-    /* Toggle Switch */
-    .switch {
+    .perm-table tbody tr:hover td {
+        background-color: #FAFAFC;
+    }
+
+    .perm-table tbody tr:last-child td {
+        border-bottom: none;
+    }
+
+    /* Sticky First Column for Feature/Resource */
+    .sticky-col {
+        position: sticky;
+        left: 0;
+        z-index: 5;
+        min-width: 280px;
+        max-width: 360px;
+        background: #FFFFFF;
+    }
+
+    .perm-table thead th.sticky-col {
+        z-index: 12;
+        background: #F8FAFC;
+    }
+
+    .perm-table tbody td.sticky-col {
+        background: inherit;
+    }
+
+    /* Action Switches Stack */
+    .action-switches-stack {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        min-width: 120px;
+    }
+
+    .action-switch-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        padding: 4px 9px;
+        background: #F8FAFC;
+        border: 1px solid #E2E8F0;
+        border-radius: 8px;
+        transition: all 0.15s ease;
+    }
+
+    .action-switch-item:hover {
+        background: #F1F5F9;
+        border-color: #CBD5E1;
+    }
+
+    .action-switch-item.is-granted {
+        background: #F0FDF4;
+        border-color: #DCFCE7;
+    }
+
+    .action-switch-item.is-granted .action-tag {
+        color: #15803D;
+        font-weight: 600;
+    }
+
+    .action-tag {
+        font-size: 0.76rem;
+        font-weight: 600;
+        color: #475569;
+        white-space: nowrap;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    .action-tag .badge-icon {
+        font-size: 0.8rem;
+    }
+
+    /* Compact Switch Toggle */
+    .switch-sm {
         position: relative;
         display: inline-block;
-        width: 42px;
-        height: 22px;
-        margin: 0 auto;
+        width: 34px;
+        height: 18px;
+        margin: 0;
+        flex-shrink: 0;
     }
 
-    .switch input {
+    .switch-sm input {
         opacity: 0;
         width: 0;
         height: 0;
     }
 
-    .slider {
+    .slider-sm {
         position: absolute;
         cursor: pointer;
         top: 0;
@@ -66,57 +233,55 @@
         right: 0;
         bottom: 0;
         background-color: #CBD5E1;
-        transition: .25s ease;
-        border-radius: 22px;
+        transition: .2s ease;
+        border-radius: 18px;
     }
 
-    .slider:before {
+    .slider-sm:before {
         position: absolute;
         content: "";
-        height: 16px;
-        width: 16px;
+        height: 12px;
+        width: 12px;
         left: 3px;
         bottom: 3px;
         background-color: white;
-        transition: .25s ease;
+        transition: .2s ease;
         border-radius: 50%;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
     }
 
-    input:checked + .slider {
-        background: linear-gradient(135deg, #6366F1, #4F46E5);
+    input:checked + .slider-sm {
+        background: linear-gradient(135deg, #10B981, #059669);
     }
 
-    input:checked + .slider:before {
-        transform: translateX(20px);
+    input:checked + .slider-sm:before {
+        transform: translateX(16px);
     }
 
-    input:disabled + .slider {
+    input:disabled + .slider-sm {
         opacity: 0.45;
         cursor: not-allowed;
     }
 
-    /* Module Header Accordion */
-    .module-header-row {
-        background: #F8FAFC;
-        border: 1px solid #E8ECF4;
-        border-radius: 12px;
-        padding: 12px 16px;
-        cursor: pointer;
-        transition: all 0.15s ease;
-        user-select: none;
-    }
-
-    .module-header-row:hover {
+    /* Action Summary Badges */
+    .action-chip {
+        font-size: 0.72rem;
+        font-weight: 500;
+        padding: 2px 8px;
+        border-radius: 6px;
         background: #F1F5F9;
+        color: #475569;
+        border: 1px solid #E2E8F0;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
     }
 
-    .module-header-row .toggle-icon {
-        transition: transform 0.2s ease;
-    }
-
-    .module-header-row.collapsed .toggle-icon {
-        transform: rotate(-90deg);
+    .btn-xs {
+        padding: 2px 8px;
+        font-size: 0.72rem;
+        font-weight: 600;
+        border-radius: 6px;
     }
 
     /* Audit Timeline */
@@ -167,11 +332,11 @@
 
 {% block content %}
 <div class="container-fluid py-4">
-    <!-- Title Outside Table Card -->
+    <!-- Title & Global Reset Bar -->
     <div class="mb-3 d-flex justify-content-between align-items-center flex-wrap gap-3">
         <div>
             <h4 class="fw-bold text-dark mb-0">Access Control</h4>
-            <p class="text-muted small mb-0">Manage role-based permissions matrix and view audit history</p>
+            <p class="text-muted small mb-0">Role-based permission matrix organized into simplified View, Manage, and Approve actions</p>
         </div>
         <div class="d-flex align-items-center gap-2 flex-wrap">
             <button type="button" class="btn btn-outline-danger btn-sm rounded-pill px-3 shadow-sm" onclick="resetDefaults('')" style="font-size: 0.8rem; font-weight: 600;">
@@ -180,31 +345,58 @@
         </div>
     </div>
 
-    <!-- Main Permission Matrix Card -->
+    <!-- Main Card -->
     <div class="hd-dashboard-card mb-4">
         <div class="p-4">
-            <!-- Search & Quick Actions Bar -->
-            <div class="row g-2 mb-3 align-items-center p-2 rounded-3 bg-light bg-opacity-50 border" style="border-color: #F1F5F9 !important;">
-                <div class="col-md-6 col-sm-12">
-                    <div class="input-group input-group-sm">
-                        <span class="input-group-text bg-white border-end-0"><i class="bi bi-search text-muted"></i></span>
-                        <input type="text" id="permissionSearchInput" class="form-control border-start-0 ps-0"
-                            placeholder="Search permission name, action, or route..." onkeyup="filterPermissionMatrix()">
+            <!-- Toolbar: Search, Filters & Expand/Collapse Controls -->
+            <div class="section-toolbar mb-4">
+                <div class="row g-2 align-items-center">
+                    <!-- Search Input -->
+                    <div class="col-lg-5 col-md-6 col-12">
+                        <div class="input-group input-group-sm">
+                            <span class="input-group-text bg-white border-end-0 text-muted"><i class="bi bi-search"></i></span>
+                            <input type="text" id="permissionSearchInput" class="form-control border-start-0 border-end-0 ps-1"
+                                placeholder="Search feature, action (View, Manage, Approve), or route..." oninput="filterPermissionMatrix()">
+                            <button class="btn btn-outline-light text-muted border-start-0 bg-white" type="button" onclick="clearSearch()" title="Clear search">
+                                <i class="bi bi-x-lg"></i>
+                            </button>
+                        </div>
                     </div>
-                </div>
-                <div class="col-md-6 col-sm-12 text-md-end text-start">
-                    <button class="btn btn-outline-secondary btn-sm rounded-pill px-3 me-2" onclick="expandAllModules(true)" style="font-size: 0.8rem; font-weight: 600;">
-                        <i class="bi bi-arrows-expand me-1"></i> Expand All
-                    </button>
-                    <button class="btn btn-outline-secondary btn-sm rounded-pill px-3" onclick="expandAllModules(false)" style="font-size: 0.8rem; font-weight: 600;">
-                        <i class="bi bi-arrows-collapse me-1"></i> Collapse All
-                    </button>
+
+                    <!-- Search Count & Stats -->
+                    <div class="col-lg-3 col-md-6 col-12 text-md-start text-muted small" id="search-stats-container">
+                        <span id="global-stats-text">Loading catalog...</span>
+                    </div>
+
+                    <!-- Global Expand / Collapse Actions -->
+                    <div class="col-lg-4 col-12 text-lg-end text-start">
+                        <div class="btn-group btn-group-sm" role="group">
+                            <button type="button" class="btn btn-outline-secondary rounded-pill px-3 me-2" onclick="expandAllModules(true)" style="font-size: 0.8rem; font-weight: 600;">
+                                <i class="bi bi-arrows-expand me-1"></i> Expand All
+                            </button>
+                            <button type="button" class="btn btn-outline-secondary rounded-pill px-3" onclick="expandAllModules(false)" style="font-size: 0.8rem; font-weight: 600;">
+                                <i class="bi bi-arrows-collapse me-1"></i> Collapse All
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            <!-- Modules & Permissions Container -->
+            <!-- Modules Accordion List Container -->
             <div id="matrix-container">
-                <!-- Dynamically populated by JS -->
+                <!-- Dynamically populated via JS -->
+            </div>
+
+            <!-- Empty Search State -->
+            <div id="empty-search-state" class="text-center py-5 d-none">
+                <div class="avatar-circle-sm mx-auto mb-3" style="width: 50px; height: 50px; border-radius: 50%; background: #F1F5F9; display: flex; align-items: center; justify-content: center;">
+                    <i class="bi bi-search text-muted fs-4"></i>
+                </div>
+                <h6 class="fw-bold text-dark">No matching features or permissions found</h6>
+                <p class="text-muted small mb-3">Try searching for a different keyword or module name.</p>
+                <button type="button" class="btn btn-sm btn-outline-primary rounded-pill px-3" onclick="clearSearch()">
+                    Clear Search Filter
+                </button>
             </div>
         </div>
     </div>
@@ -214,7 +406,7 @@
         <div class="p-4">
             <div class="d-flex justify-content-between align-items-center" onclick="toggleAuditLog()" style="cursor: pointer;">
                 <div class="d-flex align-items-center gap-2">
-                    <div class="avatar-circle-sm" style="width: 34px; height: 34px; border-radius: 10px; background: #EEF2FF; color: #4F46E5; display: flex; align-items: center; justify-content: center;">
+                    <div class="avatar-circle-sm" style="width: 36px; height: 36px; border-radius: 10px; background: #EEF2FF; color: #4F46E5; display: flex; align-items: center; justify-content: center;">
                         <i class="bi bi-journal-text fs-5"></i>
                     </div>
                     <div>
@@ -245,13 +437,188 @@
 </div>
 
 <script>
-    const ROLES = ['superadmin', 'admin', 'hr', 'manager', 'employee', 'team_member'];
+    // System Roles Order (Excluding Employee and Candidate)
+    const EXCLUDED_ROLES = ['employee', 'candidate', 'onboarding_candidate'];
+    const PREFERRED_ROLES = ['superadmin', 'admin', 'hr', 'manager', 'team_member'];
+    let activeRoles = [...PREFERRED_ROLES];
+    let cachedModulesData = {};
+
+    // Module Presentation Config
+    const MODULE_CONFIG = {
+        'people_org': { title: 'People & Organization', icon: 'bi-people-fill', color: '#4F46E5', bg: '#EEF2FF', tag: 'people' },
+        'company_info': { title: 'Company Information', icon: 'bi-building-fill', color: '#EA580C', bg: '#FFF7ED', tag: 'company' },
+        'employee_team': { title: 'People & Organization', icon: 'bi-people-fill', color: '#4F46E5', bg: '#EEF2FF', tag: 'people' },
+        'employees': { title: 'People & Organization', icon: 'bi-people-fill', color: '#4F46E5', bg: '#EEF2FF', tag: 'people' },
+        'attendance': { title: 'Attendance Management', icon: 'bi-calendar-check-fill', color: '#059669', bg: '#ECFDF5' },
+        'leave': { title: 'Leave Management', icon: 'bi-calendar2-range-fill', color: '#D97706', bg: '#FEF3C7' },
+        'projects': { title: 'Projects & Work', icon: 'bi-kanban-fill', color: '#2563EB', bg: '#EFF6FF' },
+        'devices': { title: 'Device & Asset Management', icon: 'bi-laptop-fill', color: '#7C3AED', bg: '#F5F3FF' },
+        'documents': { title: 'Document Management', icon: 'bi-file-earmark-text-fill', color: '#0891B2', bg: '#ECFEFF' },
+        'reimbursements': { title: 'Reimbursements', icon: 'bi-receipt-cutoff', color: '#059669', bg: '#ECFDF5' },
+        'helpdesk': { title: 'Helpdesk & Support', icon: 'bi-headset', color: '#DC2626', bg: '#FEF2F2' },
+        'reports': { title: 'Reports & Analytics', icon: 'bi-bar-chart-fill', color: '#4F46E5', bg: '#EEF2FF' },
+        'bank': { title: 'Banking & Financial Info', icon: 'bi-bank2', color: '#0D9488', bg: '#F0FDFA' },
+        'announcements': { title: 'Announcements', icon: 'bi-megaphone-fill', color: '#EA580C', bg: '#FFF7ED' },
+        'departments': { title: 'Departments', icon: 'bi-diagram-3-fill', color: '#6366F1', bg: '#EEF2FF' },
+        'designations': { title: 'Designations', icon: 'bi-person-badge-fill', color: '#6366F1', bg: '#EEF2FF' },
+        'policies': { title: 'Company Policies', icon: 'bi-shield-check', color: '#0284C7', bg: '#F0F9FF' },
+        'holidays': { title: 'Holidays Calendar', icon: 'bi-calendar-heart-fill', color: '#DB2777', bg: '#FDF2F8' },
+        'team_members': { title: 'Team Directory', icon: 'bi-person-lines-fill', color: '#4F46E5', bg: '#EEF2FF' },
+        'auth': { title: 'Authentication & Security', icon: 'bi-shield-lock-fill', color: '#475569', bg: '#F1F5F9' },
+    };
 
     function formatRoleName(r) {
         if (!r) return '';
         if (r.toLowerCase() === 'superadmin') return 'Super Admin';
         if (r.toLowerCase() === 'team_member') return 'Team Member';
+        if (r.toLowerCase() === 'onboarding_candidate') return 'Candidate';
         return r.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+    }
+
+    function formatModuleName(modKey) {
+        if (MODULE_CONFIG[modKey] && MODULE_CONFIG[modKey].title) {
+            return MODULE_CONFIG[modKey].title;
+        }
+        return modKey.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+    }
+
+    function getModuleMeta(modKey) {
+        if (MODULE_CONFIG[modKey]) return MODULE_CONFIG[modKey];
+        return {
+            title: formatModuleName(modKey),
+            icon: 'bi-folder2-open',
+            color: '#6366F1',
+            bg: '#EEF2FF'
+        };
+    }
+
+    // Determine the broad action category (View, Manage, Approve)
+    function classifyActionCategory(permKey, label) {
+        const k = (permKey || '').toLowerCase();
+        const l = (label || '').toLowerCase();
+
+        // 1. Approvals & Verifications
+        if (k.includes('approve') || k.includes('reject') || k.includes('verify') || k.includes('mark_paid') || k.includes('pay')) {
+            return 'Approve';
+        }
+
+        // 2. View / Read-only
+        if (k.includes('view') || k.includes('list') || k.includes('get_') || k.includes('stats') || 
+            k.includes('history') || k.includes('lifecycle') || k.includes('analytics') || 
+            k.includes('export') || k.includes('status') || k.includes('dashboard') || 
+            k.includes('alerts') || k.includes('utilization') || k.includes('ratio') || 
+            k.includes('over_allocated') || k.includes('billing') || k.includes('catalog_view') || 
+            k.includes('catalog_stock') || k.includes('currently_on_leave')) {
+            
+            // Exceptions that modify state
+            if (k.includes('update_status') || k.includes('change_status') || k.includes('change_priority') || k.includes('allocation_config')) {
+                return 'Manage';
+            }
+            return 'View';
+        }
+
+        // 3. Manage (Create, Update, Delete, Assign, Return, Reconcile, Deactivate, Upload, Register)
+        return 'Manage';
+    }
+
+    // Logical grouping helper: Combines granular permissions into broad feature rows with View/Manage/Approve actions
+    function groupPermissionsByFeature(perms, modKey) {
+        const featureMap = {};
+
+        function getFeatureName(p) {
+            const k = (p.key || '').toLowerCase();
+
+            if (modKey === 'company_info' || modKey === 'announcements' || modKey === 'holidays' || modKey === 'policies') {
+                if (k.startsWith('announcements')) return 'Announcements';
+                if (k.startsWith('holidays')) return 'Holidays Calendar';
+                if (k.startsWith('policies')) return 'Company Policies';
+                return 'Company Information';
+            }
+
+            if (modKey === 'people_org' || modKey === 'employee_team' || modKey === 'employees' || modKey === 'team_members' || modKey === 'departments' || modKey === 'designations') {
+                if (k.startsWith('departments')) return 'Departments';
+                if (k.startsWith('designations')) return 'Designations';
+                return 'Employee & Team Management';
+            }
+
+            if (modKey === 'devices' || modKey === 'reimbursements') {
+                if (k.startsWith('reimbursements')) return 'Reimbursement Claims';
+                if (k.startsWith('devices.catalog_')) return 'Devices & Assets';
+                if (k.includes('inventory') || k.includes('stock_reconciliation') || k.includes('low_stock')) return 'Inventory & Stock';
+                return 'Devices & Assets';
+            }
+
+            if (modKey === 'projects') {
+                if (k.includes('assign')) return 'Project Team Assignments';
+                return 'Project Records';
+            }
+
+            if (modKey === 'bank') return 'Bank Details';
+            if (modKey === 'documents') return 'Employee Documents';
+            if (modKey === 'helpdesk') return 'Helpdesk & Support';
+            if (modKey === 'reports') return 'Reports & Analytics';
+            if (modKey === 'leave') return 'Leave Management';
+            if (modKey === 'auth') return 'User Accounts';
+
+            return formatModuleName(modKey);
+        }
+
+        perms.forEach(p => {
+            const fName = getFeatureName(p);
+            const actType = classifyActionCategory(p.key, p.label);
+
+            if (!featureMap[fName]) {
+                featureMap[fName] = {
+                    featureName: fName,
+                    moduleKey: modKey,
+                    actions: {} // 'View': [p1, p2], 'Manage': [p3, p4], 'Approve': [p5]
+                };
+            }
+
+            if (!featureMap[fName].actions[actType]) {
+                featureMap[fName].actions[actType] = [];
+            }
+            featureMap[fName].actions[actType].push(p);
+        });
+
+        // Convert to array of features with ordered actions (View, Manage, Approve)
+        const ACTION_ORDER = ['View', 'Manage', 'Approve'];
+        const FEATURE_ORDER_BY_MODULE = {
+            'people_org': ['Employee & Team Management', 'Departments', 'Designations'],
+            'company_info': ['Announcements', 'Holidays Calendar', 'Company Policies'],
+            'devices': ['Devices & Assets', 'Inventory & Stock', 'Reimbursement Claims']
+        };
+
+        let resultFeatures = Object.values(featureMap).map(f => {
+            const orderedActionGroups = [];
+            ACTION_ORDER.forEach(aType => {
+                if (f.actions[aType] && f.actions[aType].length > 0) {
+                    orderedActionGroups.push({
+                        actionType: aType,
+                        items: f.actions[aType]
+                    });
+                }
+            });
+            return {
+                featureName: f.featureName,
+                moduleKey: f.moduleKey,
+                actionGroups: orderedActionGroups
+            };
+        });
+
+        if (FEATURE_ORDER_BY_MODULE[modKey]) {
+            const orderList = FEATURE_ORDER_BY_MODULE[modKey];
+            resultFeatures.sort((a, b) => {
+                const idxA = orderList.indexOf(a.featureName);
+                const idxB = orderList.indexOf(b.featureName);
+                if (idxA !== -1 && idxB !== -1) return idxA - idxB;
+                if (idxA !== -1) return -1;
+                if (idxB !== -1) return 1;
+                return a.featureName.localeCompare(b.featureName);
+            });
+        }
+
+        return resultFeatures;
     }
 
     document.addEventListener('DOMContentLoaded', () => {
@@ -264,25 +631,132 @@
             const res = await fetch('/api/admin/permissions');
             const data = await res.json();
 
-            if (data.success) {
+            if (data.success && data.modules) {
+                cachedModulesData = data.modules;
+                
+                // Discover all active roles dynamically from the payload excluding EMPLOYEE and CANDIDATE
+                const discoveredRoles = new Set(PREFERRED_ROLES);
+                Object.values(data.modules).forEach(perms => {
+                    perms.forEach(p => {
+                        if (p.grants) {
+                            Object.keys(p.grants).forEach(r => {
+                                if (!EXCLUDED_ROLES.includes(r.toLowerCase())) {
+                                    discoveredRoles.add(r);
+                                }
+                            });
+                        }
+                    });
+                });
+                
+                // Ensure excluded roles are stripped
+                EXCLUDED_ROLES.forEach(r => discoveredRoles.delete(r));
+                
+                // Sort roles based on preferred order
+                activeRoles = Array.from(discoveredRoles).sort((a, b) => {
+                    const idxA = PREFERRED_ROLES.indexOf(a);
+                    const idxB = PREFERRED_ROLES.indexOf(b);
+                    if (idxA !== -1 && idxB !== -1) return idxA - idxB;
+                    if (idxA !== -1) return -1;
+                    if (idxB !== -1) return 1;
+                    return a.localeCompare(b);
+                });
+
                 renderMatrix(data.modules);
             } else {
-                alert('Failed to load permissions: ' + (data.error || 'Unknown error'));
+                showToast('Error', data.error || 'Failed to load permissions catalog', 'danger');
             }
         } catch (e) {
-            alert('Error loading permissions');
             console.error(e);
+            showToast('Error', 'Unable to fetch permission matrix from server', 'danger');
         } finally {
             hideLoading();
         }
     }
 
+    // Calculate enabled count for a module
+    function getModuleEnabledCount(perms) {
+        if (!perms || !Array.isArray(perms)) return { enabled: 0, total: 0 };
+        const total = perms.length;
+        let enabled = 0;
+        perms.forEach(p => {
+            const grants = p.grants || {};
+            const isAnyEnabled = Object.entries(grants).some(([r, val]) => Boolean(val));
+            if (isAnyEnabled) enabled++;
+        });
+        return { enabled, total };
+    }
+
     function renderMatrix(modules) {
         const container = document.getElementById('matrix-container');
         if (!container) return;
-        let html = '';
 
-        const moduleEntries = Object.entries(modules || {});
+        // Combine employees, team_members, departments, designations into single 'people_org' section
+        // Combine devices and reimbursements into 'devices' section
+        // Combine announcements, holidays, policies into 'company_info' section
+        const processedModules = {};
+        const combinedPeopleOrg = [];
+        const combinedDevices = [];
+        const combinedCompanyInfo = [];
+        
+        if (modules['employees']) combinedPeopleOrg.push(...modules['employees']);
+        if (modules['team_members']) combinedPeopleOrg.push(...modules['team_members']);
+        if (modules['departments']) combinedPeopleOrg.push(...modules['departments']);
+        if (modules['designations']) combinedPeopleOrg.push(...modules['designations']);
+        
+        if (combinedPeopleOrg.length > 0) {
+            processedModules['people_org'] = combinedPeopleOrg;
+        }
+
+        if (modules['devices']) combinedDevices.push(...modules['devices']);
+        if (modules['reimbursements']) combinedDevices.push(...modules['reimbursements']);
+        
+        if (combinedDevices.length > 0) {
+            processedModules['devices'] = combinedDevices;
+        }
+
+        if (modules['announcements']) combinedCompanyInfo.push(...modules['announcements']);
+        if (modules['holidays']) combinedCompanyInfo.push(...modules['holidays']);
+        if (modules['policies']) combinedCompanyInfo.push(...modules['policies']);
+
+        if (combinedCompanyInfo.length > 0) {
+            processedModules['company_info'] = combinedCompanyInfo;
+        }
+
+        const excludedRawModules = [
+            'employees', 'team_members', 'departments', 'designations',
+            'devices', 'reimbursements',
+            'announcements', 'holidays', 'policies'
+        ];
+
+        // Include all other sections (auth, bank, documents, helpdesk, leave, projects, reports)
+        Object.entries(modules || {}).forEach(([mName, perms]) => {
+            if (!excludedRawModules.includes(mName)) {
+                processedModules[mName] = perms;
+            }
+        });
+
+        const DESIRED_MODULE_ORDER = [
+            'people_org',       // 1. People & Organization
+            'devices',          // 2. Device & Asset Management
+            'company_info',     // 3. Company Information
+            'auth',             // 4. Authentication & Security
+            'bank',             // 5. Banking & Financial Info
+            'documents',        // 6. Document Management
+            'helpdesk',         // 7. Helpdesk & Support
+            'leave',            // 8. Leave Management
+            'projects',         // 9. Projects & Work
+            'reports'           // 10. Reports & Analytics
+        ];
+
+        const moduleEntries = Object.entries(processedModules).sort(([modA], [modB]) => {
+            const idxA = DESIRED_MODULE_ORDER.indexOf(modA);
+            const idxB = DESIRED_MODULE_ORDER.indexOf(modB);
+            if (idxA !== -1 && idxB !== -1) return idxA - idxB;
+            if (idxA !== -1) return -1;
+            if (idxB !== -1) return 1;
+            return modA.localeCompare(modB);
+        });
+
         if (moduleEntries.length === 0) {
             container.innerHTML = `
                 <div class="text-center py-5 text-muted">
@@ -290,65 +764,142 @@
                     No permission modules found.
                 </div>
             `;
+            updateGlobalStats(0, 0, 0);
             return;
         }
 
-        // Iterate over modules
+        let totalPerms = 0;
+        let totalFeatures = 0;
+        let html = '';
+
         moduleEntries.forEach(([modName, perms], idx) => {
+            const meta = getModuleMeta(modName);
+            const countInfo = getModuleEnabledCount(perms);
+            totalPerms += countInfo.total;
+
+            const featureGroups = groupPermissionsByFeature(perms, modName);
+            totalFeatures += featureGroups.length;
+
+            const isFirst = (idx === 0);
+            const cardId = 'mod-card-' + modName.replace(/[^a-zA-Z0-9]/g, '-');
             const collapseId = 'collapse-' + modName.replace(/[^a-zA-Z0-9]/g, '-');
-            const cleanModTitle = modName.replace(/_/g, ' ').toUpperCase();
+            const countBadgeId = 'badge-count-' + modName;
 
             html += `
-            <div class="module-block mb-3">
-                <div class="module-header-row d-flex justify-content-between align-items-center mb-2" 
-                     data-bs-toggle="collapse" data-bs-target="#${collapseId}">
-                    <div class="d-flex align-items-center gap-2 fw-bold text-dark" style="font-size: 0.92rem;">
-                        <i class="bi bi-folder2-open text-primary"></i> ${cleanModTitle}
+            <div class="module-card ${isFirst ? '' : 'is-collapsed'}" id="${cardId}" data-module="${modName}">
+                <!-- Collapsible Header -->
+                <div class="module-header d-flex justify-content-between align-items-center flex-wrap gap-2"
+                     onclick="toggleModuleSection('${cardId}', '${collapseId}')">
+                    
+                    <div class="d-flex align-items-center gap-3 min-w-0">
+                        <div class="module-icon-box" style="background: ${meta.bg}; color: ${meta.color};">
+                            <i class="bi ${meta.icon}"></i>
+                        </div>
+                        <div class="d-flex align-items-center gap-2 flex-wrap">
+                            <h6 class="fw-bold text-dark mb-0 fs-6">${meta.title}</h6>
+                            <span class="badge bg-light text-muted border font-monospace" style="font-size: 0.7rem;">${meta.tag || modName}</span>
+                        </div>
                     </div>
+
                     <div class="d-flex align-items-center gap-2">
-                        <span class="badge border" style="font-size: 0.75rem; font-weight: 600; color: #0F172A !important; background-color: #F1F5F9;">${perms.length} Permissions</span>
-                        <i class="bi bi-chevron-down toggle-icon text-muted"></i>
+                        <!-- Chevron -->
+                        <div class="btn btn-light btn-sm rounded-circle border d-flex align-items-center justify-content-center p-0" style="width: 28px; height: 28px;">
+                            <i class="bi bi-chevron-down module-chevron"></i>
+                        </div>
                     </div>
                 </div>
 
-                <div class="collapse show" id="${collapseId}">
-                    <div class="table-responsive rounded-3 border" style="border-color: #E8ECF4 !important;">
-                        <table class="table table-hover align-middle mb-0 timesheet-table">
-                            <thead class="table-light" style="background-color: #F8FAFC;">
+                <!-- Collapsible Body / Table -->
+                <div class="collapse ${isFirst ? 'show' : ''}" id="${collapseId}">
+                    <div class="permission-table-wrapper">
+                        <table class="perm-table align-middle">
+                            <thead>
                                 <tr>
-                                    <th style="width: 28%; font-weight: 700; color: #475569; font-size: 0.85rem; padding: 12px 16px;">Permission</th>`;
+                                    <th class="sticky-col" style="width: 26%;">
+                                        <div class="d-flex align-items-center justify-content-between">
+                                            <span>Feature &amp; Actions</span>
+                                        </div>
+                                    </th>`;
 
-            ROLES.forEach(r => {
+            // Render Role Header Columns
+            activeRoles.forEach(r => {
                 html += `
-                    <th style="width: 12%; font-weight: 700; color: #475569; font-size: 0.85rem; text-align: center;">
-                        <div>${formatRoleName(r)}</div>
-                        <button type="button" class="btn btn-light btn-sm border rounded-pill px-2 py-0 mt-1" onclick="resetDefaults('${r}')" style="font-size: 0.7rem; font-weight: 600; color: #64748B;" title="Reset ${formatRoleName(r)} to defaults">
-                            <i class="bi bi-arrow-counterclockwise"></i> Reset
-                        </button>
+                    <th style="width: ${Math.floor(74 / activeRoles.length)}%; text-align: center;">
+                        <div class="text-slate-700">${formatRoleName(r)}</div>
+                        <div class="mt-1 d-flex justify-content-center gap-1">
+                            <button type="button" class="btn btn-light btn-xs border text-muted shadow-none" 
+                                    onclick="event.stopPropagation(); resetDefaults('${r}')" 
+                                    title="Reset ${formatRoleName(r)} to defaults">
+                                <i class="bi bi-arrow-counterclockwise"></i> Reset
+                            </button>
+                        </div>
                     </th>`;
             });
 
-            html += `</tr></thead><tbody>`;
+            html += `
+                                </tr>
+                            </thead>
+                            <tbody>`;
 
-            perms.forEach(p => {
-                const searchData = `${p.label || ''} ${p.route || ''} ${cleanModTitle}`.toLowerCase();
+            // Render Grouped Feature Rows with Simplified Actions
+            featureGroups.forEach(fg => {
+                const actionChipsHtml = fg.actionGroups.map(ag => {
+                    const icon = ag.actionType === 'View' ? 'bi-eye' : ag.actionType === 'Approve' ? 'bi-patch-check' : 'bi-gear';
+                    const itemsTooltip = ag.items.map(it => it.label).join(', ');
+                    return `<span class="action-chip me-1 mb-1" title="Includes: ${itemsTooltip}"><i class="bi ${icon}"></i> ${ag.actionType} (${ag.items.length})</span>`;
+                }).join('');
+
+                const allItems = fg.actionGroups.flatMap(ag => ag.items);
+                const searchTokens = `${fg.featureName} ${modName} ${meta.title} ` + allItems.map(it => `${it.label} ${it.key} ${it.route || ''}`).join(' ');
+
                 html += `
-                <tr class="perm-row" data-search="${searchData}">
-                    <td style="padding: 12px 16px;">
-                        <div class="fw-semibold text-slate-900" style="font-size: 0.88rem;">${p.label}</div>
-                        ${p.route ? `<small class="text-muted font-monospace" style="font-size: 0.75rem;">${p.route}</small>` : ''}
+                <tr class="feature-row" data-search="${searchTokens.toLowerCase()}" data-mod="${modName}">
+                    <td class="sticky-col">
+                        <div class="fw-bold text-dark mb-1" style="font-size: 0.88rem;">${fg.featureName}</div>
+                        <div class="d-flex flex-wrap align-items-center">
+                            ${actionChipsHtml}
+                        </div>
                     </td>`;
 
-                ROLES.forEach(r => {
-                    const isGranted = Boolean(p.grants && p.grants[r]);
+                // For each role, render the consolidated action switches (View, Manage, Approve)
+                activeRoles.forEach(r => {
+                    html += `<td>
+                        <div class="action-switches-stack">`;
+
+                    fg.actionGroups.forEach(ag => {
+                        const permIds = ag.items.map(it => it.id);
+                        const permIdsStr = permIds.join(',');
+                        
+                        // Check if any/all permissions in this action bundle are granted for this role
+                        const isGranted = ag.items.some(it => it.grants && it.grants[r]);
+                        const isAllGranted = ag.items.every(it => it.grants && it.grants[r]);
+
+                        const switchId = `bundle-${modName}-${fg.featureName.replace(/[^a-zA-Z0-9]/g, '-')}-${ag.actionType}-${r}`;
+                        const itemsList = ag.items.map(it => it.label).join('\n• ');
+                        const tooltipText = `${formatRoleName(r)}: ${ag.actionType} ${fg.featureName}\n• ${itemsList}`;
+                        const icon = ag.actionType === 'View' ? 'bi-eye' : ag.actionType === 'Approve' ? 'bi-patch-check' : 'bi-gear';
+
+                        html += `
+                            <div class="action-switch-item ${isGranted ? 'is-granted' : ''}" id="item-${switchId}" title="${tooltipText}">
+                                <span class="action-tag">
+                                    <i class="bi ${icon} badge-icon"></i> ${ag.actionType}
+                                </span>
+                                <label class="switch-sm">
+                                    <input type="checkbox" 
+                                        id="${switchId}"
+                                        data-perm-ids="${permIdsStr}" 
+                                        data-role="${r}" 
+                                        data-mod="${modName}"
+                                        ${isGranted ? 'checked' : ''} 
+                                        onchange="onActionBundleToggle(this, '${permIdsStr}', '${r}', '${modName}', '${switchId}')">
+                                    <span class="slider-sm"></span>
+                                </label>
+                            </div>
+                        `;
+                    });
+
                     html += `
-                    <td style="text-align: center;">
-                        <label class="switch" title="${formatRoleName(r)}: ${p.label}">
-                            <input type="checkbox" 
-                                ${isGranted ? 'checked' : ''} 
-                                onchange="togglePermission(${p.id}, '${r}', this.checked)">
-                            <span class="slider"></span>
-                        </label>
+                        </div>
                     </td>`;
                 });
 
@@ -356,89 +907,224 @@
             });
 
             html += `
-                        </tbody>
-                    </table>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
-            </div>
             </div>`;
         });
 
         container.innerHTML = html;
-        bindCollapseListeners();
+        updateGlobalStats(moduleEntries.length, totalFeatures, totalPerms);
+        bindBootstrapCollapseEvents();
     }
 
-    function bindCollapseListeners() {
-        const collapses = document.querySelectorAll('.collapse');
+    function updateGlobalStats(modCount, featureCount, permCount) {
+        const el = document.getElementById('global-stats-text');
+        if (el) {
+            el.innerHTML = `<strong>${modCount}</strong> Modules &bull; <strong>${featureCount}</strong> Features &bull; <strong>${permCount}</strong> Actions`;
+        }
+    }
+
+    function toggleModuleSection(cardId, collapseId) {
+        const collapseEl = document.getElementById(collapseId);
+        const cardEl = document.getElementById(cardId);
+        if (!collapseEl || !cardEl) return;
+
+        const bsCollapse = bootstrap.Collapse.getOrCreateInstance(collapseEl, { toggle: false });
+        if (collapseEl.classList.contains('show')) {
+            bsCollapse.hide();
+            cardEl.classList.add('is-collapsed');
+        } else {
+            bsCollapse.show();
+            cardEl.classList.remove('is-collapsed');
+        }
+    }
+
+    function bindBootstrapCollapseEvents() {
+        const collapses = document.querySelectorAll('#matrix-container .collapse');
         collapses.forEach(col => {
-            col.addEventListener('hide.bs.collapse', function () {
-                const header = document.querySelector(`[data-bs-target="#${this.id}"]`);
-                if (header) header.classList.add('collapsed');
-            });
             col.addEventListener('show.bs.collapse', function () {
-                const header = document.querySelector(`[data-bs-target="#${this.id}"]`);
-                if (header) header.classList.remove('collapsed');
+                const card = this.closest('.module-card');
+                if (card) card.classList.remove('is-collapsed');
+            });
+            col.addEventListener('hide.bs.collapse', function () {
+                const card = this.closest('.module-card');
+                if (card) card.classList.add('is-collapsed');
             });
         });
     }
 
     function expandAllModules(expand) {
         const collapses = document.querySelectorAll('#matrix-container .collapse');
+        const cards = document.querySelectorAll('#matrix-container .module-card');
+
         collapses.forEach(c => {
-            const bsCollapse = bootstrap.Collapse.getOrCreateInstance(c, { toggle: false });
-            if (expand) bsCollapse.show();
-            else bsCollapse.hide();
+            const bs = bootstrap.Collapse.getOrCreateInstance(c, { toggle: false });
+            if (expand) bs.show();
+            else bs.hide();
+        });
+
+        cards.forEach(card => {
+            if (expand) card.classList.remove('is-collapsed');
+            else card.classList.add('is-collapsed');
         });
     }
 
     function filterPermissionMatrix() {
         const input = document.getElementById('permissionSearchInput');
         const query = (input ? input.value : '').toLowerCase().trim();
-        const moduleBlocks = document.querySelectorAll('#matrix-container .module-block');
+        const moduleCards = document.querySelectorAll('#matrix-container .module-card');
+        const emptyState = document.getElementById('empty-search-state');
 
-        moduleBlocks.forEach(mod => {
-            const rows = mod.querySelectorAll('.perm-row');
-            let visibleCount = 0;
+        let totalVisibleModules = 0;
+        let totalMatchedRows = 0;
+
+        moduleCards.forEach(card => {
+            const rows = card.querySelectorAll('.feature-row');
+            let modMatches = 0;
 
             rows.forEach(tr => {
-                const searchStr = tr.dataset.search || '';
-                const matches = !query || searchStr.includes(query);
+                const searchData = tr.dataset.search || '';
+                const matches = !query || searchData.includes(query);
                 tr.style.display = matches ? '' : 'none';
-                if (matches) visibleCount++;
+                if (matches) {
+                    modMatches++;
+                    totalMatchedRows++;
+                }
             });
 
-            mod.style.display = visibleCount > 0 ? '' : 'none';
-
-            // Auto-expand module if searching
-            if (query && visibleCount > 0) {
-                const col = mod.querySelector('.collapse');
-                if (col) bootstrap.Collapse.getOrCreateInstance(col, { toggle: false }).show();
+            if (!query) {
+                card.style.display = '';
+                totalVisibleModules++;
+            } else if (modMatches > 0) {
+                card.style.display = '';
+                totalVisibleModules++;
+                const collapseEl = card.querySelector('.collapse');
+                if (collapseEl && !collapseEl.classList.contains('show')) {
+                    bootstrap.Collapse.getOrCreateInstance(collapseEl, { toggle: false }).show();
+                    card.classList.remove('is-collapsed');
+                }
+            } else {
+                card.style.display = 'none';
             }
         });
+
+        if (emptyState) {
+            emptyState.classList.toggle('d-none', totalVisibleModules > 0);
+        }
+
+        const statsEl = document.getElementById('global-stats-text');
+        if (statsEl) {
+            if (query) {
+                statsEl.innerHTML = `<span class="badge bg-primary text-white">${totalMatchedRows} matching features</span> found`;
+            } else {
+                const totalModules = Object.keys(cachedModulesData).length;
+                let totalPerms = 0;
+                Object.values(cachedModulesData).forEach(p => totalPerms += p.length);
+                const featureRows = document.querySelectorAll('.feature-row').length;
+                updateGlobalStats(totalModules, featureRows, totalPerms);
+            }
+        }
     }
 
-    async function togglePermission(permId, role, isGranted) {
-        showLoading();
-        try {
-            const res = await fetch(`/api/admin/permissions/${permId}/role/${role}`, {
-                method: 'PATCH',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ is_granted: isGranted })
-            });
+    function clearSearch() {
+        const input = document.getElementById('permissionSearchInput');
+        if (input) {
+            input.value = '';
+            filterPermissionMatrix();
+            input.focus();
+        }
+    }
 
-            const data = await res.json();
-            if (!data.success) {
-                alert('Failed to update permission: ' + (data.error || 'Unknown error'));
-                loadPermissions(); // Revert UI
+    // Handles toggling of a consolidated action bundle (View, Manage, Approve)
+    async function onActionBundleToggle(inputEl, permIdsStr, role, modName, switchId) {
+        const isGranted = inputEl.checked;
+        const itemContainer = document.getElementById('item-' + switchId);
+        const permIds = permIdsStr.split(',').map(id => parseInt(id, 10)).filter(Boolean);
+
+        // Visual state update
+        if (itemContainer) {
+            itemContainer.classList.toggle('is-granted', isGranted);
+        }
+
+        // Optimistically update local data cache for all bundled permissions
+        if (cachedModulesData[modName]) {
+            permIds.forEach(id => {
+                const p = cachedModulesData[modName].find(item => item.id === id);
+                if (p) {
+                    if (!p.grants) p.grants = {};
+                    p.grants[role] = isGranted;
+                }
+            });
+        }
+
+        // Update the module count badge immediately
+        updateModuleCountUI(modName);
+
+        try {
+            // Update all underlying permissions in this action bundle concurrently
+            const updatePromises = permIds.map(permId =>
+                fetch(`/api/admin/permissions/${permId}/role/${role}`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ is_granted: isGranted })
+                }).then(res => res.json())
+            );
+
+            const results = await Promise.all(updatePromises);
+            const failed = results.find(r => !r.success);
+
+            if (failed) {
+                // Revert state on error
+                inputEl.checked = !isGranted;
+                if (itemContainer) itemContainer.classList.toggle('is-granted', !isGranted);
+                if (cachedModulesData[modName]) {
+                    permIds.forEach(id => {
+                        const p = cachedModulesData[modName].find(item => item.id === id);
+                        if (p && p.grants) p.grants[role] = !isGranted;
+                    });
+                }
+                updateModuleCountUI(modName);
+                showToast('Update Failed', failed.error || 'Failed to update permission state', 'danger');
             } else {
+                showToast('Updated', `Action for ${formatRoleName(role)} ${isGranted ? 'enabled' : 'disabled'}`, 'success');
                 if (document.getElementById('audit-content').style.display === 'block') {
-                    loadAuditLog(); // Refresh log if open
+                    loadAuditLog(); // Refresh audit logs if open
                 }
             }
-        } catch (e) {
-            alert('Error updating permission');
-            loadPermissions(); // Revert UI
-        } finally {
-            hideLoading();
+        } catch (err) {
+            console.error(err);
+            // Revert on network failure
+            inputEl.checked = !isGranted;
+            if (itemContainer) itemContainer.classList.toggle('is-granted', !isGranted);
+            if (cachedModulesData[modName]) {
+                permIds.forEach(id => {
+                    const p = cachedModulesData[modName].find(item => item.id === id);
+                    if (p && p.grants) p.grants[role] = !isGranted;
+                });
+            }
+            updateModuleCountUI(modName);
+            showToast('Network Error', 'Could not reach server to update permissions', 'danger');
+        }
+    }
+
+    function updateModuleCountUI(modName) {
+        const badge = document.getElementById('badge-count-' + modName);
+        if (!badge || !cachedModulesData[modName]) return;
+
+        const perms = cachedModulesData[modName];
+        const countInfo = getModuleEnabledCount(perms);
+
+        const countNum = badge.querySelector('.count-num');
+        if (countNum) {
+            countNum.innerText = `${countInfo.enabled} / ${countInfo.total}`;
+        }
+
+        if (countInfo.enabled > 0) {
+            badge.classList.add('has-active');
+        } else {
+            badge.classList.remove('has-active');
         }
     }
 
@@ -456,15 +1142,17 @@
 
             const data = await res.json();
             if (data.success) {
+                showToast('Success', `Permissions for ${targetDesc} restored to default`, 'success');
                 await loadPermissions();
                 if (document.getElementById('audit-content').style.display === 'block') {
-                    loadAuditLog(); // Refresh log if open
+                    loadAuditLog();
                 }
             } else {
-                alert('Failed to reset defaults: ' + (data.error || 'Unknown error'));
+                showToast('Reset Failed', data.error || 'Failed to reset defaults', 'danger');
             }
         } catch (e) {
-            alert('Error resetting defaults');
+            console.error(e);
+            showToast('Error', 'An error occurred while resetting permissions', 'danger');
         } finally {
             hideLoading();
         }
@@ -521,9 +1209,9 @@
                                 </div>
                                 <div class="text-muted small mt-1" style="font-size: 0.76rem;">
                                     <span class="badge ${badgeClass} rounded-pill px-2 py-0 fw-semibold">${statusText}</span>
-                                    <span class="mx-1">•</span>
+                                    <span class="mx-1">&bull;</span>
                                     ${new Date(l.changed_at).toLocaleString()}
-                                    <span class="mx-1">•</span>
+                                    <span class="mx-1">&bull;</span>
                                     Module: <span class="fw-medium">${(l.module || '').toUpperCase()}</span>
                                 </div>
                             </div>
@@ -534,6 +1222,36 @@
             }
         } catch (e) {
             console.error('Error loading audit log', e);
+        }
+    }
+
+    // Helper: Toast Notifications
+    function showToast(title, message, type = 'primary') {
+        const container = document.getElementById('toastContainer');
+        if (!container) return;
+
+        const toastId = 'toast-' + Date.now();
+        const icon = type === 'success' ? 'bi-check-circle-fill' : type === 'danger' ? 'bi-exclamation-triangle-fill' : 'bi-info-circle-fill';
+        const bgClass = type === 'success' ? 'text-bg-success' : type === 'danger' ? 'text-bg-danger' : 'text-bg-dark';
+
+        const toastHtml = `
+            <div id="${toastId}" class="toast align-items-center ${bgClass} border-0 shadow" role="alert" aria-live="assertive" aria-atomic="true">
+                <div class="d-flex">
+                    <div class="toast-body d-flex align-items-center gap-2">
+                        <i class="bi ${icon} fs-6"></i>
+                        <span><strong>${title}:</strong> ${message}</span>
+                    </div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                </div>
+            </div>
+        `;
+
+        container.insertAdjacentHTML('beforeend', toastHtml);
+        const toastElement = document.getElementById(toastId);
+        if (toastElement) {
+            const toast = new bootstrap.Toast(toastElement, { delay: 3500 });
+            toast.show();
+            toastElement.addEventListener('hidden.bs.toast', () => toastElement.remove());
         }
     }
 
