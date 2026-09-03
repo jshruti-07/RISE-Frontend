@@ -312,6 +312,66 @@ def add_timesheet():
     return render_template("add_timesheet.html", employees=employees, projects=projects, managers=managers, today_date=datetime.now().strftime('%Y-%m-%d'))
 
 
+@work_bp.route('/timesheets/<int:timesheet_id>')
+@role_required(['admin', 'employee', 'hr', 'manager'])
+def timesheet_detail(timesheet_id):
+    try:
+        res = requests.get(f"{BASE_URL}/timesheets/{timesheet_id}", headers=get_headers(), timeout=10)
+        if res.status_code == 401:
+            return redirect(url_for('auth.login'))
+        if res.status_code != 200:
+            flash("Timesheet not found", "danger")
+            return redirect(url_for('work.timesheets_list'))
+        
+        data = res.json()
+        timesheet = data.get('timesheet') or data.get('data') or {}
+        if not timesheet:
+            flash("Timesheet details could not be loaded", "danger")
+            return redirect(url_for('work.timesheets_list'))
+
+        # Fetch project manager mapping
+        project_manager_map = {}
+        try:
+            proj_res = requests.get(f"{BASE_URL}/projects/", headers=get_headers(), timeout=10)
+            if proj_res.status_code == 200:
+                p_data = proj_res.json()
+                projects_db = extract_list(p_data, 'projects', 'data')
+                for proj in projects_db:
+                    if isinstance(proj, dict):
+                        p_name = str(proj.get('name', '') or proj.get('project_name', '')).strip().lower()
+                        mgr = pick(proj, 'assigned_manager', 'manager_name', 'assigned_manager_name', 'manager', default='-')
+                        if p_name:
+                            project_manager_map[p_name] = mgr
+        except Exception:
+            pass
+
+        manager_name = timesheet.get('manager_name') or project_manager_map.get(str(timesheet.get('project', '')).strip().lower(), '-')
+        timesheet['resolved_manager_name'] = manager_name
+
+        current_user = session.get('employee_name')
+        user_role = str(session.get('role', '')).lower().strip()
+        is_own = names_match(timesheet.get('employee_name'), current_user)
+        is_regarding_mgr = names_match(manager_name, current_user) or names_match(manager_name, session.get('user'))
+
+        applicant_role = str(timesheet.get('owner_role') or timesheet.get('employee_role') or 'employee').lower().strip()
+        if applicant_role in ['hr', 'manager']:
+            can_review = (user_role in ['admin', 'superadmin']) and not is_own
+        else:
+            can_review = (user_role in ['admin', 'superadmin'] or (user_role == 'manager' and is_regarding_mgr)) and not is_own
+
+        return render_template(
+            "timesheet_detail.html",
+            t=timesheet,
+            can_review=can_review,
+            is_own=is_own
+        )
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        flash(f"Error loading timesheet: {str(e)}", "danger")
+        return redirect(url_for('work.timesheets_list'))
+
+
 @work_bp.route('/edit-timesheet/<int:timesheet_id>', methods=['GET', 'POST'])
 @role_required(['admin', 'employee', 'hr', 'manager'])
 def edit_timesheet(timesheet_id):
@@ -618,17 +678,35 @@ def leaves_list():
             # Determine if current user can approve this pending leave
             can_approve = False
             if l.get('status') == 'pending' and not l['is_own']:
+                applicant_role = str(l.get('employee_role') or '').lower().strip()
                 if user_role in ['admin', 'superadmin']:
                     can_approve = True
-                elif user_role == 'hr':
-                    can_approve = any(s.get('approver_role') == 'hr' and s.get('status') == 'pending' for s in signoffs) if signoffs else True
                 elif user_role == 'manager':
-                    can_approve = any(
-                        s.get('approver_role') == 'manager'
-                        and s.get('status') == 'pending'
-                        and (names_match(s.get('approver_name'), current_user) or not s.get('approver_name'))
-                        for s in signoffs
-                    ) if signoffs else True
+                    if applicant_role in ['employee', 'team_member', 'intern', 'consultant', '']:
+                        has_pending_signoff = any(
+                            s.get('approver_role') == 'manager'
+                            and s.get('status') == 'pending'
+                            and (names_match(s.get('approver_name'), current_user) or not s.get('approver_name'))
+                            for s in signoffs
+                        )
+                        # Check if employee is in any project managed by this manager
+                        is_member = False
+                        for p in projects_db:
+                            if names_match(pick(p, 'assigned_manager', 'manager_name', 'assigned_manager_name'), current_user):
+                                for m in p.get('team_members', []):
+                                    m_name = m.get('name') if isinstance(m, dict) else m
+                                    if names_match(m_name, emp_name):
+                                        is_member = True
+                                        break
+                                if is_member:
+                                    break
+                        can_approve = has_pending_signoff or is_member
+                    else:
+                        can_approve = False
+                elif user_role == 'hr':
+                    can_approve = False  # HR IS VIEW-ONLY FOR LEAVES
+                else:
+                    can_approve = False
 
             l['can_user_approve'] = can_approve
 
@@ -1126,6 +1204,53 @@ def reject_timesheet():
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 500
 
+@work_bp.route('/timesheets/delete/<int:entry_id>', methods=['POST', 'DELETE'])
+@role_required(['admin', 'hr', 'manager', 'employee'])
+def delete_single_timesheet(entry_id):
+    try:
+        res = requests.delete(f"{BASE_URL}/timesheets/{entry_id}", headers=get_headers(), timeout=10)
+        if res.status_code == 200:
+            return jsonify({"success": True, "message": "Timesheet deleted successfully"}), 200
+        return jsonify({"success": False, "error": res.text}), res.status_code
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@work_bp.route('/timesheets/bulk-delete', methods=['POST'])
+@role_required(['admin', 'hr', 'manager', 'employee'])
+def bulk_delete_timesheets_route():
+    try:
+        data = request.get_json() or {}
+        res = requests.post(f"{BASE_URL}/timesheets/bulk-delete", json=data, headers=get_headers(), timeout=15)
+        if res.status_code == 200:
+            return jsonify(res.json()), 200
+        return jsonify({"success": False, "error": res.text}), res.status_code
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@work_bp.route('/timesheets/bulk-approve', methods=['POST'])
+@role_required(['admin', 'hr', 'manager'])
+def bulk_approve_timesheets_route():
+    try:
+        data = request.get_json() or {}
+        res = requests.post(f"{BASE_URL}/timesheets/bulk-approve", json=data, headers=get_headers(), timeout=15)
+        if res.status_code == 200:
+            return jsonify(res.json()), 200
+        return jsonify({"success": False, "error": res.text}), res.status_code
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@work_bp.route('/timesheets/bulk-reject', methods=['POST'])
+@role_required(['admin', 'hr', 'manager'])
+def bulk_reject_timesheets_route():
+    try:
+        data = request.get_json() or {}
+        res = requests.post(f"{BASE_URL}/timesheets/bulk-reject", json=data, headers=get_headers(), timeout=15)
+        if res.status_code == 200:
+            return jsonify(res.json()), 200
+        return jsonify({"success": False, "error": res.text}), res.status_code
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
 @work_bp.route('/api/timesheets/day')
 @role_required(['admin', 'hr', 'manager', 'employee'])
 def get_timesheet_day_details():
@@ -1186,5 +1311,22 @@ def update_leave_status(leave_id, status):
 
         error_msg = data.get('error') or data.get('message') or f"Failed with status code {res.status_code}"
         return jsonify({'success': False, 'error': error_msg}), res.status_code
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
+@work_bp.route('/leaves/delete/<int:leave_id>', methods=['POST', 'DELETE'])
+@role_required(['admin', 'employee', 'hr', 'manager'])
+def delete_leave_route(leave_id):
+    try:
+        res = requests.delete(f"{BASE_URL}/leaves/{leave_id}", headers=get_headers(), timeout=10)
+        data = {}
+        try:
+            data = res.json()
+        except Exception:
+            pass
+        if res.status_code == 200:
+            return jsonify({'success': True, 'message': data.get('message', 'Leave deleted successfully')}), 200
+        return jsonify({'success': False, 'error': data.get('error', 'Failed to delete leave')}), res.status_code
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)}), 500

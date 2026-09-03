@@ -1,0 +1,478 @@
+{% extends "base.html" %}
+{% block title %}Timesheet Details #{{ t.id }}{% endblock %}
+{% block page_title %}Timesheet Details{% endblock %}
+
+{% block content %}
+<style>
+    .detail-card {
+        background: #FFFFFF;
+        border: 1px solid #E8ECF4;
+        border-radius: 16px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+        overflow: hidden;
+    }
+
+    .info-label {
+        font-size: 0.78rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: #64748B;
+        margin-bottom: 4px;
+    }
+
+    .info-value {
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: #1E293B;
+    }
+
+    .avatar-circle-lg {
+        width: 52px;
+        height: 52px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.15rem;
+        font-weight: 700;
+        flex-shrink: 0;
+    }
+</style>
+
+<!-- Hidden session token for API authentication -->
+<input type="hidden" id="sessionToken" value="{{ session.get('token', '') }}">
+
+<div class="container-fluid py-4 px-md-4">
+    <!-- Breadcrumb & Back Bar -->
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+        <div class="d-flex align-items-center gap-2">
+            <a href="{{ url_for('work.timesheets_list') }}" class="btn btn-sm btn-outline-secondary rounded-pill px-3 shadow-sm d-inline-flex align-items-center gap-1.5" style="font-size: 0.82rem; font-weight: 600;">
+                <i class="bi bi-arrow-left"></i> Back to Timesheets
+            </a>
+            <span class="text-muted opacity-50">/</span>
+            <span class="fw-semibold text-slate-700" style="font-size: 0.9rem;">Timesheet #{{ t.id }}</span>
+        </div>
+
+        <!-- Quick Action Buttons on Top Right -->
+        <div class="d-flex align-items-center gap-2 flex-wrap">
+            {% if can_review and (t.status|lower) == 'submitted' %}
+            <button class="btn btn-sm btn-success rounded-pill px-3.5 shadow-sm fw-semibold d-inline-flex align-items-center gap-1.5"
+                    onclick="approveTimesheet('{{ t.id }}', '{{ t.employee_name }}')" style="font-size: 0.82rem;">
+                <i class="bi bi-check-circle"></i> Approve
+            </button>
+            <button class="btn btn-sm btn-danger rounded-pill px-3.5 shadow-sm fw-semibold d-inline-flex align-items-center gap-1.5"
+                    onclick="showRejectModal('{{ t.id }}', '{{ t.employee_name }}')" style="font-size: 0.82rem;">
+                <i class="bi bi-x-circle"></i> Reject
+            </button>
+            {% endif %}
+
+            {% if is_own and t.status in ['submitted', 'draft', 'rejected'] %}
+            <a href="/edit-timesheet/{{ t.id }}" class="btn btn-sm btn-outline-primary rounded-pill px-3 shadow-sm fw-semibold d-inline-flex align-items-center gap-1.5" style="font-size: 0.82rem;">
+                <i class="bi bi-pencil"></i> Edit
+            </a>
+            {% endif %}
+
+            {% if session.role in ['admin', 'hr', 'superadmin', 'manager'] or (is_own and t.status in ['submitted', 'draft', 'rejected']) %}
+            <button class="btn btn-sm btn-outline-danger rounded-pill px-3 shadow-sm fw-semibold d-inline-flex align-items-center gap-1.5"
+                    onclick="confirmDeleteTimesheet('{{ t.id }}', '{{ t.employee_name }}')" style="font-size: 0.82rem;">
+                <i class="bi bi-trash"></i> Delete
+            </button>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Main Details Card -->
+    <div class="detail-card p-4 mb-4">
+        {% set emp_role = (t.employee_role or 'employee')|lower %}
+        {% set role_bg = '#EEF2FF' if emp_role == 'employee' else ('#F5F3FF' if emp_role == 'manager' else ('#ECFDF5' if emp_role == 'hr' else ('#FEF2F2' if emp_role == 'superadmin' else '#EFF6FF'))) %}
+        {% set role_fg = '#4F46E5' if emp_role == 'employee' else ('#6D28D9' if emp_role == 'manager' else ('#047857' if emp_role == 'hr' else ('#B91C1C' if emp_role == 'superadmin' else '#1D4ED8'))) %}
+
+        <!-- Header Info Row -->
+        <div class="d-flex justify-content-between align-items-start border-bottom pb-4 mb-4 flex-wrap gap-3">
+            <div class="d-flex align-items-center gap-3">
+                <div class="avatar-circle-lg" style="background: {{ role_bg }}; color: {{ role_fg }}; border: 1px solid rgba(0,0,0,0.06);">
+                    {{ (t.employee_name or 'E')[:2]|upper }}
+                </div>
+                <div>
+                    <h4 class="fw-bold text-dark mb-1">{{ t.employee_name | clean_name }}</h4>
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="badge rounded-pill" style="background: {{ role_bg }}; color: {{ role_fg }}; font-weight: 600; font-size: 0.76rem;">
+                            {{ labels.EMPLOYEE if emp_role == 'employee' else ('Super Admin' if emp_role == 'superadmin' else emp_role | capitalize) }}
+                        </span>
+                        <span class="text-muted small">Submitted for review</span>
+                    </div>
+                </div>
+            </div>
+
+            <div>
+                {% if t.status == 'submitted' %}
+                <span class="badge px-3 py-1.5 rounded-pill" style="background: #EFF6FF; color: #1D4ED8; border: 1px solid #DBEAFE; font-weight: 600; font-size: 0.85rem;">
+                    <i class="bi bi-clock me-1"></i> Submitted
+                </span>
+                {% elif t.status == 'approved' %}
+                <span class="badge px-3 py-1.5 rounded-pill" style="background: #ECFDF5; color: #047857; border: 1px solid #D1FAE5; font-weight: 600; font-size: 0.85rem;">
+                    <i class="bi bi-check-circle-fill me-1"></i> Approved
+                </span>
+                {% elif t.status == 'rejected' %}
+                <span class="badge px-3 py-1.5 rounded-pill" style="background: #FEF2F2; color: #B91C1C; border: 1px solid #FECACA; font-weight: 600; font-size: 0.85rem;">
+                    <i class="bi bi-x-circle-fill me-1"></i> Rejected
+                </span>
+                {% else %}
+                <span class="badge px-3 py-1.5 rounded-pill" style="background: #F1F5F9; color: #475569; border: 1px solid #E2E8F0; font-weight: 600; font-size: 0.85rem;">
+                    {{ t.status|capitalize }}
+                </span>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Information Grid -->
+        <div class="row g-4 mb-4">
+            <div class="col-md-4 col-sm-6">
+                <div class="p-3 rounded-3 bg-light bg-opacity-50 border" style="border-color: #F1F5F9 !important;">
+                    <div class="info-label"><i class="bi bi-folder2 text-primary me-1"></i> Project</div>
+                    <div class="info-value">{{ t.project or '—' }}</div>
+                </div>
+            </div>
+
+            <div class="col-md-4 col-sm-6">
+                <div class="p-3 rounded-3 bg-light bg-opacity-50 border" style="border-color: #F1F5F9 !important;">
+                    <div class="info-label"><i class="bi bi-person-badge text-purple me-1"></i> Approving Manager</div>
+                    <div class="info-value">{{ t.resolved_manager_name | clean_name }}</div>
+                </div>
+            </div>
+
+            <div class="col-md-4 col-sm-6">
+                <div class="p-3 rounded-3 bg-light bg-opacity-50 border" style="border-color: #F1F5F9 !important;">
+                    <div class="info-label"><i class="bi bi-hourglass-split text-warning me-1"></i> Hours Logged</div>
+                    <div class="info-value">
+                        <span class="badge px-2.5 py-1 rounded-pill" style="background: #F8FAFC; color: #334155; border: 1px solid #CBD5E1; font-weight: 700; font-size: 0.85rem;">
+                            {{ t.hours }} hrs
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4 col-sm-6">
+                <div class="p-3 rounded-3 bg-light bg-opacity-50 border" style="border-color: #F1F5F9 !important;">
+                    <div class="info-label"><i class="bi bi-list-task text-info me-1"></i> Task</div>
+                    <div class="info-value">{{ t.task or '—' }}</div>
+                </div>
+            </div>
+
+            <div class="col-md-4 col-sm-6">
+                <div class="p-3 rounded-3 bg-light bg-opacity-50 border" style="border-color: #F1F5F9 !important;">
+                    <div class="info-label"><i class="bi bi-calendar3 text-success me-1"></i> Date</div>
+                    <div class="info-value">{{ t.start_date[:10] if t.start_date else '—' }}</div>
+                </div>
+            </div>
+
+            <div class="col-md-4 col-sm-6">
+                <div class="p-3 rounded-3 bg-light bg-opacity-50 border" style="border-color: #F1F5F9 !important;">
+                    <div class="info-label"><i class="bi bi-clock-history text-secondary me-1"></i> Logged On</div>
+                    <div class="info-value">{{ t.created_at[:10] if t.created_at else '—' }}</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Description Box -->
+        <div class="mb-4">
+            <h6 class="fw-bold text-dark mb-2"><i class="bi bi-card-text text-primary me-2"></i>Work Description</h6>
+            <div class="p-3 rounded-3 bg-light border text-slate-800" style="font-size: 0.92rem; min-height: 80px; line-height: 1.6; border-color: #E2E8F0 !important;">
+                {{ t.description if t.description else 'No detailed description provided.' }}
+            </div>
+        </div>
+
+        <!-- Rejection / Review Comments (If available) -->
+        {% if t.rejection_reason or t.manager_comments %}
+        <div class="p-3 rounded-3 border mb-2" style="background-color: #FEF2F2; border-color: #FECACA !important;">
+            <h6 class="fw-bold text-danger mb-1"><i class="bi bi-exclamation-circle me-1.5"></i>Review Feedback</h6>
+            <p class="mb-0 text-danger text-opacity-75" style="font-size: 0.9rem;">
+                {{ t.rejection_reason or t.manager_comments }}
+            </p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Modals -->
+
+<!-- Approve Confirmation Modal -->
+<div class="modal fade" id="approveModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title text-success fw-bold">
+                    <i class="bi bi-check-circle me-2"></i> Confirm Approval
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body modal-body-plain text-center p-4">
+                <div class="mb-3">
+                    <i class="bi bi-check-circle text-success" style="font-size: 2.5rem;"></i>
+                </div>
+                <h6 class="fw-bold mb-2">Approve this timesheet?</h6>
+                <p class="text-muted mb-2 small">
+                    Are you sure you want to approve the timesheet for
+                    <strong id="approveEmpName">{{ t.employee_name }}</strong>?
+                </p>
+                <p class="text-muted small mb-0">
+                    This action will mark the timesheet as approved.
+                </p>
+            </div>
+            <div class="modal-footer justify-content-center">
+                <button type="button" class="btn btn-light btn-sm rounded-pill px-4 border" data-bs-dismiss="modal" style="color: #64748B; font-weight: 600;">
+                    Cancel
+                </button>
+                <button type="button" class="btn btn-success btn-sm rounded-pill px-4 fw-semibold" id="confirmApproveBtn">
+                    <i class="bi bi-check-circle me-1"></i> Approve
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Reject Timesheet Modal -->
+<div class="modal fade" id="rejectTimesheetModal" tabindex="-1" aria-labelledby="rejectTimesheetModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title fw-bold" id="rejectTimesheetModalLabel"><i class="bi bi-x-circle text-danger me-2"></i>Reject Timesheet</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body modal-body-form">
+                <form id="rejectTimesheetForm">
+                    <div class="mb-3">
+                        <label for="rejectEmployeeName" class="form-label">Employee Name</label>
+                        <input type="text" class="form-control" id="rejectEmployeeName" value="{{ t.employee_name }}" readonly>
+                    </div>
+                    <div class="mb-3">
+                        <label for="rejectComments" class="form-label">Rejection Comments *</label>
+                        <textarea class="form-control" id="rejectComments" rows="3" required
+                            placeholder="Please provide reason for rejection..."></textarea>
+                    </div>
+                    <input type="hidden" id="rejectTimesheetId" value="{{ t.id }}">
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light btn-sm rounded-pill px-3 border" data-bs-dismiss="modal" style="color: #64748B; font-weight: 600;">Cancel</button>
+                <button type="button" class="btn btn-danger btn-sm rounded-pill px-3 fw-semibold" id="rejectTimesheetBtn">
+                    <i class="bi bi-x-circle me-1"></i> Reject Timesheet
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Timesheet Modal -->
+<div class="modal fade" id="deleteTimesheetModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title text-danger fw-bold">
+                    <i class="bi bi-exclamation-triangle me-2"></i> Confirm Deletion
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body modal-body-plain text-center p-4">
+                <div class="mb-3">
+                    <i class="bi bi-trash text-danger" style="font-size: 2.5rem;"></i>
+                </div>
+                <h6 class="fw-bold mb-2">Delete this timesheet?</h6>
+                <p class="text-muted mb-2 small">
+                    Are you sure you want to delete the timesheet for
+                    <strong id="deleteEmpName">{{ t.employee_name }}</strong>?
+                </p>
+                <p class="text-muted small mb-0">
+                    This action cannot be undone.
+                </p>
+                <input type="hidden" id="deleteTimesheetId" value="{{ t.id }}">
+            </div>
+            <div class="modal-footer justify-content-center">
+                <button type="button" class="btn btn-light btn-sm rounded-pill px-4 border" data-bs-dismiss="modal" style="color: #64748B; font-weight: 600;">
+                    Cancel
+                </button>
+                <button type="button" class="btn btn-danger btn-sm rounded-pill px-4 fw-semibold" id="confirmDeleteBtn">
+                    <i class="bi bi-trash me-1"></i> Delete
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Success Modal -->
+<div class="modal fade" id="successModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+        <div class="modal-content text-center">
+            <div class="modal-header border-0 pb-0">
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body modal-body-plain text-center p-4 pt-2">
+                <div class="mb-3">
+                    <i class="bi bi-check-circle-fill text-success" style="font-size: 2.75rem;"></i>
+                </div>
+                <h6 class="fw-bold text-dark mb-1">Success</h6>
+                <p id="successMessage" class="text-muted small mb-0">
+                    Operation completed successfully!
+                </p>
+            </div>
+            <div class="modal-footer border-0 pt-0 justify-content-center pb-4">
+                <button type="button" class="btn btn-soft-purple btn-sm rounded-pill px-4 shadow-sm fw-semibold" data-bs-dismiss="modal" onclick="window.location.href='{{ url_for('work.timesheets_list') }}'">
+                    OK
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function getToken() {
+        return document.getElementById('sessionToken').value || localStorage.getItem('token') || '';
+    }
+
+    function showSuccessModal(message) {
+        document.getElementById('successMessage').textContent = message;
+        const modal = new bootstrap.Modal(document.getElementById('successModal'));
+        modal.show();
+    }
+
+    function approveTimesheet(timesheetId, employeeName) {
+        window.currentTimesheetId = timesheetId;
+        window.currentEmployeeName = employeeName;
+        const modal = new bootstrap.Modal(document.getElementById('approveModal'));
+        modal.show();
+    }
+
+    function confirmApprove() {
+        const timesheetId = window.currentTimesheetId || '{{ t.id }}';
+        const token = getToken();
+
+        if (!token) {
+            alert('Authentication token not found');
+            return;
+        }
+
+        const approveModalEl = document.getElementById('approveModal');
+        const approveModal = bootstrap.Modal.getInstance(approveModalEl);
+        if (approveModal) approveModal.hide();
+
+        fetch('/manager/timesheets/approve', {
+            method: 'POST',
+            headers: {
+                'Authorization': 'Bearer ' + token,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ timesheet_id: parseInt(timesheetId) })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                showSuccessModal('Timesheet approved successfully');
+                setTimeout(() => window.location.href = "{{ url_for('work.timesheets_list') }}", 1200);
+            } else {
+                alert('Failed to approve timesheet: ' + (data.error || 'Unknown error'));
+            }
+        })
+        .catch(err => {
+            alert('Error approving timesheet: ' + err.message);
+        });
+    }
+
+    function showRejectModal(timesheetId, employeeName) {
+        document.getElementById('rejectTimesheetId').value = timesheetId;
+        document.getElementById('rejectComments').value = '';
+        const modal = new bootstrap.Modal(document.getElementById('rejectTimesheetModal'));
+        modal.show();
+    }
+
+    function rejectTimesheet() {
+        const timesheetId = document.getElementById('rejectTimesheetId').value || '{{ t.id }}';
+        const comments = document.getElementById('rejectComments').value.trim();
+
+        if (!comments) {
+            alert('Rejection comments are required');
+            return;
+        }
+
+        const token = getToken();
+        if (!token) {
+            alert('Authentication token not found');
+            return;
+        }
+
+        const rejectModalEl = document.getElementById('rejectTimesheetModal');
+        const rejectModal = bootstrap.Modal.getInstance(rejectModalEl);
+        if (rejectModal) rejectModal.hide();
+
+        fetch('/manager/timesheets/reject', {
+            method: 'POST',
+            headers: {
+                'Authorization': 'Bearer ' + token,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                timesheet_id: parseInt(timesheetId),
+                rejection_reason: comments
+            })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                showSuccessModal('Timesheet rejected with comments');
+                setTimeout(() => window.location.href = "{{ url_for('work.timesheets_list') }}", 1200);
+            } else {
+                alert('Failed to reject timesheet: ' + (data.error || 'Unknown error'));
+            }
+        })
+        .catch(err => {
+            alert('Error rejecting timesheet: ' + err.message);
+        });
+    }
+
+    function confirmDeleteTimesheet(timesheetId, employeeName) {
+        document.getElementById('deleteTimesheetId').value = timesheetId;
+        const modal = new bootstrap.Modal(document.getElementById('deleteTimesheetModal'));
+        modal.show();
+    }
+
+    function executeSingleDelete() {
+        const timesheetId = document.getElementById('deleteTimesheetId').value || '{{ t.id }}';
+        const token = getToken();
+
+        const deleteModalEl = document.getElementById('deleteTimesheetModal');
+        const deleteModal = bootstrap.Modal.getInstance(deleteModalEl);
+        if (deleteModal) deleteModal.hide();
+
+        fetch(`/timesheets/delete/${timesheetId}`, {
+            method: 'POST',
+            headers: {
+                'Authorization': 'Bearer ' + token,
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                showSuccessModal('Timesheet deleted successfully');
+                setTimeout(() => window.location.href = "{{ url_for('work.timesheets_list') }}", 1200);
+            } else {
+                alert('Failed to delete timesheet: ' + (data.error || 'Unknown error'));
+            }
+        })
+        .catch(err => {
+            alert('Error deleting timesheet: ' + err.message);
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const confirmApproveBtn = document.getElementById('confirmApproveBtn');
+        if (confirmApproveBtn) confirmApproveBtn.addEventListener('click', confirmApprove);
+
+        const rejectTimesheetBtn = document.getElementById('rejectTimesheetBtn');
+        if (rejectTimesheetBtn) rejectTimesheetBtn.addEventListener('click', rejectTimesheet);
+
+        const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
+        if (confirmDeleteBtn) confirmDeleteBtn.addEventListener('click', executeSingleDelete);
+    });
+</script>
+{% endblock %}

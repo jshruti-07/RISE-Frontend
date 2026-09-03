@@ -218,6 +218,75 @@
         scrollbar-width: thin;
         scrollbar-color: #E2E8F0 #F8FAFC;
     }
+
+    .action-edit-btn {
+        color: #2563EB !important;
+        background-color: #EFF6FF !important;
+        border: 1px solid #BFDBFE !important;
+        border-radius: 8px !important;
+        font-size: 0.82rem !important;
+        font-weight: 600 !important;
+        padding: 4px 8px !important;
+        line-height: 1 !important;
+        transition: all 0.15s ease;
+        text-decoration: none;
+    }
+    .action-edit-btn:hover {
+        background-color: #DBEAFE !important;
+        border-color: #93C5FD !important;
+        color: #1D4ED8 !important;
+    }
+    .action-more-btn {
+        background-color: #FFFFFF !important;
+        border: 1px solid #E2E8F0 !important;
+        border-radius: 8px !important;
+        color: #64748B !important;
+        padding: 4px 8px !important;
+        font-size: 0.82rem !important;
+        line-height: 1 !important;
+        transition: all 0.15s ease;
+    }
+    .action-more-btn:hover, .action-more-btn[aria-expanded="true"] {
+        background-color: #F8FAFC !important;
+        border-color: #CBD5E1 !important;
+        color: #334155 !important;
+    }
+    .actions-dropdown-menu {
+        border-radius: 10px !important;
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.04) !important;
+        border: 1px solid #E2E8F0 !important;
+        padding: 6px 0 !important;
+        min-width: 135px !important;
+        z-index: 1050 !important;
+    }
+    .actions-dropdown-menu .dropdown-item {
+        font-size: 0.82rem !important;
+        font-weight: 500 !important;
+        padding: 7px 14px !important;
+        transition: background-color 0.1s ease;
+        display: flex !important;
+        align-items: center !important;
+        gap: 8px !important;
+    }
+    .actions-dropdown-menu .dropdown-item:hover {
+        background-color: #F8FAFC !important;
+    }
+    .actions-dropdown-menu .dropdown-item.approve-item {
+        color: #0F172A !important;
+    }
+    .actions-dropdown-menu .dropdown-item.approve-item:hover {
+        background-color: #ECFDF5 !important;
+        color: #047857 !important;
+    }
+    .actions-dropdown-menu .dropdown-item.reject-item,
+    .actions-dropdown-menu .dropdown-item.delete-item {
+        color: #0F172A !important;
+    }
+    .actions-dropdown-menu .dropdown-item.reject-item:hover,
+    .actions-dropdown-menu .dropdown-item.delete-item:hover {
+        background-color: #FEF2F2 !important;
+        color: #B91C1C !important;
+    }
 </style>
 <!-- Hidden session token for API authentication -->
 <input type="hidden" id="sessionToken" value="{{ session.get('token', '') }}">
@@ -385,7 +454,7 @@
                                     <th style="font-weight: 700; color: #475569; font-size: 0.85rem;">Dates</th>
                                     <th style="font-weight: 700; color: #475569; font-size: 0.85rem;">Reason</th>
                                     <th style="font-weight: 700; color: #475569; font-size: 0.85rem;">Status</th>
-                                    <th style="font-weight: 700; color: #475569; font-size: 0.85rem; text-align: right; padding-right: 16px;">Action</th>
+                                    <th style="font-weight: 700; color: #475569; font-size: 0.85rem; text-align: center; padding-right: 16px;">Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -455,19 +524,49 @@
                                         </div>
                                         {% endif %}
                                     </td>
-                                    <td style="text-align: right; padding-right: 16px;">
-                                        {% if l.status == 'pending' and l.can_user_approve %}
-                                        <button class="btn btn-sm btn-success rounded-pill px-2.5 py-1 me-1" onclick="updateLeave('{{ l.id }}', 'approved', this)" style="font-size:0.75rem;">
-                                            <i class="bi bi-check-lg me-0.5"></i>Approve
-                                        </button>
-                                        <button class="btn btn-sm btn-danger rounded-pill px-2.5 py-1" onclick="updateLeave('{{ l.id }}', 'rejected', this)" style="font-size:0.75rem;">
-                                            <i class="bi bi-x-lg me-0.5"></i>Reject
-                                        </button>
-                                        {% elif l.status == 'pending' %}
-                                        <span class="text-muted small" style="font-size: 0.75rem;">Awaiting Other Sign-off</span>
-                                        {% else %}
-                                        <span class="text-muted">—</span>
-                                        {% endif %}
+                                    <td class="text-center" style="padding-right: 16px; white-space: nowrap;">
+                                        <div class="d-inline-flex align-items-center gap-1.5 justify-content-center">
+                                            {% if l.is_own and l.status == 'pending' %}
+                                            <!-- Edit Icon Button (Logo only) -->
+                                            <a href="{{ url_for('work.add_leave') }}" class="btn btn-sm action-edit-btn d-inline-flex align-items-center justify-content-center" title="Edit Leave">
+                                                <i class="bi bi-pencil"></i>
+                                            </a>
+                                            {% endif %}
+
+                                            {% set can_show_dropdown = (l.status == 'pending' and l.can_user_approve) or l.is_own or session.role in ['admin', 'superadmin'] %}
+                                            {% if can_show_dropdown %}
+                                            <!-- Actions Dropdown (Three Dots) -->
+                                            <div class="dropdown d-inline-block">
+                                                <button class="btn btn-sm action-more-btn" type="button" data-bs-toggle="dropdown" aria-expanded="false" title="More Actions">
+                                                    <i class="bi bi-three-dots-vertical"></i>
+                                                </button>
+                                                <ul class="dropdown-menu dropdown-menu-end actions-dropdown-menu">
+                                                    {% if l.status == 'pending' and l.can_user_approve %}
+                                                    <li>
+                                                        <button class="dropdown-item approve-btn approve-item" type="button" onclick="updateLeave('{{ l.id }}', 'approved', this)">
+                                                            <i class="bi bi-check-circle text-success" style="font-size: 0.95rem;"></i> Approve
+                                                        </button>
+                                                    </li>
+                                                    <li>
+                                                        <button class="dropdown-item reject-btn reject-item" type="button" onclick="updateLeave('{{ l.id }}', 'rejected', this)">
+                                                            <i class="bi bi-x-circle text-danger" style="font-size: 0.95rem;"></i> Reject
+                                                        </button>
+                                                    </li>
+                                                    {% endif %}
+
+                                                    {% if l.is_own or session.role in ['admin', 'superadmin'] %}
+                                                    <li>
+                                                        <button class="dropdown-item delete-btn delete-item" type="button" onclick="confirmDeleteLeave('{{ l.id }}', '{{ l.employee_name }}')">
+                                                            <i class="bi bi-trash text-danger" style="font-size: 0.95rem;"></i> Delete
+                                                        </button>
+                                                    </li>
+                                                    {% endif %}
+                                                </ul>
+                                            </div>
+                                            {% else %}
+                                            <span class="text-muted small">—</span>
+                                            {% endif %}
+                                        </div>
                                     </td>
                                 </tr>
                                 {% else %}
@@ -541,7 +640,8 @@
                                     <th style="font-weight: 700; color: #475569; font-size: 0.85rem;">Duration</th>
                                     <th style="font-weight: 700; color: #475569; font-size: 0.85rem;">Dates</th>
                                     <th style="font-weight: 700; color: #475569; font-size: 0.85rem;">Reason</th>
-                                    <th style="font-weight: 700; color: #475569; font-size: 0.85rem; text-align: right; padding-right: 16px;">Status</th>
+                                    <th style="font-weight: 700; color: #475569; font-size: 0.85rem;">Status</th>
+                                    <th style="font-weight: 700; color: #475569; font-size: 0.85rem; text-align: center; padding-right: 16px;">Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -577,7 +677,7 @@
                                             {{ l.reason or '—' }}
                                         </div>
                                     </td>
-                                    <td style="text-align: right; padding-right: 16px;">
+                                    <td>
                                         {% set st = (l.status or 'pending')|lower %}
                                         {% set st_bg = '#ECFDF5' if st == 'approved' else ('#FFFBEB' if st == 'pending' else '#FEF2F2') %}
                                         {% set st_fg = '#065F46' if st == 'approved' else ('#92400E' if st == 'pending' else '#991B1B') %}
@@ -585,9 +685,9 @@
                                             {{ st|capitalize }}
                                         </span>
                                         {% if l.signoffs and l.signoffs|length > 0 %}
-                                        <div class="d-flex flex-column align-items-end gap-1 mt-1.5">
+                                        <div class="d-flex flex-column align-items-start gap-1 mt-1.5">
                                             {% for s in l.signoffs %}
-                                            {% set s_ok = (s.status == 'approved') %}
+                                             {% set s_ok = (s.status == 'approved') %}
                                             {% set s_rej = (s.status == 'rejected') %}
                                             {% set s_chip_bg = '#ECFDF5' if s_ok else ('#FEF2F2' if s_rej else '#F8FAFC') %}
                                             {% set s_chip_fg = '#065F46' if s_ok else ('#991B1B' if s_rej else '#64748B') %}
@@ -601,12 +701,34 @@
                                         </div>
                                         {% endif %}
                                     </td>
+                                    <td class="text-center" style="padding-right: 16px; white-space: nowrap;">
+                                        <div class="d-inline-flex align-items-center gap-1.5 justify-content-center">
+                                            {% if l.status == 'pending' %}
+                                            <a href="{{ url_for('work.add_leave') }}" class="btn btn-sm action-edit-btn d-inline-flex align-items-center justify-content-center" title="Edit Leave">
+                                                <i class="bi bi-pencil"></i>
+                                            </a>
+                                            {% endif %}
+
+                                            <div class="dropdown d-inline-block">
+                                                <button class="btn btn-sm action-more-btn" type="button" data-bs-toggle="dropdown" aria-expanded="false" title="More Actions">
+                                                    <i class="bi bi-three-dots-vertical"></i>
+                                                </button>
+                                                <ul class="dropdown-menu dropdown-menu-end actions-dropdown-menu">
+                                                    <li>
+                                                        <button class="dropdown-item delete-btn delete-item" type="button" onclick="confirmDeleteLeave('{{ l.id }}', '{{ l.employee_name }}')">
+                                                            <i class="bi bi-trash text-danger" style="font-size: 0.95rem;"></i> Delete
+                                                        </button>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </td>
                                 </tr>
                                 {% endif %}
                                 {% endfor %}
                                 {% if not found_my %}
                                 <tr>
-                                    <td colspan="5" class="text-center text-muted py-5">
+                                    <td colspan="6" class="text-center text-muted py-5">
                                         <i class="bi bi-calendar-check fs-2 d-block mb-2 text-muted"></i>
                                         <span>No personal leave records found.</span>
                                     </td>
@@ -696,6 +818,32 @@
             <div class="modal-footer d-flex justify-content-between" id="calendarDetailModalFooter">
                 <button type="button" class="btn btn-light btn-sm rounded-pill px-3 border" data-bs-dismiss="modal" style="color: #64748B; font-weight: 600;">Close</button>
                 <div id="calendarDetailModalActions" class="d-flex gap-2 align-items-center"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Leave Application Modal -->
+<div class="modal fade" id="deleteLeaveModal" tabindex="-1" aria-labelledby="deleteLeaveModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" style="max-width: 420px;">
+        <div class="modal-content border-0 shadow" style="border-radius: 14px;">
+            <div class="modal-header border-bottom-0 pb-0">
+                <h5 class="modal-title fw-bold text-slate-800 fs-6" id="deleteLeaveModalLabel">
+                    <i class="bi bi-exclamation-triangle-fill text-danger me-2"></i>Delete Leave Application
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body py-3">
+                <p class="text-slate-600 mb-0" style="font-size: 0.88rem;">
+                    Are you sure you want to delete this leave application for <strong id="deleteLeaveEmpName" class="text-slate-900"></strong>? This action cannot be undone.
+                </p>
+                <input type="hidden" id="deleteLeaveId">
+            </div>
+            <div class="modal-footer border-top-0 pt-0">
+                <button type="button" class="btn btn-sm btn-light rounded-pill px-3 border" data-bs-dismiss="modal" style="font-weight: 600; color: #64748B;">Cancel</button>
+                <button type="button" class="btn btn-sm btn-danger rounded-pill px-3" id="confirmDeleteLeaveBtn" onclick="executeDeleteLeave()" style="font-weight: 600;">
+                    <i class="bi bi-trash me-1"></i>Delete
+                </button>
             </div>
         </div>
     </div>
@@ -1434,6 +1582,41 @@
                 setTimeout(() => { window.location.reload(); }, 350);
             })
             .catch(err => { alert(err.message || "Error updating leave"); });
+    }
+
+    function confirmDeleteLeave(leaveId, employeeName) {
+        document.getElementById('deleteLeaveId').value = leaveId;
+        document.getElementById('deleteLeaveEmpName').textContent = employeeName || 'this employee';
+        const modal = new bootstrap.Modal(document.getElementById('deleteLeaveModal'));
+        modal.show();
+    }
+
+    function executeDeleteLeave() {
+        const leaveId = document.getElementById('deleteLeaveId').value;
+        const token = document.getElementById('sessionToken') ? document.getElementById('sessionToken').value : '';
+        
+        const deleteModalEl = document.getElementById('deleteLeaveModal');
+        const deleteModal = bootstrap.Modal.getInstance(deleteModalEl);
+        if (deleteModal) deleteModal.hide();
+
+        fetch(`/leaves/delete/${leaveId}`, {
+            method: 'POST',
+            headers: {
+                'Authorization': 'Bearer ' + token,
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                setTimeout(() => { window.location.reload(); }, 350);
+            } else {
+                alert('Failed to delete leave: ' + (data.error || 'Unknown error'));
+            }
+        })
+        .catch(err => {
+            alert('Error deleting leave: ' + err.message);
+        });
     }
 
     // ── Holiday table state ──────────────────────────────────────────────────────

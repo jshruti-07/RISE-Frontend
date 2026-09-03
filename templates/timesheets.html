@@ -53,6 +53,75 @@
     .timesheet-table td {
         vertical-align: middle;
     }
+
+    .action-edit-btn {
+        color: #2563EB !important;
+        background-color: #EFF6FF !important;
+        border: 1px solid #BFDBFE !important;
+        border-radius: 8px !important;
+        font-size: 0.82rem !important;
+        font-weight: 600 !important;
+        padding: 4px 8px !important;
+        line-height: 1 !important;
+        transition: all 0.15s ease;
+        text-decoration: none;
+    }
+    .action-edit-btn:hover {
+        background-color: #DBEAFE !important;
+        border-color: #93C5FD !important;
+        color: #1D4ED8 !important;
+    }
+    .action-more-btn {
+        background-color: #FFFFFF !important;
+        border: 1px solid #E2E8F0 !important;
+        border-radius: 8px !important;
+        color: #64748B !important;
+        padding: 4px 8px !important;
+        font-size: 0.82rem !important;
+        line-height: 1 !important;
+        transition: all 0.15s ease;
+    }
+    .action-more-btn:hover, .action-more-btn[aria-expanded="true"] {
+        background-color: #F8FAFC !important;
+        border-color: #CBD5E1 !important;
+        color: #334155 !important;
+    }
+    .actions-dropdown-menu {
+        border-radius: 10px !important;
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.04) !important;
+        border: 1px solid #E2E8F0 !important;
+        padding: 6px 0 !important;
+        min-width: 135px !important;
+        z-index: 1050 !important;
+    }
+    .actions-dropdown-menu .dropdown-item {
+        font-size: 0.82rem !important;
+        font-weight: 500 !important;
+        padding: 7px 14px !important;
+        transition: background-color 0.1s ease;
+        display: flex !important;
+        align-items: center !important;
+        gap: 8px !important;
+    }
+    .actions-dropdown-menu .dropdown-item:hover {
+        background-color: #F8FAFC !important;
+    }
+    .actions-dropdown-menu .dropdown-item.approve-item {
+        color: #0F172A !important;
+    }
+    .actions-dropdown-menu .dropdown-item.approve-item:hover {
+        background-color: #ECFDF5 !important;
+        color: #047857 !important;
+    }
+    .actions-dropdown-menu .dropdown-item.reject-item,
+    .actions-dropdown-menu .dropdown-item.delete-item {
+        color: #0F172A !important;
+    }
+    .actions-dropdown-menu .dropdown-item.reject-item:hover,
+    .actions-dropdown-menu .dropdown-item.delete-item:hover {
+        background-color: #FEF2F2 !important;
+        color: #B91C1C !important;
+    }
 </style>
 
 <!-- Hidden session token for API authentication -->
@@ -106,8 +175,27 @@
                     {% endif %}
                 </div>
 
-                <!-- Action Buttons -->
+                <!-- Action Buttons & Bulk Actions Container -->
                 <div class="d-flex align-items-center gap-2 flex-wrap">
+                    <!-- Bulk Actions Toolbar (Visible when rows are selected) -->
+                    <div id="bulkActionsContainer" class="d-none align-items-center gap-2">
+                        <span class="badge rounded-pill bg-light text-dark border px-2.5 py-1.5 fw-semibold" style="font-size: 0.8rem;">
+                            <span id="selectedCountText">0</span> selected
+                        </span>
+                        {% if session.role in ['admin', 'manager', 'hr', 'superadmin'] %}
+                        <button type="button" class="btn btn-sm btn-success rounded-pill px-3 shadow-sm" id="bulkApproveBtn" style="font-size: 0.8rem; font-weight: 600;">
+                            <i class="bi bi-check-circle me-1"></i> Approve Selected
+                        </button>
+                        <button type="button" class="btn btn-sm btn-danger rounded-pill px-3 shadow-sm" id="bulkRejectBtn" style="font-size: 0.8rem; font-weight: 600;">
+                            <i class="bi bi-x-circle me-1"></i> Reject Selected
+                        </button>
+                        {% endif %}
+                        <button type="button" class="btn btn-sm btn-outline-danger rounded-pill px-3 shadow-sm" id="bulkDeleteBtn" style="font-size: 0.8rem; font-weight: 600;">
+                            <i class="bi bi-trash me-1"></i> Delete Selected
+                        </button>
+                        <div class="vr mx-1 text-muted opacity-25"></div>
+                    </div>
+
                     <button type="button" class="btn btn-sm btn-outline-success rounded-pill px-3 shadow-sm" id="exportExcelBtn" style="font-size: 0.8rem; font-weight: 600;">
                         <i class="bi bi-file-earmark-excel me-1"></i> Export Excel
                     </button>
@@ -161,6 +249,9 @@
                 <table class="table table-hover align-middle mb-0 timesheet-table">
                     <thead class="table-light" style="background-color: #F8FAFC;">
                         <tr>
+                            <th style="width: 40px; padding: 12px 16px; text-align: center;">
+                                <input type="checkbox" id="selectAllCheckbox" class="form-check-input" style="cursor: pointer;" title="Select All">
+                            </th>
                             <th style="font-weight: 700; color: #475569; font-size: 0.85rem; padding: 12px 16px;">{{ labels.EMPLOYEE }}</th>
                             <th style="font-weight: 700; color: #475569; font-size: 0.85rem;">Project</th>
                             <th style="font-weight: 700; color: #475569; font-size: 0.85rem;">Approving Manager</th>
@@ -179,24 +270,34 @@
                         {% set emp_role = (t.employee_role or 'employee')|lower %}
                         {% set role_bg = '#EEF2FF' if emp_role == 'employee' else ('#F5F3FF' if emp_role == 'manager' else ('#ECFDF5' if emp_role == 'hr' else ('#FEF2F2' if emp_role == 'superadmin' else '#EFF6FF'))) %}
                         {% set role_fg = '#4F46E5' if emp_role == 'employee' else ('#6D28D9' if emp_role == 'manager' else ('#047857' if emp_role == 'hr' else ('#B91C1C' if emp_role == 'superadmin' else '#1D4ED8'))) %}
-                        <tr class="timesheet-row" data-employee="{{ (t.employee_name|string)|lower if t.employee_name else '' }}"
+                        <tr class="timesheet-row" id="timesheet-row-{{ t.id }}" data-id="{{ t.id }}"
+                            data-employee="{{ (t.employee_name|string)|lower if t.employee_name else '' }}"
                             data-project="{{ (t.project|string)|lower if t.project else '' }}"
                             data-manager="{{ (manager_name|string)|lower if manager_name else '' }}"
                             data-date="{{ t.start_date[:10] if t.start_date else '' }}"
-                            data-status="{{ (t.status|string)|lower if t.status else '' }}">
+                            data-status="{{ (t.status|string)|lower if t.status else '' }}"
+                            onclick="if(!event.target.closest('input, button, a, .dropdown, .dropdown-menu, .form-check-input')) { window.location.href='/timesheets/{{ t.id }}'; }"
+                            style="cursor: pointer;">
+                            <td style="width: 40px; padding: 12px 16px; text-align: center;" onclick="event.stopPropagation();">
+                                <input type="checkbox" class="form-check-input timesheet-row-checkbox" value="{{ t.id }}" 
+                                       data-status="{{ (t.status|string)|lower }}" 
+                                       data-employee="{{ t.employee_name }}" 
+                                       data-own="{{ 'true' if (t.is_own or (t.employee_name|names_match(session.get('employee_name')))) else 'false' }}"
+                                       style="cursor: pointer;">
+                            </td>
                             <td style="padding: 12px 16px;">
                                 <div class="d-flex align-items-center gap-2">
                                     <div class="avatar-circle-sm" style="background: {{ role_bg }}; color: {{ role_fg }}; border: 1px solid rgba(0,0,0,0.04);">
                                         {{ (t.employee_name or 'E')[:2]|upper }}
                                     </div>
                                     <div>
-                                        <div class="fw-bold text-slate-900" style="font-size: 0.9rem;">{{ t.employee_name | clean_name }}</div>
-                                        <small class="text-muted">[{{ labels.EMPLOYEE if emp_role == 'employee' else ('Super Admin' if emp_role == 'superadmin' else emp_role | capitalize) }}]</small>
+                                        <a href="/timesheets/{{ t.id }}" class="fw-bold text-slate-900 text-decoration-none text-hover-primary" style="font-size: 0.9rem;">{{ t.employee_name | clean_name }}</a>
+                                        <div class="text-muted" style="font-size: 0.76rem;">[{{ labels.EMPLOYEE if emp_role == 'employee' else ('Super Admin' if emp_role == 'superadmin' else emp_role | capitalize) }}]</div>
                                     </div>
                                 </div>
                             </td>
                             <td>
-                                <div class="fw-semibold text-dark" style="font-size: 0.88rem;">{{ t.project }}</div>
+                                <a href="/timesheets/{{ t.id }}" class="fw-semibold text-dark text-decoration-none text-hover-primary" style="font-size: 0.88rem;">{{ t.project }}</a>
                             </td>
                             <td>
                                 <div class="text-slate-700" style="font-size: 0.85rem;">{{ manager_name | clean_name }}</div>
@@ -234,42 +335,59 @@
                                 </span>
                                 {% endif %}
                             </td>
-                            <td class="text-center" style="padding-right: 16px;">
-                                <div class="d-flex flex-wrap gap-1.5 justify-content-center">
-                                    {% if session.get('role') in ['employee','hr','admin', 'superadmin'] and (t.is_own or (t.employee_name|names_match(session.get('employee_name')))) and t.status == 'submitted' %}
-                                    <a href="/edit-timesheet/{{ t.id }}" class="btn btn-sm btn-outline-primary rounded-pill px-2.5 py-1" style="font-size: 0.76rem; display: inline-flex; align-items: center; gap: 4px;">
-                                        <i class="bi bi-pencil"></i> Edit
-                                    </a>
+                            <td class="text-center" style="padding-right: 16px; white-space: nowrap;">
+                                <div class="d-inline-flex align-items-center gap-1.5 justify-content-center">
+                                    {% set is_own = t.is_own or (t.employee_name|names_match(session.get('employee_name'))) %}
+                                    {% set is_regarding_mgr = (manager_name and (manager_name|names_match(session.get('employee_name')) or manager_name|names_match(session.get('user')))) %}
+                                    {% if emp_role in ['hr', 'manager'] %}
+                                        {% set can_review_timesheet = (session.role in ['admin', 'superadmin']) and not is_own %}
+                                    {% else %}
+                                        {% set can_review_timesheet = (session.role in ['admin', 'superadmin'] or (session.role == 'manager' and is_regarding_mgr)) and not is_own %}
                                     {% endif %}
 
-                                    {% if session.role in ['admin', 'manager', 'hr', 'superadmin'] %}
-                                    {% if t.status == 'submitted' %}
-                                    {% if not (t.is_own or (t.employee_name|names_match(session.get('employee_name')))) %}
-                                    <button class="btn btn-sm approve-btn rounded-pill px-2.5 py-1 border shadow-xs" data-timesheet-id="{{ t.id }}" data-employee-name="{{ t.employee_name }}"
-                                        style="background-color: #ECFDF5; color: #047857; border-color: #D1FAE5 !important; font-size: 0.76rem; font-weight: 600; display: inline-flex; align-items: center; gap: 4px;">
-                                        <i class="bi bi-check-circle"></i> Approve
-                                    </button>
-                                    <button class="btn btn-sm reject-btn rounded-pill px-2.5 py-1 border shadow-xs" data-timesheet-id="{{ t.id }}" data-employee-name="{{ t.employee_name }}"
-                                        style="background-color: #FEF2F2; color: #B91C1C; border-color: #FECACA !important; font-size: 0.76rem; font-weight: 600; display: inline-flex; align-items: center; gap: 4px;">
-                                        <i class="bi bi-x-circle"></i> Reject
-                                    </button>
-                                    {% endif %}
-                                    {% elif t.status == 'approved' %}
-                                    <span class="badge px-2.5 py-1 rounded-pill" style="background: #F8FAFC; color: #059669; border: 1px solid #E2E8F0; font-size: 0.75rem;">
-                                        <i class="bi bi-check-circle-fill me-1"></i> Approved
-                                    </span>
-                                    {% elif t.status == 'rejected' %}
-                                    <span class="badge px-2.5 py-1 rounded-pill" style="background: #F8FAFC; color: #DC2626; border: 1px solid #E2E8F0; font-size: 0.75rem;">
-                                        <i class="bi bi-x-circle-fill me-1"></i> Rejected
-                                    </span>
-                                    {% endif %}
-                                    {% endif %}
+                                    <!-- Edit Icon Button (Logo only) -->
+                                    <a href="/edit-timesheet/{{ t.id }}" class="btn btn-sm action-edit-btn d-inline-flex align-items-center justify-content-center" title="Edit Timesheet">
+                                        <i class="bi bi-pencil"></i>
+                                    </a>
+
+                                    <!-- Actions Dropdown (Three Dots) -->
+                                    <div class="dropdown d-inline-block">
+                                        <button class="btn btn-sm action-more-btn" type="button" data-bs-toggle="dropdown" aria-expanded="false" title="More Actions">
+                                            <i class="bi bi-three-dots-vertical"></i>
+                                        </button>
+                                        <ul class="dropdown-menu dropdown-menu-end actions-dropdown-menu">
+                                            {% if can_review_timesheet and t.status == 'submitted' %}
+                                            <li>
+                                                <button class="dropdown-item approve-btn approve-item" type="button" 
+                                                        data-timesheet-id="{{ t.id }}" data-employee-name="{{ t.employee_name }}">
+                                                    <i class="bi bi-check-circle text-success" style="font-size: 0.95rem;"></i> Approve
+                                                </button>
+                                            </li>
+                                            <li>
+                                                <button class="dropdown-item reject-btn reject-item" type="button" 
+                                                        data-timesheet-id="{{ t.id }}" data-employee-name="{{ t.employee_name }}">
+                                                    <i class="bi bi-x-circle text-danger" style="font-size: 0.95rem;"></i> Reject
+                                                </button>
+                                            </li>
+                                            {% endif %}
+
+                                            {% if session.role in ['admin', 'hr', 'superadmin', 'manager'] or (is_own and t.status in ['submitted', 'draft', 'rejected']) %}
+                                            <li>
+                                                <button class="dropdown-item delete-btn delete-item" type="button" 
+                                                        data-timesheet-id="{{ t.id }}" data-employee-name="{{ t.employee_name }}"
+                                                        onclick="confirmDeleteTimesheet('{{ t.id }}', '{{ t.employee_name }}')">
+                                                    <i class="bi bi-trash text-danger" style="font-size: 0.95rem;"></i> Delete
+                                                </button>
+                                            </li>
+                                            {% endif %}
+                                        </ul>
+                                    </div>
                                 </div>
                             </td>
                         </tr>
                         {% else %}
                         <tr>
-                            <td colspan="9" class="text-center text-muted py-5">
+                            <td colspan="10" class="text-center text-muted py-5">
                                 <i class="bi bi-clock-history fs-2 d-block mb-2 text-muted"></i>
                                 <span>No timesheets found</span>
                             </td>
@@ -364,6 +482,141 @@
                 </button>
                 <button type="button" class="btn btn-success btn-sm rounded-pill px-4 fw-semibold" id="confirmApproveBtn">
                     <i class="bi bi-check-circle me-1"></i> Approve
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Timesheet Modal (Single) -->
+<div class="modal fade" id="deleteTimesheetModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title text-danger fw-bold">
+                    <i class="bi bi-exclamation-triangle me-2"></i> Confirm Deletion
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body modal-body-plain text-center p-4">
+                <div class="mb-3">
+                    <i class="bi bi-trash text-danger" style="font-size: 2.5rem;"></i>
+                </div>
+                <h6 class="fw-bold mb-2">Delete this timesheet?</h6>
+                <p class="text-muted mb-2 small">
+                    Are you sure you want to delete the timesheet for
+                    <strong id="deleteEmpName"></strong>?
+                </p>
+                <p class="text-muted small mb-0">
+                    This action cannot be undone.
+                </p>
+                <input type="hidden" id="deleteTimesheetId">
+            </div>
+            <div class="modal-footer justify-content-center">
+                <button type="button" class="btn btn-light btn-sm rounded-pill px-4 border" data-bs-dismiss="modal" style="color: #64748B; font-weight: 600;">
+                    Cancel
+                </button>
+                <button type="button" class="btn btn-danger btn-sm rounded-pill px-4 fw-semibold" id="confirmDeleteBtn">
+                    <i class="bi bi-trash me-1"></i> Delete
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Bulk Delete Confirmation Modal -->
+<div class="modal fade" id="bulkDeleteModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title text-danger fw-bold">
+                    <i class="bi bi-exclamation-triangle me-2"></i> Confirm Bulk Deletion
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body modal-body-plain text-center p-4">
+                <div class="mb-3">
+                    <i class="bi bi-trash text-danger" style="font-size: 2.5rem;"></i>
+                </div>
+                <h6 class="fw-bold mb-2">Delete selected timesheets?</h6>
+                <p class="text-muted mb-2 small">
+                    Are you sure you want to delete the <strong id="bulkDeleteCountText">0</strong> selected timesheets?
+                </p>
+                <p class="text-muted small mb-0">
+                    This action will delete all selected eligible timesheets permanently.
+                </p>
+            </div>
+            <div class="modal-footer justify-content-center">
+                <button type="button" class="btn btn-light btn-sm rounded-pill px-4 border" data-bs-dismiss="modal" style="color: #64748B; font-weight: 600;">
+                    Cancel
+                </button>
+                <button type="button" class="btn btn-danger btn-sm rounded-pill px-4 fw-semibold" id="confirmBulkDeleteBtn">
+                    <i class="bi bi-trash me-1"></i> Delete Selected
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Bulk Approve Confirmation Modal -->
+<div class="modal fade" id="bulkApproveModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title text-success fw-bold">
+                    <i class="bi bi-check-circle me-2"></i> Confirm Bulk Approval
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body modal-body-plain text-center p-4">
+                <div class="mb-3">
+                    <i class="bi bi-check-circle text-success" style="font-size: 2.5rem;"></i>
+                </div>
+                <h6 class="fw-bold mb-2">Approve selected timesheets?</h6>
+                <p class="text-muted mb-2 small">
+                    Are you sure you want to approve the <strong id="bulkApproveCountText">0</strong> selected submitted timesheets?
+                </p>
+                <p class="text-muted small mb-0">
+                    This action will mark the selected timesheets as approved.
+                </p>
+            </div>
+            <div class="modal-footer justify-content-center">
+                <button type="button" class="btn btn-light btn-sm rounded-pill px-4 border" data-bs-dismiss="modal" style="color: #64748B; font-weight: 600;">
+                    Cancel
+                </button>
+                <button type="button" class="btn btn-success btn-sm rounded-pill px-4 fw-semibold" id="confirmBulkApproveBtn">
+                    <i class="bi bi-check-circle me-1"></i> Approve Selected
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Bulk Reject Modal -->
+<div class="modal fade" id="bulkRejectModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title fw-bold" id="bulkRejectModalLabel"><i class="bi bi-x-circle text-danger me-2"></i>Reject Selected Timesheets</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body modal-body-form">
+                <form id="bulkRejectForm">
+                    <div class="mb-3">
+                        <label class="form-label">Selected Count</label>
+                        <input type="text" class="form-control" id="bulkRejectCountText" readonly>
+                    </div>
+                    <div class="mb-3">
+                        <label for="bulkRejectComments" class="form-label">Rejection Reason *</label>
+                        <textarea class="form-control" id="bulkRejectComments" rows="3" required
+                            placeholder="Please provide reason for rejecting the selected timesheets..."></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light btn-sm rounded-pill px-3 border" data-bs-dismiss="modal" style="color: #64748B; font-weight: 600;">Cancel</button>
+                <button type="button" class="btn btn-danger btn-sm rounded-pill px-3 fw-semibold" id="confirmBulkRejectBtn">
+                    <i class="bi bi-x-circle me-1"></i> Reject Selected
                 </button>
             </div>
         </div>
@@ -949,10 +1202,256 @@
             });
     }
 
+    // ----------------------------------------------------
+    // Individual Delete Functionality
+    // ----------------------------------------------------
+    function confirmDeleteTimesheet(timesheetId, employeeName) {
+        document.getElementById('deleteTimesheetId').value = timesheetId;
+        document.getElementById('deleteEmpName').textContent = employeeName || 'this employee';
+        const modal = new bootstrap.Modal(document.getElementById('deleteTimesheetModal'));
+        modal.show();
+    }
+
+    function executeSingleDelete() {
+        const timesheetId = document.getElementById('deleteTimesheetId').value;
+        const token = getToken();
+        if (!token) {
+            showError('Authentication token not found');
+            return;
+        }
+
+        const deleteModalEl = document.getElementById('deleteTimesheetModal');
+        const deleteModal = bootstrap.Modal.getInstance(deleteModalEl);
+        if (deleteModal) deleteModal.hide();
+
+        fetch(`/timesheets/delete/${timesheetId}`, {
+            method: 'POST',
+            headers: {
+                'Authorization': 'Bearer ' + token,
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                const row = document.getElementById(`timesheet-row-${timesheetId}`);
+                if (row) row.remove();
+                updateSelectionUI();
+                showSuccessModal('Timesheet deleted successfully');
+                setTimeout(() => location.reload(true), 1200);
+            } else {
+                showError('Failed to delete timesheet: ' + (data.error || 'Unknown error'));
+            }
+        })
+        .catch(err => {
+            showError('Error deleting timesheet: ' + err.message);
+        });
+    }
+
+    // ----------------------------------------------------
+    // Row Selection & Bulk Actions Management
+    // ----------------------------------------------------
+    function getSelectedCheckboxes() {
+        return Array.from(document.querySelectorAll('.timesheet-row-checkbox:checked'));
+    }
+
+    function getSelectedIds() {
+        return getSelectedCheckboxes().map(cb => parseInt(cb.value)).filter(id => !isNaN(id));
+    }
+
+    function updateSelectionUI() {
+        const selected = getSelectedCheckboxes();
+        const count = selected.length;
+        const container = document.getElementById('bulkActionsContainer');
+        const countText = document.getElementById('selectedCountText');
+        const selectAll = document.getElementById('selectAllCheckbox');
+
+        if (countText) countText.textContent = count;
+
+        if (container) {
+            if (count > 0) {
+                container.classList.remove('d-none');
+                container.classList.add('d-flex');
+            } else {
+                container.classList.remove('d-flex');
+                container.classList.add('d-none');
+            }
+        }
+
+        const visibleRows = Array.from(document.querySelectorAll('.timesheet-row')).filter(r => r.style.display !== 'none');
+        const visibleCheckboxes = visibleRows.map(r => r.querySelector('.timesheet-row-checkbox')).filter(Boolean);
+
+        if (selectAll && visibleCheckboxes.length > 0) {
+            const allChecked = visibleCheckboxes.every(cb => cb.checked);
+            const someChecked = visibleCheckboxes.some(cb => cb.checked);
+            selectAll.checked = allChecked;
+            selectAll.indeterminate = someChecked && !allChecked;
+        } else if (selectAll) {
+            selectAll.checked = false;
+            selectAll.indeterminate = false;
+        }
+    }
+
+    // ----------------------------------------------------
+    // Bulk Delete
+    // ----------------------------------------------------
+    function openBulkDeleteModal() {
+        const ids = getSelectedIds();
+        if (ids.length === 0) return;
+        document.getElementById('bulkDeleteCountText').textContent = ids.length;
+        const modal = new bootstrap.Modal(document.getElementById('bulkDeleteModal'));
+        modal.show();
+    }
+
+    function executeBulkDelete() {
+        const ids = getSelectedIds();
+        const token = getToken();
+        if (!token || ids.length === 0) return;
+
+        const modalEl = document.getElementById('bulkDeleteModal');
+        const modal = bootstrap.Modal.getInstance(modalEl);
+        if (modal) modal.hide();
+
+        fetch('/timesheets/bulk-delete', {
+            method: 'POST',
+            headers: {
+                'Authorization': 'Bearer ' + token,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ ids: ids })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                ids.forEach(id => {
+                    const row = document.getElementById(`timesheet-row-${id}`);
+                    if (row) row.remove();
+                });
+                updateSelectionUI();
+                showSuccessModal(data.message || 'Selected timesheets deleted successfully');
+                setTimeout(() => location.reload(true), 1200);
+            } else {
+                showError('Failed to delete selected timesheets: ' + (data.error || 'Unknown error'));
+            }
+        })
+        .catch(err => {
+            showError('Error during bulk deletion: ' + err.message);
+        });
+    }
+
+    // ----------------------------------------------------
+    // Bulk Approve
+    // ----------------------------------------------------
+    function openBulkApproveModal() {
+        const selected = getSelectedCheckboxes();
+        const submitted = selected.filter(cb => (cb.getAttribute('data-status') || '').toLowerCase() === 'submitted');
+        if (submitted.length === 0) {
+            alert('Please select at least one submitted timesheet to approve.');
+            return;
+        }
+        document.getElementById('bulkApproveCountText').textContent = submitted.length;
+        const modal = new bootstrap.Modal(document.getElementById('bulkApproveModal'));
+        modal.show();
+    }
+
+    function executeBulkApprove() {
+        const selected = getSelectedCheckboxes();
+        const ids = selected
+            .filter(cb => (cb.getAttribute('data-status') || '').toLowerCase() === 'submitted')
+            .map(cb => parseInt(cb.value));
+
+        const token = getToken();
+        if (!token || ids.length === 0) return;
+
+        const modalEl = document.getElementById('bulkApproveModal');
+        const modal = bootstrap.Modal.getInstance(modalEl);
+        if (modal) modal.hide();
+
+        fetch('/timesheets/bulk-approve', {
+            method: 'POST',
+            headers: {
+                'Authorization': 'Bearer ' + token,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ ids: ids })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                showSuccessModal(data.message || 'Selected timesheets approved successfully');
+                setTimeout(() => location.reload(true), 1200);
+            } else {
+                showError('Failed to approve selected timesheets: ' + (data.error || 'Unknown error'));
+            }
+        })
+        .catch(err => {
+            showError('Error during bulk approval: ' + err.message);
+        });
+    }
+
+    // ----------------------------------------------------
+    // Bulk Reject
+    // ----------------------------------------------------
+    function openBulkRejectModal() {
+        const selected = getSelectedCheckboxes();
+        const submitted = selected.filter(cb => (cb.getAttribute('data-status') || '').toLowerCase() === 'submitted');
+        if (submitted.length === 0) {
+            alert('Please select at least one submitted timesheet to reject.');
+            return;
+        }
+        document.getElementById('bulkRejectCountText').value = `${submitted.length} submitted timesheet(s)`;
+        document.getElementById('bulkRejectComments').value = '';
+        const modal = new bootstrap.Modal(document.getElementById('bulkRejectModal'));
+        modal.show();
+    }
+
+    function executeBulkReject() {
+        const selected = getSelectedCheckboxes();
+        const ids = selected
+            .filter(cb => (cb.getAttribute('data-status') || '').toLowerCase() === 'submitted')
+            .map(cb => parseInt(cb.value));
+
+        const comments = document.getElementById('bulkRejectComments').value.trim();
+        if (!comments) {
+            showError('Rejection comments are required');
+            return;
+        }
+
+        const token = getToken();
+        if (!token || ids.length === 0) return;
+
+        const modalEl = document.getElementById('bulkRejectModal');
+        const modal = bootstrap.Modal.getInstance(modalEl);
+        if (modal) modal.hide();
+
+        fetch('/timesheets/bulk-reject', {
+            method: 'POST',
+            headers: {
+                'Authorization': 'Bearer ' + token,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ ids: ids, reason: comments })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                showSuccessModal(data.message || 'Selected timesheets rejected successfully');
+                setTimeout(() => location.reload(true), 1200);
+            } else {
+                showError('Failed to reject selected timesheets: ' + (data.error || 'Unknown error'));
+            }
+        })
+        .catch(err => {
+            showError('Error during bulk rejection: ' + err.message);
+        });
+    }
+
     // Make functions globally available immediately after definition
+    window.confirmDeleteTimesheet = confirmDeleteTimesheet;
     window.approveTimesheet = approveTimesheet;
     window.showRejectModal = showRejectModal;
     window.rejectTimesheet = rejectTimesheet;
+    window.updateSelectionUI = updateSelectionUI;
     if (typeof getToken === 'function') {
         window.getToken = getToken;
     }
@@ -972,6 +1471,48 @@
 
         // Check for pending notifications for current user
         checkPendingNotifications();
+
+        // Checkbox events
+        const selectAllCheckbox = document.getElementById('selectAllCheckbox');
+        if (selectAllCheckbox) {
+            selectAllCheckbox.addEventListener('change', function () {
+                const isChecked = this.checked;
+                const visibleRows = Array.from(document.querySelectorAll('.timesheet-row')).filter(r => r.style.display !== 'none');
+                visibleRows.forEach(r => {
+                    const cb = r.querySelector('.timesheet-row-checkbox');
+                    if (cb) cb.checked = isChecked;
+                });
+                updateSelectionUI();
+            });
+        }
+
+        document.addEventListener('change', function (e) {
+            if (e.target.matches('.timesheet-row-checkbox')) {
+                updateSelectionUI();
+            }
+        });
+
+        // Bulk action button click listeners
+        const bulkDeleteBtn = document.getElementById('bulkDeleteBtn');
+        if (bulkDeleteBtn) bulkDeleteBtn.addEventListener('click', openBulkDeleteModal);
+
+        const confirmBulkDeleteBtn = document.getElementById('confirmBulkDeleteBtn');
+        if (confirmBulkDeleteBtn) confirmBulkDeleteBtn.addEventListener('click', executeBulkDelete);
+
+        const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
+        if (confirmDeleteBtn) confirmDeleteBtn.addEventListener('click', executeSingleDelete);
+
+        const bulkApproveBtn = document.getElementById('bulkApproveBtn');
+        if (bulkApproveBtn) bulkApproveBtn.addEventListener('click', openBulkApproveModal);
+
+        const confirmBulkApproveBtn = document.getElementById('confirmBulkApproveBtn');
+        if (confirmBulkApproveBtn) confirmBulkApproveBtn.addEventListener('click', executeBulkApprove);
+
+        const bulkRejectBtn = document.getElementById('bulkRejectBtn');
+        if (bulkRejectBtn) bulkRejectBtn.addEventListener('click', openBulkRejectModal);
+
+        const confirmBulkRejectBtn = document.getElementById('confirmBulkRejectBtn');
+        if (confirmBulkRejectBtn) confirmBulkRejectBtn.addEventListener('click', executeBulkReject);
 
         // Add event delegation for approve/reject buttons
         document.addEventListener('click', function (e) {
@@ -1695,6 +2236,9 @@
 
                 row.style.display = matches ? '' : 'none';
             });
+            if (typeof updateSelectionUI === 'function') {
+                updateSelectionUI();
+            }
         }
 
         Object.values(filters).forEach(f => {
