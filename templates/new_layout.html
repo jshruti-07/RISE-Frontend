@@ -4,11 +4,16 @@
         <div class="d-flex flex-column" style="gap: 24px; min-width: 0;">
 
             <!-- KPI GRID -->
-            {% if session.role in ['hr', 'admin', 'superadmin'] %}
-            {% if session.role in ['hr', 'superadmin'] %}
-            <div
-                style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 24px; margin-bottom: 0;">
+            {% set show_kpi_team = can('employee_team_management', 'view') or can('employees', 'view') or can('employees.allocation_config') or can('team_members.allocation_config') %}
+            {% set show_kpi_timesheets = can('projects', 'view') or can('employees', 'view') %}
+            {% set show_kpi_leaves = can('leave', 'view') or can('leave_management', 'view') or can('leave.view_all_balances') %}
+            {% set show_kpi_expenses = can('reimbursements', 'view') or can('expenses', 'view') or can('reimbursements.stats') %}
+            {% set has_any_kpi = show_kpi_team or show_kpi_timesheets or show_kpi_leaves or show_kpi_expenses %}
+
+            {% if has_any_kpi %}
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 24px; margin-bottom: 0;">
                 <!-- Total Team -->
+                {% if show_kpi_team %}
                 <a href="{{ url_for('employees.employee_list') }}" class="text-decoration-none">
                     <div class="glass-card p-3 h-100 hover-card kpi-card">
                         <div class="kpi-top">
@@ -21,7 +26,9 @@
                         </div>
                     </div>
                 </a>
+                {% endif %}
                 <!-- Timesheets -->
+                {% if show_kpi_timesheets %}
                 <a href="{{ url_for('work.timesheets_list') }}" class="text-decoration-none">
                     <div class="glass-card p-3 h-100 hover-card kpi-card">
                         <div class="kpi-top">
@@ -34,7 +41,9 @@
                         </div>
                     </div>
                 </a>
+                {% endif %}
                 <!-- Leaves -->
+                {% if show_kpi_leaves %}
                 <a href="{{ url_for('work.leaves_list') }}" class="text-decoration-none">
                     <div class="glass-card p-3 h-100 hover-card kpi-card">
                         <div class="kpi-top">
@@ -47,7 +56,9 @@
                         </div>
                     </div>
                 </a>
+                {% endif %}
                 <!-- Expenses -->
+                {% if show_kpi_expenses %}
                 <a href="{{ url_for('admin.reimbursement') }}" class="text-decoration-none">
                     <div class="glass-card p-3 h-100 hover-card kpi-card">
                         <div class="kpi-top">
@@ -61,24 +72,7 @@
                         </div>
                     </div>
                 </a>
-            </div>
-            {% else %}
-            <!-- KPI GRID (Admin) — Leaves only -->
-            <div
-                style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 24px; margin-bottom: 0;">
-                <!-- Leaves -->
-                <a href="{{ url_for('work.leaves_list') }}" class="text-decoration-none">
-                    <div class="glass-card p-3 h-100 hover-card kpi-card">
-                        <div class="kpi-top">
-                            <span class="kpi-label-new">Leaves</span>
-                            <span class="kpi-status-dot kpi-dot-violet" aria-hidden="true"></span>
-                        </div>
-                        <div class="kpi-value-row">
-                            <p class="kpi-value-new mb-0">{{ stats.leaves }}</p>
-                            <span class="kpi-status-text">Awaiting</span>
-                        </div>
-                    </div>
-                </a>
+                {% endif %}
             </div>
             {% endif %}
 
@@ -411,6 +405,7 @@
                 }
             </style>
 
+            {% if session.role in ['hr', 'admin', 'superadmin'] and (can('devices', 'view') or can('devices.view_all')) %}
             <div class="rio-section animate__animated animate__fadeIn">
                 <!-- Header -->
                 <div class="rio-header">
@@ -509,7 +504,8 @@
                     </div>
                 </div>
             </div>
-            {% elif session.role == 'employee' %}
+            {% endif %}
+            {% if session.role == 'employee' %}
             <div class="d-flex flex-column gap-3 mb-4">
                 <!-- Row 1: My Projects -->
                 <div class="glass-card p-4 hover-card w-100">
@@ -703,7 +699,9 @@
             {% endif %}
 
             <!-- HELP DESK & REIMBURSEMENT TABS -->
-            {% if session.role in ['hr', 'admin', 'superadmin'] %}
+            {% set show_helpdesk_tab = can('helpdesk', 'view') or can('helpdesk.stats') or can('helpdesk.history') %}
+            {% set show_reimbursement_tab = can('reimbursements', 'view') or can('expenses', 'view') or can('reimbursements.stats') or can('reimbursements.history') %}
+            {% if show_helpdesk_tab or show_reimbursement_tab %}
             <style>
                 .hd-dashboard-card {
                     background: #FFFFFF;
@@ -806,22 +804,25 @@
 
             <div class="hd-dashboard-card mb-4">
                 <!-- Tab Header -->
-                {% if session.role != 'admin' or session.role == 'superadmin' %}
                 <ul class="nav hd-nav-tabs" id="dashboardTabs" role="tablist">
+                    {% if show_helpdesk_tab %}
                     <li class="nav-item" role="presentation">
                         <button class="nav-link active" id="helpdesk-tab" data-bs-toggle="tab"
                             data-bs-target="#helpdesk-pane" type="button" role="tab">Help Desk</button>
                     </li>
+                    {% endif %}
+                    {% if show_reimbursement_tab %}
                     <li class="nav-item" role="presentation">
-                        <button class="nav-link" id="reimbursement-tab" data-bs-toggle="tab"
+                        <button class="nav-link {% if not show_helpdesk_tab %}active{% endif %}" id="reimbursement-tab" data-bs-toggle="tab"
                             data-bs-target="#reimbursement-pane" type="button" role="tab">Reimbursements</button>
                     </li>
+                    {% endif %}
                 </ul>
-                {% endif %}
 
                 <div class="tab-content" id="dashboardTabsContent">
 
                     <!-- Help Desk Tab -->
+                    {% if show_helpdesk_tab %}
                     <div class="tab-pane fade show active" id="helpdesk-pane" role="tabpanel">
                         {% set hd_open = hd_stats.by_status.get('open', 0) if hd_stats and hd_stats.by_status else 0 %}
                         {% set hd_progress = hd_stats.by_status.get('in_progress', 0) if hd_stats and hd_stats.by_status
@@ -930,10 +931,11 @@
                             </div>
                         </div>
                     </div>
+                    {% endif %}
 
                     <!-- Reimbursement Tab -->
-                    {% if session.role != 'admin' %}
-                    <div class="tab-pane fade" id="reimbursement-pane" role="tabpanel">
+                    {% if show_reimbursement_tab %}
+                    <div class="tab-pane fade {% if not show_helpdesk_tab %}show active{% endif %}" id="reimbursement-pane" role="tabpanel">
                         {% set rm_pending = reimbursement_stats.pending_approval.count if reimbursement_stats and
                         reimbursement_stats.pending_approval else 0 %}
                         {% set rm_approved = reimbursement_stats.by_status.approved.count if reimbursement_stats and
@@ -1057,7 +1059,7 @@
             {% endif %}
 
             <!-- ADMIN: TEAM OVERVIEW PANEL -->
-            {% if session.role == 'admin' %}
+            {% if session.role == 'admin' and (can('leave', 'view') or can('leave_management', 'view')) %}
             <div class="hd-dashboard-card mb-4" style="margin-top: 4px;">
                 <div class="p-4">
                     <div class="d-flex justify-content-between align-items-center mb-3">
@@ -1118,6 +1120,7 @@
         <div class="d-flex flex-column" style="gap: 24px; min-width: 0;">
 
             <!-- UPCOMING HOLIDAYS CARD -->
+            {% if can('holidays', 'view') or can('holidays.create') %}
             <div class="glass-card p-4 d-flex flex-column holidays-widget-card" style="border-radius: 16px;">
                 <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
                     <div class="d-flex align-items-center gap-2">
@@ -1179,8 +1182,10 @@
                     {% endif %}
                 </div>
             </div>
+            {% endif %}
 
             <!-- UPCOMING BIRTHDAYS CARD -->
+            {% if can('employee_team_management', 'view') or can('employees', 'view') %}
             <div class="glass-card p-4 d-flex flex-column birthdays-widget-card" style="border-radius: 16px;">
                 <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
                     <div class="d-flex align-items-center gap-2">
@@ -1265,21 +1270,23 @@
                     {% endif %}
                 </div>
             </div>
+            {% endif %}
 
             <!-- ANNOUNCEMENTS -->
+            {% if can('announcements', 'view') or can('announcements.create') or can('announcements.update') or can('announcements.delete') %}
             <div class="glass-card overflow-hidden" style="border-radius: 16px;">
                 <div
                     class="px-4 py-3 border-bottom d-flex justify-content-between align-items-center bg-light bg-opacity-50">
                     <h5 class="mb-0 fw-bold text-dark" style="font-size: 1.05rem;">Announcements</h5>
-                    {% if session.role in ['hr', 'superadmin'] %}
+                    {% if (session.role in ['hr', 'superadmin']) and (can('announcements.create') or can('announcements', 'manage')) %}
                     <div class="dropdown">
                         <button class="btn btn-link text-secondary p-0 text-decoration-none" data-bs-toggle="dropdown">
                             <i class="bi bi-three-dots fs-5"></i>
                         </button>
                         <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0">
                             <li><a class="dropdown-item" href="#" data-bs-toggle="modal"
-                                    data-bs-target="#dashboardAnnouncementModal" onclick="prepareDashboardCreate()"><i
-                                        class="bi bi-plus-lg me-2"></i>Create New</a></li>
+                                     data-bs-target="#dashboardAnnouncementModal" onclick="prepareDashboardCreate()"><i
+                                         class="bi bi-plus-lg me-2"></i>Create New</a></li>
                         </ul>
                     </div>
                     {% endif %}
@@ -1324,6 +1331,7 @@
                     {% endif %}
                 </div>
             </div>
+            {% endif %}
 
         </div>
     </div>

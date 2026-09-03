@@ -99,9 +99,11 @@
 
                     <button class="btn btn-outline-secondary btn-sm rounded-pill px-3" onclick="location.href='/timesheets'" style="font-size: 0.8rem; font-weight: 600;">Daily</button>
                     <button class="btn btn-outline-secondary btn-sm rounded-pill px-3" onclick="location.href='/add-weekly-timesheet'" style="font-size: 0.8rem; font-weight: 600;">Weekly</button>
+                    {% if can('holidays', 'view') or can('holidays.create') %}
                     <button class="btn btn-outline-secondary btn-sm rounded-pill px-3" data-bs-toggle="modal" data-bs-target="#calendarModal" style="font-size: 0.8rem; font-weight: 600;">
                         <i class="bi bi-calendar3 me-1"></i> Calendar
                     </button>
+                    {% endif %}
                 </div>
 
                 <!-- Action Buttons -->
@@ -399,6 +401,7 @@
 </div>
 
 <!-- Timesheet Calendar Modal -->
+{% if can('holidays', 'view') or can('holidays.create') %}
 <div class="modal fade" id="calendarModal" tabindex="-1" aria-labelledby="calendarModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-xl modal-dialog-centered" style="max-width: 980px;">
         <div class="modal-content">
@@ -437,6 +440,7 @@
         </div>
     </div>
 </div>
+{% endif %}
 
 <!-- Day Details Modal -->
 <div class="modal fade" id="dayDetailsModal" tabindex="-1" aria-hidden="true">

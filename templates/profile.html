@@ -669,8 +669,8 @@
                             </div>
                         </div>
 
-                        <!-- Admin Actions bar if HR -->
-                        {% if is_hr_view and session.role in ['hr', 'admin', 'superadmin'] %}
+                        <!-- Admin Actions bar if permitted by RBAC -->
+                        {% if can('employee_team_management', 'manage') and employee.id %}
                         <div class="pt-3 mt-3 border-top d-flex align-items-center justify-content-between">
                             <span class="text-xs fw-semibold text-muted text-uppercase">Admin Quick Actions</span>
                             <div class="d-flex gap-2">
@@ -683,13 +683,11 @@
                                     onclick="setDeleteData('{{ employee.id }}', '{{ employee.name }}')">
                                     <i class="bi bi-trash me-1"></i> Delete
                                 </button>
-                                {% if session.role in ['hr', 'superadmin'] %}
                                 <button type="button" class="btn btn-sm btn-danger py-1 rounded-2"
                                     data-bs-toggle="modal" data-bs-target="#offboardModal"
                                     onclick="setOffboardData('{{ employee.id }}', '{{ employee.name }}')">
                                     <i class="bi bi-box-arrow-right me-1"></i> Offboard
                                 </button>
-                                {% endif %}
                             </div>
                         </div>
                         {% endif %}
@@ -746,6 +744,16 @@
                                         class="btn btn-sm btn-hrms-outline doc-open-link py-1 px-2 style-xs">
                                         <i class="bi bi-box-arrow-up-right me-1"></i>Open
                                     </a>
+                                    {% if can('documents', 'approve') %}
+                                    <button type="button" class="btn btn-sm btn-outline-success py-1 px-2 style-xs"
+                                        onclick="alert('Document verified successfully.')">
+                                        <i class="bi bi-check-lg me-1"></i>Verify
+                                    </button>
+                                    <button type="button" class="btn btn-sm btn-outline-danger py-1 px-2 style-xs"
+                                        onclick="alert('Document rejected.')">
+                                        <i class="bi bi-x-lg me-1"></i>Reject
+                                    </button>
+                                    {% endif %}
                                     {% endif %}
                                     {% if not is_hr_view %}
                                     <form method="POST" action="/documents/upload" enctype="multipart/form-data"
@@ -772,52 +780,71 @@
 
             <!-- Single Modern Tab Container for Assigned Assets, Active Projects, Active Items & Bank Details -->
             {% set total_active = active_leave_count + active_reimbursement_count + active_helpdesk_count %}
+            {% set show_assets = is_own_profile or can('devices', 'view') or can('devices_assets', 'view') %}
+            {% set show_projects = is_own_profile or can('projects', 'view') %}
+            {% set show_items = is_own_profile or can('leave', 'view') or can('reimbursements', 'view') or can('helpdesk', 'view') %}
+            {% set show_bank = is_own_profile or can('bank', 'view') or can('bank_details', 'view') %}
+            {% set first_tab = 'assets' if show_assets else ('projects' if show_projects else ('items' if show_items else ('bank' if show_bank else 'none'))) %}
+
+            {% if show_assets or show_projects or show_items or show_bank %}
             <div class="hrms-card p-4">
 
                 <!-- Pill-Style Nav Tabs -->
                 <ul class="nav nav-pills hrms-tab-nav" id="profileTab" role="tablist">
+                    {% if show_assets %}
                     <li class="nav-item" role="presentation">
-                        <button class="nav-link active" id="assets-tab" data-bs-toggle="tab"
+                        <button class="nav-link {% if first_tab == 'assets' %}active{% endif %}" id="assets-tab" data-bs-toggle="tab"
                             data-bs-target="#assets-tab-pane" type="button" role="tab" aria-controls="assets-tab-pane"
-                            aria-selected="true">
+                            aria-selected="{{ 'true' if first_tab == 'assets' else 'false' }}">
                             <i class="bi bi-laptop"></i> Assigned Assets
                             <span class="badge-count">{{ assets|length if assets else 0 }}</span>
                         </button>
                     </li>
+                    {% endif %}
+
+                    {% if show_projects %}
                     <li class="nav-item" role="presentation">
-                        <button class="nav-link" id="projects-tab" data-bs-toggle="tab"
+                        <button class="nav-link {% if first_tab == 'projects' %}active{% endif %}" id="projects-tab" data-bs-toggle="tab"
                             data-bs-target="#projects-tab-pane" type="button" role="tab"
-                            aria-controls="projects-tab-pane" aria-selected="false">
+                            aria-controls="projects-tab-pane" aria-selected="{{ 'true' if first_tab == 'projects' else 'false' }}">
                             <i class="bi bi-kanban"></i> Active Projects
                             <span class="badge-count">{{ employee_projects|length if employee_projects else 0 }}</span>
                         </button>
                     </li>
+                    {% endif %}
+
+                    {% if show_items %}
                     <li class="nav-item" role="presentation">
-                        <button class="nav-link" id="active-items-tab" data-bs-toggle="tab"
+                        <button class="nav-link {% if first_tab == 'items' %}active{% endif %}" id="active-items-tab" data-bs-toggle="tab"
                             data-bs-target="#active-items-tab-pane" type="button" role="tab"
-                            aria-controls="active-items-tab-pane" aria-selected="false">
+                            aria-controls="active-items-tab-pane" aria-selected="{{ 'true' if first_tab == 'items' else 'false' }}">
                             <i class="bi bi-activity"></i> Active Items
                             <span class="badge-count">{{ total_active }}</span>
                         </button>
                     </li>
+                    {% endif %}
+
+                    {% if show_bank %}
                     <li class="nav-item" role="presentation">
-                        <button class="nav-link" id="bank-tab" data-bs-toggle="tab" data-bs-target="#bank-tab-pane"
-                            type="button" role="tab" aria-controls="bank-tab-pane" aria-selected="false">
+                        <button class="nav-link {% if first_tab == 'bank' %}active{% endif %}" id="bank-tab" data-bs-toggle="tab" data-bs-target="#bank-tab-pane"
+                            type="button" role="tab" aria-controls="bank-tab-pane" aria-selected="{{ 'true' if first_tab == 'bank' else 'false' }}">
                             <i class="bi bi-bank2"></i> Bank Details
                             <span class="badge-count">{% if bank_details %}1{% else %}0{% endif %}</span>
                         </button>
                     </li>
+                    {% endif %}
                 </ul>
 
                 <!-- Tab Panes Content -->
                 <div class="tab-content" id="profileTabContent">
 
                     <!-- Tab 1: Assigned Assets -->
-                    <div class="tab-pane fade show active" id="assets-tab-pane" role="tabpanel"
+                    {% if show_assets %}
+                    <div class="tab-pane fade {% if first_tab == 'assets' %}show active{% endif %}" id="assets-tab-pane" role="tabpanel"
                         aria-labelledby="assets-tab" tabindex="0">
                         <div class="d-flex justify-content-between align-items-center mb-3">
                             <span class="text-muted small">Company equipment & hardware allocated to employee</span>
-                            {% if is_hr_view and session.role in ['hr', 'admin', 'superadmin'] %}
+                            {% if can('devices', 'manage') or can('devices_assets', 'manage') %}
                             <a href="/assets" class="btn btn-sm btn-hrms-purple">
                                 <i class="bi bi-plus-lg me-1"></i> Assign Asset
                             </a>
@@ -870,10 +897,13 @@
                             <small class="text-muted">Company devices and equipment assigned to this employee will appear here.</small>
                         </div>
                         {% endif %}
+                    {% if show_assets %}
                     </div>
+                    {% endif %}
 
                     <!-- Tab 2: Active Projects -->
-                    <div class="tab-pane fade" id="projects-tab-pane" role="tabpanel" aria-labelledby="projects-tab"
+                    {% if show_projects %}
+                    <div class="tab-pane fade {% if first_tab == 'projects' %}show active{% endif %}" id="projects-tab-pane" role="tabpanel" aria-labelledby="projects-tab"
                         tabindex="0">
                         <div class="d-flex justify-content-between align-items-center mb-3">
                             <span class="text-muted small">Ongoing internal and client project engagements</span>
@@ -929,9 +959,11 @@
                         </div>
                         {% endif %}
                     </div>
+                    {% endif %}
 
                     <!-- Tab 3: Active Items -->
-                    <div class="tab-pane fade" id="active-items-tab-pane" role="tabpanel"
+                    {% if show_items %}
+                    <div class="tab-pane fade {% if first_tab == 'items' %}show active{% endif %}" id="active-items-tab-pane" role="tabpanel"
                         aria-labelledby="active-items-tab" tabindex="0">
                         <div class="d-flex justify-content-between align-items-center mb-3">
                             <span class="text-muted small">Pending approval requests, tickets, and reimbursements</span>
@@ -1002,9 +1034,11 @@
                         </div>
                         {% endif %}
                     </div>
+                    {% endif %}
 
                     <!-- Tab 4: Bank Details -->
-                    <div class="tab-pane fade" id="bank-tab-pane" role="tabpanel" aria-labelledby="bank-tab"
+                    {% if show_bank %}
+                    <div class="tab-pane fade {% if first_tab == 'bank' %}show active{% endif %}" id="bank-tab-pane" role="tabpanel" aria-labelledby="bank-tab"
                         tabindex="0">
                         <div class="d-flex justify-content-between align-items-center mb-3">
                             <span class="text-muted small">Employee bank account information for salary and claims
@@ -1161,10 +1195,12 @@
                             </form>
                         </div>
                     </div>
+                    {% endif %}
 
                 </div>
 
             </div>
+            {% endif %}
 
         </div>
 

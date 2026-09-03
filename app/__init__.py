@@ -42,16 +42,30 @@ def create_app():
     app.register_blueprint(superadmin_bp)
     app.register_blueprint(offboarding_ui_bp, url_prefix='/offboarding')
 
+    @app.before_request
+    def ensure_permissions():
+        from flask import session, request
+        if request.path.startswith('/static/'):
+            return
+        if session.get('token'):
+            from app.utils import fetch_user_permissions
+            fetch_user_permissions(force_refresh=True)
+
     @app.context_processor
     def inject_user():
         from flask import session
+        from app.utils import can, has_permission
         return dict(
             current_user=session.get('employee_name'),
             role=session.get('role'),
             sidebar_photo_url=session.get('photo_url'),
             labels=UI_LABELS,
             config=UI_CONFIG,
-            BASE_URL=os.getenv("BACKEND_URL", "http://127.0.0.1:5001")
+            BASE_URL=os.getenv("BACKEND_URL", "http://127.0.0.1:5001"),
+            can=can,
+            has_permission=has_permission,
+            user_permissions=session.get('permissions', {}),
+            feature_actions=session.get('feature_actions', {}),
         )
 
     @app.template_filter('clean_name')

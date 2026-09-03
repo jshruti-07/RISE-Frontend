@@ -33,24 +33,24 @@
     .asset-hero {
         background: #FFFFFF;
         border: 1px solid #E8ECF4;
-        border-radius: 16px;
+        border-radius: 14px;
         color: #0f172a;
-        padding: 1.25rem 1.5rem;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+        padding: 1.1rem 1.4rem;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
         margin-bottom: 1.25rem;
     }
 
     .asset-hero .hero-stat {
         background: #F8FAFC;
         border: 1px solid #E2E8F0;
-        border-radius: 12px;
-        padding: 0.6rem 1.1rem;
+        border-radius: 10px;
+        padding: 0.5rem 1rem;
         text-align: center;
-        min-width: 85px;
+        min-width: 80px;
     }
 
     .asset-hero .hero-stat-value {
-        font-size: 1.3rem;
+        font-size: 1.25rem;
         font-weight: 700;
         color: #1E293B;
         line-height: 1;
@@ -58,7 +58,7 @@
     }
 
     .asset-hero .hero-stat-label {
-        font-size: 0.7rem;
+        font-size: 0.65rem;
         color: #64748B;
         font-weight: 600;
         text-transform: uppercase;
@@ -67,63 +67,39 @@
         display: block;
     }
 
-    .btn-hero-action {
-        background: #6366F1;
-        color: #fff;
-        border: none;
-        font-weight: 600;
-        padding: 0.5rem 1.25rem;
-        border-radius: 20px;
-        font-size: 0.8rem;
-        box-shadow: 0 2px 6px rgba(99, 102, 241, 0.25);
-        transition: all 0.15s ease;
-        display: inline-flex;
-        align-items: center;
-        gap: 0.4rem;
-        cursor: pointer;
-    }
-
-    .btn-hero-action:hover {
-        background: #4F46E5;
-        color: #fff;
-        transform: translateY(-1px);
-    }
-
-    /* ── Tabs (matching timesheets filter pills) ── */
-    .asset-tabs-bar {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0.5rem;
-        padding: 1rem 1.25rem 1rem;
-        border-bottom: 1px solid #E8ECF4;
-        background: #FAFAFA;
-    }
-
+    /* ── Tabs (matching reference) ── */
     .asset-tab-pill {
         border: 1px solid #E2E8F0;
         background: #FFFFFF;
         color: #64748B;
         border-radius: 20px;
-        padding: 5px 16px;
+        padding: 6px 18px;
         font-size: 0.82rem;
-        font-weight: 600;
+        font-weight: 500;
         cursor: pointer;
         transition: all 0.15s ease;
         display: inline-flex;
         align-items: center;
         gap: 0.4rem;
+        text-decoration: none;
     }
 
-    .asset-tab-pill:hover, .asset-tab-pill.active {
-        background: #6366F1;
-        color: #FFFFFF;
-        border-color: #6366F1;
+    .asset-tab-pill:hover {
+        background: #F8FAFC;
+        color: #334155;
+    }
+
+    .asset-tab-pill.active {
+        background: #4F46E5 !important;
+        color: #FFFFFF !important;
+        border-color: #4F46E5 !important;
+        font-weight: 600;
+        box-shadow: 0 2px 6px rgba(79, 70, 229, 0.25);
     }
 
     /* ── Section ── */
     .view-section {
         display: none;
-        padding: 1.5rem 1.25rem;
     }
 
     .view-section.active {
@@ -1193,33 +1169,39 @@
 
     <div class="asset-page">
         <!-- ── Hero Banner ── -->
-        <div class="asset-hero">
+        <div class="asset-hero bg-white border rounded-4 p-3 mb-3 shadow-sm" style="border-color: #E8ECF4 !important;">
             <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
-                <div>
-                    <h5 class="fw-bold text-dark mb-1"><i class="bi bi-box-seam me-2 text-primary"></i>Hardware & Assets</h5>
-                    <p class="text-muted small mb-0">Track, allocate and manage company hardware assets</p>
+                <div class="d-flex align-items-center gap-3">
+                    <div style="width: 42px; height: 42px; border-radius: 10px; background: #EEF2FF; color: #4F46E5; display: flex; align-items: center; justify-content: center; font-size: 1.25rem; flex-shrink: 0;">
+                        <i class="bi bi-box-seam"></i>
+                    </div>
+                    <div>
+                        <h5 class="fw-bold text-dark mb-0" style="font-size: 1.05rem;">Hardware &amp; Assets</h5>
+                        <p class="text-muted small mb-0" style="font-size: 0.8rem;">Track, allocate and manage company hardware assets</p>
+                    </div>
                 </div>
                 <div class="d-flex align-items-center gap-2 flex-wrap">
-                    <div class="hero-stat">
-                        <span class="hero-stat-value" id="heroStatTotal">—</span>
-                        <span class="hero-stat-label">Total</span>
+                    <div class="hero-stat" style="min-width: 75px; padding: 6px 14px; border: 1px solid #E2E8F0; border-radius: 10px; background: #F8FAFC; text-align: center;">
+                        <span class="hero-stat-value fw-bold text-dark" id="heroStatTotal" style="font-size: 1.25rem; line-height: 1; display: block;">—</span>
+                        <span class="hero-stat-label text-muted fw-semibold" style="font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.05em; margin-top: 3px; display: block;">Total</span>
                     </div>
-                    <div class="hero-stat">
-                        <span class="hero-stat-value" id="heroStatAssigned">—</span>
-                        <span class="hero-stat-label">Assigned</span>
+                    <div class="hero-stat" style="min-width: 75px; padding: 6px 14px; border: 1px solid #E2E8F0; border-radius: 10px; background: #F8FAFC; text-align: center;">
+                        <span class="hero-stat-value fw-bold text-dark" id="heroStatAssigned" style="font-size: 1.25rem; line-height: 1; display: block;">—</span>
+                        <span class="hero-stat-label text-muted fw-semibold" style="font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.05em; margin-top: 3px; display: block;">Assigned</span>
                     </div>
-                    <div class="hero-stat">
-                        <span class="hero-stat-value" id="heroStatFree">—</span>
-                        <span class="hero-stat-label">Available</span>
+                    <div class="hero-stat" style="min-width: 75px; padding: 6px 14px; border: 1px solid #E2E8F0; border-radius: 10px; background: #F8FAFC; text-align: center;">
+                        <span class="hero-stat-value fw-bold text-dark" id="heroStatFree" style="font-size: 1.25rem; line-height: 1; display: block;">—</span>
+                        <span class="hero-stat-label text-muted fw-semibold" style="font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.05em; margin-top: 3px; display: block;">Available</span>
                     </div>
                     <div class="input-group ms-2"
-                        style="width: 220px; border-radius: 8px; overflow: hidden;">
-                        <span class="input-group-text bg-white border-end-0"><i
-                                class="bi bi-search text-muted"></i></span>
-                        <input type="text" id="assetSearchInput" class="form-control border-start-0 ps-0 form-control-sm"
-                            placeholder="Search assets..." oninput="applyFilters()">
+                        style="width: 200px; border-radius: 8px; overflow: hidden; border: 1px solid #E2E8F0;">
+                        <span class="input-group-text bg-white border-0 pe-1"><i
+                                class="bi bi-search text-muted" style="font-size: 0.85rem;"></i></span>
+                        <input type="text" id="assetSearchInput" class="form-control border-0 ps-1 form-control-sm shadow-none"
+                            placeholder="Search assets..." oninput="applyFilters()" style="font-size: 0.82rem;">
                     </div>
                     <button class="btn btn-outline-secondary btn-sm rounded-pill px-3 position-relative"
+                        style="font-size: 0.8rem; font-weight: 500; border-color: #CBD5E1; color: #475569;"
                         onclick="toggleFilterPanel()" title="Filters">
                         <i class="bi bi-funnel me-1"></i> Filters
                         <span id="filterCountBadge"
@@ -1228,13 +1210,19 @@
                             0
                         </span>
                     </button>
-                    <button class="btn btn-outline-success btn-sm rounded-pill px-3" id="btnExportModal"
+                    <button class="btn btn-sm rounded-pill px-3"
+                        style="font-size: 0.8rem; font-weight: 500; border: 1px solid #86EFAC; color: #166534; background: #F0FDF4;"
+                        id="btnExportModal"
                         onclick="openExportModal()" title="Export Assets to Excel">
                         <i class="bi bi-download me-1"></i> Export
                     </button>
-                    <button class="btn btn-soft-purple btn-sm rounded-pill px-3 shadow-sm" id="tabAddAsset" onclick="switchTab('add')" style="font-size: 0.8rem; font-weight: 600;">
-                        <i class="bi bi-plus-circle me-1"></i> Add Asset
+                    {% if can('devices', 'manage') or can('devices_assets', 'manage') %}
+                    <button class="btn btn-sm rounded-pill px-3 shadow-sm"
+                        style="font-size: 0.8rem; font-weight: 600; border: 1px solid #C7D2FE; color: #4338CA; background: #EEF2FF;"
+                        id="tabAddAsset" onclick="switchTab('add')">
+                        <i class="bi bi-plus me-1" style="font-size: 1rem; vertical-align: -1px;"></i> Add Asset
                     </button>
+                    {% endif %}
                 </div>
             </div>
         </div>
@@ -1334,35 +1322,39 @@
             </div>
         </div>
 
-        <!-- ── Main Panel ── -->
-        <div class="asset-panel hd-dashboard-card">
-            <!-- Tabs -->
-            <div class="asset-tabs-bar d-flex align-items-center justify-content-between">
-                <div class="d-flex align-items-center gap-2">
-                    <button class="asset-tab-pill active" id="tabInventory" onclick="switchTab('inventory')">
-                        <i class="bi bi-list-ul"></i> Asset Inventory
-                    </button>
-                    <button class="asset-tab-pill" id="tabRentals" onclick="switchTab('rentals')">
-                        <i class="bi bi-cash-coin"></i> Rental Management
-                    </button>
-                </div>
-                <button class="asset-tab-pill" id="tabAddAsset" onclick="switchTab('add')">
-                    <i class="bi bi-plus-circle"></i> Add New Asset
+        <!-- ── Tabs Bar ── -->
+        <div class="d-flex align-items-center justify-content-between mb-3">
+            <div class="d-flex align-items-center gap-2">
+                <button class="asset-tab-pill active" id="tabInventory" onclick="switchTab('inventory')">
+                    <i class="bi bi-grid-fill me-1"></i> Asset Inventory
+                </button>
+                <button class="asset-tab-pill" id="tabRentals" onclick="switchTab('rentals')">
+                    <i class="bi bi-cash-stack me-1"></i> Rental Management
                 </button>
             </div>
+            {% if can('devices', 'manage') or can('devices_assets', 'manage') %}
+            <div>
+                <button class="btn btn-outline-secondary btn-sm rounded-pill px-3" id="tabAddAssetSecondary" onclick="switchTab('add')" style="font-size: 0.8rem; font-weight: 500; border-color: #CBD5E1; color: #475569;">
+                    <i class="bi bi-plus-circle me-1"></i> Add New Asset
+                </button>
+            </div>
+            {% endif %}
+        </div>
 
+        <!-- ── Main Panel ── -->
+        <div class="asset-panel bg-white border rounded-4 shadow-sm overflow-hidden" style="border-color: #E8ECF4 !important;">
             <!-- Section 1: Inventory -->
-            <section id="sectionInventory" class="view-section active p-4">
-                <div class="table-responsive rounded-3 border" style="border-color: #E8ECF4 !important;">
+            <section id="sectionInventory" class="view-section active p-0">
+                <div class="table-responsive">
                     <table class="table table-hover align-middle mb-0 asset-table">
-                        <thead class="table-light" style="background-color: #F8FAFC;">
+                        <thead style="background-color: #F8FAFC; border-bottom: 1px solid #E2E8F0;">
                             <tr>
-                                <th style="font-weight: 700; color: #475569; font-size: 0.85rem; padding: 12px 16px;">Device Name</th>
-                                <th style="font-weight: 700; color: #475569; font-size: 0.85rem;">Allotted To</th>
-                                <th style="font-weight: 700; color: #475569; font-size: 0.85rem;">Assignment Duration</th>
-                                <th style="font-weight: 700; color: #475569; font-size: 0.85rem;">Agreement</th>
-                                <th style="font-weight: 700; color: #475569; font-size: 0.85rem;">Rental Start Date</th>
-                                <th style="font-weight: 700; color: #475569; font-size: 0.85rem; text-align: center; padding-right: 16px;">Actions</th>
+                                <th style="font-weight: 600; color: #475569; font-size: 0.8rem; padding: 14px 20px; border-top: none;">Device Name</th>
+                                <th style="font-weight: 600; color: #475569; font-size: 0.8rem; padding: 14px 16px; border-top: none;">Allotted To</th>
+                                <th style="font-weight: 600; color: #475569; font-size: 0.8rem; padding: 14px 16px; border-top: none;">Assignment Duration</th>
+                                <th style="font-weight: 600; color: #475569; font-size: 0.8rem; padding: 14px 16px; border-top: none;">Agreement</th>
+                                <th style="font-weight: 600; color: #475569; font-size: 0.8rem; padding: 14px 16px; border-top: none;">Rental Start Date</th>
+                                <th style="font-weight: 600; color: #475569; font-size: 0.8rem; padding: 14px 20px; text-align: center; border-top: none;">Actions</th>
                             </tr>
                         </thead>
                         <tbody id="assetsTableBody"></tbody>
@@ -4214,47 +4206,53 @@
             const empId = a.employee_id || a.assigned_to || a.user_id || a.emp_id || a.allotted_to || a.allotted_id;
             const isAssigned = (a.status && (a.status.toLowerCase() === 'assigned' || a.status.toLowerCase() === 'allotted')) || !!empId;
 
-            let allottedDisplay = '<span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-2 py-1" style="font-size:0.72rem;">Available</span>';
+            let allottedDisplay = '<span class="badge rounded-pill" style="background:#DCFCE7;color:#166534;border:1px solid #BBF7D0;font-size:0.75rem;padding:4px 12px;font-weight:600;">Available</span>';
 
             if (isAssigned) {
                 const emp = (empId && typeof employees !== 'undefined') ? employees.find(e => String(e.id) === String(empId)) : null;
-                let empName = emp ? emp.name : 'Assigned';
+                let empName = emp ? emp.name : (a.employee_name || a.assigned_to_name || 'Assigned');
                 const formattedName = cleanNameJS(empName);
-                const displayId = empId || (emp ? emp.id : 'N/A');
-                allottedDisplay = `<div><strong class="text-dark">${formattedName}</strong></div><div class="small text-muted">ID: ${displayId}</div>`;
+                const displayId = empId || (emp ? emp.id : (a.employee_id || 'N/A'));
+                allottedDisplay = `<div><strong class="text-dark" style="font-size:0.86rem;">${formattedName}</strong></div><div class="small text-muted" style="font-size:0.75rem;">ID: ${displayId}</div>`;
             }
 
-            const rentalStart = a.rental_start_date
-                ? new Date(a.rental_start_date).toLocaleDateString()
-                : '<span class="text-muted small">—</span>';
+            let rentalStart = '<span class="text-muted small">—</span>';
+            if (a.rental_start_date) {
+                const d = new Date(a.rental_start_date);
+                if (!isNaN(d.getTime())) {
+                    rentalStart = `<span class="text-dark" style="font-size:0.85rem;">${d.getMonth() + 1}/${d.getDate()}/${d.getFullYear()}</span>`;
+                } else {
+                    rentalStart = `<span class="text-dark" style="font-size:0.85rem;">${a.rental_start_date}</span>`;
+                }
+            }
 
             let durationDisplay = '<span class="text-muted small">&mdash;</span>';
             if (isAssigned) {
                 const durationStart = a.rental_start_date || a.assigned_date;
                 const durationText = calculateAssignmentDuration(durationStart);
                 durationDisplay = durationText
-                    ? `<span class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill px-2 py-1" style="font-size:0.72rem;">${durationText}</span>`
+                    ? `<span class="badge rounded-pill" style="background:#EFF6FF;color:#2563EB;border:1px solid #BFDBFE;font-weight:600;font-size:0.75rem;padding:4px 10px;">${durationText}</span>`
                     : '<span class="text-muted small">N/A</span>';
             }
 
             return `
                 <tr>
-                    <td><span class="fw-bold text-dark">${deviceName}</span></td>
+                    <td style="padding-left:20px;"><span class="fw-bold text-dark" style="font-size:0.88rem;">${deviceName}</span></td>
                     <td>${allottedDisplay}</td>
                     <td>${durationDisplay}</td>
                     <td id="ag-status-${deviceId}">
-                        ${isAssigned ? '<span class="spinner-border spinner-border-sm text-primary opacity-50"></span>' : '<span class="text-muted small">N/A</span>'}
+                        ${isAssigned ? '<span class="badge rounded-pill" style="background:#FEF3C7;color:#B45309;border:1px solid #FDE68A;font-weight:600;font-size:0.75rem;padding:4px 10px;display:inline-flex;align-items:center;gap:5px;"><span style="width:7px;height:7px;border-radius:50%;background:#F59E0B;display:inline-block;"></span> Pending</span>' : '<span class="text-muted small">N/A</span>'}
                     </td>
-                    <td><span class="text-muted small">${rentalStart}</span></td>
-                    <td class="text-end">
-                        <div class="d-flex justify-content-end gap-1">
-                            ${!isAssigned ? `<button class="btn-asset-assign" onclick="viewAsset('${deviceId}')" title="Assign to an employee"><i class="bi bi-person-plus"></i> Assign</button>` : ''}
-                            <button class="btn-asset-details" onclick="viewAsset('${deviceId}')">Details</button>
-                            <button class="btn-asset-edit" onclick="openEditAssetModal('${deviceId}')" title="Edit Asset">
-                                <i class="bi bi-pencil"></i>
+                    <td>${rentalStart}</td>
+                    <td class="text-center" style="padding-right:20px;">
+                        <div class="d-flex justify-content-center align-items-center gap-1">
+                            ${!isAssigned ? `<button class="btn btn-sm rounded-pill px-2" style="background:#F0FDF4;color:#166534;border:1px solid #BBF7D0;font-weight:600;font-size:0.75rem;padding:3px 10px;" onclick="viewAsset('${deviceId}')" title="Assign to an employee"><i class="bi bi-person-plus"></i> Assign</button>` : ''}
+                            <button class="btn btn-sm rounded-pill px-3" style="background:#EEF2FF;color:#4338CA;border:1px solid #C7D2FE;font-weight:600;font-size:0.75rem;padding:3px 12px;" onclick="viewAsset('${deviceId}')">Details</button>
+                            <button class="btn btn-sm" style="background:#FFFFFF;color:#6366F1;border:1px solid #E2E8F0;border-radius:8px;padding:3px 8px;" onclick="openEditAssetModal('${deviceId}')" title="Edit Asset">
+                                <i class="bi bi-pencil" style="font-size:0.8rem;"></i>
                             </button>
-                            <button class="btn-asset-delete" onclick="deleteAsset('${deviceId}')" title="Delete Device">
-                                <i class="bi bi-trash"></i>
+                            <button class="btn btn-sm" style="background:#FFFFFF;color:#94A3B8;border:1px solid #E2E8F0;border-radius:8px;padding:3px 8px;" onclick="deleteAsset('${deviceId}')" title="Delete Device">
+                                <i class="bi bi-trash" style="font-size:0.8rem;"></i>
                             </button>
                         </div>
                     </td>
@@ -4277,11 +4275,11 @@
 
                         if (data.success && data.status) {
                             if (data.status.acceptance_status === 'accepted') {
-                                cell.innerHTML = '<span class="badge bg-success-subtle text-success rounded-pill border border-success-subtle"><i class="bi bi-check-circle-fill me-1"></i>Signed</span>';
+                                cell.innerHTML = '<span class="badge rounded-pill" style="background:#DCFCE7;color:#15803D;border:1px solid #BBF7D0;font-weight:600;font-size:0.75rem;padding:4px 10px;display:inline-flex;align-items:center;gap:5px;"><span style="width:7px;height:7px;border-radius:50%;background:#22C55E;display:inline-block;"></span> Signed</span>';
                             } else if (data.status.acceptance_status === 'rejected') {
-                                cell.innerHTML = '<span class="badge bg-danger-subtle text-danger rounded-pill border border-danger-subtle"><i class="bi bi-x-circle-fill me-1"></i>Rejected</span>';
+                                cell.innerHTML = '<span class="badge rounded-pill" style="background:#FEE2E2;color:#DC2626;border:1px solid #FECACA;font-weight:600;font-size:0.75rem;padding:4px 10px;display:inline-flex;align-items:center;gap:5px;"><span style="width:7px;height:7px;border-radius:50%;background:#EF4444;display:inline-block;"></span> Rejected</span>';
                             } else {
-                                cell.innerHTML = '<span class="badge bg-warning-subtle text-warning rounded-pill border border-warning-subtle"><i class="bi bi-clock-fill me-1"></i>Pending</span>';
+                                cell.innerHTML = '<span class="badge rounded-pill" style="background:#FEF3C7;color:#B45309;border:1px solid #FDE68A;font-weight:600;font-size:0.75rem;padding:4px 10px;display:inline-flex;align-items:center;gap:5px;"><span style="width:7px;height:7px;border-radius:50%;background:#F59E0B;display:inline-block;"></span> Pending</span>';
                             }
                         } else {
                             cell.innerHTML = '<span class="text-muted small">Unknown</span>';

@@ -1,7 +1,7 @@
 import requests
 from urllib.parse import quote, unquote
 from flask import Blueprint, render_template, redirect, url_for, request, flash, jsonify, session
-from app.utils import BASE_URL, get_headers, role_required, fetch_leave_balance_helper
+from app.utils import BASE_URL, get_headers, role_required, fetch_leave_balance_helper, permission_required, has_permission, can
 from app.ui_constants import UI_LABELS
 from app.routes.user import (
     _fetch_employee_documents,
@@ -37,7 +37,7 @@ def _find_employee_record(employee_name, headers):
     return {}
 
 @employees_bp.route('/employees')
-@role_required(['admin', 'hr', 'manager'])
+@permission_required('employee_team_management', 'view')
 def employee_list():
     try:
         res = requests.get(f"{BASE_URL}/employees", headers=get_headers())
@@ -99,7 +99,7 @@ def employee_list():
     return render_template("all_employees.html", employees=employees_with_balance, BASE_URL=BASE_URL)
 
 @employees_bp.route('/add', methods=['GET', 'POST'])
-@role_required(['admin', 'hr'])
+@permission_required('employee_team_management', 'manage')
 def add_employee():
     if request.method == 'GET':
         return render_template('add_employee.html')
@@ -147,7 +147,7 @@ def add_employee():
     return redirect(url_for('employees.employee_list'))
 
 @employees_bp.route('/delete/<int:id>', methods=['POST'])
-@role_required(['admin', 'hr'])
+@permission_required('employee_team_management', 'manage')
 def delete_employee(id):
     try:
         res = requests.delete(f"{BASE_URL}/employees/{id}", headers=get_headers())
@@ -161,7 +161,7 @@ def delete_employee(id):
     return redirect(url_for('employees.employee_list'))
 
 @employees_bp.route('/edit/<int:id>', methods=['GET', 'POST'])
-@role_required(['admin', 'hr'])
+@permission_required('employee_team_management', 'manage')
 def edit_employee(id):
     if request.method == 'POST':
         form = request.form
@@ -235,21 +235,21 @@ def edit_employee(id):
         try:
             if file_data:
                 res = requests.patch(f"{BASE_URL}/employees/{id}", data=payload,
-                                     files=file_data, headers=get_headers())
+                                     files=file_data, headers=get_headers(exclude_content_type=True))
             else:
                 res = requests.patch(f"{BASE_URL}/employees/{id}", json=payload,
                                      headers=get_headers())
 
             if res.status_code == 405:
                 res = (requests.put(f"{BASE_URL}/employees/{id}", data=payload,
-                                    files=file_data, headers=get_headers())
+                                    files=file_data, headers=get_headers(exclude_content_type=True))
                        if file_data else
                        requests.put(f"{BASE_URL}/employees/{id}", json=payload,
                                     headers=get_headers()))
 
             if res.status_code == 405:
                 res = (requests.post(f"{BASE_URL}/employees/{id}", data=payload,
-                                     files=file_data, headers=get_headers())
+                                     files=file_data, headers=get_headers(exclude_content_type=True))
                        if file_data else
                        requests.post(f"{BASE_URL}/employees/{id}", json=payload,
                                      headers=get_headers()))
@@ -301,12 +301,16 @@ def edit_employee(id):
         return render_template('edit_employee.html', employee=employee)
 
 @employees_bp.route('/profile/<path:employee_name>')
-@role_required(['hr', 'admin'])
 def view_profile(employee_name):
     if 'token' not in session:
         return redirect(url_for('auth.login'))
 
     employee_name = unquote(employee_name).strip()
+    is_own = names_match(session.get('employee_name'), employee_name)
+    if not is_own and not has_permission('employee_team_management', 'view'):
+        flash("Access denied: You do not have permission to view this profile.", "danger")
+        return redirect(url_for('dashboard.dashboard'))
+
     headers = get_headers()
 
     employee = {}

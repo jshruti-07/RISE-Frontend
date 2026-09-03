@@ -685,8 +685,8 @@
         document.getElementById('ticketCreated').textContent = new Date(t.created_at).toLocaleString();
         document.getElementById('ticketResolved').textContent = t.resolved_at ? new Date(t.resolved_at).toLocaleString() : 'Pending';
 
-        const role = document.getElementById('userRole').value;
-        if (role === 'admin') {
+        const canManageHelpdesk = (typeof window.can === 'function') ? window.can('helpdesk', 'manage') : ['admin', 'superadmin', 'hr'].includes(role);
+        if (canManageHelpdesk) {
             document.getElementById('resolverActions').style.display = 'block';
             document.getElementById('updateStatusSelect').value = t.status;
             document.getElementById('assignToInput').value = t.assigned_to || '';

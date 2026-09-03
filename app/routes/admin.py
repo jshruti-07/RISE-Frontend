@@ -2,7 +2,7 @@ import requests
 import os
 import json
 from flask import Blueprint, render_template, redirect, url_for, request, flash, session, jsonify, Response, send_file
-from app.utils import BASE_URL, get_headers, role_required
+from app.utils import BASE_URL, get_headers, role_required, permission_required, has_permission, can
 from app.api_helpers import extract_list, with_list_key
 import io
 from datetime import datetime
@@ -14,13 +14,13 @@ admin_bp = Blueprint('admin', __name__)
 
 # --- HELPDESK ---
 @admin_bp.route('/helpdesk')
-@role_required(['admin', 'employee', 'hr', 'manager'])
+@permission_required('helpdesk', 'view')
 def helpdesk():
     return render_template('helpdesk.html', BASE_URL=BASE_URL)
 
 # --- SOFTWARE ---
 @admin_bp.route('/software')
-@role_required(['admin', 'employee', 'hr', 'manager'])
+@permission_required('devices', 'view')
 def software():
     return render_template('software.html', BASE_URL=BASE_URL)
 
@@ -76,7 +76,7 @@ def api_helpdesk_assign(ticket_id):
 
 @admin_bp.route('/reimbursement')
 @admin_bp.route('/reimbursements')
-@role_required(['admin', 'employee', 'hr', 'manager'])
+@permission_required('reimbursements', 'view')
 def reimbursement():
     return render_template('reimbursement.html', BASE_URL=BASE_URL)
 
@@ -129,19 +129,19 @@ def api_reimbursement_detail(record_id):
         return jsonify({"success": False, "error": "Failed to fetch reimbursement details"}), res.status_code
 
 @admin_bp.route('/api/reimbursements/<int:record_id>/approve', methods=['PATCH'])
-@role_required(['admin', 'hr', 'manager'])
+@role_required(['admin', 'hr', 'manager'], permission_key="reimbursements.approve")
 def api_approve_reimbursement(record_id):
     res = requests.patch(f"{BASE_URL}/reimbursements/{record_id}/approve", json=request.get_json() or {}, headers=get_headers())
     return jsonify(res.json()), res.status_code
 
 @admin_bp.route('/api/reimbursements/<int:record_id>/reject', methods=['PATCH'])
-@role_required(['admin', 'hr', 'manager'])
+@role_required(['admin', 'hr', 'manager'], permission_key="reimbursements.reject")
 def api_reject_reimbursement(record_id):
     res = requests.patch(f"{BASE_URL}/reimbursements/{record_id}/reject", json=request.get_json() or {}, headers=get_headers())
     return jsonify(res.json()), res.status_code
 
 @admin_bp.route('/api/reimbursements/<int:record_id>/pay', methods=['PATCH'])
-@role_required(['admin'])
+@role_required(['admin', 'hr', 'manager', 'superadmin'], permission_key="reimbursements.mark_paid")
 def api_pay_reimbursement(record_id):
     res = requests.patch(f"{BASE_URL}/reimbursements/{record_id}/pay", json=request.get_json() or {}, headers=get_headers())
     return jsonify(res.json()), res.status_code
@@ -155,13 +155,13 @@ def api_reimbursement_receipt(record_id):
 
 # --- ASSETS ---
 @admin_bp.route('/assets')
-@role_required(['admin', 'hr'])
+@permission_required('devices', 'view')
 def assets():
     return render_template('assets.html', BASE_URL=BASE_URL)
 
 # --- POLICIES ---
 @admin_bp.route('/policies')
-@role_required(['admin', 'employee', 'hr', 'manager'])
+@permission_required('policies', 'view')
 def policies():
     res = requests.get(f"{BASE_URL}/reports/policies", headers=get_headers())
     data = res.json() if res.status_code == 200 else {}

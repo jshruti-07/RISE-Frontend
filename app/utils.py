@@ -22,21 +22,169 @@ def get_headers(exclude_content_type=False):
     
     return headers
 
-def role_required(allowed_roles):
+def fetch_user_permissions(force_refresh=False):
+    """
+    Fetch the latest dynamic permissions and feature actions from the backend API.
+    Caches the results in session['permissions'] and session['feature_actions'].
+    """
+    if not session.get('token'):
+        return {"permissions": {}, "feature_actions": {}}
+        
+    if not force_refresh and session.get('permissions') is not None and session.get('feature_actions') is not None:
+        return {
+            "permissions": session.get('permissions', {}),
+            "feature_actions": session.get('feature_actions', {})
+        }
+        
+    try:
+        res = requests.get(f"{BASE_URL}/auth/permissions", headers=get_headers(), timeout=5)
+        if res.status_code == 200:
+            data = res.json()
+            if data.get("success"):
+                session['permissions'] = data.get('permissions', {})
+                session['feature_actions'] = data.get('feature_actions', {})
+                return data
+    except Exception as e:
+        print(f"Error fetching user permissions from backend: {e}")
+        
+    return {
+        "permissions": session.get('permissions', {}),
+        "feature_actions": session.get('feature_actions', {})
+    }
+
+FEATURE_ALIASES = {
+    'employees': 'employees',
+    'team_members': 'team_members',
+    'employee_team_management': 'employee_team_management',
+    'departments': 'departments',
+    'designations': 'designations',
+    'devices': 'devices',
+    'devices_assets': 'devices_assets',
+    'assets': 'devices',
+    'software': 'software',
+    'inventory': 'inventory',
+    'inventory_stock': 'inventory_stock',
+    'leave': 'leave',
+    'leaves': 'leaves',
+    'leave_management': 'leave_management',
+    'timesheets': 'projects',
+    'expenses': 'expenses',
+    'reimbursement': 'reimbursements',
+    'reimbursements': 'reimbursements',
+    'user_accounts': 'user_accounts',
+    'auth': 'auth',
+    'bank_details': 'bank_details',
+    'bank': 'bank',
+    'documents': 'documents',
+    'helpdesk': 'helpdesk',
+    'policies': 'policies',
+    'holidays': 'holidays',
+    'announcements': 'announcements',
+    'projects': 'projects',
+    'project_records': 'project_records',
+    'project_assignments': 'project_assignments',
+    'reports': 'reports',
+}
+
+def has_permission(feature_or_key, action=None) -> bool:
+    """
+    Evaluates whether the current logged-in user has permission for a feature/action or direct permission key.
+    Always uses the dynamic permissions configured by Super Admin.
+    """
+    if not session.get('token'):
+        return False
+        
+    # If permissions are not in session, fetch them
+    if session.get('permissions') is None or session.get('feature_actions') is None:
+        fetch_user_permissions()
+        
+    perms = session.get('permissions') or {}
+    feature_actions = session.get('feature_actions') or {}
+    
+    fk = str(feature_or_key).lower().strip()
+    act = str(action).lower().strip() if action else None
+
+    # Check direct permission key (e.g. 'employees.update' or 'devices.view_all')
+    if fk in perms:
+        return bool(perms[fk])
+
+    # Special handling for devices/assets: strictly requires devices.view_all for view
+    if fk in ['devices', 'devices_assets', 'assets'] and (act is None or act == 'view'):
+        return bool(perms.get('devices.view_all', False))
+
+    if fk == 'software' and (act is None or act == 'view'):
+        return bool(perms.get('devices.catalog_view', False))
+
+    if fk in ['inventory', 'inventory_stock'] and (act is None or act == 'view'):
+        return bool(perms.get('devices.inventory_dashboard', False))
+
+    canonical_feature = FEATURE_ALIASES.get(fk, fk)
+    act_key = act if act else "view"
+
+    if canonical_feature in feature_actions:
+        return bool(feature_actions[canonical_feature].get(act_key, False))
+        
+    if fk in feature_actions:
+        return bool(feature_actions[fk].get(act_key, False))
+
+    # Cross-check for compound aliases
+    if canonical_feature in ['employees', 'employee_team_management', 'team_members']:
+        for alias in ['employees', 'employee_team_management', 'team_members']:
+            if alias in feature_actions and feature_actions[alias].get(act_key):
+                return True
+
+    if canonical_feature in ['leave', 'leaves', 'leave_management']:
+        for alias in ['leave', 'leaves', 'leave_management']:
+            if alias in feature_actions and feature_actions[alias].get(act_key):
+                return True
+
+    if canonical_feature in ['reimbursements', 'expenses']:
+        for alias in ['reimbursements', 'expenses']:
+            if alias in feature_actions and feature_actions[alias].get(act_key):
+                return True
+
+    if canonical_feature in ['bank', 'bank_details']:
+        for alias in ['bank', 'bank_details']:
+            if alias in feature_actions and feature_actions[alias].get(act_key):
+                return True
+
+    # Fail secure
+    return False
+
+def normalize_role(role):
+    if not role:
+        return 'employee'
+    r = str(role).lower().strip().replace(' ', '').replace('_', '')
+    if r in ['superadmin', 'super_admin', 'super admin']:
+        return 'superadmin'
+    if r in ['teammember', 'team_member']:
+        return 'employee'
+    if r in ['onboardingcandidate', 'onboarding_candidate']:
+        return 'onboarding_candidate'
+    return str(role).lower().strip()
+
+def can(feature_or_key, action=None) -> bool:
+    """Convenience alias for template evaluation: can('employee_team_management', 'manage')"""
+    # Superadmin always has access to all UI features
+    if normalize_role(session.get('role', '')) == 'superadmin':
+        return True
+    return has_permission(feature_or_key, action)
+
+def permission_required(feature_or_key, action=None):
+    """
+    Route decorator: strictly requires dynamic permission granted in DB.
+    """
     def decorator(f):
         @wraps(f)
         def wrapper(*args, **kwargs):
-            # Redirect to login if no session
             if not session.get('token'):
                 if request.path.startswith('/api/') or request.is_json:
                     from flask import jsonify
                     return jsonify({"success": False, "error": "Not authenticated"}), 401
                 return redirect(url_for('auth.login'))
 
-            user_role = str(session.get('role', '')).lower().strip()
-            allowed_roles_lower = [r.lower().strip() for r in allowed_roles]
-
-            # Role Bypass for Super Admin
+            user_role = normalize_role(session.get('role', ''))
+            # Superadmin bypass
             if user_role == 'superadmin':
                 sig = inspect.signature(f)
                 if 'current_user' in sig.parameters:
@@ -50,7 +198,63 @@ def role_required(allowed_roles):
                 else:
                     return f(*args, **kwargs)
 
-            if user_role not in allowed_roles_lower:
+            if not has_permission(feature_or_key, action):
+                if request.path.startswith('/api/') or request.is_json:
+                    from flask import jsonify
+                    return jsonify({"success": False, "error": "Access denied"}), 403
+                
+                return redirect(url_for('dashboard.dashboard'))
+
+            sig = inspect.signature(f)
+            if 'current_user' in sig.parameters:
+                current_user = {
+                    'user_id': session.get('user_id'),
+                    'username': session.get('username'),
+                    'role': user_role,
+                    'employee_name': session.get('employee_name')
+                }
+                return f(current_user, *args, **kwargs)
+            else:
+                return f(*args, **kwargs)
+        return wrapper
+    return decorator
+
+def role_required(allowed_roles, permission_key=None, action=None):
+    def decorator(f):
+        @wraps(f)
+        def wrapper(*args, **kwargs):
+            # Redirect to login if no session
+            if not session.get('token'):
+                if request.path.startswith('/api/') or request.is_json:
+                    from flask import jsonify
+                    return jsonify({"success": False, "error": "Not authenticated"}), 401
+                return redirect(url_for('auth.login'))
+
+            user_role = normalize_role(session.get('role', ''))
+            allowed_roles_norm = [normalize_role(r) for r in allowed_roles]
+
+            # Superadmin bypass
+            if user_role == 'superadmin':
+                sig = inspect.signature(f)
+                if 'current_user' in sig.parameters:
+                    current_user = {
+                        'user_id': session.get('user_id'),
+                        'username': session.get('username'),
+                        'role': user_role,
+                        'employee_name': session.get('employee_name')
+                    }
+                    return f(current_user, *args, **kwargs)
+                else:
+                    return f(*args, **kwargs)
+
+            # If dynamic permission is specified, check permission
+            if permission_key and not has_permission(permission_key, action):
+                if request.path.startswith('/api/') or request.is_json:
+                    from flask import jsonify
+                    return jsonify({"success": False, "error": "Access denied"}), 403
+                return redirect(url_for('dashboard.dashboard'))
+
+            if user_role not in allowed_roles_norm:
                 # Return JSON for API/AJAX calls instead of HTML redirect
                 if request.path.startswith('/api/') or request.is_json:
                     from flask import jsonify
@@ -58,7 +262,6 @@ def role_required(allowed_roles):
                 # Onboarding candidates always go to their own dashboard
                 if user_role == 'onboarding_candidate':
                     return redirect(url_for('onboarding.joinee_dashboard'))
-                flash("Access denied", "danger")
                 return redirect(url_for('dashboard.dashboard'))
 
             sig = inspect.signature(f)

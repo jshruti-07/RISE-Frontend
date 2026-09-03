@@ -569,8 +569,8 @@
 </script>
 <script id="config-data" type="application/json">
     {
-        "userRole": {{ session.role | tojson }},
-        "employeeName": {{ session.employee_name | tojson }}
+        "userRole": {{ (session.role | default('')) | tojson }},
+        "employeeName": {{ (session.employee_name | default('')) | tojson }}
     }
 </script>
 

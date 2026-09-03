@@ -392,7 +392,6 @@ def dashboard():
 
     except Exception as e:
         print(f"Dashboard Exception: {e}")
-        flash("Error loading some dashboard data", "warning")
 
     return render_template(
         'dashboard.html',

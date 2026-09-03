@@ -62,7 +62,7 @@
                                         {% for policy in policy_list %}
                                         <div class="d-flex justify-content-between align-items-center mb-2 pe-2">
                                             <span class="small text-slate-700 fw-medium"><i class="bi bi-file-text me-1 text-muted"></i>{{ policy.title }}</span>
-                                            {% if session.role in ['hr', 'superadmin'] %}
+                                            {% if can('policies', 'manage') %}
                                             <button class="btn btn-sm btn-link p-0 text-primary edit-policy-btn text-decoration-none"
                                                 data-policy-id="{{ policy.id }}"
                                                 onclick="event.stopPropagation(); openEditModal(this.dataset.policyId);"

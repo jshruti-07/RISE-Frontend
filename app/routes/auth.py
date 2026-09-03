@@ -55,6 +55,8 @@ def login():
                 session['full_name'] = data['user'].get('full_name')
                 session['display_name'] = data['user'].get('display_name')
                 session['employee_id'] = data['user'].get('employee_id') or data['user'].get('id', 'N/A')
+                session['permissions'] = data.get('permissions', {})
+                session['feature_actions'] = data.get('feature_actions', {})
 
                 is_superadmin = str(data['user'].get('role', '')).lower() == 'superadmin'
                 is_onboarding = data['user'].get('is_onboarding', False) or str(data['user'].get('role', '')).lower() == 'onboarding_candidate'

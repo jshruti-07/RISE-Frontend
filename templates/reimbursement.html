@@ -431,21 +431,21 @@
 
             let actions = '';
             // Employee actions
-            if (userRole === 'employee' && namesMatchJS(r.employee_name, employeeName) && r.status === 'pending') {
+            if (namesMatchJS(r.employee_name, employeeName) && r.status === 'pending') {
                 actions += `<button class="btn btn-sm btn-outline-danger rounded-pill px-3 py-0.5" onclick="withdrawClaim(${r.id})">Withdraw</button>`;
             }
-            // Manager/HR/Admin/Superadmin actions
-            if (userRole === 'hr' || userRole === 'manager' || userRole === 'admin' || userRole === 'superadmin') {
-                if (r.status === 'pending') {
-                    actions += `<button class="btn btn-sm btn-outline-success rounded-pill px-3 py-0.5 me-1" onclick="approveClaim(${r.id})">Approve</button>`;
-                    actions += `<button class="btn btn-sm btn-outline-danger rounded-pill px-3 py-0.5 me-1" onclick="showRejectModal(${r.id})">Reject</button>`;
-                }
+            // Approve / Reject actions
+            const canApprove = (typeof window.can === 'function') ? window.can('reimbursements', 'approve') : ['hr', 'manager', 'admin', 'superadmin'].includes(userRole);
+            if (canApprove && r.status === 'pending') {
+                actions += `<button class="btn btn-sm btn-outline-success rounded-pill px-3 py-0.5 me-1" onclick="approveClaim(${r.id})">Approve</button>`;
+                actions += `<button class="btn btn-sm btn-outline-danger rounded-pill px-3 py-0.5 me-1" onclick="showRejectModal(${r.id})">Reject</button>`;
             }
-            // Admin/Superadmin actions
-            if (userRole === 'admin' || userRole === 'superadmin') {
-                if (r.status === 'approved') {
-                    actions += `<button class="btn btn-sm btn-outline-primary rounded-pill px-3 py-0.5 me-1" onclick="showPayModal(${r.id})">Pay</button>`;
-                }
+            // Pay / Delete actions
+            const canPay = (typeof window.can === 'function') ? (window.can('reimbursements.mark_paid') || window.can('reimbursements', 'approve')) : ['admin', 'superadmin'].includes(userRole);
+            if (canPay && r.status === 'approved') {
+                actions += `<button class="btn btn-sm btn-outline-primary rounded-pill px-3 py-0.5 me-1" onclick="showPayModal(${r.id})">Pay</button>`;
+            }
+            if (canPay) {
                 actions += `<button class="btn btn-sm btn-outline-danger rounded-pill px-3 py-0.5" onclick="deleteClaim(${r.id})">Delete</button>`;
             }
 

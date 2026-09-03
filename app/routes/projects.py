@@ -3,7 +3,7 @@ import json
 import requests
 from datetime import datetime
 from flask import Blueprint, request, jsonify, render_template, redirect, url_for, session, flash
-from app.utils import BASE_URL, get_headers, role_required
+from app.utils import BASE_URL, get_headers, role_required, permission_required, has_permission, can
 from app.api_helpers import (
     extract_list,
     names_match,
@@ -48,7 +48,7 @@ def _manager_fields_for_api(data):
 
 
 @projects_bp.route('/projects/employee/<employee_name>', methods=['GET'])
-@role_required(['hr', 'manager', 'admin'])
+@role_required(['hr', 'manager', 'admin', 'superadmin'])
 def get_employee_projects(employee_name):
     """Proxy route to fetch active projects for a specific employee."""
     from urllib.parse import quote
@@ -65,7 +65,7 @@ def get_employee_projects(employee_name):
 
 
 @projects_bp.route('/projects')
-@role_required(['admin', 'hr', 'manager', 'employee'])
+@permission_required('projects', 'view')
 def projects_list():
     if 'token' not in session:
         return redirect(url_for('auth.login'))
@@ -311,7 +311,7 @@ def update_member_billing():
         return jsonify({"success": False, "error": str(e)}), 500
 
 @projects_bp.route('/update_project', methods=['POST'])
-@role_required(['admin', 'hr'])
+@permission_required('projects', 'manage')
 def update_project():
     try:
         data = request.get_json() or {}
@@ -347,12 +347,18 @@ def update_project():
         return jsonify({"success": False, "error": str(e)}), 500
 
 @projects_bp.route('/delete_project/<int:project_id>', methods=['POST'])
-@role_required(['admin', 'hr'])
+@permission_required('projects', 'manage')
 def delete_project(project_id):
     try:
         res = requests.delete(f"{BASE_URL}/projects/{project_id}", headers=get_headers(), timeout=10)
-        if res.status_code in [200, 204]:
+        if res.status_code == 200:
             return jsonify({"success": True, "message": "Project deleted on backend"})
-        return jsonify({"success": False, "error": f"Backend failed: {res.text}"}), res.status_code
+        err_body = res.text
+        try:
+            err_json = res.json()
+            err_body = err_json.get('error') or err_json.get('message') or err_body
+        except Exception:
+            pass
+        return jsonify({"success": False, "error": f"Backend failed: {err_body}"}), res.status_code
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 500

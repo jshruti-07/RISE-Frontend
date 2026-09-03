@@ -111,6 +111,38 @@
 
 <body>
 
+    <script>
+        window.userPermissions = {{ user_permissions | default({}) | tojson }};
+        window.featureActions = {{ feature_actions | default({}) | tojson }};
+        window.can = function(featureOrKey, action) {
+            if (!featureOrKey) return false;
+            var fk = String(featureOrKey).toLowerCase().trim();
+            var act = action ? String(action).toLowerCase().trim() : 'view';
+            if (window.userPermissions && window.userPermissions[fk] !== undefined) {
+                return Boolean(window.userPermissions[fk]);
+            }
+            if (window.featureActions && window.featureActions[fk]) {
+                return Boolean(window.featureActions[fk][act]);
+            }
+            var aliases = {
+                'employees': 'employee_team_management',
+                'team_members': 'employee_team_management',
+                'devices': 'devices_assets',
+                'leaves': 'leave_management',
+                'leave': 'leave_management',
+                'expenses': 'reimbursements',
+                'reimbursement': 'reimbursements',
+                'bank_details': 'bank',
+                'user_accounts': 'auth'
+            };
+            var aliasKey = aliases[fk] || fk;
+            if (window.featureActions && window.featureActions[aliasKey]) {
+                return Boolean(window.featureActions[aliasKey][act]);
+            }
+            return false;
+        };
+    </script>
+
     <!-- Joinee Role Guard: redirect onboarding_candidate before any HR content renders -->
     <script>
         (function () {
@@ -187,7 +219,7 @@
             </a>
 
             <!-- TEAM MEMBERS -->
-            {% if session.role in ['hr', 'manager', 'admin', 'superadmin'] %}
+            {% if can('employee_team_management', 'view') or can('employees', 'view') or can('team_members', 'view') or can('employees.allocation_config') or can('team_members.allocation_config') or can('employees.create') or can('team_members.create') %}
             <a class="ribbon-left" style="margin-bottom: 0; display: block;"
                 href="{{ url_for('employees.employee_list') }}">
                 <div class="ribbon-inner">
@@ -205,7 +237,7 @@
             {% endif %}
 
             <!-- TIMESHEETS -->
-            {% if session.role in ['employee','manager','hr', 'superadmin'] %}
+            {% if can('projects', 'view') or can('projects.create') or can('employees', 'view') %}
             <a class="ribbon-left" style="margin-bottom: 0; display: block;"
                 href="{{ url_for('work.timesheets_list') }}">
                 <div class="ribbon-inner">
@@ -223,7 +255,7 @@
             {% endif %}
 
             <!-- LEAVES -->
-            {% if session.role in ['employee','hr','manager','admin', 'superadmin'] %}
+            {% if can('leave', 'view') or can('leave_management', 'view') or can('leave.view_all_balances') or can('leave.currently_on_leave') or can('leave.analytics') %}
             <a class="ribbon-left" style="margin-bottom: 0; display: block;" href="{{ url_for('work.leaves_list') }}">
                 <div class="ribbon-inner">
                     <div class="ribbon-accent-left" style="background: linear-gradient(to bottom, #93C5FD, #3B82F6);">
@@ -240,7 +272,7 @@
             {% endif %}
 
             <!-- PROJECTS -->
-            {% if session.role != 'admin' or session.role == 'superadmin' %}
+            {% if can('projects', 'view') or can('projects.create') %}
             <a class="ribbon-left" style="margin-bottom: 0; display: block;"
                 href="{{ url_for('projects.projects_list') }}">
                 <div class="ribbon-inner">
@@ -257,8 +289,8 @@
             </a>
             {% endif %}
 
-            <!-- REIMBURSEMENTS -->
-            {% if session.role != 'admin' or session.role == 'superadmin' %}
+            <!-- REIMBURSEMENTS / EXPENSES -->
+            {% if can('reimbursements', 'view') or can('expenses', 'view') or can('reimbursements.stats') or can('reimbursements.history') %}
             <a class="ribbon-left" style="margin-bottom: 0; display: block;"
                 href="{{ url_for('admin.reimbursement') }}">
                 <div class="ribbon-inner">
@@ -275,11 +307,8 @@
             </a>
             {% endif %}
 
-
-
-
             <!-- ASSETS -->
-            {% if session.role in ['hr', 'admin', 'superadmin'] %}
+            {% if can('devices', 'view') or can('devices.view_all') %}
             <a class="ribbon-left" style="margin-bottom: 0; display: block;" href="{{ url_for('admin.assets') }}">
                 <div class="ribbon-inner">
                     <div class="ribbon-accent-left" style="background: linear-gradient(to bottom, #93C5FD, #3B82F6);">
@@ -296,7 +325,7 @@
             {% endif %}
 
             <!-- SOFTWARE -->
-            {% if session.role in ['admin', 'superadmin'] %}
+            {% if can('software', 'view') or can('devices.catalog_view') %}
             <a class="ribbon-left" style="margin-bottom: 0; display: block;" href="{{ url_for('admin.software') }}">
                 <div class="ribbon-inner">
                     <div class="ribbon-accent-left" style="background: linear-gradient(to bottom, #93C5FD, #3B82F6);">
@@ -313,7 +342,7 @@
             {% endif %}
 
             <!-- ONBOARDING -->
-            {% if session.role in ['hr', 'superadmin'] %}
+            {% if can('employee_team_management', 'manage') or can('employees.create') %}
             <a class="ribbon-left" style="margin-bottom: 0; display: block;"
                 href="{{ url_for('onboarding.dashboard') }}">
                 <div class="ribbon-inner">
@@ -331,7 +360,7 @@
             {% endif %}
 
             <!-- OFFBOARDING (ribbon-left: rose accent) -->
-            {% if session.role in ['hr', 'accounts', 'admin', 'superadmin'] %}
+            {% if can('employee_team_management', 'manage') or can('employees.delete') %}
             <a class="ribbon-left" style="margin-bottom: 0; display: block;"
                 href="{{ url_for('offboarding_ui.dashboard') }}">
                 <div class="ribbon-inner">
@@ -349,6 +378,7 @@
             {% endif %}
 
             <!-- POLICIES -->
+            {% if can('policies', 'view') or can('policies.create') or can('policies.update') %}
             <a class="ribbon-left" style="margin-bottom: 0; display: block;" href="{{ url_for('admin.policies') }}">
                 <div class="ribbon-inner">
                     <div class="ribbon-accent-left" style="background: linear-gradient(to bottom, #93C5FD, #3B82F6);">
@@ -362,8 +392,10 @@
                     </div>
                 </div>
             </a>
+            {% endif %}
 
             <!-- HELP DESK -->
+            {% if can('helpdesk', 'view') or can('helpdesk.stats') or can('helpdesk.history') %}
             <a class="ribbon-left" style="margin-bottom: 0; display: block;" href="{{ url_for('admin.helpdesk') }}">
                 <div class="ribbon-inner">
                     <div class="ribbon-accent-left" style="background: linear-gradient(to bottom, #93C5FD, #3B82F6);">
@@ -377,6 +409,7 @@
                     </div>
                 </div>
             </a>
+            {% endif %}
         </div>
 
     </div>
