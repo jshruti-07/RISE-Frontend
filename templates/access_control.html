@@ -508,10 +508,10 @@
             k.includes('export') || k.includes('status') || k.includes('dashboard') || 
             k.includes('alerts') || k.includes('utilization') || k.includes('ratio') || 
             k.includes('over_allocated') || k.includes('billing') || k.includes('catalog_view') || 
-            k.includes('catalog_stock') || k.includes('currently_on_leave')) {
+            k.includes('catalog_stock') || k.includes('currently_on_leave') || k.includes('allocation_config')) {
             
             // Exceptions that modify state
-            if (k.includes('update_status') || k.includes('change_status') || k.includes('change_priority') || k.includes('allocation_config')) {
+            if (k.includes('update_status') || k.includes('change_status') || k.includes('change_priority')) {
                 return 'Manage';
             }
             return 'View';
