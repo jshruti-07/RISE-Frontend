@@ -3,10 +3,21 @@ import json
 import requests
 import re
 from datetime import datetime, timedelta
-from flask import Blueprint, request, jsonify, render_template, redirect, url_for, session, flash, Response
+from flask import Blueprint, request, jsonify, render_template, redirect, url_for, session, flash, Response, send_from_directory, current_app
 from app.utils import BASE_URL, get_headers, role_required, token_required, fetch_leave_balance_helper
 
 main_bp = Blueprint('main', __name__)
+
+# --- PWA ROUTES ---
+@main_bp.route('/manifest.json')
+def manifest():
+    return send_from_directory(current_app.static_folder, 'manifest.json', mimetype='application/manifest+json')
+
+@main_bp.route('/service-worker.js')
+def service_worker():
+    response = send_from_directory(current_app.static_folder, 'service-worker.js', mimetype='application/javascript')
+    response.headers['Service-Worker-Allowed'] = '/'
+    return response
 
 # --- NOTIFICATIONS ---
 @main_bp.route('/notifications')
