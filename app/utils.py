@@ -83,7 +83,23 @@ FEATURE_ALIASES = {
     'projects': 'projects',
     'project_records': 'project_records',
     'project_assignments': 'project_assignments',
+    'timesheets': 'timesheets',
     'reports': 'reports',
+}
+
+TEAM_MEMBER_VIEW_FEATURES = {
+    'timesheets',
+    'leave',
+    'leaves',
+    'leave_management',
+    'projects',
+    'reimbursements',
+    'expenses',
+    'policies',
+    'helpdesk',
+    'holidays',
+    'birthdays',
+    'announcements',
 }
 
 def has_permission(feature_or_key, action=None) -> bool:
@@ -120,6 +136,12 @@ def has_permission(feature_or_key, action=None) -> bool:
 
     canonical_feature = FEATURE_ALIASES.get(fk, fk)
     act_key = act if act else "view"
+
+    # Team members (employees) always have view access to their standard menus
+    user_role = normalize_role(session.get('role', ''))
+    if user_role == 'employee' and act_key == 'view':
+        if fk in TEAM_MEMBER_VIEW_FEATURES or canonical_feature in TEAM_MEMBER_VIEW_FEATURES:
+            return True
 
     if canonical_feature in feature_actions:
         return bool(feature_actions[canonical_feature].get(act_key, False))

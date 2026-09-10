@@ -426,7 +426,9 @@ body {
 }
 
 /* Soft purple action button matching sidebar active item */
-.btn-soft-purple, .btn-soft-purple:link, .btn-soft-purple:visited {
+.btn-soft-purple,
+.btn-soft-purple:link,
+.btn-soft-purple:visited {
     background-color: #f5f3ff !important;
     color: #6366f1 !important;
     border: 1px solid #ddd6fe !important;
@@ -434,7 +436,9 @@ body {
     transition: all 0.15s ease !important;
 }
 
-.btn-soft-purple:hover, .btn-soft-purple:focus, .btn-soft-purple:active {
+.btn-soft-purple:hover,
+.btn-soft-purple:focus,
+.btn-soft-purple:active {
     background-color: #ede9fe !important;
     color: #4f46e5 !important;
     border-color: #c4b5fd !important;
@@ -3042,7 +3046,7 @@ body.app-modal-open {
 .modal-content {
     border-radius: 16px !important;
     border: 1px solid #E8ECF4 !important;
-    box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.12), 0 0 0 1px rgba(0,0,0,0.02) !important;
+    box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.12), 0 0 0 1px rgba(0, 0, 0, 0.02) !important;
     background: #FFFFFF !important;
     overflow: hidden !important;
 }
@@ -3144,10 +3148,12 @@ body.app-modal-open {
     transition: opacity 0.3s ease;
     -webkit-tap-highlight-color: transparent;
 }
+
 .sidebar-backdrop.show {
     display: block;
     opacity: 1;
 }
+
 /* Prevent body scroll when mobile sidebar is open */
 body.sidebar-open {
     overflow: hidden;
@@ -3186,7 +3192,7 @@ body.sidebar-open {
         padding: 0 !important;
     }
 
-    .sidebar.collapsed + .main {
+    .sidebar.collapsed+.main {
         margin-left: 0 !important;
         width: 100% !important;
     }
@@ -3208,7 +3214,7 @@ body.sidebar-open {
     }
 
     /* Hide greeting text on narrow tablets to save space */
-    .topbar-right > div[style*="flex-direction: column"] {
+    .topbar-right>div[style*="flex-direction: column"] {
         display: none !important;
     }
 
@@ -3293,8 +3299,8 @@ body.sidebar-open {
     }
 
     /* Multi-column form rows collapse to single column */
-    .row.g-3 > [class*="col-"],
-    .row.g-4 > [class*="col-"] {
+    .row.g-3>[class*="col-"],
+    .row.g-4>[class*="col-"] {
         flex: 0 0 100% !important;
         max-width: 100% !important;
     }
@@ -3325,6 +3331,7 @@ body.sidebar-open {
         max-width: 100%;
         box-sizing: border-box;
     }
+
     /* Exclude sidebar and backdrop from max-width rule */
     .sidebar,
     .sidebar-backdrop,
@@ -3370,7 +3377,11 @@ body.sidebar-open {
     }
 
     /* --- Section titles / headings --- */
-    h1, h2, h3, h4, h5 {
+    h1,
+    h2,
+    h3,
+    h4,
+    h5 {
         word-break: break-word;
         overflow-wrap: break-word;
     }
@@ -3423,6 +3434,7 @@ body.sidebar-open {
    LOGIN PAGE RESPONSIVE
    ============================================================== */
 @media (max-width: 1023.98px) {
+
     /* Disable desktop zoom on login page body */
     body.login-page {
         zoom: 1 !important;
@@ -3517,7 +3529,7 @@ body.sidebar-open {
         overflow: hidden !important;
     }
 
-    .sidebar.collapsed + .main {
+    .sidebar.collapsed+.main {
         margin-left: 68px !important;
         width: calc(100% - 68px) !important;
     }
@@ -3526,4 +3538,3 @@ body.sidebar-open {
         display: none !important;
     }
 }
-

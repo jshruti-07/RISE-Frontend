@@ -54,10 +54,13 @@ def create_app():
     @app.context_processor
     def inject_user():
         from flask import session
-        from app.utils import can, has_permission
+        from app.utils import can, has_permission, normalize_role
+        user_role_norm = normalize_role(session.get('role', ''))
         return dict(
             current_user=session.get('employee_name'),
             role=session.get('role'),
+            is_team_member=(user_role_norm == 'employee'),
+            normalize_role=normalize_role,
             sidebar_photo_url=session.get('photo_url'),
             labels=UI_LABELS,
             config=UI_CONFIG,

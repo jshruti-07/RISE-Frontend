@@ -4,14 +4,18 @@
         <div class="d-flex flex-column" style="gap: 24px; min-width: 0;">
 
             <!-- KPI GRID -->
-            {% set show_kpi_team = can('employee_team_management', 'view') or can('employees', 'view') or can('employees.allocation_config') or can('team_members.allocation_config') %}
+            {% set show_kpi_team = can('employee_team_management', 'view') or can('employees', 'view') or
+            can('employees.allocation_config') or can('team_members.allocation_config') %}
             {% set show_kpi_timesheets = can('projects', 'view') or can('employees', 'view') %}
-            {% set show_kpi_leaves = can('leave', 'view') or can('leave_management', 'view') or can('leave.view_all_balances') %}
-            {% set show_kpi_expenses = can('reimbursements', 'view') or can('expenses', 'view') or can('reimbursements.stats') %}
+            {% set show_kpi_leaves = can('leave', 'view') or can('leave_management', 'view') or
+            can('leave.view_all_balances') %}
+            {% set show_kpi_expenses = can('reimbursements', 'view') or can('expenses', 'view') or
+            can('reimbursements.stats') %}
             {% set has_any_kpi = show_kpi_team or show_kpi_timesheets or show_kpi_leaves or show_kpi_expenses %}
 
             {% if has_any_kpi %}
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 24px; margin-bottom: 0;">
+            <div
+                style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 24px; margin-bottom: 0;">
                 <!-- Total Team -->
                 {% if show_kpi_team %}
                 <a href="{{ url_for('employees.employee_list') }}" class="text-decoration-none">
@@ -405,7 +409,8 @@
                 }
             </style>
 
-            {% if session.role in ['hr', 'admin', 'superadmin'] and (can('devices', 'view') or can('devices.view_all')) %}
+            {% if session.role in ['hr', 'admin', 'superadmin'] and (can('devices', 'view') or can('devices.view_all'))
+            %}
             <div class="rio-section animate__animated animate__fadeIn">
                 <!-- Header -->
                 <div class="rio-header">
@@ -505,7 +510,7 @@
                 </div>
             </div>
             {% endif %}
-            {% if session.role == 'employee' %}
+            {% if session.role in ['employee', 'team_member', 'teammember'] or is_team_member %}
             <div class="d-flex flex-column gap-3 mb-4">
                 <!-- Row 1: My Projects -->
                 <div class="glass-card p-4 hover-card w-100">
@@ -513,9 +518,13 @@
                         <div class="d-flex align-items-center gap-2">
                             <i class="bi bi-kanban text-primary fs-5"></i>
                             <h6 class="mb-0 fw-bold text-dark fs-6">My Projects</h6>
-                            <span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25 rounded-pill px-2.5">{{ my_projects|length }} Active</span>
+                            <span
+                                class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25 rounded-pill px-2.5">{{
+                                my_projects|length }} Active</span>
                         </div>
-                        <a href="{{ url_for('projects.projects_list') }}" class="btn btn-sm btn-outline-primary rounded-pill px-3 py-1 fw-semibold" style="font-size: 0.78rem;">
+                        <a href="{{ url_for('projects.projects_list') }}"
+                            class="btn btn-sm btn-outline-primary rounded-pill px-3 py-1 fw-semibold"
+                            style="font-size: 0.78rem;">
                             View All <i class="bi bi-arrow-right ms-1"></i>
                         </a>
                     </div>
@@ -523,14 +532,19 @@
                         {% if my_projects %}
                         <div class="list-group list-group-flush">
                             {% for proj in my_projects %}
-                            <div class="list-group-item px-3 py-2.5 bg-transparent border-bottom hover-row-bg d-flex justify-content-between align-items-center">
+                            <div
+                                class="list-group-item px-3 py-2.5 bg-transparent border-bottom hover-row-bg d-flex justify-content-between align-items-center">
                                 <div class="d-flex align-items-center gap-2">
                                     <i class="bi bi-folder2 text-primary opacity-75"></i>
                                     <span class="fw-semibold text-dark">{{ proj.name }}</span>
                                 </div>
                                 <div class="d-flex align-items-center gap-2">
-                                    <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 rounded-pill px-2.5 py-1" style="font-size: 0.72rem;">Active</span>
-                                    <button class="btn btn-sm text-primary py-0 px-1.5 btn-view-project" data-id="{{ proj.id }}" title="View Project Details"><i class="bi bi-eye"></i></button>
+                                    <span
+                                        class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 rounded-pill px-2.5 py-1"
+                                        style="font-size: 0.72rem;">Active</span>
+                                    <button class="btn btn-sm text-primary py-0 px-1.5 btn-view-project"
+                                        data-id="{{ proj.id }}" title="View Project Details"><i
+                                            class="bi bi-eye"></i></button>
                                 </div>
                             </div>
                             {% endfor %}
@@ -551,27 +565,38 @@
                             <i class="bi bi-clock-history text-warning fs-5"></i>
                             <h6 class="mb-0 fw-bold text-dark fs-6">Pending Timesheets</h6>
                             {% if pending_timesheets_count and pending_timesheets_count|int > 0 %}
-                            <span class="badge bg-warning bg-opacity-10 text-warning border border-warning border-opacity-25 rounded-pill px-2.5">{{ pending_timesheets_count }}</span>
+                            <span
+                                class="badge bg-warning bg-opacity-10 text-warning border border-warning border-opacity-25 rounded-pill px-2.5">{{
+                                pending_timesheets_count }}</span>
                             {% else %}
-                            <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 rounded-pill px-2.5">0</span>
+                            <span
+                                class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 rounded-pill px-2.5">0</span>
                             {% endif %}
                         </div>
-                        <a href="{{ url_for('work.timesheets_list') }}" class="btn btn-sm btn-outline-warning text-dark rounded-pill px-3 py-1 fw-semibold" style="font-size: 0.78rem;">
+                        <a href="{{ url_for('work.timesheets_list') }}"
+                            class="btn btn-sm btn-outline-warning text-dark rounded-pill px-3 py-1 fw-semibold"
+                            style="font-size: 0.78rem;">
                             Timesheet History <i class="bi bi-arrow-right ms-1"></i>
                         </a>
                     </div>
-                    <div class="p-3 bg-light bg-opacity-50 rounded-3 d-flex flex-column flex-md-row justify-content-between align-items-center gap-3">
+                    <div
+                        class="p-3 bg-light bg-opacity-50 rounded-3 d-flex flex-column flex-md-row justify-content-between align-items-center gap-3">
                         <div>
                             {% if pending_timesheets_count and pending_timesheets_count|int > 0 %}
-                            <p class="text-dark fw-bold mb-0.5" style="font-size: 0.92rem;">You have {{ pending_timesheets_count }} pending timesheets.</p>
-                            <p class="text-muted small mb-0">Please submit your weekly timesheet entries as soon as possible.</p>
+                            <p class="text-dark fw-bold mb-0.5" style="font-size: 0.92rem;">You have {{
+                                pending_timesheets_count }} pending timesheets.</p>
+                            <p class="text-muted small mb-0">Please submit your weekly timesheet entries as soon as
+                                possible.</p>
                             {% else %}
-                            <p class="text-dark fw-bold mb-0.5" style="font-size: 0.92rem;"><i class="bi bi-check-circle-fill text-success me-1.5"></i> You're all caught up!</p>
+                            <p class="text-dark fw-bold mb-0.5" style="font-size: 0.92rem;"><i
+                                    class="bi bi-check-circle-fill text-success me-1.5"></i> You're all caught up!</p>
                             <p class="text-muted small mb-0">No pending timesheets to submit right now.</p>
                             {% endif %}
                         </div>
                         <div>
-                            <a href="{{ url_for('work.add_timesheet') }}" class="btn btn-primary rounded-pill px-3.5 py-1.5 shadow-sm text-white fw-semibold text-nowrap d-inline-flex align-items-center gap-1.5" style="font-size: 0.82rem;">
+                            <a href="{{ url_for('work.add_timesheet') }}"
+                                class="btn btn-primary rounded-pill px-3.5 py-1.5 shadow-sm text-white fw-semibold text-nowrap d-inline-flex align-items-center gap-1.5"
+                                style="font-size: 0.82rem;">
                                 <i class="bi bi-plus-circle"></i> Add New Timesheet
                             </a>
                         </div>
@@ -586,9 +611,13 @@
                         <div class="d-flex align-items-center gap-2">
                             <i class="bi bi-kanban text-primary fs-5"></i>
                             <h6 class="mb-0 fw-bold text-dark fs-6">Active Projects</h6>
-                            <span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25 rounded-pill px-2.5">{{ projects|length if projects else 0 }}</span>
+                            <span
+                                class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25 rounded-pill px-2.5">{{
+                                projects|length if projects else 0 }}</span>
                         </div>
-                        <a href="{{ url_for('projects.projects_list') }}" class="btn btn-sm btn-outline-primary rounded-pill px-3 py-1 fw-semibold" style="font-size: 0.78rem;">
+                        <a href="{{ url_for('projects.projects_list') }}"
+                            class="btn btn-sm btn-outline-primary rounded-pill px-3 py-1 fw-semibold"
+                            style="font-size: 0.78rem;">
                             View All Projects <i class="bi bi-arrow-right ms-1"></i>
                         </a>
                     </div>
@@ -596,14 +625,19 @@
                         {% if projects %}
                         <div class="list-group list-group-flush">
                             {% for project in projects %}
-                            <div class="list-group-item px-3 py-2.5 bg-transparent border-bottom hover-row-bg d-flex justify-content-between align-items-center">
+                            <div
+                                class="list-group-item px-3 py-2.5 bg-transparent border-bottom hover-row-bg d-flex justify-content-between align-items-center">
                                 <div class="d-flex align-items-center gap-2">
                                     <i class="bi bi-folder2 text-primary opacity-75"></i>
                                     <span class="fw-semibold text-dark">{{ project.name }}</span>
                                 </div>
                                 <div class="d-flex align-items-center gap-2">
-                                    <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 rounded-pill px-2.5 py-1" style="font-size: 0.72rem;">Active</span>
-                                    <button class="btn btn-sm text-primary py-0 px-1.5 btn-view-project" data-id="{{ project.id }}" title="View Project Details"><i class="bi bi-eye"></i></button>
+                                    <span
+                                        class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 rounded-pill px-2.5 py-1"
+                                        style="font-size: 0.72rem;">Active</span>
+                                    <button class="btn btn-sm text-primary py-0 px-1.5 btn-view-project"
+                                        data-id="{{ project.id }}" title="View Project Details"><i
+                                            class="bi bi-eye"></i></button>
                                 </div>
                             </div>
                             {% endfor %}
@@ -623,9 +657,13 @@
                         <div class="d-flex align-items-center gap-2">
                             <i class="bi bi-clock-history text-warning fs-5"></i>
                             <h6 class="mb-0 fw-bold text-dark fs-6">{{ labels.TEAM_PENDING_TIMESHEETS }}</h6>
-                            <span class="badge bg-warning bg-opacity-10 text-warning border border-warning border-opacity-25 rounded-pill px-2.5">{{ team_pending_timesheets|length }}</span>
+                            <span
+                                class="badge bg-warning bg-opacity-10 text-warning border border-warning border-opacity-25 rounded-pill px-2.5">{{
+                                team_pending_timesheets|length }}</span>
                         </div>
-                        <a href="{{ url_for('work.timesheets_list') }}" class="btn btn-sm btn-outline-warning text-dark rounded-pill px-3 py-1 fw-semibold" style="font-size: 0.78rem;">
+                        <a href="{{ url_for('work.timesheets_list') }}"
+                            class="btn btn-sm btn-outline-warning text-dark rounded-pill px-3 py-1 fw-semibold"
+                            style="font-size: 0.78rem;">
                             Review Timesheets <i class="bi bi-arrow-right ms-1"></i>
                         </a>
                     </div>
@@ -633,14 +671,19 @@
                         {% if team_pending_timesheets %}
                         <div class="list-group list-group-flush">
                             {% for t in team_pending_timesheets %}
-                            <div class="list-group-item px-3 py-2.5 bg-transparent border-bottom hover-row-bg d-flex justify-content-between align-items-center">
+                            <div
+                                class="list-group-item px-3 py-2.5 bg-transparent border-bottom hover-row-bg d-flex justify-content-between align-items-center">
                                 <div>
                                     <div class="fw-semibold text-dark">{{ t.employee_name }}</div>
-                                    <div class="text-muted small" style="font-size: 0.75rem;">{{ t.task or t.project or 'Timesheet entry' }}</div>
+                                    <div class="text-muted small" style="font-size: 0.75rem;">{{ t.task or t.project or
+                                        'Timesheet entry' }}</div>
                                 </div>
                                 <div class="text-end">
-                                    <span class="badge bg-warning bg-opacity-10 text-warning border border-warning border-opacity-25 rounded-pill px-2.5 py-1 mb-1" style="font-size: 0.72rem;">Pending</span>
-                                    <div class="text-muted small" style="font-size: 0.72rem;">{{ t.start_date[:10] }}</div>
+                                    <span
+                                        class="badge bg-warning bg-opacity-10 text-warning border border-warning border-opacity-25 rounded-pill px-2.5 py-1 mb-1"
+                                        style="font-size: 0.72rem;">Pending</span>
+                                    <div class="text-muted small" style="font-size: 0.72rem;">{{ t.start_date[:10] }}
+                                    </div>
                                 </div>
                             </div>
                             {% endfor %}
@@ -660,9 +703,13 @@
                         <div class="d-flex align-items-center gap-2">
                             <i class="bi bi-calendar2-check text-info fs-5"></i>
                             <h6 class="mb-0 fw-bold text-dark fs-6">{{ labels.TEAM_LEAVES }}</h6>
-                            <span class="badge bg-info bg-opacity-10 text-info border border-info border-opacity-25 rounded-pill px-2.5">{{ team_leaves|length }}</span>
+                            <span
+                                class="badge bg-info bg-opacity-10 text-info border border-info border-opacity-25 rounded-pill px-2.5">{{
+                                team_leaves|length }}</span>
                         </div>
-                        <a href="{{ url_for('work.leaves_list') }}" class="btn btn-sm btn-outline-info text-dark rounded-pill px-3 py-1 fw-semibold" style="font-size: 0.78rem;">
+                        <a href="{{ url_for('work.leaves_list') }}"
+                            class="btn btn-sm btn-outline-info text-dark rounded-pill px-3 py-1 fw-semibold"
+                            style="font-size: 0.78rem;">
                             View Leaves <i class="bi bi-arrow-right ms-1"></i>
                         </a>
                     </div>
@@ -670,18 +717,26 @@
                         {% if team_leaves %}
                         <div class="list-group list-group-flush">
                             {% for l in team_leaves %}
-                            <div class="list-group-item px-3 py-2.5 bg-transparent border-bottom hover-row-bg d-flex justify-content-between align-items-center">
+                            <div
+                                class="list-group-item px-3 py-2.5 bg-transparent border-bottom hover-row-bg d-flex justify-content-between align-items-center">
                                 <div>
                                     <div class="fw-semibold text-dark">{{ l.employee_name }}</div>
-                                    <div class="text-muted small" style="font-size: 0.75rem;">{{ l.start_date[:10] }} <i class="bi bi-arrow-right mx-1"></i> {{ l.end_date[:10] }}</div>
+                                    <div class="text-muted small" style="font-size: 0.75rem;">{{ l.start_date[:10] }} <i
+                                            class="bi bi-arrow-right mx-1"></i> {{ l.end_date[:10] }}</div>
                                 </div>
                                 <div>
                                     {% if l.status|lower == 'pending' %}
-                                    <span class="badge bg-warning bg-opacity-10 text-warning border border-warning border-opacity-25 rounded-pill px-2.5 py-1" style="font-size: 0.72rem;">Pending</span>
+                                    <span
+                                        class="badge bg-warning bg-opacity-10 text-warning border border-warning border-opacity-25 rounded-pill px-2.5 py-1"
+                                        style="font-size: 0.72rem;">Pending</span>
                                     {% elif l.status|lower == 'approved' %}
-                                    <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 rounded-pill px-2.5 py-1" style="font-size: 0.72rem;">Approved</span>
+                                    <span
+                                        class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 rounded-pill px-2.5 py-1"
+                                        style="font-size: 0.72rem;">Approved</span>
                                     {% else %}
-                                    <span class="badge bg-secondary bg-opacity-10 text-secondary border border-secondary border-opacity-25 rounded-pill px-2.5 py-1" style="font-size: 0.72rem;">{{ l.status }}</span>
+                                    <span
+                                        class="badge bg-secondary bg-opacity-10 text-secondary border border-secondary border-opacity-25 rounded-pill px-2.5 py-1"
+                                        style="font-size: 0.72rem;">{{ l.status }}</span>
                                     {% endif %}
                                 </div>
                             </div>
@@ -700,7 +755,8 @@
 
             <!-- HELP DESK & REIMBURSEMENT TABS -->
             {% set show_helpdesk_tab = can('helpdesk', 'view') or can('helpdesk.stats') or can('helpdesk.history') %}
-            {% set show_reimbursement_tab = can('reimbursements', 'view') or can('expenses', 'view') or can('reimbursements.stats') or can('reimbursements.history') %}
+            {% set show_reimbursement_tab = can('reimbursements', 'view') or can('expenses', 'view') or
+            can('reimbursements.stats') or can('reimbursements.history') %}
             {% if show_helpdesk_tab or show_reimbursement_tab %}
             <style>
                 .hd-dashboard-card {
@@ -813,8 +869,9 @@
                     {% endif %}
                     {% if show_reimbursement_tab %}
                     <li class="nav-item" role="presentation">
-                        <button class="nav-link {% if not show_helpdesk_tab %}active{% endif %}" id="reimbursement-tab" data-bs-toggle="tab"
-                            data-bs-target="#reimbursement-pane" type="button" role="tab">Reimbursements</button>
+                        <button class="nav-link {% if not show_helpdesk_tab %}active{% endif %}" id="reimbursement-tab"
+                            data-bs-toggle="tab" data-bs-target="#reimbursement-pane" type="button"
+                            role="tab">Reimbursements</button>
                     </li>
                     {% endif %}
                 </ul>
@@ -935,7 +992,8 @@
 
                     <!-- Reimbursement Tab -->
                     {% if show_reimbursement_tab %}
-                    <div class="tab-pane fade {% if not show_helpdesk_tab %}show active{% endif %}" id="reimbursement-pane" role="tabpanel">
+                    <div class="tab-pane fade {% if not show_helpdesk_tab %}show active{% endif %}"
+                        id="reimbursement-pane" role="tabpanel">
                         {% set rm_pending = reimbursement_stats.pending_approval.count if reimbursement_stats and
                         reimbursement_stats.pending_approval else 0 %}
                         {% set rm_approved = reimbursement_stats.by_status.approved.count if reimbursement_stats and
@@ -1120,7 +1178,8 @@
         <div class="d-flex flex-column" style="gap: 24px; min-width: 0;">
 
             <!-- UPCOMING HOLIDAYS CARD -->
-            {% if can('holidays', 'view') or can('holidays.create') %}
+            {% if is_team_member or session.role in ['employee', 'team_member', 'teammember'] or can('holidays', 'view')
+            or can('holidays.create') %}
             <div class="glass-card p-4 d-flex flex-column holidays-widget-card" style="border-radius: 16px;">
                 <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
                     <div class="d-flex align-items-center gap-2">
@@ -1185,7 +1244,8 @@
             {% endif %}
 
             <!-- UPCOMING BIRTHDAYS CARD -->
-            {% if can('employee_team_management', 'view') or can('employees', 'view') %}
+            {% if is_team_member or session.role in ['employee', 'team_member', 'teammember'] or can('birthdays',
+            'view') or can('employee_team_management', 'view') or can('employees', 'view') %}
             <div class="glass-card p-4 d-flex flex-column birthdays-widget-card" style="border-radius: 16px;">
                 <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
                     <div class="d-flex align-items-center gap-2">
@@ -1273,20 +1333,22 @@
             {% endif %}
 
             <!-- ANNOUNCEMENTS -->
-            {% if can('announcements', 'view') or can('announcements.create') or can('announcements.update') or can('announcements.delete') %}
+            {% if is_team_member or session.role in ['employee', 'team_member', 'teammember'] or can('announcements',
+            'view') or can('announcements.create') or can('announcements.update') or can('announcements.delete') %}
             <div class="glass-card overflow-hidden" style="border-radius: 16px;">
                 <div
                     class="px-4 py-3 border-bottom d-flex justify-content-between align-items-center bg-light bg-opacity-50">
                     <h5 class="mb-0 fw-bold text-dark" style="font-size: 1.05rem;">Announcements</h5>
-                    {% if (session.role in ['hr', 'superadmin']) and (can('announcements.create') or can('announcements', 'manage')) %}
+                    {% if (session.role in ['hr', 'superadmin']) and (can('announcements.create') or
+                    can('announcements', 'manage')) %}
                     <div class="dropdown">
                         <button class="btn btn-link text-secondary p-0 text-decoration-none" data-bs-toggle="dropdown">
                             <i class="bi bi-three-dots fs-5"></i>
                         </button>
                         <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0">
                             <li><a class="dropdown-item" href="#" data-bs-toggle="modal"
-                                     data-bs-target="#dashboardAnnouncementModal" onclick="prepareDashboardCreate()"><i
-                                         class="bi bi-plus-lg me-2"></i>Create New</a></li>
+                                    data-bs-target="#dashboardAnnouncementModal" onclick="prepareDashboardCreate()"><i
+                                        class="bi bi-plus-lg me-2"></i>Create New</a></li>
                         </ul>
                     </div>
                     {% endif %}

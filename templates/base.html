@@ -131,13 +131,39 @@
 
 <body>
 
+    <script id="user-session-data" type="application/json">
+        {
+            "userRole": {{ (session.role | default('')) | tojson }},
+            "isTeamMember": {{ ('true' if (is_team_member or session.role in ['employee', 'team_member', 'teammember']) else 'false') }},
+            "userPermissions": {{ user_permissions | default({}) | tojson }},
+            "featureActions": {{ feature_actions | default({}) | tojson }}
+        }
+    </script>
     <script>
-        window.userPermissions = {{ user_permissions | default({}) | tojson }};
-        window.featureActions = {{ feature_actions | default({}) | tojson }};
-        window.can = function(featureOrKey, action) {
+        (function () {
+            var dataEl = document.getElementById('user-session-data');
+            var sessionData = {};
+            if (dataEl) {
+                try {
+                    sessionData = JSON.parse(dataEl.textContent || '{}');
+                } catch (e) {
+                    console.error('Failed to parse user session data', e);
+                }
+            }
+            window.userRole = sessionData.userRole || '';
+            window.isTeamMember = Boolean(sessionData.isTeamMember);
+            window.userPermissions = sessionData.userPermissions || {};
+            window.featureActions = sessionData.featureActions || {};
+        })();
+
+        window.can = function (featureOrKey, action) {
             if (!featureOrKey) return false;
             var fk = String(featureOrKey).toLowerCase().trim();
             var act = action ? String(action).toLowerCase().trim() : 'view';
+            var tmFeatures = ['timesheets', 'leave', 'leaves', 'leave_management', 'projects', 'reimbursements', 'expenses', 'policies', 'helpdesk', 'holidays', 'birthdays', 'announcements'];
+            if (window.isTeamMember && act === 'view') {
+                if (tmFeatures.indexOf(fk) !== -1) return true;
+            }
             if (window.userPermissions && window.userPermissions[fk] !== undefined) {
                 return Boolean(window.userPermissions[fk]);
             }
@@ -156,6 +182,9 @@
                 'user_accounts': 'auth'
             };
             var aliasKey = aliases[fk] || fk;
+            if (window.isTeamMember && act === 'view' && tmFeatures.indexOf(aliasKey) !== -1) {
+                return true;
+            }
             if (window.featureActions && window.featureActions[aliasKey]) {
                 return Boolean(window.featureActions[aliasKey][act]);
             }
@@ -203,6 +232,8 @@
         </div>
 
         <div class="menu">
+            {% set is_tm = is_team_member or session.role in ['employee', 'team_member', 'teammember'] or (role in
+            ['employee', 'team_member', 'teammember']) %}
 
             <!-- ACCESS CONTROL -->
             {% if session.role == 'superadmin' %}
@@ -239,7 +270,9 @@
             </a>
 
             <!-- TEAM MEMBERS -->
-            {% if can('employee_team_management', 'view') or can('employees', 'view') or can('team_members', 'view') or can('employees.allocation_config') or can('team_members.allocation_config') or can('employees.create') or can('team_members.create') %}
+            {% if can('employee_team_management', 'view') or can('employees', 'view') or can('team_members', 'view') or
+            can('employees.allocation_config') or can('team_members.allocation_config') or can('employees.create') or
+            can('team_members.create') %}
             <a class="ribbon-left" style="margin-bottom: 0; display: block;"
                 href="{{ url_for('employees.employee_list') }}">
                 <div class="ribbon-inner">
@@ -257,7 +290,8 @@
             {% endif %}
 
             <!-- TIMESHEETS -->
-            {% if can('projects', 'view') or can('projects.create') or can('employees', 'view') %}
+            {% if is_tm or can('timesheets', 'view') or can('projects', 'view') or can('projects.create') or
+            can('employees', 'view') %}
             <a class="ribbon-left" style="margin-bottom: 0; display: block;"
                 href="{{ url_for('work.timesheets_list') }}">
                 <div class="ribbon-inner">
@@ -275,7 +309,8 @@
             {% endif %}
 
             <!-- LEAVES -->
-            {% if can('leave', 'view') or can('leave_management', 'view') or can('leave.view_all_balances') or can('leave.currently_on_leave') or can('leave.analytics') %}
+            {% if is_tm or can('leave', 'view') or can('leaves', 'view') or can('leave_management', 'view') or
+            can('leave.view_all_balances') or can('leave.currently_on_leave') or can('leave.analytics') %}
             <a class="ribbon-left" style="margin-bottom: 0; display: block;" href="{{ url_for('work.leaves_list') }}">
                 <div class="ribbon-inner">
                     <div class="ribbon-accent-left" style="background: linear-gradient(to bottom, #93C5FD, #3B82F6);">
@@ -292,7 +327,7 @@
             {% endif %}
 
             <!-- PROJECTS -->
-            {% if can('projects', 'view') or can('projects.create') %}
+            {% if is_tm or can('projects', 'view') or can('projects.create') %}
             <a class="ribbon-left" style="margin-bottom: 0; display: block;"
                 href="{{ url_for('projects.projects_list') }}">
                 <div class="ribbon-inner">
@@ -310,7 +345,8 @@
             {% endif %}
 
             <!-- REIMBURSEMENTS / EXPENSES -->
-            {% if can('reimbursements', 'view') or can('expenses', 'view') or can('reimbursements.stats') or can('reimbursements.history') %}
+            {% if is_tm or can('reimbursements', 'view') or can('expenses', 'view') or can('reimbursements.stats') or
+            can('reimbursements.history') %}
             <a class="ribbon-left" style="margin-bottom: 0; display: block;"
                 href="{{ url_for('admin.reimbursement') }}">
                 <div class="ribbon-inner">
@@ -398,7 +434,7 @@
             {% endif %}
 
             <!-- POLICIES -->
-            {% if can('policies', 'view') or can('policies.create') or can('policies.update') %}
+            {% if is_tm or can('policies', 'view') or can('policies.create') or can('policies.update') %}
             <a class="ribbon-left" style="margin-bottom: 0; display: block;" href="{{ url_for('admin.policies') }}">
                 <div class="ribbon-inner">
                     <div class="ribbon-accent-left" style="background: linear-gradient(to bottom, #93C5FD, #3B82F6);">
@@ -415,7 +451,7 @@
             {% endif %}
 
             <!-- HELP DESK -->
-            {% if can('helpdesk', 'view') or can('helpdesk.stats') or can('helpdesk.history') %}
+            {% if is_tm or can('helpdesk', 'view') or can('helpdesk.stats') or can('helpdesk.history') %}
             <a class="ribbon-left" style="margin-bottom: 0; display: block;" href="{{ url_for('admin.helpdesk') }}">
                 <div class="ribbon-inner">
                     <div class="ribbon-accent-left" style="background: linear-gradient(to bottom, #93C5FD, #3B82F6);">
@@ -443,24 +479,26 @@
 
 
         <!-- TOPBAR -->
-        <div class="topbar" style="border-bottom: 1px solid #e2e8f0; display: flex; align-items: center; justify-content: space-between; gap: 24px;">
+        <div class="topbar"
+            style="border-bottom: 1px solid #e2e8f0; display: flex; align-items: center; justify-content: space-between; gap: 24px;">
             <!-- LEFT -->
             <div class="topbar-left d-flex align-items-center" style="flex-shrink: 0;">
-                <button onclick="toggleSidebar()" class="btn border-0 p-1 me-2 mobile-nav-toggle d-lg-none" title="Toggle Sidebar" aria-label="Toggle navigation">
+                <button onclick="toggleSidebar()" class="btn border-0 p-1 me-2 mobile-nav-toggle d-lg-none"
+                    title="Toggle Sidebar" aria-label="Toggle navigation">
                     <i class="bi bi-list" style="font-size: 1.5rem;"></i>
                 </button>
             </div>
 
             <!-- CENTER SEARCH -->
-            <div class="position-relative d-none d-md-block" style="width: 100%; max-width: 800px; flex-grow: 1; flex-shrink: 1;">
+            <div class="position-relative d-none d-md-block"
+                style="width: 100%; max-width: 800px; flex-grow: 1; flex-shrink: 1;">
                 <div class="input-group"
                     style="background: #f8fafc; border-radius: 8px; overflow: hidden; border: 1px solid transparent; transition: all 0.2s;">
                     <span class="input-group-text bg-transparent border-0 text-slate-400 ps-3 pe-2">
                         <i class="bi bi-search" style="color: #94a3b8;"></i>
                     </span>
-                    <input type="text" id="globalSearchInput"
-                        class="form-control border-0 shadow-none bg-transparent" placeholder="Search operations..."
-                        style="font-size: 0.85rem; padding-left: 0;">
+                    <input type="text" id="globalSearchInput" class="form-control border-0 shadow-none bg-transparent"
+                        placeholder="Search operations..." style="font-size: 0.85rem; padding-left: 0;">
                     <span class="input-group-text bg-transparent border-0 text-slate-400 pe-3"></span>
                 </div>
             </div>
@@ -483,11 +521,13 @@
 
                 {% set display_name = session.display_name or session.full_name or session.original_name or
                 (session.employee_name | clean_name if session.employee_name else None) or 'User' %}
-                <div style="display: flex; flex-direction: column; align-items: flex-end; line-height: 1.2; flex-shrink: 0; text-align: right;">
-                    <span style="font-size: 0.85rem; font-weight: 600; color: #0f172a;">Good Day, {{ display_name }}!</span>
+                <div
+                    style="display: flex; flex-direction: column; align-items: flex-end; line-height: 1.2; flex-shrink: 0; text-align: right;">
+                    <span style="font-size: 0.85rem; font-weight: 600; color: #0f172a;">Good Day, {{ display_name
+                        }}!</span>
                     <span style="font-size: 0.75rem; color: #64748b;">
-                        {% if session.role == 'employee' %}
-                        {{ labels.EMPLOYEE if labels else 'Employee' }}
+                        {% if session.role in ['employee', 'team_member', 'teammember'] or is_team_member %}
+                        {{ labels.EMPLOYEE if labels else 'Team Member' }}
                         {% elif session.role == 'superadmin' %}
                         Super Admin
                         {% else %}
@@ -505,15 +545,32 @@
                             {{ display_name[:2]|upper }}
                         </div>
                     </button>
-                    <ul class="dropdown-menu dropdown-menu-end shadow border-0"
-                        style="border-radius: 8px; margin-top: 10px;">
-                        <li><a class="dropdown-item" href="{{ url_for('user.profile') }}">👤 Profile</a></li>
-                        <li><a class="dropdown-item" href="#">⚙︁ Settings</a></li>
-                        <li><a class="dropdown-item" href="#">❁ Help</a></li>
+                    <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0"
+                        style="border-radius: 12px; margin-top: 10px; min-width: 210px; padding: 6px;">
                         <li>
-                            <hr class="dropdown-divider">
+                            <a class="dropdown-item d-flex align-items-center gap-2 py-2 rounded-2"
+                                href="{{ url_for('user.profile') }}">
+                                <i class="bi bi-person text-primary" style="font-size: 1rem;"></i>
+                                <span class="fw-medium" style="font-size: 0.88rem;">Profile</span>
+                            </a>
                         </li>
-                        <li><a class="dropdown-item text-danger" href="/logout">Logout</a></li>
+                        <li>
+                            <a class="dropdown-item d-flex align-items-center gap-2 py-2 rounded-2"
+                                href="javascript:void(0)" onclick="openSettingsModal('password')">
+                                <i class="bi bi-shield-lock text-warning" style="font-size: 1rem;"></i>
+                                <span class="fw-medium" style="font-size: 0.88rem;">Change Password</span>
+                            </a>
+                        </li>
+                        <li>
+                            <hr class="dropdown-divider my-1">
+                        </li>
+                        <li>
+                            <a class="dropdown-item d-flex align-items-center gap-2 py-2 rounded-2 text-danger"
+                                href="/logout">
+                                <i class="bi bi-box-arrow-right" style="font-size: 1rem;"></i>
+                                <span class="fw-medium" style="font-size: 0.88rem;">Logout</span>
+                            </a>
+                        </li>
                     </ul>
                 </div>
 
@@ -1020,8 +1077,22 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="{{ url_for('static', filename='js/modal-ui.js') }}"></script>
+    <script>
+        window.escapeHtml = function (text) {
+            if (text === null || text === undefined) return '';
+            return String(text)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        };
+        function escapeHtml(text) {
+            return window.escapeHtml(text);
+        }
+    </script>
 
-    {% if session.role == 'employee' %}
+    {% if session.role in ['employee', 'team_member', 'teammember'] or is_team_member %}
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             fetch('/api/leaves/balance')
@@ -1285,6 +1356,514 @@
                 }
             });
         });
+    </script>
+
+    <!-- ======================================================== -->
+    <!-- SETTINGS & CHANGE PASSWORD MODAL FOR ALL USERS           -->
+    <!-- ======================================================== -->
+    <style>
+        #appSettingsModal .modal-content {
+            border-radius: 18px;
+            border: 1px solid rgba(226, 232, 240, 0.9);
+            box-shadow: 0 20px 40px -15px rgba(15, 23, 42, 0.15), 0 0 0 1px rgba(0, 0, 0, 0.02);
+            overflow: hidden;
+            background: #ffffff;
+        }
+
+        #appSettingsModal .modal-header {
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            border-bottom: 1px solid #e2e8f0;
+            padding: 18px 24px;
+        }
+
+        .settings-icon-box {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            background: rgba(13, 148, 136, 0.12);
+            color: #0d9488;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            flex-shrink: 0;
+        }
+
+        .settings-nav-pills {
+            background: #f1f5f9;
+            padding: 4px;
+            border-radius: 12px;
+            gap: 4px;
+        }
+
+        .settings-nav-pills .nav-link {
+            border-radius: 9px;
+            color: #64748b;
+            font-size: 0.85rem;
+            font-weight: 600;
+            padding: 8px 16px;
+            border: none;
+            transition: all 0.2s ease;
+        }
+
+        .settings-nav-pills .nav-link.active {
+            background: #ffffff;
+            color: #0d9488;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+        }
+
+        .settings-nav-pills .nav-link:hover:not(.active) {
+            color: #1e293b;
+        }
+
+        .settings-strength-track {
+            height: 5px;
+            background: #e2e8f0;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .settings-strength-bar {
+            height: 100%;
+            width: 0%;
+            transition: width 0.3s ease, background-color 0.3s ease;
+        }
+
+        .settings-req-item {
+            font-size: 0.78rem;
+            color: #64748b;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: color 0.2s ease;
+        }
+
+        .settings-req-item.met {
+            color: #16a34a;
+            font-weight: 500;
+        }
+
+        .settings-input-group .form-control {
+            border-radius: 10px;
+            border: 1px solid #cbd5e1;
+            font-size: 0.9rem;
+            padding: 10px 14px;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .settings-input-group .form-control:focus {
+            border-color: #0d9488;
+            box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.15);
+        }
+
+        .settings-input-group .toggle-pass-btn {
+            border: 1px solid #cbd5e1;
+            border-left: none;
+            background: #ffffff;
+            color: #64748b;
+            border-top-right-radius: 10px;
+            border-bottom-right-radius: 10px;
+            padding: 0 14px;
+            cursor: pointer;
+            transition: color 0.2s ease;
+        }
+
+        .settings-input-group .toggle-pass-btn:hover {
+            color: #0f172a;
+        }
+
+        .settings-user-card {
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            border: 1px solid #e2e8f0;
+            border-radius: 14px;
+            padding: 16px;
+        }
+    </style>
+
+    <div class="modal fade" id="appSettingsModal" tabindex="-1" aria-labelledby="appSettingsModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-md">
+            <div class="modal-content">
+                <div class="modal-header d-flex align-items-center justify-content-between">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="settings-icon-box">
+                            <i class="bi bi-shield-lock-fill"></i>
+                        </div>
+                        <div>
+                            <h5 class="modal-title fw-bold text-dark mb-0" id="appSettingsModalLabel">Change Password
+                            </h5>
+                            <span class="text-muted" style="font-size: 0.78rem;">Update your account password
+                                securely</span>
+                        </div>
+                    </div>
+                    <button type="button" class="btn-close shadow-none" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+                </div>
+
+                <div class="modal-body p-4">
+                    {% set modal_disp_name = display_name if display_name is defined else (session.display_name or
+                    session.full_name or session.original_name or session.user or 'User') %}
+                    <!-- User Preview Pill -->
+                    <div class="d-flex align-items-center justify-content-between p-2.5 px-3 mb-3 rounded-3"
+                        style="background: #f8fafc; border: 1px solid #e2e8f0;">
+                        <div class="d-flex align-items-center gap-2.5">
+                            <div
+                                style="width: 36px; height: 36px; background: #0d9488; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 0.88rem; border: 2px solid #ffffff; box-shadow: 0 2px 4px rgba(0,0,0,0.06);">
+                                {{ modal_disp_name[:2]|upper }}
+                            </div>
+                            <div>
+                                <span class="d-block fw-semibold text-dark"
+                                    style="font-size: 0.85rem; line-height: 1.2;">{{ modal_disp_name }}</span>
+                                <span class="text-muted" style="font-size: 0.75rem;">@{{ session.user or 'user'
+                                    }}</span>
+                            </div>
+                        </div>
+                        <span class="badge bg-white text-dark border px-2 py-1 fw-semibold" style="font-size: 0.72rem;">
+                            {% if session.role in ['employee', 'team_member', 'teammember'] or is_team_member %}
+                            {{ labels.EMPLOYEE if labels else 'Team Member' }}
+                            {% elif session.role == 'superadmin' %}
+                            Super Admin
+                            {% else %}
+                            {{ session.role | capitalize if session.role else 'User' }}
+                            {% endif %}
+                        </span>
+                    </div>
+
+                    <!-- Alert Box -->
+                    <div id="settingsPasswordAlert" class="alert d-none py-2 px-3 mb-3 border-0 rounded-3"
+                        style="font-size: 0.85rem;" role="alert"></div>
+
+                    <form id="settingsChangePasswordForm" onsubmit="handleSettingsPasswordSubmit(event)">
+                        <!-- New Password -->
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold text-dark mb-1" style="font-size: 0.84rem;">
+                                New Password <span class="text-danger">*</span>
+                            </label>
+                            <div class="input-group settings-input-group">
+                                <input type="password" id="settingsNewPassword" class="form-control"
+                                    placeholder="Enter strong new password" required autocomplete="new-password">
+                                <button class="btn toggle-pass-btn" type="button"
+                                    onclick="toggleSettingsPassword('settingsNewPassword', 'toggleNewPassIcon')"
+                                    tabindex="-1">
+                                    <i id="toggleNewPassIcon" class="bi bi-eye"></i>
+                                </button>
+                            </div>
+
+                            <!-- Strength Meter -->
+                            <div class="mt-2">
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <span style="font-size: 0.73rem; color: #64748b;">Password Strength</span>
+                                    <span id="settingsStrengthText" class="fw-semibold"
+                                        style="font-size: 0.73rem; color: #94a3b8;">Not entered</span>
+                                </div>
+                                <div class="settings-strength-track">
+                                    <div id="settingsStrengthBar" class="settings-strength-bar"></div>
+                                </div>
+                            </div>
+
+                            <!-- Real-time Requirements -->
+                            <div class="mt-2 pt-1 d-flex flex-column gap-1">
+                                <div class="settings-req-item" id="reqMinLength">
+                                    <i class="bi bi-circle"></i>
+                                    <span>At least 8 characters long</span>
+                                </div>
+                                <div class="settings-req-item" id="reqUppercase">
+                                    <i class="bi bi-circle"></i>
+                                    <span>At least one uppercase letter (A-Z)</span>
+                                </div>
+                                <div class="settings-req-item" id="reqSpecial">
+                                    <i class="bi bi-circle"></i>
+                                    <span>At least one special symbol (@$!%*?&)</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Confirm Password -->
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold text-dark mb-1" style="font-size: 0.84rem;">
+                                Confirm New Password <span class="text-danger">*</span>
+                            </label>
+                            <div class="input-group settings-input-group">
+                                <input type="password" id="settingsConfirmPassword" class="form-control"
+                                    placeholder="Re-type new password" required autocomplete="new-password">
+                                <button class="btn toggle-pass-btn" type="button"
+                                    onclick="toggleSettingsPassword('settingsConfirmPassword', 'toggleConfirmPassIcon')"
+                                    tabindex="-1">
+                                    <i id="toggleConfirmPassIcon" class="bi bi-eye"></i>
+                                </button>
+                            </div>
+                            <div id="settingsMatchIndicator" class="mt-1" style="font-size: 0.75rem; min-height: 18px;">
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-end gap-2 mt-4 pt-2 border-top">
+                            <button type="button" class="btn btn-light px-3 py-2 fw-medium rounded-3"
+                                style="font-size: 0.85rem;" data-bs-dismiss="modal">
+                                Cancel
+                            </button>
+                            <button type="submit" id="btnSettingsSubmitPass"
+                                class="btn btn-primary px-4 py-2 fw-semibold rounded-3 d-flex align-items-center gap-2"
+                                style="font-size: 0.85rem; background-color: #0d9488; border-color: #0d9488;">
+                                <i class="bi bi-key-fill"></i>
+                                <span id="btnSettingsSubmitText">Update Password</span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Open Change Password Modal
+        function openSettingsModal(targetTab) {
+            const modalEl = document.getElementById('appSettingsModal');
+            if (!modalEl) return;
+
+            // Reset form and alerts
+            const form = document.getElementById('settingsChangePasswordForm');
+            if (form) form.reset();
+
+            const alertBox = document.getElementById('settingsPasswordAlert');
+            if (alertBox) {
+                alertBox.className = 'alert d-none py-2 px-3 mb-3 border-0 rounded-3';
+                alertBox.innerHTML = '';
+            }
+
+            resetSettingsPasswordValidation();
+
+            const modalInstance = bootstrap.Modal.getOrCreateInstance(modalEl);
+            modalInstance.show();
+        }
+
+        // Toggle Password Visibility
+        function toggleSettingsPassword(inputId, iconId) {
+            const input = document.getElementById(inputId);
+            const icon = document.getElementById(iconId);
+            if (!input || !icon) return;
+
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.remove('bi-eye');
+                icon.classList.add('bi-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.remove('bi-eye-slash');
+                icon.classList.add('bi-eye');
+            }
+        }
+
+        // Reset real-time password strength & checklist
+        function resetSettingsPasswordValidation() {
+            const bar = document.getElementById('settingsStrengthBar');
+            const text = document.getElementById('settingsStrengthText');
+            if (bar) {
+                bar.style.width = '0%';
+                bar.className = 'settings-strength-bar';
+            }
+            if (text) {
+                text.textContent = 'Not entered';
+                text.style.color = '#94a3b8';
+            }
+
+            ['reqMinLength', 'reqUppercase', 'reqSpecial'].forEach(id => {
+                const item = document.getElementById(id);
+                if (item) {
+                    item.classList.remove('met');
+                    const icon = item.querySelector('i');
+                    if (icon) icon.className = 'bi bi-circle';
+                }
+            });
+
+            const matchInd = document.getElementById('settingsMatchIndicator');
+            if (matchInd) {
+                matchInd.innerHTML = '';
+            }
+        }
+
+        // Real-time strength & requirement checking
+        document.addEventListener('DOMContentLoaded', function () {
+            const newPassInput = document.getElementById('settingsNewPassword');
+            const confirmPassInput = document.getElementById('settingsConfirmPassword');
+
+            if (newPassInput) {
+                newPassInput.addEventListener('input', updatePasswordRequirements);
+            }
+            if (confirmPassInput) {
+                confirmPassInput.addEventListener('input', updatePasswordMatch);
+            }
+
+            function updatePasswordRequirements() {
+                const val = (newPassInput ? newPassInput.value : '');
+                const hasLen = val.length >= 8;
+                const hasUpper = /[A-Z]/.test(val);
+                const hasSpecial = /[@$!%*?&]/.test(val);
+
+                // Update checklist items
+                setReqState('reqMinLength', hasLen);
+                setReqState('reqUppercase', hasUpper);
+                setReqState('reqSpecial', hasSpecial);
+
+                // Calculate strength
+                const bar = document.getElementById('settingsStrengthBar');
+                const text = document.getElementById('settingsStrengthText');
+                if (!bar || !text) return;
+
+                if (!val) {
+                    bar.style.width = '0%';
+                    bar.className = 'settings-strength-bar';
+                    text.textContent = 'Not entered';
+                    text.style.color = '#94a3b8';
+                    updatePasswordMatch();
+                    return;
+                }
+
+                let score = 0;
+                if (hasLen) score += 1;
+                if (hasUpper) score += 1;
+                if (hasSpecial) score += 1;
+                if (val.length >= 12) score += 1;
+                if (/[0-9]/.test(val)) score += 1;
+
+                if (score <= 2) {
+                    bar.style.width = '33%';
+                    bar.style.backgroundColor = '#ef4444'; // Red
+                    text.textContent = 'Weak';
+                    text.style.color = '#ef4444';
+                } else if (score === 3 || score === 4) {
+                    bar.style.width = '66%';
+                    bar.style.backgroundColor = '#f59e0b'; // Amber
+                    text.textContent = 'Good';
+                    text.style.color = '#f59e0b';
+                } else {
+                    bar.style.width = '100%';
+                    bar.style.backgroundColor = '#10b981'; // Green
+                    text.textContent = 'Strong';
+                    text.style.color = '#10b981';
+                }
+
+                updatePasswordMatch();
+            }
+
+            function setReqState(elemId, isMet) {
+                const elem = document.getElementById(elemId);
+                if (!elem) return;
+                const icon = elem.querySelector('i');
+                if (isMet) {
+                    elem.classList.add('met');
+                    if (icon) icon.className = 'bi bi-check-circle-fill text-success';
+                } else {
+                    elem.classList.remove('met');
+                    if (icon) icon.className = 'bi bi-circle';
+                }
+            }
+
+            function updatePasswordMatch() {
+                const newPass = newPassInput ? newPassInput.value : '';
+                const confirmPass = confirmPassInput ? confirmPassInput.value : '';
+                const matchInd = document.getElementById('settingsMatchIndicator');
+                if (!matchInd) return;
+
+                if (!confirmPass) {
+                    matchInd.innerHTML = '';
+                    return;
+                }
+
+                if (newPass === confirmPass) {
+                    matchInd.innerHTML = '<span class="text-success fw-medium"><i class="bi bi-check-circle-fill me-1"></i> Passwords match</span>';
+                } else {
+                    matchInd.innerHTML = '<span class="text-danger fw-medium"><i class="bi bi-x-circle-fill me-1"></i> Passwords do not match</span>';
+                }
+            }
+        });
+
+        // AJAX Form Submission
+        async function handleSettingsPasswordSubmit(event) {
+            event.preventDefault();
+
+            const newPass = document.getElementById('settingsNewPassword').value;
+            const confirmPass = document.getElementById('settingsConfirmPassword').value;
+            const alertBox = document.getElementById('settingsPasswordAlert');
+            const submitBtn = document.getElementById('btnSettingsSubmitPass');
+            const submitText = document.getElementById('btnSettingsSubmitText');
+
+            // Client-side validations
+            if (!newPass || !confirmPass) {
+                showSettingsAlert('danger', 'Please enter both password fields.');
+                return;
+            }
+
+            if (newPass !== confirmPass) {
+                showSettingsAlert('danger', 'Passwords do not match. Please verify.');
+                return;
+            }
+
+            if (newPass.length < 8 || !/[A-Z]/.test(newPass) || !/[@$!%*?&]/.test(newPass)) {
+                showSettingsAlert('danger', 'Password does not meet all security requirements.');
+                return;
+            }
+
+            // Spinner state
+            submitBtn.disabled = true;
+            submitText.innerHTML = '<span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span> Updating...';
+            alertBox.className = 'alert d-none py-2 px-3 mb-3 border-0 rounded-3';
+
+            try {
+                const response = await fetch('/api/change-password', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: JSON.stringify({
+                        new_password: newPass,
+                        confirm_password: confirmPass
+                    })
+                });
+
+                const result = await response.json();
+
+                if (response.ok && result.success) {
+                    showSettingsAlert('success', result.message || 'Password changed successfully!');
+                    document.getElementById('settingsChangePasswordForm').reset();
+                    resetSettingsPasswordValidation();
+
+                    // Automatically close modal after 1.8s
+                    setTimeout(() => {
+                        const modalEl = document.getElementById('appSettingsModal');
+                        const modalInstance = bootstrap.Modal.getInstance(modalEl);
+                        if (modalInstance) {
+                            modalInstance.hide();
+                        }
+                    }, 1800);
+                } else {
+                    const errorMsg = result.error || 'Failed to change password. Please try again.';
+                    showSettingsAlert('danger', errorMsg);
+                }
+            } catch (err) {
+                console.error('Password change error:', err);
+                showSettingsAlert('danger', 'Network error. Please check your connection and try again.');
+            } finally {
+                submitBtn.disabled = false;
+                submitText.textContent = 'Update Password';
+            }
+        }
+
+        function showSettingsAlert(type, message) {
+            const alertBox = document.getElementById('settingsPasswordAlert');
+            if (!alertBox) return;
+
+            alertBox.className = `alert alert-${type === 'success' ? 'success' : 'danger'} py-2 px-3 mb-3 border-0 rounded-3 d-flex align-items-center gap-2`;
+            if (type === 'success') {
+                alertBox.style.backgroundColor = 'rgba(16, 185, 129, 0.12)';
+                alertBox.style.color = '#065f46';
+                alertBox.innerHTML = `<i class="bi bi-check-circle-fill text-success"></i> <span>${message}</span>`;
+            } else {
+                alertBox.style.backgroundColor = 'rgba(239, 68, 68, 0.12)';
+                alertBox.style.color = '#991b1b';
+                alertBox.innerHTML = `<i class="bi bi-exclamation-triangle-fill text-danger"></i> <span>${message}</span>`;
+            }
+        }
     </script>
 
     {% block scripts %}{% endblock %}

@@ -117,7 +117,7 @@ def projects_list():
         projects_to_show = []
         if user_role in ['hr', 'admin', 'superadmin']:
             projects_to_show = all_projects
-        elif user_role in ['manager', 'employee']:
+        elif user_role in ['manager', 'employee', 'team_member', 'teammember']:
             # Backend GET /projects/ is already scoped by role (manager_name or
             # project_assignments). List payloads do not include team_members, so
             # client-side member matching would incorrectly hide every project.

@@ -244,10 +244,21 @@ body {
     flex-shrink: 0;
 }
 
-.avatar-initials.bg-color-1 { background: linear-gradient(135deg, #6366f1, #8b5cf6); }
-.avatar-initials.bg-color-2 { background: linear-gradient(135deg, #ec4899, #f472b6); }
-.avatar-initials.bg-color-3 { background: linear-gradient(135deg, #14b8a6, #2dd4bf); }
-.avatar-initials.bg-color-4 { background: linear-gradient(135deg, #f59e0b, #fbbf24); }
+.avatar-initials.bg-color-1 {
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+}
+
+.avatar-initials.bg-color-2 {
+    background: linear-gradient(135deg, #ec4899, #f472b6);
+}
+
+.avatar-initials.bg-color-3 {
+    background: linear-gradient(135deg, #14b8a6, #2dd4bf);
+}
+
+.avatar-initials.bg-color-4 {
+    background: linear-gradient(135deg, #f59e0b, #fbbf24);
+}
 
 .badge-status {
     padding: 0.35rem 0.75rem;
@@ -340,7 +351,10 @@ body {
 /* Custom Modal Styles */
 .modal-overlay {
     position: fixed;
-    top: 0; left: 0; right: 0; bottom: 0;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
     background: rgba(15, 23, 42, 0.6);
     backdrop-filter: blur(4px);
     display: flex;
@@ -508,6 +522,7 @@ body {
     .form-grid {
         grid-template-columns: 1fr;
     }
+
     .form-group.full-width {
         grid-column: span 1;
     }
@@ -634,9 +649,17 @@ body {
     align-items: flex-start;
 }
 
-.doc-card.status-pending { border-left: 4px solid #f59e0b; }
-.doc-card.status-approved { border-left: 4px solid #10b981; }
-.doc-card.status-rejected { border-left: 4px solid #ef4444; }
+.doc-card.status-pending {
+    border-left: 4px solid #f59e0b;
+}
+
+.doc-card.status-approved {
+    border-left: 4px solid #10b981;
+}
+
+.doc-card.status-rejected {
+    border-left: 4px solid #ef4444;
+}
 
 .audit-timeline {
     position: relative;

@@ -143,7 +143,8 @@
         display: block;
     }
 
-    .hd-stat-box:hover, .hd-stat-box.active-filter {
+    .hd-stat-box:hover,
+    .hd-stat-box.active-filter {
         border-color: rgba(99, 102, 241, 0.4);
         box-shadow: 0 6px 16px rgba(99, 102, 241, 0.08);
         transform: translateY(-2px);
@@ -177,7 +178,8 @@
         transition: all 0.15s ease;
     }
 
-    .leave-filter-pill:hover, .leave-filter-pill.active {
+    .leave-filter-pill:hover,
+    .leave-filter-pill.active {
         background: #6366F1;
         color: #FFFFFF;
         border-color: #6366F1;
@@ -231,11 +233,13 @@
         transition: all 0.15s ease;
         text-decoration: none;
     }
+
     .action-edit-btn:hover {
         background-color: #DBEAFE !important;
         border-color: #93C5FD !important;
         color: #1D4ED8 !important;
     }
+
     .action-more-btn {
         background-color: #FFFFFF !important;
         border: 1px solid #E2E8F0 !important;
@@ -246,11 +250,14 @@
         line-height: 1 !important;
         transition: all 0.15s ease;
     }
-    .action-more-btn:hover, .action-more-btn[aria-expanded="true"] {
+
+    .action-more-btn:hover,
+    .action-more-btn[aria-expanded="true"] {
         background-color: #F8FAFC !important;
         border-color: #CBD5E1 !important;
         color: #334155 !important;
     }
+
     .actions-dropdown-menu {
         border-radius: 10px !important;
         box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.04) !important;
@@ -259,6 +266,7 @@
         min-width: 135px !important;
         z-index: 1050 !important;
     }
+
     .actions-dropdown-menu .dropdown-item {
         font-size: 0.82rem !important;
         font-weight: 500 !important;
@@ -268,20 +276,25 @@
         align-items: center !important;
         gap: 8px !important;
     }
+
     .actions-dropdown-menu .dropdown-item:hover {
         background-color: #F8FAFC !important;
     }
+
     .actions-dropdown-menu .dropdown-item.approve-item {
         color: #0F172A !important;
     }
+
     .actions-dropdown-menu .dropdown-item.approve-item:hover {
         background-color: #ECFDF5 !important;
         color: #047857 !important;
     }
+
     .actions-dropdown-menu .dropdown-item.reject-item,
     .actions-dropdown-menu .dropdown-item.delete-item {
         color: #0F172A !important;
     }
+
     .actions-dropdown-menu .dropdown-item.reject-item:hover,
     .actions-dropdown-menu .dropdown-item.delete-item:hover {
         background-color: #FEF2F2 !important;
@@ -296,7 +309,8 @@
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h4 class="mb-0 fw-bold">Leave Application</h4>
         <div class="d-flex gap-2">
-            <a href="{{ url_for('work.add_leave') }}" class="btn btn-soft-purple btn-sm rounded-pill px-3 shadow-sm" style="font-size: 0.8rem; font-weight: 600;">
+            <a href="{{ url_for('work.add_leave') }}" class="btn btn-soft-purple btn-sm rounded-pill px-3 shadow-sm"
+                style="font-size: 0.8rem; font-weight: 600;">
                 <i class="bi bi-plus-circle me-1"></i> Apply Leave
             </a>
         </div>
@@ -313,7 +327,8 @@
                         <h5 class="card-title mb-0 fw-semibold">Calendar</h5>
                     </div>
                     <div class="flex-grow-1 d-flex flex-column justify-content-between">
-                        <div class="p-2 bg-white rounded-3 border" style="border-color: #E2E8F0 !important; box-shadow: 0 1px 3px rgba(0,0,0,0.04);">
+                        <div class="p-2 bg-white rounded-3 border"
+                            style="border-color: #E2E8F0 !important; box-shadow: 0 1px 3px rgba(0,0,0,0.04);">
                             <div id="calendar" style="width: 100%;"></div>
                         </div>
 
@@ -349,21 +364,31 @@
                         <h5 class="card-title mb-0 fw-semibold">
                             Holidays
                         </h5>
-                        {% if (session.role in ['hr', 'superadmin']) and (can('holidays.create') or can('holidays', 'manage')) %}
-                        <button type="button" class="btn btn-sm btn-outline-primary rounded-pill px-3 shadow-xs" data-bs-toggle="modal"
-                            data-bs-target="#addHolidayModal" style="font-size: 0.8rem; font-weight: 600;">
+                        {% if (session.role in ['hr', 'superadmin']) and (can('holidays.create') or can('holidays',
+                        'manage')) %}
+                        <button type="button" class="btn btn-sm btn-outline-primary rounded-pill px-3 shadow-xs"
+                            data-bs-toggle="modal" data-bs-target="#addHolidayModal"
+                            style="font-size: 0.8rem; font-weight: 600;">
                             <i class="bi bi-plus-circle me-1"></i> Add Holiday
                         </button>
                         {% endif %}
                     </div>
-                    <div class="table-responsive rounded-3 border flex-grow-1" style="border-color: #E8ECF4 !important; overflow-y: auto; min-height: 530px; max-height: 560px;">
+                    <div class="table-responsive rounded-3 border flex-grow-1"
+                        style="border-color: #E8ECF4 !important; overflow-y: auto; min-height: 530px; max-height: 560px;">
                         <table class="table table-hover align-middle mb-0 w-100" id="holidaysTable">
-                            <thead class="table-light" style="background-color: #F8FAFC; position: sticky; top: 0; z-index: 2;">
+                            <thead class="table-light"
+                                style="background-color: #F8FAFC; position: sticky; top: 0; z-index: 2;">
                                 <tr>
-                                    <th style="font-weight: 700; color: #475569; font-size: 0.82rem; padding: 12px 14px; width: 28%;">Date</th>
-                                    <th style="font-weight: 700; color: #475569; font-size: 0.82rem; width: 32%;">Holiday Name</th>
-                                    <th style="font-weight: 700; color: #475569; font-size: 0.82rem; width: 18%;">Type</th>
-                                    <th style="font-weight: 700; color: #475569; font-size: 0.82rem; width: 22%; padding-right: 14px;">Description</th>
+                                    <th
+                                        style="font-weight: 700; color: #475569; font-size: 0.82rem; padding: 12px 14px; width: 28%;">
+                                        Date</th>
+                                    <th style="font-weight: 700; color: #475569; font-size: 0.82rem; width: 32%;">
+                                        Holiday Name</th>
+                                    <th style="font-weight: 700; color: #475569; font-size: 0.82rem; width: 18%;">Type
+                                    </th>
+                                    <th
+                                        style="font-weight: 700; color: #475569; font-size: 0.82rem; width: 22%; padding-right: 14px;">
+                                        Description</th>
                                 </tr>
                             </thead>
                             <tbody id="holidaysTableBody">
@@ -384,25 +409,25 @@
 
     <!-- LEAVE APPLICATIONS DASHBOARD CARD (Helpdesk / Reimbursement Style) -->
     {% set is_admin_or_hr = (session.role in ['admin', 'hr', 'manager', 'superadmin']) %}
-    
+
     {# Compute All Leaves Stats #}
     {% set ns_all = namespace(pending=0, approved=0, rejected=0, total=0) %}
     {% for l in leaves %}
-        {% set ns_all.total = ns_all.total + 1 %}
-        {% if l.status|lower == 'pending' %}{% set ns_all.pending = ns_all.pending + 1 %}{% endif %}
-        {% if l.status|lower == 'approved' %}{% set ns_all.approved = ns_all.approved + 1 %}{% endif %}
-        {% if l.status|lower == 'rejected' %}{% set ns_all.rejected = ns_all.rejected + 1 %}{% endif %}
+    {% set ns_all.total = ns_all.total + 1 %}
+    {% if l.status|lower == 'pending' %}{% set ns_all.pending = ns_all.pending + 1 %}{% endif %}
+    {% if l.status|lower == 'approved' %}{% set ns_all.approved = ns_all.approved + 1 %}{% endif %}
+    {% if l.status|lower == 'rejected' %}{% set ns_all.rejected = ns_all.rejected + 1 %}{% endif %}
     {% endfor %}
 
     {# Compute My Leaves Stats #}
     {% set ns_my = namespace(pending=0, approved=0, rejected=0, total=0) %}
     {% for l in leaves %}
-        {% if l.is_own %}
-            {% set ns_my.total = ns_my.total + 1 %}
-            {% if l.status|lower == 'pending' %}{% set ns_my.pending = ns_my.pending + 1 %}{% endif %}
-            {% if l.status|lower == 'approved' %}{% set ns_my.approved = ns_my.approved + 1 %}{% endif %}
-            {% if l.status|lower == 'rejected' %}{% set ns_my.rejected = ns_my.rejected + 1 %}{% endif %}
-        {% endif %}
+    {% if l.is_own %}
+    {% set ns_my.total = ns_my.total + 1 %}
+    {% if l.status|lower == 'pending' %}{% set ns_my.pending = ns_my.pending + 1 %}{% endif %}
+    {% if l.status|lower == 'approved' %}{% set ns_my.approved = ns_my.approved + 1 %}{% endif %}
+    {% if l.status|lower == 'rejected' %}{% set ns_my.rejected = ns_my.rejected + 1 %}{% endif %}
+    {% endif %}
     {% endfor %}
 
     <div class="hd-dashboard-card mb-4">
@@ -410,20 +435,22 @@
         <ul class="nav hd-nav-tabs" id="leaveTabs" role="tablist">
             {% if is_admin_or_hr %}
             <li class="nav-item" role="presentation">
-                <button class="nav-link active" id="all-leaves-tab" data-bs-toggle="tab" data-bs-target="#all-leaves-pane" type="button" role="tab">
+                <button class="nav-link active" id="all-leaves-tab" data-bs-toggle="tab"
+                    data-bs-target="#all-leaves-pane" type="button" role="tab">
                     <i class="bi bi-people-fill me-2"></i>All Leave Applications
                 </button>
             </li>
             {% endif %}
             <li class="nav-item" role="presentation">
-                <button class="nav-link {% if not is_admin_or_hr %}active{% endif %}" id="my-leaves-tab" data-bs-toggle="tab" data-bs-target="#my-leaves-pane" type="button" role="tab">
+                <button class="nav-link {% if not is_admin_or_hr %}active{% endif %}" id="my-leaves-tab"
+                    data-bs-toggle="tab" data-bs-target="#my-leaves-pane" type="button" role="tab">
                     <i class="bi bi-person-badge-fill me-2"></i>My Applications
                 </button>
             </li>
         </ul>
 
         <div class="tab-content" id="leaveTabsContent">
-            
+
             {% if is_admin_or_hr %}
             <!-- TAB 1: ALL LEAVE APPLICATIONS (HR / Admin / Manager) -->
             <div class="tab-pane fade show active" id="all-leaves-pane" role="tabpanel">
@@ -431,10 +458,17 @@
                     <!-- Filter Controls & Total Badge -->
                     <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
                         <div class="d-flex gap-2">
-                            <button type="button" class="leave-filter-pill active" onclick="filterLeaveTable('all', 'all', this)">All ({{ ns_all.total }})</button>
-                            <button type="button" class="leave-filter-pill" onclick="filterLeaveTable('all', 'pending', this)">Pending ({{ ns_all.pending }})</button>
-                            <button type="button" class="leave-filter-pill" onclick="filterLeaveTable('all', 'approved', this)">Approved ({{ ns_all.approved }})</button>
-                            <button type="button" class="leave-filter-pill" onclick="filterLeaveTable('all', 'rejected', this)">Rejected ({{ ns_all.rejected }})</button>
+                            <button type="button" class="leave-filter-pill active"
+                                onclick="filterLeaveTable('all', 'all', this)">All ({{ ns_all.total }})</button>
+                            <button type="button" class="leave-filter-pill"
+                                onclick="filterLeaveTable('all', 'pending', this)">Pending ({{ ns_all.pending
+                                }})</button>
+                            <button type="button" class="leave-filter-pill"
+                                onclick="filterLeaveTable('all', 'approved', this)">Approved ({{ ns_all.approved
+                                }})</button>
+                            <button type="button" class="leave-filter-pill"
+                                onclick="filterLeaveTable('all', 'rejected', this)">Rejected ({{ ns_all.rejected
+                                }})</button>
                         </div>
                         <div class="d-flex align-items-center gap-2">
                             <span class="badge bg-light text-secondary border px-3 py-2" style="font-size: 0.82rem;">
@@ -448,13 +482,18 @@
                         <table class="table table-hover align-middle mb-0" id="allLeavesTable">
                             <thead class="table-light" style="background-color: #F8FAFC;">
                                 <tr>
-                                    <th style="font-weight: 700; color: #475569; font-size: 0.85rem; padding: 12px 16px;">Employee</th>
+                                    <th
+                                        style="font-weight: 700; color: #475569; font-size: 0.85rem; padding: 12px 16px;">
+                                        Employee</th>
                                     <th style="font-weight: 700; color: #475569; font-size: 0.85rem;">Leave Type</th>
-                                    <th style="font-weight: 700; color: #475569; font-size: 0.85rem;">Duration / Category</th>
+                                    <th style="font-weight: 700; color: #475569; font-size: 0.85rem;">Duration /
+                                        Category</th>
                                     <th style="font-weight: 700; color: #475569; font-size: 0.85rem;">Dates</th>
                                     <th style="font-weight: 700; color: #475569; font-size: 0.85rem;">Reason</th>
                                     <th style="font-weight: 700; color: #475569; font-size: 0.85rem;">Status</th>
-                                    <th style="font-weight: 700; color: #475569; font-size: 0.85rem; text-align: center; padding-right: 16px;">Actions</th>
+                                    <th
+                                        style="font-weight: 700; color: #475569; font-size: 0.85rem; text-align: center; padding-right: 16px;">
+                                        Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -466,15 +505,22 @@
                                                 {{ (l.employee_name or 'E')[:2]|upper }}
                                             </div>
                                             <div>
-                                                <div class="fw-bold text-slate-900" style="font-size: 0.9rem;">{{ l.employee_name | clean_name }}</div>
-                                                <small class="text-muted">{{ l.employee_role|capitalize if l.employee_role else 'Employee' }}</small>
+                                                <div class="fw-bold text-slate-900" style="font-size: 0.9rem;">{{
+                                                    l.employee_name | clean_name }}</div>
+                                                <small class="text-muted">{{ l.employee_role|capitalize if
+                                                    l.employee_role else 'Employee' }}</small>
                                             </div>
                                         </div>
                                     </td>
                                     <td>
                                         {% set type_lower = (l.leave_type or '')|lower %}
-                                        {% set badge_style = 'background:#EFF6FF; color:#1D4ED8;' if 'planned' in type_lower and 'unplanned' not in type_lower else ('background:#FFFBEB; color:#B45309;' if 'unplanned' in type_lower else ('background:#F5F3FF; color:#6D28D9;' if 'optional' in type_lower else 'background:#F1F5F9; color:#475569;')) %}
-                                        <span class="badge px-2 py-1 rounded-pill" style="{{ badge_style }} font-weight: 600; font-size: 0.78rem;">
+                                        {% set badge_style = 'background:#EFF6FF; color:#1D4ED8;' if 'planned' in
+                                        type_lower and 'unplanned' not in type_lower else ('background:#FFFBEB;
+                                        color:#B45309;' if 'unplanned' in type_lower else ('background:#F5F3FF;
+                                        color:#6D28D9;' if 'optional' in type_lower else 'background:#F1F5F9;
+                                        color:#475569;')) %}
+                                        <span class="badge px-2 py-1 rounded-pill"
+                                            style="{{ badge_style }} font-weight: 600; font-size: 0.78rem;">
                                             {{ l.leave_type | capitalize }}
                                         </span>
                                     </td>
@@ -482,13 +528,15 @@
                                         {% set is_half = (l.leave_type_category == 'half_day') %}
                                         <div class="d-flex align-items-center gap-1">
                                             <span class="fw-semibold text-slate-800" style="font-size: 0.85rem;">
-                                                {{ l.total_days|default(1) }} {% if l.total_days == 0.5 or is_half %}Day (Half Day){% else %}Days{% endif %}
+                                                {{ l.total_days|default(1) }} {% if l.total_days == 0.5 or is_half %}Day
+                                                (Half Day){% else %}Days{% endif %}
                                             </span>
                                         </div>
                                     </td>
                                     <td>
                                         <div class="text-slate-700" style="font-size: 0.85rem;">
-                                            <span class="fw-medium">{{ l.start_date[:10] if l.start_date else '—' }}</span>
+                                            <span class="fw-medium">{{ l.start_date[:10] if l.start_date else '—'
+                                                }}</span>
                                             {% if l.end_date and l.end_date[:10] != l.start_date[:10] %}
                                             <i class="bi bi-arrow-right text-muted mx-1"></i>
                                             <span class="fw-medium">{{ l.end_date[:10] }}</span>
@@ -496,15 +544,19 @@
                                         </div>
                                     </td>
                                     <td>
-                                        <div class="text-muted text-truncate" style="max-width: 220px; font-size: 0.85rem;" title="{{ l.reason }}">
+                                        <div class="text-muted text-truncate"
+                                            style="max-width: 220px; font-size: 0.85rem;" title="{{ l.reason }}">
                                             {{ l.reason or '—' }}
                                         </div>
                                     </td>
                                     <td>
                                         {% set st = (l.status or 'pending')|lower %}
-                                        {% set st_bg = '#ECFDF5' if st == 'approved' else ('#FFFBEB' if st == 'pending' else '#FEF2F2') %}
-                                        {% set st_fg = '#065F46' if st == 'approved' else ('#92400E' if st == 'pending' else '#991B1B') %}
-                                        <span class="badge px-2 py-1 rounded-pill" style="background:{{ st_bg }}; color:{{ st_fg }}; font-weight:600; font-size:0.75rem;">
+                                        {% set st_bg = '#ECFDF5' if st == 'approved' else ('#FFFBEB' if st == 'pending'
+                                        else '#FEF2F2') %}
+                                        {% set st_fg = '#065F46' if st == 'approved' else ('#92400E' if st == 'pending'
+                                        else '#991B1B') %}
+                                        <span class="badge px-2 py-1 rounded-pill"
+                                            style="background:{{ st_bg }}; color:{{ st_fg }}; font-weight:600; font-size:0.75rem;">
                                             {{ st|capitalize }}
                                         </span>
                                         {% if l.signoffs and l.signoffs|length > 0 %}
@@ -512,13 +564,21 @@
                                             {% for s in l.signoffs %}
                                             {% set s_ok = (s.status == 'approved') %}
                                             {% set s_rej = (s.status == 'rejected') %}
-                                            {% set s_chip_bg = '#ECFDF5' if s_ok else ('#FEF2F2' if s_rej else '#F8FAFC') %}
-                                            {% set s_chip_fg = '#065F46' if s_ok else ('#991B1B' if s_rej else '#64748B') %}
-                                            {% set s_chip_border = '#D1FAE5' if s_ok else ('#FECACA' if s_rej else '#E2E8F0') %}
-                                            {% set s_icon = 'bi-check-circle-fill text-success' if s_ok else ('bi-x-circle-fill text-danger' if s_rej else 'bi-clock-history text-warning') %}
-                                            <span class="badge d-inline-flex align-items-center gap-1 text-truncate" style="background:{{ s_chip_bg }}; color:{{ s_chip_fg }}; border:1px solid {{ s_chip_border }}; font-size:0.68rem; font-weight:600; padding:2px 6px; max-width:180px;">
+                                            {% set s_chip_bg = '#ECFDF5' if s_ok else ('#FEF2F2' if s_rej else
+                                            '#F8FAFC') %}
+                                            {% set s_chip_fg = '#065F46' if s_ok else ('#991B1B' if s_rej else
+                                            '#64748B') %}
+                                            {% set s_chip_border = '#D1FAE5' if s_ok else ('#FECACA' if s_rej else
+                                            '#E2E8F0') %}
+                                            {% set s_icon = 'bi-check-circle-fill text-success' if s_ok else
+                                            ('bi-x-circle-fill text-danger' if s_rej else 'bi-clock-history
+                                            text-warning') %}
+                                            <span class="badge d-inline-flex align-items-center gap-1 text-truncate"
+                                                style="background:{{ s_chip_bg }}; color:{{ s_chip_fg }}; border:1px solid {{ s_chip_border }}; font-size:0.68rem; font-weight:600; padding:2px 6px; max-width:180px;">
                                                 <i class="bi {{ s_icon }}"></i>
-                                                <span>{% if s.approver_role == 'hr' %}HR{% elif s.project_name %}Mgr ({{ s.project_name }}){% else %}Manager{% endif %}: {{ s.status|capitalize }}</span>
+                                                <span>{% if s.approver_role == 'hr' %}HR{% elif s.project_name %}Mgr ({{
+                                                    s.project_name }}){% else %}Manager{% endif %}: {{
+                                                    s.status|capitalize }}</span>
                                             </span>
                                             {% endfor %}
                                         </div>
@@ -528,36 +588,50 @@
                                         <div class="d-inline-flex align-items-center gap-1.5 justify-content-center">
                                             {% if l.is_own and l.status == 'pending' %}
                                             <!-- Edit Icon Button (Logo only) -->
-                                            <a href="{{ url_for('work.add_leave') }}" class="btn btn-sm action-edit-btn d-inline-flex align-items-center justify-content-center" title="Edit Leave">
+                                            <a href="{{ url_for('work.add_leave') }}"
+                                                class="btn btn-sm action-edit-btn d-inline-flex align-items-center justify-content-center"
+                                                title="Edit Leave">
                                                 <i class="bi bi-pencil"></i>
                                             </a>
                                             {% endif %}
 
-                                            {% set can_show_dropdown = (l.status == 'pending' and l.can_user_approve) or l.is_own or session.role in ['admin', 'superadmin'] %}
+                                            {% set can_show_dropdown = (l.status == 'pending' and l.can_user_approve) or
+                                            l.is_own or session.role in ['admin', 'superadmin'] %}
                                             {% if can_show_dropdown %}
                                             <!-- Actions Dropdown (Three Dots) -->
                                             <div class="dropdown d-inline-block">
-                                                <button class="btn btn-sm action-more-btn" type="button" data-bs-toggle="dropdown" aria-expanded="false" title="More Actions">
+                                                <button class="btn btn-sm action-more-btn" type="button"
+                                                    data-bs-toggle="dropdown" aria-expanded="false"
+                                                    title="More Actions">
                                                     <i class="bi bi-three-dots-vertical"></i>
                                                 </button>
                                                 <ul class="dropdown-menu dropdown-menu-end actions-dropdown-menu">
                                                     {% if l.status == 'pending' and l.can_user_approve %}
                                                     <li>
-                                                        <button class="dropdown-item approve-btn approve-item" type="button" onclick="updateLeave('{{ l.id }}', 'approved', this)">
-                                                            <i class="bi bi-check-circle text-success" style="font-size: 0.95rem;"></i> Approve
+                                                        <button class="dropdown-item approve-btn approve-item"
+                                                            type="button"
+                                                            onclick="updateLeave('{{ l.id }}', 'approved', this)">
+                                                            <i class="bi bi-check-circle text-success"
+                                                                style="font-size: 0.95rem;"></i> Approve
                                                         </button>
                                                     </li>
                                                     <li>
-                                                        <button class="dropdown-item reject-btn reject-item" type="button" onclick="updateLeave('{{ l.id }}', 'rejected', this)">
-                                                            <i class="bi bi-x-circle text-danger" style="font-size: 0.95rem;"></i> Reject
+                                                        <button class="dropdown-item reject-btn reject-item"
+                                                            type="button"
+                                                            onclick="updateLeave('{{ l.id }}', 'rejected', this)">
+                                                            <i class="bi bi-x-circle text-danger"
+                                                                style="font-size: 0.95rem;"></i> Reject
                                                         </button>
                                                     </li>
                                                     {% endif %}
 
                                                     {% if l.is_own or session.role in ['admin', 'superadmin'] %}
                                                     <li>
-                                                        <button class="dropdown-item delete-btn delete-item" type="button" onclick="confirmDeleteLeave('{{ l.id }}', '{{ l.employee_name }}')">
-                                                            <i class="bi bi-trash text-danger" style="font-size: 0.95rem;"></i> Delete
+                                                        <button class="dropdown-item delete-btn delete-item"
+                                                            type="button"
+                                                            onclick="confirmDeleteLeave('{{ l.id }}', '{{ l.employee_name }}')">
+                                                            <i class="bi bi-trash text-danger"
+                                                                style="font-size: 0.95rem;"></i> Delete
                                                         </button>
                                                     </li>
                                                     {% endif %}
@@ -585,16 +659,21 @@
             {% endif %}
 
             <!-- TAB 2: MY LEAVE APPLICATIONS -->
-            <div class="tab-pane fade {% if not is_admin_or_hr %}show active{% endif %}" id="my-leaves-pane" role="tabpanel">
+            <div class="tab-pane fade {% if not is_admin_or_hr %}show active{% endif %}" id="my-leaves-pane"
+                role="tabpanel">
                 <div class="p-4">
                     <!-- My Leave Balance Summary Cards -->
                     <div class="row g-3 mb-4" id="leaveBalanceCards">
                         {% if summary and (summary.remaining_leaves is defined or balance) %}
                         {% set categories = [
-                        {'label': 'Total Leaves', 'used': summary.used_leaves|default(0), 'total': summary.total_leaves|default(18), 'color': 'total'},
-                        {'label': 'Planned Leaves', 'used': summary.planned_used|default(0), 'total': summary.planned_total|default(12), 'color': 'planned'},
-                        {'label': 'Unplanned Leaves', 'used': summary.unplanned_used|default(0), 'total': summary.unplanned_total|default(4), 'color': 'unplanned'},
-                        {'label': 'Optional Leaves', 'used': summary.optional_used|default(0), 'total': summary.optional_total|default(2), 'color': 'optional'}
+                        {'label': 'Total Leaves', 'used': summary.used_leaves|default(0), 'total':
+                        summary.total_leaves|default(18), 'color': 'total'},
+                        {'label': 'Planned Leaves', 'used': summary.planned_used|default(0), 'total':
+                        summary.planned_total|default(12), 'color': 'planned'},
+                        {'label': 'Unplanned Leaves', 'used': summary.unplanned_used|default(0), 'total':
+                        summary.unplanned_total|default(4), 'color': 'unplanned'},
+                        {'label': 'Optional Leaves', 'used': summary.optional_used|default(0), 'total':
+                        summary.optional_total|default(2), 'color': 'optional'}
                         ] %}
 
                         {% for cat in categories %}
@@ -605,7 +684,9 @@
                                     <span class="lc-label">{{ cat.label }}</span>
                                     <div class="text-end">
                                         <span class="lc-fraction fw-bold">{{ remaining }} / {{ cat.total }}</span>
-                                        <div style="font-size: 0.6rem; color: #94a3b8; font-weight: 700; margin-top: 1px; letter-spacing: 0.5px;">AVAILABLE</div>
+                                        <div
+                                            style="font-size: 0.6rem; color: #94a3b8; font-weight: 700; margin-top: 1px; letter-spacing: 0.5px;">
+                                            AVAILABLE</div>
                                     </div>
                                 </div>
                             </div>
@@ -624,10 +705,16 @@
                     <!-- Filter Controls & Action Button -->
                     <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
                         <div class="d-flex gap-2">
-                            <button type="button" class="leave-filter-pill active" onclick="filterLeaveTable('my', 'all', this)">All ({{ ns_my.total }})</button>
-                            <button type="button" class="leave-filter-pill" onclick="filterLeaveTable('my', 'pending', this)">Pending ({{ ns_my.pending }})</button>
-                            <button type="button" class="leave-filter-pill" onclick="filterLeaveTable('my', 'approved', this)">Approved ({{ ns_my.approved }})</button>
-                            <button type="button" class="leave-filter-pill" onclick="filterLeaveTable('my', 'rejected', this)">Rejected ({{ ns_my.rejected }})</button>
+                            <button type="button" class="leave-filter-pill active"
+                                onclick="filterLeaveTable('my', 'all', this)">All ({{ ns_my.total }})</button>
+                            <button type="button" class="leave-filter-pill"
+                                onclick="filterLeaveTable('my', 'pending', this)">Pending ({{ ns_my.pending }})</button>
+                            <button type="button" class="leave-filter-pill"
+                                onclick="filterLeaveTable('my', 'approved', this)">Approved ({{ ns_my.approved
+                                }})</button>
+                            <button type="button" class="leave-filter-pill"
+                                onclick="filterLeaveTable('my', 'rejected', this)">Rejected ({{ ns_my.rejected
+                                }})</button>
                         </div>
                     </div>
 
@@ -636,12 +723,16 @@
                         <table class="table table-hover align-middle mb-0" id="myLeavesTable">
                             <thead class="table-light" style="background-color: #F8FAFC;">
                                 <tr>
-                                    <th style="font-weight: 700; color: #475569; font-size: 0.85rem; padding: 12px 16px;">Leave Type</th>
+                                    <th
+                                        style="font-weight: 700; color: #475569; font-size: 0.85rem; padding: 12px 16px;">
+                                        Leave Type</th>
                                     <th style="font-weight: 700; color: #475569; font-size: 0.85rem;">Duration</th>
                                     <th style="font-weight: 700; color: #475569; font-size: 0.85rem;">Dates</th>
                                     <th style="font-weight: 700; color: #475569; font-size: 0.85rem;">Reason</th>
                                     <th style="font-weight: 700; color: #475569; font-size: 0.85rem;">Status</th>
-                                    <th style="font-weight: 700; color: #475569; font-size: 0.85rem; text-align: center; padding-right: 16px;">Actions</th>
+                                    <th
+                                        style="font-weight: 700; color: #475569; font-size: 0.85rem; text-align: center; padding-right: 16px;">
+                                        Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -652,20 +743,27 @@
                                 <tr data-status="{{ l.status|lower }}" class="leave-row-my">
                                     <td style="padding: 12px 16px;">
                                         {% set type_lower = (l.leave_type or '')|lower %}
-                                        {% set badge_style = 'background:#EFF6FF; color:#1D4ED8;' if 'planned' in type_lower and 'unplanned' not in type_lower else ('background:#FFFBEB; color:#B45309;' if 'unplanned' in type_lower else ('background:#F5F3FF; color:#6D28D9;' if 'optional' in type_lower else 'background:#F1F5F9; color:#475569;')) %}
-                                        <span class="badge px-2 py-1 rounded-pill" style="{{ badge_style }} font-weight: 600; font-size: 0.78rem;">
+                                        {% set badge_style = 'background:#EFF6FF; color:#1D4ED8;' if 'planned' in
+                                        type_lower and 'unplanned' not in type_lower else ('background:#FFFBEB;
+                                        color:#B45309;' if 'unplanned' in type_lower else ('background:#F5F3FF;
+                                        color:#6D28D9;' if 'optional' in type_lower else 'background:#F1F5F9;
+                                        color:#475569;')) %}
+                                        <span class="badge px-2 py-1 rounded-pill"
+                                            style="{{ badge_style }} font-weight: 600; font-size: 0.78rem;">
                                             {{ l.leave_type | capitalize }}
                                         </span>
                                     </td>
                                     <td>
                                         {% set is_half = (l.leave_type_category == 'half_day') %}
                                         <span class="fw-semibold text-slate-800" style="font-size: 0.85rem;">
-                                            {{ l.total_days|default(1) }} {% if l.total_days == 0.5 or is_half %}Day (Half Day){% else %}Days{% endif %}
+                                            {{ l.total_days|default(1) }} {% if l.total_days == 0.5 or is_half %}Day
+                                            (Half Day){% else %}Days{% endif %}
                                         </span>
                                     </td>
                                     <td>
                                         <div class="text-slate-700" style="font-size: 0.85rem;">
-                                            <span class="fw-medium">{{ l.start_date[:10] if l.start_date else '—' }}</span>
+                                            <span class="fw-medium">{{ l.start_date[:10] if l.start_date else '—'
+                                                }}</span>
                                             {% if l.end_date and l.end_date[:10] != l.start_date[:10] %}
                                             <i class="bi bi-arrow-right text-muted mx-1"></i>
                                             <span class="fw-medium">{{ l.end_date[:10] }}</span>
@@ -673,29 +771,41 @@
                                         </div>
                                     </td>
                                     <td>
-                                        <div class="text-muted text-truncate" style="max-width: 250px; font-size: 0.85rem;" title="{{ l.reason }}">
+                                        <div class="text-muted text-truncate"
+                                            style="max-width: 250px; font-size: 0.85rem;" title="{{ l.reason }}">
                                             {{ l.reason or '—' }}
                                         </div>
                                     </td>
                                     <td>
                                         {% set st = (l.status or 'pending')|lower %}
-                                        {% set st_bg = '#ECFDF5' if st == 'approved' else ('#FFFBEB' if st == 'pending' else '#FEF2F2') %}
-                                        {% set st_fg = '#065F46' if st == 'approved' else ('#92400E' if st == 'pending' else '#991B1B') %}
-                                        <span class="badge px-2 py-1 rounded-pill" style="background:{{ st_bg }}; color:{{ st_fg }}; font-weight:600; font-size:0.75rem;">
+                                        {% set st_bg = '#ECFDF5' if st == 'approved' else ('#FFFBEB' if st == 'pending'
+                                        else '#FEF2F2') %}
+                                        {% set st_fg = '#065F46' if st == 'approved' else ('#92400E' if st == 'pending'
+                                        else '#991B1B') %}
+                                        <span class="badge px-2 py-1 rounded-pill"
+                                            style="background:{{ st_bg }}; color:{{ st_fg }}; font-weight:600; font-size:0.75rem;">
                                             {{ st|capitalize }}
                                         </span>
                                         {% if l.signoffs and l.signoffs|length > 0 %}
                                         <div class="d-flex flex-column align-items-start gap-1 mt-1.5">
                                             {% for s in l.signoffs %}
-                                             {% set s_ok = (s.status == 'approved') %}
+                                            {% set s_ok = (s.status == 'approved') %}
                                             {% set s_rej = (s.status == 'rejected') %}
-                                            {% set s_chip_bg = '#ECFDF5' if s_ok else ('#FEF2F2' if s_rej else '#F8FAFC') %}
-                                            {% set s_chip_fg = '#065F46' if s_ok else ('#991B1B' if s_rej else '#64748B') %}
-                                            {% set s_chip_border = '#D1FAE5' if s_ok else ('#FECACA' if s_rej else '#E2E8F0') %}
-                                            {% set s_icon = 'bi-check-circle-fill text-success' if s_ok else ('bi-x-circle-fill text-danger' if s_rej else 'bi-clock-history text-warning') %}
-                                            <span class="badge d-inline-flex align-items-center gap-1 text-truncate" style="background:{{ s_chip_bg }}; color:{{ s_chip_fg }}; border:1px solid {{ s_chip_border }}; font-size:0.68rem; font-weight:600; padding:2px 6px; max-width:180px;">
+                                            {% set s_chip_bg = '#ECFDF5' if s_ok else ('#FEF2F2' if s_rej else
+                                            '#F8FAFC') %}
+                                            {% set s_chip_fg = '#065F46' if s_ok else ('#991B1B' if s_rej else
+                                            '#64748B') %}
+                                            {% set s_chip_border = '#D1FAE5' if s_ok else ('#FECACA' if s_rej else
+                                            '#E2E8F0') %}
+                                            {% set s_icon = 'bi-check-circle-fill text-success' if s_ok else
+                                            ('bi-x-circle-fill text-danger' if s_rej else 'bi-clock-history
+                                            text-warning') %}
+                                            <span class="badge d-inline-flex align-items-center gap-1 text-truncate"
+                                                style="background:{{ s_chip_bg }}; color:{{ s_chip_fg }}; border:1px solid {{ s_chip_border }}; font-size:0.68rem; font-weight:600; padding:2px 6px; max-width:180px;">
                                                 <i class="bi {{ s_icon }}"></i>
-                                                <span>{% if s.approver_role == 'hr' %}HR{% elif s.project_name %}Mgr ({{ s.project_name }}){% else %}Manager{% endif %}: {{ s.status|capitalize }}</span>
+                                                <span>{% if s.approver_role == 'hr' %}HR{% elif s.project_name %}Mgr ({{
+                                                    s.project_name }}){% else %}Manager{% endif %}: {{
+                                                    s.status|capitalize }}</span>
                                             </span>
                                             {% endfor %}
                                         </div>
@@ -704,19 +814,26 @@
                                     <td class="text-center" style="padding-right: 16px; white-space: nowrap;">
                                         <div class="d-inline-flex align-items-center gap-1.5 justify-content-center">
                                             {% if l.status == 'pending' %}
-                                            <a href="{{ url_for('work.add_leave') }}" class="btn btn-sm action-edit-btn d-inline-flex align-items-center justify-content-center" title="Edit Leave">
+                                            <a href="{{ url_for('work.add_leave') }}"
+                                                class="btn btn-sm action-edit-btn d-inline-flex align-items-center justify-content-center"
+                                                title="Edit Leave">
                                                 <i class="bi bi-pencil"></i>
                                             </a>
                                             {% endif %}
 
                                             <div class="dropdown d-inline-block">
-                                                <button class="btn btn-sm action-more-btn" type="button" data-bs-toggle="dropdown" aria-expanded="false" title="More Actions">
+                                                <button class="btn btn-sm action-more-btn" type="button"
+                                                    data-bs-toggle="dropdown" aria-expanded="false"
+                                                    title="More Actions">
                                                     <i class="bi bi-three-dots-vertical"></i>
                                                 </button>
                                                 <ul class="dropdown-menu dropdown-menu-end actions-dropdown-menu">
                                                     <li>
-                                                        <button class="dropdown-item delete-btn delete-item" type="button" onclick="confirmDeleteLeave('{{ l.id }}', '{{ l.employee_name }}')">
-                                                            <i class="bi bi-trash text-danger" style="font-size: 0.95rem;"></i> Delete
+                                                        <button class="dropdown-item delete-btn delete-item"
+                                                            type="button"
+                                                            onclick="confirmDeleteLeave('{{ l.id }}', '{{ l.employee_name }}')">
+                                                            <i class="bi bi-trash text-danger"
+                                                                style="font-size: 0.95rem;"></i> Delete
                                                         </button>
                                                     </li>
                                                 </ul>
@@ -753,8 +870,7 @@
                 <h5 class="modal-title fw-bold" id="addHolidayModalLabel">
                     <i class="bi bi-calendar-plus text-primary me-2"></i>Add New Holiday
                 </h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"
-                    aria-label="Close"></button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <form id="addHolidayForm">
                 <div class="modal-body p-4">
@@ -789,8 +905,10 @@
                     </div>
                 </div>
                 <div class="modal-footer px-4 py-3">
-                    <button type="button" class="btn btn-light btn-sm rounded-pill px-3 border" data-bs-dismiss="modal" style="color: #64748B; font-weight: 600;">Cancel</button>
-                    <button type="submit" class="btn btn-soft-purple btn-sm rounded-pill px-4 shadow-sm fw-semibold" id="submitHolidayBtn">
+                    <button type="button" class="btn btn-light btn-sm rounded-pill px-3 border" data-bs-dismiss="modal"
+                        style="color: #64748B; font-weight: 600;">Cancel</button>
+                    <button type="submit" class="btn btn-soft-purple btn-sm rounded-pill px-4 shadow-sm fw-semibold"
+                        id="submitHolidayBtn">
                         <span id="holidaySubmitSpinner" class="spinner-border spinner-border-sm me-1 d-none"
                             role="status" aria-hidden="true"></span>
                         Save Holiday
@@ -803,7 +921,8 @@
 {% endif %}
 
 <!-- Calendar Details Modal -->
-<div class="modal fade" id="calendarDetailModal" tabindex="-1" aria-labelledby="calendarDetailModalLabel" aria-hidden="true">
+<div class="modal fade" id="calendarDetailModal" tabindex="-1" aria-labelledby="calendarDetailModalLabel"
+    aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" style="max-width: 480px;">
         <div class="modal-content">
             <div class="modal-header">
@@ -816,7 +935,8 @@
                 <!-- Content dynamically populated -->
             </div>
             <div class="modal-footer d-flex justify-content-between" id="calendarDetailModalFooter">
-                <button type="button" class="btn btn-light btn-sm rounded-pill px-3 border" data-bs-dismiss="modal" style="color: #64748B; font-weight: 600;">Close</button>
+                <button type="button" class="btn btn-light btn-sm rounded-pill px-3 border" data-bs-dismiss="modal"
+                    style="color: #64748B; font-weight: 600;">Close</button>
                 <div id="calendarDetailModalActions" class="d-flex gap-2 align-items-center"></div>
             </div>
         </div>
@@ -835,13 +955,16 @@
             </div>
             <div class="modal-body py-3">
                 <p class="text-slate-600 mb-0" style="font-size: 0.88rem;">
-                    Are you sure you want to delete this leave application for <strong id="deleteLeaveEmpName" class="text-slate-900"></strong>? This action cannot be undone.
+                    Are you sure you want to delete this leave application for <strong id="deleteLeaveEmpName"
+                        class="text-slate-900"></strong>? This action cannot be undone.
                 </p>
                 <input type="hidden" id="deleteLeaveId">
             </div>
             <div class="modal-footer border-top-0 pt-0">
-                <button type="button" class="btn btn-sm btn-light rounded-pill px-3 border" data-bs-dismiss="modal" style="font-weight: 600; color: #64748B;">Cancel</button>
-                <button type="button" class="btn btn-sm btn-danger rounded-pill px-3" id="confirmDeleteLeaveBtn" onclick="executeDeleteLeave()" style="font-weight: 600;">
+                <button type="button" class="btn btn-sm btn-light rounded-pill px-3 border" data-bs-dismiss="modal"
+                    style="font-weight: 600; color: #64748B;">Cancel</button>
+                <button type="button" class="btn btn-sm btn-danger rounded-pill px-3" id="confirmDeleteLeaveBtn"
+                    onclick="executeDeleteLeave()" style="font-weight: 600;">
                     <i class="bi bi-trash me-1"></i>Delete
                 </button>
             </div>
@@ -1305,8 +1428,10 @@
                 },
                 events: function (fetchInfo, successCallback, failureCallback) {
                     // 1. Static leaves from the template
-                    const allLeaves = {{ leaves | tojson | safe }} || [];
-                    const staticEvents = allLeaves.map(l => {
+                    const allLeaves = {{ leaves | tojson | safe
+                }
+            } || [];
+            const staticEvents = allLeaves.map(l => {
                 const startStr = (l.start_date || '').split('T')[0];
                 const endStr = (l.end_date || '').split('T')[0];
                 if (!startStr || !endStr) return null;
@@ -1431,10 +1556,10 @@
             if (actionsEl) actionsEl.innerHTML = '';
         } else if (props.isLeave) {
             if (titleEl) titleEl.innerHTML = `<i class="bi bi-person-badge-fill me-2 text-primary"></i>Leave Application Details`;
-            
+
             const empRole = (props.employeeRole || 'employee').toLowerCase();
             const roleBg = '#EEF2FF', roleFg = '#4F46E5';
-            
+
             const statusBg = props.status === 'approved' ? '#ECFDF5' : (props.status === 'pending' ? '#FFFBEB' : '#FEF2F2');
             const statusFg = props.status === 'approved' ? '#047857' : (props.status === 'pending' ? '#B45309' : '#B91C1C');
             const statusBorder = props.status === 'approved' ? '#D1FAE5' : (props.status === 'pending' ? '#FEF3C7' : '#FECACA');
@@ -1594,7 +1719,7 @@
     function executeDeleteLeave() {
         const leaveId = document.getElementById('deleteLeaveId').value;
         const token = document.getElementById('sessionToken') ? document.getElementById('sessionToken').value : '';
-        
+
         const deleteModalEl = document.getElementById('deleteLeaveModal');
         const deleteModal = bootstrap.Modal.getInstance(deleteModalEl);
         if (deleteModal) deleteModal.hide();
@@ -1606,17 +1731,17 @@
                 'Content-Type': 'application/json'
             }
         })
-        .then(res => res.json())
-        .then(data => {
-            if (data.success) {
-                setTimeout(() => { window.location.reload(); }, 350);
-            } else {
-                alert('Failed to delete leave: ' + (data.error || 'Unknown error'));
-            }
-        })
-        .catch(err => {
-            alert('Error deleting leave: ' + err.message);
-        });
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    setTimeout(() => { window.location.reload(); }, 350);
+                } else {
+                    alert('Failed to delete leave: ' + (data.error || 'Unknown error'));
+                }
+            })
+            .catch(err => {
+                alert('Error deleting leave: ' + err.message);
+            });
     }
 
     // ── Holiday table state ──────────────────────────────────────────────────────
@@ -1740,7 +1865,7 @@
         const rowClass = scope === 'all' ? '.leave-row-all' : '.leave-row-my';
         const paneId = scope === 'all' ? '#all-leaves-pane' : '#my-leaves-pane';
         const rows = document.querySelectorAll(`${paneId} ${rowClass}`);
-        
+
         // Update active filter pill highlight
         const pane = document.querySelector(paneId);
         if (pane) {

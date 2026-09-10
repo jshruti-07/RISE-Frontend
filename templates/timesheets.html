@@ -713,12 +713,10 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-light btn-sm rounded-pill px-4 border" data-bs-dismiss="modal" style="color: #64748B; font-weight: 600;">Close</button>
-                {% if session.role == 'employee' %}
                 <button type="button" class="btn btn-soft-purple btn-sm rounded-pill px-4 shadow-sm fw-semibold d-none" id="addTimesheetDayBtn"
                     onclick="redirectToAddTimesheet()">
                     <i class="bi bi-plus-circle me-1"></i> Add Entry
                 </button>
-                {% endif %}
             </div>
         </div>
     </div>
@@ -728,6 +726,17 @@
 
 {% block scripts %}
 <script>
+    // Global escapeHtml utility to prevent XSS and ReferenceError
+    function escapeHtml(text) {
+        if (text === null || text === undefined) return '';
+        return String(text)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#039;');
+    }
+    window.escapeHtml = escapeHtml;
 
     // Define functions immediately and make them globally available
     let pendingTimesheets = [];
@@ -2045,7 +2054,14 @@
 
         function fetchCalendarData(year, month, successCallback, failureCallback) {
             const token = getToken();
-            fetch(`/api/timesheets/calendar?year=${year}&month=${month}`, {
+            const empFilter = document.getElementById('filterEmployee');
+            const empName = empFilter ? empFilter.value.trim() : '';
+            let url = `/api/timesheets/calendar?year=${year}&month=${month}`;
+            if (empName) {
+                url += `&employee_name=${encodeURIComponent(empName)}`;
+            }
+
+            fetch(url, {
                 headers: { 'Authorization': 'Bearer ' + token }
             })
                 .then(response => response.json())
@@ -2062,12 +2078,12 @@
                     Object.keys(days).forEach(dateStr => {
                         const day = days[dateStr];
                         let className = '';
-                        let title = day.label;
+                        let title = day.label || 'Details';
 
                         switch (day.status) {
                             case 'completed':
                                 className = 'status-completed';
-                                title = `✓ Completed`;
+                                title = day.hours ? `✓ ${day.hours}h` : '✓ Completed';
                                 break;
                             case 'missing':
                                 className = 'status-missing';
@@ -2075,15 +2091,15 @@
                                 break;
                             case 'holiday':
                                 className = 'status-holiday';
-                                title = '★ ' + (day.holiday ? day.holiday.name : 'Holiday');
+                                title = '★ ' + (day.holiday ? (day.holiday.name || day.holiday.holiday_name) : 'Holiday');
                                 break;
                             case 'leave':
                                 className = 'status-leave';
-                                title = '⛱ Leave';
+                                title = '⛱ ' + (day.leave && day.leave.leave_type ? day.leave.leave_type : 'Leave');
                                 break;
                             case 'weekend':
                             case 'future':
-                                // Completely ignore
+                                // Completely ignore on calendar grid
                                 return;
                         }
 
@@ -2106,96 +2122,270 @@
         }
 
         function showDayDetails(dateStr) {
-            const today = new Date();
-            today.setHours(0, 0, 0, 0);
-            const clickedDate = new Date(dateStr);
-            if (clickedDate > today) return; // Ignore future clicks completely
+            if (!dateStr) return;
 
-            const token = getToken();
-            document.getElementById('detailDateLabel').textContent = new Date(dateStr).toLocaleDateString('en-US', {
-                weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
-            });
+            // Robust date parsing (YYYY-MM-DD) avoiding timezone shifts
+            const parts = dateStr.split('-');
+            let formattedDate = dateStr;
+            if (parts.length === 3) {
+                const dateObj = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
+                if (!isNaN(dateObj.getTime())) {
+                    formattedDate = dateObj.toLocaleDateString('en-US', {
+                        weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+                    });
+                }
+            }
+            const dateLabel = document.getElementById('detailDateLabel');
+            if (dateLabel) dateLabel.textContent = formattedDate;
 
             const contentDiv = document.getElementById('dayDetailsContent');
-            contentDiv.innerHTML = '<div class="text-center py-4"><div class="spinner-border text-primary"></div></div>';
+            if (!contentDiv) return;
+            contentDiv.innerHTML = '<div class="text-center py-4"><div class="spinner-border text-primary" role="status"></div><div class="text-muted small mt-2">Loading details...</div></div>';
 
             const addBtn = document.getElementById('addTimesheetDayBtn');
             if (addBtn) addBtn.classList.add('d-none');
 
-            const modal = new bootstrap.Modal(document.getElementById('dayDetailsModal'));
+            const modalEl = document.getElementById('dayDetailsModal');
+            const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
             modal.show();
 
-            fetch(`/api/timesheets/day?date=${dateStr}`, {
+            const token = getToken();
+            const empFilter = document.getElementById('filterEmployee');
+            const empName = empFilter ? empFilter.value.trim() : '';
+            let url = `/api/timesheets/day?date=${encodeURIComponent(dateStr)}`;
+            if (empName) {
+                url += `&employee_name=${encodeURIComponent(empName)}`;
+            }
+
+            fetch(url, {
                 headers: { 'Authorization': 'Bearer ' + token }
             })
-                .then(response => response.json())
+                .then(response => {
+                    if (!response.ok && response.status !== 400 && response.status !== 404) {
+                        throw new Error(`Server returned HTTP ${response.status}`);
+                    }
+                    return response.json();
+                })
                 .then(data => {
                     if (!data.success) {
-                        contentDiv.innerHTML = `<div class="alert alert-danger">${data.error}</div>`;
+                        contentDiv.innerHTML = `<div class="alert alert-danger mb-0"><i class="bi bi-exclamation-triangle me-2"></i>${escapeHtml(data.error || 'Failed to load day details.')}</div>`;
                         return;
                     }
 
                     let html = '<div class="detail-view">';
 
-                    // Render Day Status Info
-                    const statusColors = {
-                        'completed': 'success',
-                        'missing': 'danger',
-                        'holiday': 'warning',
-                        'leave': 'info',
-                        'weekend': 'secondary',
-                        'future': 'light'
-                    };
+                    // 1. Status Badge & Hero Banner
+                    let heroBadge = '';
+                    let heroTitle = '';
+                    let heroSubtitle = '';
+
+                    const isHoliday = data.status === 'holiday' || Boolean(data.holiday);
+                    const isLeave = data.status === 'leave' || Boolean(data.leave);
+                    const hasEntries = data.entries && data.entries.length > 0;
+
+                    if (isHoliday) {
+                        const hName = (data.holiday && (data.holiday.name || data.holiday.holiday_name)) || 'Official Holiday';
+                        heroBadge = `<span class="badge bg-warning text-dark px-3 py-1.5 rounded-pill fw-semibold"><i class="bi bi-gift-fill me-1"></i> Holiday</span>`;
+                        heroTitle = escapeHtml(hName);
+                        heroSubtitle = (data.holiday && data.holiday.description) ? escapeHtml(data.holiday.description) : 'Official company holiday - Timesheet submission is not required.';
+                    } else if (isLeave) {
+                        const lType = (data.leave && data.leave.leave_type) || 'Approved Leave';
+                        const isHalf = data.leave && data.leave.category === 'half_day';
+                        heroBadge = `<span class="badge text-white px-3 py-1.5 rounded-pill fw-semibold" style="background-color: #7C3AED;"><i class="bi bi-umbrella-fill me-1"></i> Approved Leave</span>`;
+                        heroTitle = isHalf ? `${escapeHtml(lType)} (Half Day)` : `${escapeHtml(lType)} (Full Day)`;
+                        heroSubtitle = (data.leave && data.leave.reason) ? `Reason: ${escapeHtml(data.leave.reason)}` : 'Approved leave record for this date.';
+                    } else if (hasEntries) {
+                        const totalHours = data.entries.reduce((sum, e) => sum + (parseFloat(e.hours) || 0), 0);
+                        heroBadge = `<span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-1.5 rounded-pill fw-semibold"><i class="bi bi-check-circle-fill me-1"></i> Completed (${totalHours.toFixed(1)}h)</span>`;
+                        heroTitle = `${totalHours.toFixed(1)} Hours Logged`;
+                        heroSubtitle = `${data.entries.length} timesheet ${data.entries.length === 1 ? 'entry' : 'entries'} submitted for this date.`;
+                    } else if (data.status === 'missing') {
+                        heroBadge = `<span class="badge bg-danger-subtle text-danger border border-danger-subtle px-3 py-1.5 rounded-pill fw-semibold"><i class="bi bi-exclamation-triangle-fill me-1"></i> Missing Timesheet</span>`;
+                        heroTitle = 'Missing Timesheet';
+                        heroSubtitle = 'No timesheet entries were recorded or submitted for this working day.';
+                    } else if (data.status === 'weekend') {
+                        heroBadge = `<span class="badge bg-secondary-subtle text-secondary border px-3 py-1.5 rounded-pill fw-semibold"><i class="bi bi-calendar2-week me-1"></i> Weekend</span>`;
+                        heroTitle = 'Weekend';
+                        heroSubtitle = 'Non-working day. Timesheet entry is optional.';
+                    } else {
+                        heroBadge = `<span class="badge bg-light text-muted border px-3 py-1.5 rounded-pill fw-semibold"><i class="bi bi-calendar-event me-1"></i> ${escapeHtml(data.label || 'Scheduled Day')}</span>`;
+                        heroTitle = escapeHtml(data.label || 'Workday');
+                        heroSubtitle = 'No timesheet entries recorded yet for this date.';
+                    }
 
                     html += `
-                <div class="detail-hero mb-3">
-                    <span class="badge bg-${statusColors[data.status] || 'secondary'} fs-6">${escapeHtml(data.label)}</span>
-                    ${data.holiday ? `<div class="detail-card mt-3 mb-0">
-                        <div class="detail-card-title"><i class="bi bi-gift"></i> Holiday</div>
-                        <p class="detail-field-value mb-1">${escapeHtml(data.holiday.name)}</p>
-                        <small class="text-muted">${escapeHtml(data.holiday.description || 'Public holiday')}</small>
-                    </div>` : ''}
-                </div>
-            `;
-
-                    // Render Timesheet Entries
-                    if (data.entries && data.entries.length > 0) {
-                        html += '<div class="detail-card"><div class="detail-card-title"><i class="bi bi-list-check"></i> Timesheet entries</div>';
-                        data.entries.forEach(entry => {
-                            html += `
-                        <div class="detail-member border-bottom pb-2 mb-2">
-                            <div class="flex-grow-1">
-                                <div class="d-flex justify-content-between align-items-start">
-                                    <div class="detail-member-name">${escapeHtml(entry.project)}</div>
-                                    <span class="badge bg-primary">${escapeHtml(entry.hours)}h</span>
-                                </div>
-                                <div class="small fw-medium text-dark mb-1">${escapeHtml(entry.task)}</div>
-                                ${entry.description ? `<p class="small text-muted mb-0">${escapeHtml(entry.description)}</p>` : ''}
+                        <div class="detail-hero mb-3" style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 12px; padding: 1rem 1.25rem;">
+                            <div class="d-flex align-items-center justify-content-between mb-2">
+                                <div>${heroBadge}</div>
+                                <span class="text-muted small fw-medium">${escapeHtml(data.date || dateStr)}</span>
                             </div>
+                            <h5 class="fw-bold text-dark mb-1" style="font-size: 1.15rem;">${heroTitle}</h5>
+                            <p class="text-muted small mb-0">${heroSubtitle}</p>
                         </div>
                     `;
-                        });
-                        html += '</div>';
-                    } else if (data.status === 'missing') {
+
+                    // 2. Holiday Details Card
+                    if (data.holiday) {
                         html += `
-                    <div class="detail-empty">
-                        <i class="bi bi-clock-history"></i>
-                        <p class="mt-2 mb-0">No entries submitted for this day.</p>
-                    </div>
-                `;
+                            <div class="detail-card mb-3" style="background: #FFFBEB; border: 1px solid #FDE68A; border-radius: 12px; padding: 1rem 1.25rem;">
+                                <div class="detail-card-title text-warning-emphasis mb-2" style="font-weight: 700; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em;">
+                                    <i class="bi bi-gift-fill text-warning me-1"></i> Holiday Details
+                                </div>
+                                <div class="detail-fields">
+                                    <div class="detail-field d-flex justify-content-between py-1 border-bottom border-warning-subtle">
+                                        <span class="detail-field-label text-muted small fw-semibold">Holiday Name</span>
+                                        <span class="detail-field-value fw-bold text-dark small">${escapeHtml(data.holiday.name || data.holiday.holiday_name)}</span>
+                                    </div>
+                                    <div class="detail-field d-flex justify-content-between py-1 border-bottom border-warning-subtle">
+                                        <span class="detail-field-label text-muted small fw-semibold">Type</span>
+                                        <span class="detail-field-value text-capitalize small">${escapeHtml(data.holiday.type || 'Public Holiday')}</span>
+                                    </div>
+                                    ${data.holiday.description ? `
+                                    <div class="detail-field d-flex justify-content-between py-1">
+                                        <span class="detail-field-label text-muted small fw-semibold">Description</span>
+                                        <span class="detail-field-value text-muted small text-end">${escapeHtml(data.holiday.description)}</span>
+                                    </div>` : ''}
+                                </div>
+                                <div class="alert alert-warning border-0 bg-white bg-opacity-75 text-warning-emphasis d-flex align-items-center mt-3 mb-0 rounded-3 p-2 small">
+                                    <i class="bi bi-info-circle-fill me-2 fs-6 text-warning"></i>
+                                    <div>Official holiday — regular working hours and timesheets are waived.</div>
+                                </div>
+                            </div>
+                        `;
+                    }
+
+                    // 3. Leave Details Card
+                    if (data.leave) {
+                        const isHalfDay = data.leave.category === 'half_day';
+                        html += `
+                            <div class="detail-card mb-3" style="background: #F5F3FF; border: 1px solid #DDD6FE; border-radius: 12px; padding: 1rem 1.25rem;">
+                                <div class="detail-card-title mb-2" style="font-weight: 700; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: #6D28D9;">
+                                    <i class="bi bi-person-check-fill text-purple me-1"></i> Leave Information
+                                </div>
+                                <div class="detail-fields">
+                                    <div class="detail-field d-flex justify-content-between py-1 border-bottom border-purple-subtle">
+                                        <span class="detail-field-label text-muted small fw-semibold">Leave Type</span>
+                                        <span class="detail-field-value fw-bold text-dark small">${escapeHtml(data.leave.leave_type || 'Approved Leave')}</span>
+                                    </div>
+                                    <div class="detail-field d-flex justify-content-between py-1 border-bottom border-purple-subtle">
+                                        <span class="detail-field-label text-muted small fw-semibold">Duration</span>
+                                        <span class="detail-field-value small">${isHalfDay ? '<span class="badge bg-info-subtle text-info border border-info-subtle rounded-pill">Half Day (Max 4 hrs)</span>' : '<span class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill">Full Day</span>'}</span>
+                                    </div>
+                                    <div class="detail-field d-flex justify-content-between py-1 border-bottom border-purple-subtle">
+                                        <span class="detail-field-label text-muted small fw-semibold">Status</span>
+                                        <span class="detail-field-value small"><span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill text-capitalize">${escapeHtml(data.leave.status || 'Approved')}</span></span>
+                                    </div>
+                                    ${data.leave.reason ? `
+                                    <div class="detail-field d-flex justify-content-between py-1">
+                                        <span class="detail-field-label text-muted small fw-semibold">Reason</span>
+                                        <span class="detail-field-value text-muted small text-end">${escapeHtml(data.leave.reason)}</span>
+                                    </div>` : ''}
+                                </div>
+                                ${isHalfDay ? `
+                                <div class="alert alert-info border-0 bg-white bg-opacity-75 text-info-emphasis d-flex align-items-center mt-3 mb-0 rounded-3 p-2 small">
+                                    <i class="bi bi-clock-history me-2 fs-6 text-info"></i>
+                                    <div>Half-day leave applied. You may log up to 4 working hours for this date.</div>
+                                </div>` : `
+                                <div class="alert alert-primary border-0 bg-white bg-opacity-75 text-primary-emphasis d-flex align-items-center mt-3 mb-0 rounded-3 p-2 small">
+                                    <i class="bi bi-check-circle-fill me-2 fs-6 text-primary"></i>
+                                    <div>Approved full-day leave. No timesheet entry is required.</div>
+                                </div>`}
+                            </div>
+                        `;
+                    }
+
+                    // 4. Missing Timesheet Card (when no entries logged)
+                    if (data.status === 'missing' && !hasEntries) {
+                        html += `
+                            <div class="detail-card text-center py-4 mb-3" style="background: #FEF2F2; border: 1px solid #FECACA; border-radius: 12px;">
+                                <div class="mb-2">
+                                    <span class="d-inline-flex align-items-center justify-content-center rounded-circle bg-danger bg-opacity-10 text-danger" style="width: 50px; height: 50px;">
+                                        <i class="bi bi-clock-history fs-3"></i>
+                                    </span>
+                                </div>
+                                <h6 class="fw-bold text-danger mb-1">No Timesheet Submitted</h6>
+                                <p class="text-muted small px-3 mb-3">You have not submitted any task logs for this working day.</p>
+                                ${data.can_add_or_update ? `
+                                <div>
+                                    <button type="button" class="btn btn-soft-purple btn-sm rounded-pill px-4 shadow-sm fw-semibold" onclick="redirectToAddTimesheet()">
+                                        <i class="bi bi-plus-circle me-1"></i> Add Timesheet Entry
+                                    </button>
+                                </div>` : ''}
+                            </div>
+                        `;
+                    }
+
+                    // 5. Timesheet Entries Card (when entries exist)
+                    if (hasEntries) {
+                        html += `
+                            <div class="detail-card" style="background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 12px; padding: 1rem 1.25rem;">
+                                <div class="d-flex align-items-center justify-content-between mb-3 border-bottom pb-2">
+                                    <div class="detail-card-title mb-0" style="font-weight: 700; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: #475569;">
+                                        <i class="bi bi-list-task text-primary me-1"></i> Logged Tasks (${data.entries.length})
+                                    </div>
+                                    ${data.can_add_or_update ? `
+                                    <button type="button" class="btn btn-outline-primary btn-sm rounded-pill px-2.5 py-0.5 fw-semibold" style="font-size: 0.75rem;" onclick="redirectToAddTimesheet()">
+                                        <i class="bi bi-plus-lg me-1"></i> Add More
+                                    </button>` : ''}
+                                </div>
+                                <div class="detail-entries-list">
+                        `;
+
+                        data.entries.forEach(entry => {
+                            const st = (entry.status || 'submitted').toLowerCase();
+                            let statusBadge = '<span class="badge bg-warning-subtle text-warning border border-warning-subtle rounded-pill">Submitted</span>';
+                            if (st === 'approved') {
+                                statusBadge = '<span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill">Approved</span>';
+                            } else if (st === 'rejected') {
+                                statusBadge = '<span class="badge bg-danger-subtle text-danger border border-danger-subtle rounded-pill">Rejected</span>';
+                            }
+
+                            html += `
+                                <div class="p-3 mb-2 rounded-3" style="background: #F8FAFC; border: 1px solid #E8ECF4;">
+                                    <div class="d-flex justify-content-between align-items-start mb-1">
+                                        <span class="fw-bold text-dark" style="font-size: 0.9rem;">${escapeHtml(entry.project)}</span>
+                                        <div class="d-flex align-items-center gap-1.5">
+                                            <span class="badge bg-primary rounded-pill px-2.5 py-1">${escapeHtml(entry.hours)} hrs</span>
+                                            ${statusBadge}
+                                        </div>
+                                    </div>
+                                    <div class="small fw-semibold text-secondary mb-1">
+                                        <i class="bi bi-check2-square me-1 text-primary"></i> ${escapeHtml(entry.task)}
+                                    </div>
+                                    ${entry.description ? `
+                                    <div class="small text-muted mb-1" style="line-height: 1.4;">
+                                        ${escapeHtml(entry.description)}
+                                    </div>` : ''}
+                                    ${entry.manager_comments ? `
+                                    <div class="mt-2 p-2 rounded bg-white border small text-muted">
+                                        <i class="bi bi-chat-left-text me-1 text-info"></i> <strong>Manager Note:</strong> ${escapeHtml(entry.manager_comments)}
+                                    </div>` : ''}
+                                </div>
+                            `;
+                        });
+
+                        html += `
+                                </div>
+                            </div>
+                        `;
                     }
 
                     html += '</div>';
                     contentDiv.innerHTML = html;
 
-                    // Handle "Add Entry" button visibility
-                    if (addBtn && data.can_add_or_update) {
-                        addBtn.classList.remove('d-none');
-                        window.selectedCalendarDate = dateStr;
+                    // Handle "Add Entry" modal footer button
+                    window.selectedCalendarDate = dateStr;
+                    if (addBtn) {
+                        if (data.can_add_or_update) {
+                            addBtn.classList.remove('d-none');
+                        } else {
+                            addBtn.classList.add('d-none');
+                        }
                     }
                 })
                 .catch(error => {
-                    contentDiv.innerHTML = `<div class="alert alert-danger">Error: ${error.message}</div>`;
+                    console.error('Day details fetch error:', error);
+                    contentDiv.innerHTML = `<div class="alert alert-danger mb-0"><i class="bi bi-exclamation-triangle me-2"></i>Error loading day details: ${escapeHtml(error.message)}</div>`;
                 });
         }
 

@@ -167,31 +167,57 @@ def handle_reset_password():
         return jsonify({'success': False, 'error': 'Authentication service temporarily unavailable'}), 500
 
 @auth_bp.route('/change-password', methods=['GET', 'POST'])
+@auth_bp.route('/api/change-password', methods=['POST'])
 def change_password():
+    is_api = request.is_json or request.path.startswith('/api/') or request.headers.get('X-Requested-With') == 'XMLHttpRequest'
     if 'token' not in session:
+        if is_api:
+            return jsonify({"success": False, "error": "Not authenticated. Please log in."}), 401
         return redirect(url_for('auth.login'))
     if request.method == 'POST':
+        if request.is_json:
+            data = request.get_json() or {}
+            new_password = data.get("new_password")
+            confirm_password = data.get("confirm_password")
+        else:
+            new_password = request.form.get("new_password")
+            confirm_password = request.form.get("confirm_password")
+
         payload = {
-            "new_password": request.form.get("new_password"),
-            "confirm_password": request.form.get("confirm_password")
+            "new_password": new_password,
+            "confirm_password": confirm_password
         }
         try:
             res = requests.post(f"{BASE_URL}/auth/change-password", json=payload, headers=get_headers(), timeout=10)
-            data = res.json()
+            data = res.json() if res.status_code != 500 else {}
             if res.status_code == 200 and data.get("success"):
                 if data.get("token"):
                     session['token'] = data['token']
+                if is_api:
+                    return jsonify({"success": True, "message": "Password changed successfully!"}), 200
                 flash("Password changed successfully!", "success")
                 return redirect(url_for('dashboard.dashboard'))
             else:
-                flash(data.get("error", "Failed to change password"), "danger")
+                err_msg = data.get("error", "Failed to change password")
+                if is_api:
+                    return jsonify({"success": False, "error": err_msg}), res.status_code if res.status_code in [400, 401, 403] else 400
+                flash(err_msg, "danger")
         except requests.exceptions.Timeout:
-            flash("Authentication service timed out. Please try again.", "danger")
+            err = "Authentication service timed out. Please try again."
+            if is_api:
+                return jsonify({"success": False, "error": err}), 504
+            flash(err, "danger")
         except requests.exceptions.ConnectionError:
-            flash("Unable to connect to backend server.", "danger")
+            err = "Unable to connect to backend server."
+            if is_api:
+                return jsonify({"success": False, "error": err}), 503
+            flash(err, "danger")
         except Exception as e:
             print("Password change error:", e)
-            flash("Authentication service temporarily unavailable", "danger")
+            err = "Authentication service temporarily unavailable"
+            if is_api:
+                return jsonify({"success": False, "error": err}), 500
+            flash(err, "danger")
     return render_template('change_password.html')
 
 @auth_bp.route('/logout')
