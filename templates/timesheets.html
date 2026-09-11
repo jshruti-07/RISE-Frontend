@@ -137,14 +137,14 @@
     {% endif %}
 {% endfor %}
 
-<div class="container-fluid py-4">
+<div class="container-fluid py-3 px-2 px-md-3">
     <!-- Title Outside Table Card -->
     <div class="mb-3">
         <h4 class="fw-bold text-dark mb-0">Timesheets</h4>
     </div>
 
     <div class="hd-dashboard-card">
-        <div class="p-4">
+        <div class="p-3 p-md-4">
             <!-- 📦 CALENDAR DATA STORAGE [UPDATED] -->
             <script id="calendarData" type="application/json">
                 {
@@ -266,7 +266,8 @@
 
                     <tbody>
                         {% for t in timesheets %}
-                        {% set manager_name = t.manager_name or project_manager_map.get((t.project|string).strip().lower(), '-') %}
+                        {% set pmap = project_manager_map|default({}) %}
+                        {% set manager_name = t.manager_name or (pmap.get((t.project|string).strip().lower(), '-') if pmap else '-') %}
                         {% set emp_role = (t.employee_role or 'employee')|lower %}
                         {% set role_bg = '#EEF2FF' if emp_role == 'employee' else ('#F5F3FF' if emp_role == 'manager' else ('#ECFDF5' if emp_role == 'hr' else ('#FEF2F2' if emp_role == 'superadmin' else '#EFF6FF'))) %}
                         {% set role_fg = '#4F46E5' if emp_role == 'employee' else ('#6D28D9' if emp_role == 'manager' else ('#047857' if emp_role == 'hr' else ('#B91C1C' if emp_role == 'superadmin' else '#1D4ED8'))) %}

@@ -327,11 +327,22 @@
         align-items: center;
         z-index: 9999;
     }
+    @media (max-width: 767px) {
+        .sticky-col {
+            min-width: 170px !important;
+            max-width: 210px !important;
+            font-size: 0.8rem !important;
+            padding: 8px 10px !important;
+        }
+        .perm-table tbody td {
+            padding: 8px 8px !important;
+        }
+    }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="container-fluid py-4">
+<div class="container-fluid py-3 px-2 px-md-3">
     <!-- Title & Global Reset Bar -->
     <div class="mb-3 d-flex justify-content-between align-items-center flex-wrap gap-3">
         <div>
@@ -347,7 +358,7 @@
 
     <!-- Main Card -->
     <div class="hd-dashboard-card mb-4">
-        <div class="p-4">
+        <div class="p-3 p-md-4">
             <!-- Toolbar: Search, Filters & Expand/Collapse Controls -->
             <div class="section-toolbar mb-4">
                 <div class="row g-2 align-items-center">

@@ -1,26 +1,29 @@
 /* ===== GLOBAL ===== */
 
 html {
-    /* Set base font-size to 115% to increase all rem-based typography by 15% across the overall app */
-    font-size: 115% !important;
+    font-size: 100%;
     margin: 0;
     padding: 0;
-    overflow: hidden;
+    box-sizing: border-box;
+    -webkit-text-size-adjust: 100%;
+}
+
+*, *::before, *::after {
+    box-sizing: inherit;
 }
 
 body {
-    font-family: 'Inter', sans-serif;
-    font-size: 1.15rem !important;
-    zoom: 0.75;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    font-size: 0.95rem;
+    line-height: 1.5;
+    color: #1e293b;
     /* Clean & bright very light blue/white tint */
     background: linear-gradient(135deg, #ffffff 0%, #f4f7fb 50%, #edf2f9 100%);
     background-attachment: fixed;
     margin: 0;
-    /* KEY: compensate for zoom so body fills 100vh physically.
-       body CSS height × zoom factor = physical height
-       calc(100vh / 0.75) × 0.75 = 100vh physical  */
-    height: calc(100vh / 0.75);
-    overflow: hidden;
+    min-height: 100vh;
+    min-height: 100dvh;
+    overflow-x: hidden;
 }
 
 /* ===== SIDEBAR ===== */
@@ -698,13 +701,10 @@ body {
     /* Account for sidebar width (248px) */
     margin-left: 248px;
     width: calc(100% - 248px);
-
-    /* Inherit body's zoom-compensated height — 100% of body = 133.33vh CSS = 100vh physical */
-    height: 100%;
+    min-height: 100vh;
+    min-height: 100dvh;
     display: flex;
     flex-direction: column;
-    overflow: hidden;
-
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     padding: 0;
     box-sizing: border-box;
@@ -3160,6 +3160,40 @@ body.sidebar-open {
 }
 
 /* ==============================================================
+   RESPONSIVE LAYOUT SYSTEM
+   ============================================================== */
+
+/* --- Mobile Navigation Toggle --- */
+.mobile-nav-toggle {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    background: transparent;
+    color: #1e293b;
+    border-radius: 8px;
+    padding: 6px;
+    transition: background 0.15s ease;
+}
+
+.mobile-nav-toggle:hover {
+    background: #f1f5f9;
+}
+
+/* --- Global Table Container Protections --- */
+.table-responsive,
+.employee-table,
+.table-wrapper,
+.perm-table-wrapper,
+.permission-table-wrapper,
+.timesheet-table-wrap,
+#rentalMatrixTableWrapper {
+    width: 100%;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+}
+
+/* ==============================================================
    TABLET + MOBILE  (≤ 1023.98px)
    ============================================================== */
 @media (max-width: 1023.98px) {
@@ -3171,21 +3205,43 @@ body.sidebar-open {
     }
 
     body {
-        /* Reset desktop zoom compensation – natural sizing on touch devices */
         zoom: 1 !important;
-        height: auto !important;
         min-height: 100vh !important;
         min-height: 100dvh !important;
         overflow-x: hidden !important;
         overflow-y: auto !important;
-        font-size: 1rem !important;
+        font-size: 0.95rem !important;
     }
 
-    /* --- Layout shell --- */
+    /* --- Mobile Navigation Toggle --- */
+    .mobile-nav-toggle {
+        display: inline-flex !important;
+    }
+
+    /* --- Sidebar as Offcanvas Drawer --- */
+    .sidebar {
+        transform: translateX(-100%) !important;
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        border-radius: 0 !important;
+        left: 0 !important;
+        top: 0 !important;
+        height: 100% !important;
+        height: 100dvh !important;
+        width: 280px !important;
+        max-width: 85vw !important;
+        z-index: 1050 !important;
+        box-shadow: 0 8px 32px rgba(15, 23, 42, 0.16) !important;
+    }
+
+    .sidebar.show-mobile {
+        transform: translateX(0) !important;
+        left: 0 !important;
+    }
+
+    /* --- Layout Shell --- */
     .main {
         margin-left: 0 !important;
         width: 100% !important;
-        height: auto !important;
         min-height: 100vh !important;
         min-height: 100dvh !important;
         overflow: visible !important;
@@ -3199,85 +3255,97 @@ body.sidebar-open {
 
     /* --- Topbar --- */
     .topbar {
-        padding: 8px 12px !important;
-        gap: 8px !important;
+        padding: 10px 16px !important;
+        gap: 12px !important;
         position: sticky !important;
         top: 0 !important;
         z-index: 1030 !important;
         flex-wrap: nowrap !important;
-        /* iOS safe area top */
-        padding-top: calc(8px + env(safe-area-inset-top)) !important;
+        padding-top: calc(10px + env(safe-area-inset-top, 0px)) !important;
     }
 
-    .topbar-right {
+    .topbar-left {
         gap: 8px !important;
     }
 
-    /* Hide greeting text on narrow tablets to save space */
-    .topbar-right>div[style*="flex-direction: column"] {
+    .topbar-right {
+        gap: 10px !important;
+    }
+
+    /* Hide greeting text on tablets to preserve bell + profile */
+    .topbar-right > div[style*="flex-direction: column"] {
         display: none !important;
     }
 
-    /* --- Page content --- */
+    /* Topbar search: collapse on tablet to avoid crowding */
+    .topbar .position-relative.d-none.d-md-block {
+        max-width: 320px !important;
+    }
+
+    /* --- Page Content --- */
     .page-content {
-        padding: 12px !important;
+        padding: 12px 14px !important;
         overflow-y: visible !important;
         overflow-x: hidden !important;
-        flex: none !important;
+        flex: 1 0 auto !important;
         min-height: 0 !important;
     }
 
     .content-fill {
-        flex: none !important;
+        flex: 1 0 auto !important;
+        width: 100% !important;
+        min-width: 0 !important;
     }
 
     /* --- Cards --- */
-    .card-ui {
-        overflow: visible !important;
+    .card-ui,
+    .glass-card,
+    .form-card,
+    .hd-dashboard-card {
+        max-width: 100% !important;
+        box-sizing: border-box !important;
     }
 
-    /* --- Tables: horizontal scroll wrapper --- */
-    .employee-table,
-    .table-wrapper,
-    .perm-table-wrapper,
-    .permission-table-wrapper {
-        overflow-x: auto !important;
-        -webkit-overflow-scrolling: touch !important;
-        width: 100% !important;
-    }
-
-    /* Prevent table itself from shrinking below its natural width */
+    /* --- Data Tables --- */
     .employee-table table,
     .table,
     .perm-table {
-        min-width: 600px;
+        min-width: 580px;
     }
 
     /* --- Modals --- */
     .modal-dialog {
-        margin: 12px auto !important;
-        max-width: calc(100vw - 24px) !important;
-        width: calc(100vw - 24px) !important;
-    }
-
-    .modal-dialog-centered {
-        align-items: flex-start !important;
-        padding-top: env(safe-area-inset-top);
+        margin: 16px auto !important;
+        max-width: calc(100vw - 32px) !important;
+        width: calc(100vw - 32px) !important;
     }
 
     .modal-body {
-        max-height: 65vh !important;
+        max-height: calc(100dvh - 150px) !important;
         overflow-y: auto !important;
         -webkit-overflow-scrolling: touch !important;
     }
 
-    /* --- Buttons: touch friendly --- */
-    .btn {
-        min-height: 36px;
+    /* Split-pane modals (Helpdesk ticket, Asset details): stack columns */
+    .modal-split-detail .modal-dialog {
+        max-width: calc(100vw - 32px) !important;
+        width: calc(100vw - 32px) !important;
+    }
+
+    .modal-split-detail .detail-pane,
+    .modal-split-detail .split-pane-secondary {
+        height: auto !important;
+        max-height: none !important;
+        overflow: visible !important;
+    }
+
+    /* --- Buttons & Touch Targets --- */
+    .btn,
+    .leave-filter-pill {
+        min-height: 38px;
         touch-action: manipulation;
     }
 
-    /* Button groups that need to wrap */
     .d-flex.gap-2,
     .d-flex.gap-3 {
         flex-wrap: wrap !important;
@@ -3293,24 +3361,11 @@ body.sidebar-open {
     input[type="number"],
     textarea,
     select {
-        /* 16px prevents iOS Safari auto-zoom on focus */
         font-size: 16px !important;
         max-width: 100% !important;
     }
 
-    /* Multi-column form rows collapse to single column */
-    .row.g-3>[class*="col-"],
-    .row.g-4>[class*="col-"] {
-        flex: 0 0 100% !important;
-        max-width: 100% !important;
-    }
-
-    /* --- Images --- */
-    img {
-        max-width: 100%;
-    }
-
-    /* --- Dashboard grid --- */
+    /* Dashboard grid stack */
     .dashboard-main-grid {
         grid-template-columns: 1fr !important;
         gap: 16px !important;
@@ -3321,26 +3376,10 @@ body.sidebar-open {
         grid-template-columns: repeat(2, 1fr) !important;
     }
 
-    /* --- Topbar search: hide on tablet to avoid overflow, shown desktop --- */
-    .topbar .position-relative.d-none.d-md-block {
-        display: none !important;
-    }
-
-    /* --- Misc overflow protection --- */
-    * {
+    /* Images */
+    img {
         max-width: 100%;
-        box-sizing: border-box;
-    }
-
-    /* Exclude sidebar and backdrop from max-width rule */
-    .sidebar,
-    .sidebar-backdrop,
-    .dropdown-menu,
-    .modal,
-    .modal-dialog,
-    .tooltip,
-    .popover {
-        max-width: none;
+        height: auto;
     }
 }
 
@@ -3351,60 +3390,66 @@ body.sidebar-open {
 
     /* --- Topbar compact --- */
     .topbar {
-        padding: 8px 10px !important;
-        gap: 6px !important;
+        padding: 8px 12px !important;
+        gap: 8px !important;
     }
 
-    /* Shrink notification bell slightly */
+    .topbar .position-relative.d-none.d-md-block {
+        display: none !important;
+    }
+
     .topbar-right a .bi-bell {
-        font-size: 1.1rem !important;
+        font-size: 1.15rem !important;
     }
 
-    /* --- Dashboard KPI: 1 column on phones --- */
-    [style*="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr))"] {
-        grid-template-columns: 1fr !important;
-    }
-
-    /* --- Page content padding --- */
+    /* --- Page Content Padding --- */
     .page-content {
-        padding: 8px !important;
+        padding: 8px 10px !important;
     }
 
-    /* --- Form card padding --- */
-    .form-card {
-        padding: 16px !important;
+    /* --- Cards & Containers --- */
+    .form-card,
+    .hd-dashboard-card,
+    .glass-card,
+    .profile-main-card,
+    .rio-section {
+        padding: 16px 12px !important;
         border-radius: 12px !important;
     }
 
-    /* --- Section titles / headings --- */
-    h1,
-    h2,
-    h3,
-    h4,
-    h5 {
+    /* --- Headings --- */
+    h1, h2, h3, h4, h5 {
         word-break: break-word;
         overflow-wrap: break-word;
     }
 
-    /* --- Text wrapping --- */
-    .text-truncate {
-        max-width: 140px !important;
+    /* --- KPI Cards: 1 column on smaller phones or 2 if auto-fit --- */
+    [style*="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr))"] {
+        grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)) !important;
+        gap: 12px !important;
     }
 
-    /* --- Employee table action columns: smaller padding --- */
-    .employee-table tbody td,
-    .employee-table thead th {
-        padding: 10px 12px !important;
-        font-size: 14px !important;
+    /* Multi-column form rows collapse cleanly on phone */
+    .row.g-3 > [class*="col-"],
+    .row.g-4 > [class*="col-"],
+    .row.g-2 > [class*="col-md-"] {
+        flex: 0 0 100% !important;
+        max-width: 100% !important;
     }
 
-    /* --- Button groups: full-width on phones --- */
+    /* --- Action Bars & Toolbars --- */
     .d-flex.justify-content-between.align-items-center {
         flex-wrap: wrap !important;
         gap: 8px !important;
     }
 
-    /* --- Modals: nearly full screen --- */
+    .action-toolbar,
+    .section-toolbar {
+        flex-direction: column !important;
+        align-items: stretch !important;
+    }
+
+    /* --- Modals on Mobile --- */
     .modal-dialog {
         margin: 8px auto !important;
         max-width: calc(100vw - 16px) !important;
@@ -3412,30 +3457,45 @@ body.sidebar-open {
     }
 
     .modal-body {
-        max-height: 60vh !important;
-        padding: 12px !important;
+        max-height: calc(100dvh - 120px) !important;
+        padding: 14px 12px !important;
     }
 
-    /* --- Action bar rows (filter/sort toolbars) --- */
-    .d-flex.flex-wrap.gap-2,
-    .d-flex.flex-wrap.gap-3,
-    .section-toolbar .d-flex {
-        flex-direction: column !important;
-        align-items: stretch !important;
-    }
-
-    /* --- Cards: remove side margins --- */
-    .glass-card {
-        padding: 14px !important;
+    /* Employee table action columns */
+    .employee-table tbody td,
+    .employee-table thead th {
+        padding: 10px 10px !important;
+        font-size: 13.5px !important;
     }
 }
 
 /* ==============================================================
-   LOGIN PAGE RESPONSIVE
+   SMALL PHONES (≤ 380px)
+   ============================================================== */
+@media (max-width: 380px) {
+    .topbar {
+        padding: 6px 8px !important;
+    }
+
+    .page-content {
+        padding: 6px 6px !important;
+    }
+
+    .form-card,
+    .hd-dashboard-card,
+    .glass-card {
+        padding: 12px 8px !important;
+    }
+
+    [style*="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr))"] {
+        grid-template-columns: 1fr !important;
+    }
+}
+
+/* ==============================================================
+   AUTH & LOGIN PAGES
    ============================================================== */
 @media (max-width: 1023.98px) {
-
-    /* Disable desktop zoom on login page body */
     body.login-page {
         zoom: 1 !important;
         height: auto !important;
@@ -3453,8 +3513,8 @@ body.sidebar-open {
     }
 
     .login-left {
-        flex: 0 0 220px !important;
-        min-height: 200px !important;
+        flex: 0 0 200px !important;
+        min-height: 180px !important;
     }
 
     .login-right {
@@ -3472,16 +3532,16 @@ body.sidebar-open {
 
 @media (max-width: 767px) {
     .login-left {
-        flex: 0 0 160px !important;
-        min-height: 160px !important;
+        flex: 0 0 150px !important;
+        min-height: 140px !important;
     }
 
     .login-left .logo-container img {
-        max-height: 80px !important;
+        max-height: 70px !important;
     }
 
     .login-card {
-        padding: 24px 16px !important;
+        padding: 22px 16px !important;
     }
 
     .login-card h4 {
@@ -3495,38 +3555,41 @@ body.sidebar-open {
 @supports (padding: env(safe-area-inset-bottom)) {
     @media (max-width: 1023.98px) {
         .topbar {
-            padding-top: calc(8px + env(safe-area-inset-top)) !important;
+            padding-top: calc(10px + env(safe-area-inset-top, 0px)) !important;
         }
 
         .page-content {
-            padding-bottom: calc(8px + env(safe-area-inset-bottom)) !important;
+            padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px)) !important;
         }
 
         .sidebar {
-            padding-bottom: env(safe-area-inset-bottom) !important;
+            padding-bottom: env(safe-area-inset-bottom, 0px) !important;
         }
     }
 }
 
 /* ==============================================================
-   DESKTOP GUARD (≥ 1024px) — ensure nothing above bleeds in
+   DESKTOP (≥ 1024px)
    ============================================================== */
 @media (min-width: 1024px) {
     body {
-        zoom: 0.75 !important;
-        height: calc(100vh / 0.75) !important;
-        overflow: hidden !important;
+        zoom: 1 !important;
+        min-height: 100vh !important;
+        min-height: 100dvh !important;
+        overflow-x: hidden !important;
+        overflow-y: auto !important;
     }
 
     html {
-        overflow: hidden !important;
+        overflow-x: hidden !important;
+        overflow-y: auto !important;
     }
 
     .main {
         margin-left: 248px !important;
         width: calc(100% - 248px) !important;
-        height: 100% !important;
-        overflow: hidden !important;
+        min-height: 100vh !important;
+        min-height: 100dvh !important;
     }
 
     .sidebar.collapsed+.main {
@@ -3536,5 +3599,18 @@ body.sidebar-open {
 
     .sidebar-backdrop {
         display: none !important;
+    }
+
+    .mobile-nav-toggle {
+        display: none !important;
+    }
+}
+
+/* ==============================================================
+   ULTRAWIDE / LARGE DESKTOP (≥ 1600px)
+   ============================================================== */
+@media (min-width: 1600px) {
+    .page-content {
+        padding: 24px 32px;
     }
 }

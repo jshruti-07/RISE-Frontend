@@ -23,7 +23,7 @@
 
 
     .page-content {
-        padding: 24px !important;
+        padding: clamp(10px, 2vw, 24px) !important;
     }
 
     .dashboard-main-grid {
@@ -632,10 +632,10 @@
     {% block scripts %}
 
     <script id="projects-data" type="application/json">
-    {{ projects | tojson | safe }}
+    {{ (projects | default([])) | tojson | safe }}
 </script>
     <script id="my-projects-data" type="application/json">
-    {{ my_projects | tojson | safe }}
+    {{ (my_projects | default([])) | tojson | safe }}
 </script>
     <script id="config-data" type="application/json">
     {
