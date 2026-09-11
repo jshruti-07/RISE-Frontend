@@ -84,6 +84,7 @@
             <!-- RENTAL INVOICES OVERVIEW (Admin & HR only) -->
             <style>
                 .rio-section {
+                    container-type: inline-size;
                     background: #FFFFFF;
                     border: 1px solid #E8ECF4;
                     border-radius: 16px;
@@ -143,7 +144,7 @@
                 /* Stat Cards Container */
                 .rio-stats-grid {
                     display: grid;
-                    grid-template-columns: repeat(4, 1fr);
+                    grid-template-columns: repeat(4, minmax(0, 1fr));
                     gap: 0;
                     background: #FAFAFC;
                     border: 1px solid #e8ecf4;
@@ -153,14 +154,15 @@
                 }
 
                 .rio-stat-card {
-                    padding: 20px 18px;
+                    padding: 16px 14px;
                     display: flex;
-                    align-items: flex-start;
-                    gap: 14px;
+                    align-items: center;
+                    gap: 12px;
                     border-right: 1px solid #f1f5f9;
                     transition: background 0.15s ease;
                     text-decoration: none;
                     color: inherit;
+                    min-width: 0;
                 }
 
                 .rio-stat-card:last-child {
@@ -172,13 +174,13 @@
                 }
 
                 .rio-stat-icon {
-                    width: 42px;
-                    height: 42px;
+                    width: 38px;
+                    height: 38px;
                     border-radius: 50%;
                     display: flex;
                     align-items: center;
                     justify-content: center;
-                    font-size: 1.1rem;
+                    font-size: 1.05rem;
                     flex-shrink: 0;
                 }
 
@@ -206,23 +208,28 @@
                     display: flex;
                     flex-direction: column;
                     min-width: 0;
+                    flex: 1;
                 }
 
                 .rio-stat-label {
-                    font-size: 0.72rem;
+                    font-size: 0.7rem;
                     font-weight: 600;
                     color: #64748b;
                     text-transform: uppercase;
-                    letter-spacing: 0.04em;
-                    margin-bottom: 4px;
-                    white-space: nowrap;
+                    letter-spacing: 0.03em;
+                    margin-bottom: 3px;
+                    white-space: normal;
+                    line-height: 1.25;
                 }
 
                 .rio-stat-value {
-                    font-size: 1.65rem;
+                    font-size: 1.45rem;
                     font-weight: 700;
                     color: #0f172a;
                     line-height: 1.15;
+                    white-space: nowrap;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
                 }
 
                 .rio-stat-value.overdue-val {
@@ -230,10 +237,13 @@
                 }
 
                 .rio-stat-sub {
-                    font-size: 0.72rem;
+                    font-size: 0.7rem;
                     color: #64748b;
                     margin-top: 2px;
                     font-weight: 500;
+                    white-space: nowrap;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
                 }
 
                 .rio-stat-sub.overdue-sub {
@@ -374,13 +384,17 @@
                     color: #1d4ed8;
                 }
 
-                @media (max-width: 991px) {
+                @container (max-width: 900px) {
                     .rio-stats-grid {
-                        grid-template-columns: repeat(2, 1fr);
+                        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
                     }
 
-                    .rio-stat-card:nth-child(2) {
+                    .rio-stat-card:nth-child(even) {
                         border-right: none;
+                    }
+
+                    .rio-stat-card:nth-child(odd) {
+                        border-right: 1px solid #f1f5f9;
                     }
 
                     .rio-stat-card:nth-child(1),
@@ -393,13 +407,51 @@
                     }
                 }
 
-                @media (max-width: 575px) {
+                @container (max-width: 480px) {
+                    .rio-stats-grid {
+                        grid-template-columns: 1fr !important;
+                    }
+
+                    .rio-stat-card {
+                        border-right: none !important;
+                        border-bottom: 1px solid #f1f5f9 !important;
+                    }
+
+                    .rio-stat-card:last-child {
+                        border-bottom: none !important;
+                    }
+                }
+
+                @media (max-width: 1199.98px) {
+                    .rio-stats-grid {
+                        grid-template-columns: repeat(2, minmax(0, 1fr));
+                    }
+
+                    .rio-stat-card:nth-child(even) {
+                        border-right: none;
+                    }
+
+                    .rio-stat-card:nth-child(odd) {
+                        border-right: 1px solid #f1f5f9;
+                    }
+
+                    .rio-stat-card:nth-child(1),
+                    .rio-stat-card:nth-child(2) {
+                        border-bottom: 1px solid #f1f5f9;
+                    }
+
+                    .rio-lists-grid {
+                        grid-template-columns: 1fr;
+                    }
+                }
+
+                @media (max-width: 575.98px) {
                     .rio-stats-grid {
                         grid-template-columns: 1fr;
                     }
 
                     .rio-stat-card {
-                        border-right: none;
+                        border-right: none !important;
                         border-bottom: 1px solid #f1f5f9;
                     }
 
@@ -425,7 +477,7 @@
 
                 <!-- Stats Row -->
                 <div class="rio-stats-grid" id="rentalInvoiceWidgetGrid">
-                    <a href="/assets?tab=rentals&filter=upcoming_rentals" class="rio-stat-card">
+                    <a href="/assets?tab=rentals&filter=upcoming_rentals" class="rio-stat-card" title="Upcoming Payments">
                         <div class="rio-stat-icon upcoming">
                             <i class="bi bi-calendar-event"></i>
                         </div>
@@ -435,7 +487,7 @@
                             <span class="rio-stat-sub">Due in 7 days</span>
                         </div>
                     </a>
-                    <a href="/assets?tab=rentals" class="rio-stat-card" id="widgetOverdueCard">
+                    <a href="/assets?tab=rentals" class="rio-stat-card" id="widgetOverdueCard" title="Overdue Payments">
                         <div class="rio-stat-icon overdue">
                             <i class="bi bi-exclamation-triangle-fill"></i>
                         </div>
@@ -445,7 +497,7 @@
                             <span class="rio-stat-sub overdue-sub">Action Required</span>
                         </div>
                     </a>
-                    <a href="/assets?tab=rentals" class="rio-stat-card">
+                    <a href="/assets?tab=rentals" class="rio-stat-card" title="Total Monthly Rental Cost">
                         <div class="rio-stat-icon monthly">
                             <i class="bi bi-file-earmark-text"></i>
                         </div>
@@ -455,7 +507,7 @@
                             <span class="rio-stat-sub">Active Contracts</span>
                         </div>
                     </a>
-                    <a href="/assets?tab=rentals" class="rio-stat-card">
+                    <a href="/assets?tab=rentals" class="rio-stat-card" title="Pending Invoice Amount">
                         <div class="rio-stat-icon pending">
                             <i class="bi bi-clipboard-data"></i>
                         </div>

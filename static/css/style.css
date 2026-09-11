@@ -3538,3 +3538,66 @@ body.sidebar-open {
         display: none !important;
     }
 }
+
+/* ==============================================================
+   UNIVERSAL AUTO-ADAPTIVE CARD GRIDS & CONTAINER QUERIES
+   ============================================================== */
+
+/* Container Query Wrappers */
+.cq-wrapper {
+    container-type: inline-size;
+    width: 100%;
+}
+
+/* Fluid Auto-Fit Grids (zero horizontal overflow, wraps naturally) */
+.grid-autofit-xs {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)) !important;
+    gap: 14px;
+    width: 100%;
+}
+
+.grid-autofit-sm {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)) !important;
+    gap: 16px;
+    width: 100%;
+}
+
+.grid-autofit {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)) !important;
+    gap: 18px;
+    width: 100%;
+}
+
+.grid-autofit-lg {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)) !important;
+    gap: 20px;
+    width: 100%;
+}
+
+/* Ensure grid & flex children never force track expansion */
+.cq-card,
+.grid-autofit > *,
+.grid-autofit-sm > *,
+.grid-autofit-xs > *,
+.grid-autofit-lg > * {
+    min-width: 0 !important;
+}
+
+/* Truncation & word-wrapping helpers */
+.safe-text-truncate {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-width: 0;
+}
+
+.safe-text-wrap {
+    white-space: normal !important;
+    word-break: break-word !important;
+    overflow-wrap: break-word !important;
+    min-width: 0;
+}

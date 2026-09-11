@@ -307,12 +307,12 @@ body {
 /* ---- Form Grid ---- */
 .joinee-form-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
     gap: 1.1rem;
 }
 
 .joinee-form-grid .full-width {
-    grid-column: span 2;
+    grid-column: 1 / -1;
 }
 
 .form-label {
@@ -339,7 +339,7 @@ body {
 /* ---- Address Two-Column ---- */
 .address-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
     gap: 1.5rem;
 }
 
@@ -562,7 +562,7 @@ body {
 
 .review-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
     gap: 0.6rem;
 }
 

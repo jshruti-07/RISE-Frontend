@@ -489,12 +489,12 @@ body {
 
 .form-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     gap: 1rem;
 }
 
 .form-group.full-width {
-    grid-column: span 2;
+    grid-column: 1 / -1;
 }
 
 .password-strength .strength-bar {
@@ -596,7 +596,7 @@ body {
 
 .review-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     gap: 1.5rem;
 }
 
@@ -610,7 +610,7 @@ body {
 }
 
 .review-item .full-width {
-    grid-column: span 2;
+    grid-column: 1 / -1;
 }
 
 .declaration-grid .dec-section {
@@ -628,7 +628,7 @@ body {
 
 .declaration-grid .dec-row {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
     gap: 1rem;
     margin-bottom: 0.5rem;
     padding-bottom: 0.5rem;
