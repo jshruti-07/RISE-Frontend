@@ -110,6 +110,11 @@ def has_permission(feature_or_key, action=None) -> bool:
     if not session.get('token'):
         return False
         
+    user_role = normalize_role(session.get('role', ''))
+    # Superadmin bypass: Super Admin always has full access to all features and actions
+    if user_role == 'superadmin':
+        return True
+
     # If permissions are not in session, fetch them
     if session.get('permissions') is None or session.get('feature_actions') is None:
         fetch_user_permissions()
@@ -351,30 +356,37 @@ def fetch_leave_balance_helper(employee_name):
                 else:
                     continue
                 
+                # Helper for safe float conversion
+                def _to_f(val, fallback=0.0):
+                    try:
+                        return float(val) if val is not None else float(fallback)
+                    except (ValueError, TypeError):
+                        return float(fallback)
+
                 # Standardize summary keys for template consistency
                 std_summary = {
-                    "total_leaves": bs.get("total_leaves") or bs.get("total_quota") or 18,
-                    "used_leaves": bs.get("used_leaves") or bs.get("total_used") or 0,
-                    "remaining_leaves": bs.get("remaining_leaves") or bs.get("total_remaining") or 0,
-                    "planned_used": bs.get("planned_used") or bs.get("planned_leaves_used") or 0,
-                    "planned_total": bs.get("planned_total") or bs.get("planned_quota") or 12,
-                    "unplanned_used": bs.get("unplanned_used") or bs.get("unplanned_leaves_used") or 0,
-                    "unplanned_total": bs.get("unplanned_total") or bs.get("unplanned_quota") or 4,
-                    "optional_used": bs.get("optional_used") or bs.get("optional_leaves_used") or 0,
-                    "optional_total": bs.get("optional_total") or bs.get("optional_quota") or 2,
+                    "total_leaves": _to_f(bs.get("total_leaves") or bs.get("total_quota"), 18),
+                    "used_leaves": _to_f(bs.get("used_leaves") or bs.get("total_used"), 0),
+                    "remaining_leaves": _to_f(bs.get("remaining_leaves") or bs.get("total_remaining"), 0),
+                    "planned_used": _to_f(bs.get("planned_used") or bs.get("planned_leaves_used"), 0),
+                    "planned_total": _to_f(bs.get("planned_total") or bs.get("planned_quota"), 12),
+                    "unplanned_used": _to_f(bs.get("unplanned_used") or bs.get("unplanned_leaves_used"), 0),
+                    "unplanned_total": _to_f(bs.get("unplanned_total") or bs.get("unplanned_quota"), 4),
+                    "optional_used": _to_f(bs.get("optional_used") or bs.get("optional_leaves_used"), 0),
+                    "optional_total": _to_f(bs.get("optional_total") or bs.get("optional_quota"), 2),
                     # Backward compatibility aliases
-                    "planned_leaves": 0,
-                    "unplanned_leaves": 0,
-                    "optional_leaves": 0
+                    "planned_leaves": 0.0,
+                    "unplanned_leaves": 0.0,
+                    "optional_leaves": 0.0
                 }
                 
                 # Try to fill missing from balances array
                 for b in balances:
                     if not isinstance(b, dict): continue
                     ltype = (b.get("leave_type") or "").lower()
-                    used = b.get("used_leaves") or b.get("used") or 0
-                    total = b.get("total_leaves") or b.get("total") or (used + (b.get("remaining") or 0))
-                    rem = b.get("remaining_leaves") or b.get("remaining") or (total - used)
+                    used = _to_f(b.get("used_leaves") or b.get("used"), 0)
+                    total = _to_f(b.get("total_leaves") or b.get("total"), used + _to_f(b.get("remaining") or b.get("remaining_leaves"), 0))
+                    rem = _to_f(b.get("remaining_leaves") or b.get("remaining"), total - used)
                     
                     if "planned" in ltype and "unplanned" not in ltype:
                         std_summary["planned_used"] = used
@@ -402,13 +414,13 @@ def fetch_leave_balance_helper(employee_name):
                         std_summary["optional_leaves"] = rem
                 
                 # Final calculation for remaining if needed
-                std_summary["remaining_leaves"] = std_summary["total_leaves"] - std_summary["used_leaves"]
+                std_summary["remaining_leaves"] = max(0.0, std_summary["total_leaves"] - std_summary["used_leaves"])
                 if not std_summary["planned_leaves"]:
-                    std_summary["planned_leaves"] = max(0, std_summary["planned_total"] - std_summary["planned_used"])
+                    std_summary["planned_leaves"] = max(0.0, std_summary["planned_total"] - std_summary["planned_used"])
                 if not std_summary["unplanned_leaves"]:
-                    std_summary["unplanned_leaves"] = max(0, std_summary["unplanned_total"] - std_summary["unplanned_used"])
+                    std_summary["unplanned_leaves"] = max(0.0, std_summary["unplanned_total"] - std_summary["unplanned_used"])
                 if not std_summary["optional_leaves"]:
-                    std_summary["optional_leaves"] = max(0, std_summary["optional_total"] - std_summary["optional_used"])
+                    std_summary["optional_leaves"] = max(0.0, std_summary["optional_total"] - std_summary["optional_used"])
                 
                 return {"success": True, "summary": std_summary, "balances": balances}
         except Exception as e:

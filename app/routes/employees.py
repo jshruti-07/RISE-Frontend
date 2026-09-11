@@ -479,7 +479,7 @@ def view_profile(employee_name):
     )
 
 @employees_bp.route('/api/employees')
-@role_required(['admin', 'hr', 'manager', 'employee'])
+@role_required(['admin', 'hr', 'manager', 'employee', 'superadmin'])
 def api_get_employees():
     try:
         res = requests.get(f"{BASE_URL}/employees", headers=get_headers(), timeout=10)

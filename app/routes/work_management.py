@@ -624,8 +624,24 @@ def export_timesheets():
         return jsonify({"success": False, "error": str(e)}), 500
 
 
+DEFAULT_LEAVE_SUMMARY = {
+    "total_leaves": 18,
+    "used_leaves": 0,
+    "remaining_leaves": 18,
+    "planned_used": 0,
+    "planned_total": 12,
+    "unplanned_used": 0,
+    "unplanned_total": 4,
+    "optional_used": 0,
+    "optional_total": 2,
+    "planned_leaves": 0,
+    "unplanned_leaves": 0,
+    "optional_leaves": 0,
+}
+
+
 @work_bp.route('/leaves')
-@role_required(['admin', 'employee', 'hr', 'manager'])
+@role_required(['admin', 'employee', 'hr', 'manager', 'team_member', 'teammember', 'superadmin'])
 def leaves_list():
     try:
         leave_res = requests.get(f"{BASE_URL}/leaves", headers=get_headers())
@@ -692,6 +708,7 @@ def leaves_list():
                         # Check if employee is in any project managed by this manager
                         is_member = False
                         for p in projects_db:
+                            if not isinstance(p, dict): continue
                             if names_match(pick(p, 'assigned_manager', 'manager_name', 'assigned_manager_name'), current_user):
                                 for m in p.get('team_members', []):
                                     m_name = m.get('name') if isinstance(m, dict) else m
@@ -719,11 +736,16 @@ def leaves_list():
             elif user_role == 'manager':
                 # Managers see leaves of employees in projects they manage OR leaves requiring their signoff
                 has_pending_signoff = any(names_match(s.get('approver_name'), current_user) for s in signoffs)
-                managed_projects = [p['name'].strip().lower() for p in projects_db if names_match(pick(p, 'assigned_manager', 'manager_name', 'assigned_manager_name'), current_user)]
+                managed_projects = [
+                    str(p.get('name') or p.get('project_name') or '').strip().lower()
+                    for p in projects_db
+                    if isinstance(p, dict) and names_match(pick(p, 'assigned_manager', 'manager_name', 'assigned_manager_name'), current_user)
+                ]
                 
                 # Check if this employee is in any of those projects
                 emp_projects = []
                 for p in projects_db:
+                    if not isinstance(p, dict): continue
                     is_member = False
                     for m in p.get('team_members', []):
                         m_name = m.get('name') if isinstance(m, dict) else m
@@ -731,7 +753,9 @@ def leaves_list():
                             is_member = True
                             break
                     if is_member:
-                        emp_projects.append(p['name'].strip().lower())
+                        p_name = str(p.get('name') or p.get('project_name') or '').strip().lower()
+                        if p_name:
+                            emp_projects.append(p_name)
                 
                 if has_pending_signoff or any(proj in managed_projects for proj in emp_projects):
                     show = True
@@ -741,11 +765,13 @@ def leaves_list():
 
         # Fetch balance summary for current user
         balance_data = fetch_leave_balance_helper(current_user)
-        summary = {"remaining_leaves": 0, "planned_leaves": 0, "unplanned_leaves": 0, "optional_leaves": 0}
+        summary = dict(DEFAULT_LEAVE_SUMMARY)
         balance = []
         
         if balance_data:
-            summary = balance_data.get("summary", summary)
+            bs = balance_data.get("summary")
+            if isinstance(bs, dict):
+                summary.update(bs)
             balance = balance_data.get("balances", [])
             
         holidays = []
@@ -764,11 +790,13 @@ def leaves_list():
                                holidays=holidays,
                                BASE_URL=BASE_URL)
     except Exception as e:
+        import traceback
+        traceback.print_exc()
         print(f"Error in leaves_list: {e}")
-        return render_template("leaves.html", leaves=[], summary={}, balance=[], holidays=[], error=str(e))
+        return render_template("leaves.html", leaves=[], summary=dict(DEFAULT_LEAVE_SUMMARY), balance=[], holidays=[], error=str(e), BASE_URL=BASE_URL)
 
 @work_bp.route('/add-leave', methods=['GET', 'POST'])
-@role_required(['admin', 'employee', 'hr', 'manager'])
+@role_required(['admin', 'employee', 'hr', 'manager', 'team_member', 'teammember', 'superadmin'])
 def add_leave():
     headers = get_headers()
     employee_name = session.get('employee_name')
@@ -858,7 +886,7 @@ def add_leave():
     return render_template("add_leave.html", employees=employees, balance=balance, summary=summary)
 
 @work_bp.route('/api/leaves/calendar')
-@role_required(['admin', 'employee', 'hr', 'manager'])
+@role_required(['admin', 'employee', 'hr', 'manager', 'team_member', 'teammember', 'superadmin'])
 def leaves_calendar():
     year = request.args.get('year', type=int)
     month = request.args.get('month', type=int)
@@ -1028,7 +1056,7 @@ def attendance_view():
                                leave_details=[], attendance_details=[])
 
 @work_bp.route('/api/leaves/balance')
-@role_required(['admin', 'employee', 'hr', 'manager'])
+@role_required(['admin', 'employee', 'hr', 'manager', 'team_member', 'teammember', 'superadmin'])
 def leaves_balance():
     employee_name = request.args.get('employee_name') or session.get('employee_name')
     if not employee_name:

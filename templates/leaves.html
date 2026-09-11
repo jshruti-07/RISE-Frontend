@@ -535,11 +535,12 @@
                                     </td>
                                     <td>
                                         <div class="text-slate-700" style="font-size: 0.85rem;">
-                                            <span class="fw-medium">{{ l.start_date[:10] if l.start_date else '—'
-                                                }}</span>
-                                            {% if l.end_date and l.end_date[:10] != l.start_date[:10] %}
+                                            {% set s_dt = (l.start_date|string)[:10] if l.start_date else '—' %}
+                                            {% set e_dt = (l.end_date|string)[:10] if l.end_date else '' %}
+                                            <span class="fw-medium">{{ s_dt }}</span>
+                                            {% if e_dt and e_dt != s_dt and s_dt != '—' %}
                                             <i class="bi bi-arrow-right text-muted mx-1"></i>
-                                            <span class="fw-medium">{{ l.end_date[:10] }}</span>
+                                            <span class="fw-medium">{{ e_dt }}</span>
                                             {% endif %}
                                         </div>
                                     </td>
@@ -666,24 +667,26 @@
                     <div class="row g-3 mb-4" id="leaveBalanceCards">
                         {% if summary and (summary.remaining_leaves is defined or balance) %}
                         {% set categories = [
-                        {'label': 'Total Leaves', 'used': summary.used_leaves|default(0), 'total':
-                        summary.total_leaves|default(18), 'color': 'total'},
-                        {'label': 'Planned Leaves', 'used': summary.planned_used|default(0), 'total':
-                        summary.planned_total|default(12), 'color': 'planned'},
-                        {'label': 'Unplanned Leaves', 'used': summary.unplanned_used|default(0), 'total':
-                        summary.unplanned_total|default(4), 'color': 'unplanned'},
-                        {'label': 'Optional Leaves', 'used': summary.optional_used|default(0), 'total':
-                        summary.optional_total|default(2), 'color': 'optional'}
+                        {'label': 'Total Leaves', 'used': summary.used_leaves|default(0, true)|float, 'total':
+                        summary.total_leaves|default(18, true)|float, 'color': 'total'},
+                        {'label': 'Planned Leaves', 'used': summary.planned_used|default(0, true)|float, 'total':
+                        summary.planned_total|default(12, true)|float, 'color': 'planned'},
+                        {'label': 'Unplanned Leaves', 'used': summary.unplanned_used|default(0, true)|float, 'total':
+                        summary.unplanned_total|default(4, true)|float, 'color': 'unplanned'},
+                        {'label': 'Optional Leaves', 'used': summary.optional_used|default(0, true)|float, 'total':
+                        summary.optional_total|default(2, true)|float, 'color': 'optional'}
                         ] %}
 
                         {% for cat in categories %}
-                        {% set remaining = cat.total - cat.used %}
+                        {% set used_num = cat.used|default(0, true)|float %}
+                        {% set tot_num = cat.total|default(0, true)|float %}
+                        {% set remaining = (tot_num - used_num)|round(1) %}
                         <div class="col-md-3 col-sm-6">
                             <div class="leave-card-mini {{ cat.color }}">
                                 <div class="lc-header">
                                     <span class="lc-label">{{ cat.label }}</span>
                                     <div class="text-end">
-                                        <span class="lc-fraction fw-bold">{{ remaining }} / {{ cat.total }}</span>
+                                        <span class="lc-fraction fw-bold">{{ (remaining|int if remaining == remaining|int else remaining) }} / {{ (tot_num|int if tot_num == tot_num|int else tot_num) }}</span>
                                         <div
                                             style="font-size: 0.6rem; color: #94a3b8; font-weight: 700; margin-top: 1px; letter-spacing: 0.5px;">
                                             AVAILABLE</div>
@@ -762,11 +765,12 @@
                                     </td>
                                     <td>
                                         <div class="text-slate-700" style="font-size: 0.85rem;">
-                                            <span class="fw-medium">{{ l.start_date[:10] if l.start_date else '—'
-                                                }}</span>
-                                            {% if l.end_date and l.end_date[:10] != l.start_date[:10] %}
+                                            {% set s_dt = (l.start_date|string)[:10] if l.start_date else '—' %}
+                                            {% set e_dt = (l.end_date|string)[:10] if l.end_date else '' %}
+                                            <span class="fw-medium">{{ s_dt }}</span>
+                                            {% if e_dt and e_dt != s_dt and s_dt != '—' %}
                                             <i class="bi bi-arrow-right text-muted mx-1"></i>
-                                            <span class="fw-medium">{{ l.end_date[:10] }}</span>
+                                            <span class="fw-medium">{{ e_dt }}</span>
                                             {% endif %}
                                         </div>
                                     </td>
@@ -1283,6 +1287,16 @@
 </style>
 
 <script>
+    function escapeHtml(str) {
+        if (str === null || str === undefined) return '';
+        return String(str)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#039;');
+    }
+
     const DAY_ABBR = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
     const MONTH_ABBR = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
@@ -1368,7 +1382,9 @@
 
                         let html = '';
                         categories.forEach(cat => {
-                            const remaining = cat.total - cat.used;
+                            const totNum = Number(cat.total || 0);
+                            const usedNum = Number(cat.used || 0);
+                            const remaining = Math.max(0, Math.round((totNum - usedNum) * 10) / 10);
                             const colorClass = cat.label.includes('Total') ? 'total' : cat.label.toLowerCase().split(' ')[0];
 
                             html += `
@@ -1377,7 +1393,7 @@
                                     <div class="lc-header">
                                         <span class="lc-label">${cat.label}</span>
                                         <div class="text-end">
-                                            <span class="lc-fraction fw-bold">${remaining} / ${cat.total}</span>
+                                            <span class="lc-fraction fw-bold">${remaining} / ${totNum}</span>
                                             <div style="font-size: 0.6rem; color: #94a3b8; font-weight: 700; margin-top: 1px; letter-spacing: 0.5px;">AVAILABLE</div>
                                         </div>
                                     </div>
@@ -1428,9 +1444,7 @@
                 },
                 events: function (fetchInfo, successCallback, failureCallback) {
                     // 1. Static leaves from the template
-                    const allLeaves = {{ leaves | tojson | safe
-                }
-            } || [];
+                    const allLeaves = {{ (leaves or []) | tojson | safe }};
             const staticEvents = allLeaves.map(l => {
                 const startStr = (l.start_date || '').split('T')[0];
                 const endStr = (l.end_date || '').split('T')[0];
