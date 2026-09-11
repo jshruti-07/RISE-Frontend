@@ -26,7 +26,6 @@ def dashboard():
         return redirect(url_for('onboarding.joinee_dashboard'))
 
     birthday_data = []
-    all_birthdays = []
     holidays = []
     stats = {"employees": 0, "timesheets": 0, "leaves": 0}
     hd_stats = {}

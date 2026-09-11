@@ -49,6 +49,14 @@
 
 
     <style>
+        html {
+            font-size: 115% !important;
+        }
+
+        body {
+            font-size: 1.15rem !important;
+        }
+
         .status-dot {
             height: 10px;
             width: 10px;
@@ -475,7 +483,7 @@
             style="border-bottom: 1px solid #e2e8f0; display: flex; align-items: center; justify-content: space-between; gap: 24px;">
             <!-- LEFT -->
             <div class="topbar-left d-flex align-items-center" style="flex-shrink: 0;">
-                <button id="toggleSidebar" onclick="toggleSidebar()" class="btn border-0 p-1 me-2 mobile-nav-toggle"
+                <button onclick="toggleSidebar()" class="btn border-0 p-1 me-2 mobile-nav-toggle d-lg-none"
                     title="Toggle Sidebar" aria-label="Toggle navigation">
                     <i class="bi bi-list" style="font-size: 1.5rem;"></i>
                 </button>

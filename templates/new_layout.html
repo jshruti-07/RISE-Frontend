@@ -14,8 +14,8 @@
             {% set has_any_kpi = show_kpi_team or show_kpi_timesheets or show_kpi_leaves or show_kpi_expenses %}
 
             {% if has_any_kpi %}
-            <div class="dashboard-kpi-grid"
-                style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 180px), 1fr)); gap: clamp(12px, 2vw, 24px); margin-bottom: 0;">
+            <div
+                style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 24px; margin-bottom: 0;">
                 <!-- Total Team -->
                 {% if show_kpi_team %}
                 <a href="{{ url_for('employees.employee_list') }}" class="text-decoration-none">

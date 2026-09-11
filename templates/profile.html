@@ -497,39 +497,6 @@
             padding: 18px;
         }
     }
-
-    @media (max-width: 767.98px) {
-        .profile-dashboard-wrapper {
-            padding-left: 4px !important;
-            padding-right: 4px !important;
-            padding-top: 12px !important;
-        }
-
-        .profile-main-card {
-            padding: 14px 10px !important;
-            border-radius: 12px !important;
-        }
-
-        .profile-hero-banner {
-            padding: 16px 12px !important;
-            border-radius: 10px !important;
-        }
-
-        .hero-stat-card {
-            min-width: 90px !important;
-            padding: 6px 10px !important;
-        }
-
-        .hrms-tab-nav {
-            padding: 4px !important;
-            gap: 4px !important;
-        }
-
-        .hrms-tab-nav .nav-link {
-            padding: 6px 12px !important;
-            font-size: 0.8rem !important;
-        }
-    }
 </style>
 
 <div class="profile-dashboard-wrapper py-4 px-2 px-md-4">
@@ -812,7 +779,7 @@
             </div>
 
             <!-- Single Modern Tab Container for Assigned Assets, Active Projects, Active Items & Bank Details -->
-            {% set total_active = (active_leave_count|default(0)) + (active_reimbursement_count|default(0)) + (active_helpdesk_count|default(0)) %}
+            {% set total_active = active_leave_count + active_reimbursement_count + active_helpdesk_count %}
             {% set show_assets = is_own_profile or can('devices', 'view') or can('devices_assets', 'view') %}
             {% set show_projects = is_own_profile or can('projects', 'view') %}
             {% set show_items = is_own_profile or can('leave', 'view') or can('reimbursements', 'view') or can('helpdesk', 'view') %}
