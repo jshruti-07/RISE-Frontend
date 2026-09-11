@@ -634,7 +634,8 @@
 </div>
 
 <script>
-    window.BASE_URL = "{{ BASE_URL }}";
+    window.BASE_URL = "";
+    localStorage.removeItem('BASE_URL');
     {% if token %}
     localStorage.setItem('token', '{{ token }}');
     {% endif %}

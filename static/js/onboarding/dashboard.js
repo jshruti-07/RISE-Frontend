@@ -89,10 +89,20 @@ document.addEventListener('DOMContentLoaded', () => {
         return { class: 'badge-pending', label: status || 'Unknown' };
     };
 
+    // Helper: Safe Base URL (prevents browser connecting to 127.0.0.1 on remote client)
+    const getSafeBaseUrl = () => {
+        const raw = window.BASE_URL || localStorage.getItem('BASE_URL') || '';
+        if (raw.includes('127.0.0.1') || raw.includes('localhost')) {
+            localStorage.removeItem('BASE_URL');
+            return '';
+        }
+        return raw;
+    };
+
     // Fetch Stats
     const fetchStats = async () => {
         try {
-            const baseUrl = window.BASE_URL || localStorage.getItem('BASE_URL') || '';
+            const baseUrl = getSafeBaseUrl();
             const url = baseUrl ? `${baseUrl}/onboarding/stats` : '/onboarding/stats';
             const response = await fetch(url, { headers });
             
@@ -117,7 +127,7 @@ document.addEventListener('DOMContentLoaded', () => {
         toggleLoading(true);
         errorAlert.classList.add('d-none');
         try {
-            const baseUrl = window.BASE_URL || localStorage.getItem('BASE_URL') || '';
+            const baseUrl = getSafeBaseUrl();
             const url = new URL(baseUrl ? `${baseUrl}/onboarding/joinees` : '/onboarding/joinees', window.location.origin);
             url.searchParams.append('page', currentPage);
             url.searchParams.append('per_page', perPage);
@@ -619,7 +629,7 @@ document.addEventListener('DOMContentLoaded', () => {
         modalAlert.classList.add('d-none');
 
         try {
-            const baseUrl = window.BASE_URL || localStorage.getItem('BASE_URL') || '';
+            const baseUrl = getSafeBaseUrl();
             const url = baseUrl ? `${baseUrl}/onboarding/joinees` : '/onboarding/joinees';
             
             const response = await fetch(url, {

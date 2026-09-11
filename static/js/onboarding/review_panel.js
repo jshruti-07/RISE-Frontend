@@ -46,7 +46,14 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentJoineeId = null;
 
     // Helper functions
-    const getBaseUrl = () => window.BASE_URL || localStorage.getItem('BASE_URL') || '';
+    const getBaseUrl = () => {
+        const raw = window.BASE_URL || localStorage.getItem('BASE_URL') || '';
+        if (raw.includes('127.0.0.1') || raw.includes('localhost')) {
+            localStorage.removeItem('BASE_URL');
+            return '';
+        }
+        return raw;
+    };
     const getHeaders = () => ({
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${localStorage.getItem('token') || ''}`

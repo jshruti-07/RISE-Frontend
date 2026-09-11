@@ -25,7 +25,14 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // Helper: Base URL
-    const getBaseUrl = () => window.BASE_URL || localStorage.getItem('BASE_URL') || '';
+    const getBaseUrl = () => {
+        const raw = window.BASE_URL || localStorage.getItem('BASE_URL') || '';
+        if (raw.includes('127.0.0.1') || raw.includes('localhost')) {
+            localStorage.removeItem('BASE_URL');
+            return '';
+        }
+        return raw;
+    };
 
     const fetchDetails = async (joineeId) => {
         if (!joineeId) return;
