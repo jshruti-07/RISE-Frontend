@@ -100,6 +100,16 @@ TEAM_MEMBER_VIEW_FEATURES = {
     'holidays',
     'birthdays',
     'announcements',
+    'software',
+    'devices',
+    'devices_assets',
+    'assets',
+    'inventory',
+    'inventory_stock',
+    'offboarding',
+    'system_access',
+    'user_accounts',
+    'audit_logs',
 }
 
 def has_permission(feature_or_key, action=None) -> bool:
@@ -131,20 +141,28 @@ def has_permission(feature_or_key, action=None) -> bool:
 
     # Special handling for devices/assets: strictly requires devices.view_all for view
     if fk in ['devices', 'devices_assets', 'assets'] and (act is None or act == 'view'):
+        if user_role == 'system_admin':
+            return True
         return bool(perms.get('devices.view_all', False))
 
     if fk == 'software' and (act is None or act == 'view'):
+        if user_role == 'system_admin':
+            return True
         return bool(perms.get('devices.catalog_view', False))
 
     if fk in ['inventory', 'inventory_stock'] and (act is None or act == 'view'):
+        if user_role == 'system_admin':
+            return True
         return bool(perms.get('devices.inventory_dashboard', False))
+
+    if user_role == 'system_admin' and (fk in ['offboarding', 'system_access', 'user_accounts', 'audit_logs', 'devices', 'assets', 'devices_assets', 'software', 'inventory', 'inventory_stock'] or any(fk.startswith(p) for p in ['devices.', 'software.', 'inventory.', 'offboarding.'])):
+        return True
 
     canonical_feature = FEATURE_ALIASES.get(fk, fk)
     act_key = act if act else "view"
 
-    # Team members (employees) always have view access to their standard menus
-    user_role = normalize_role(session.get('role', ''))
-    if user_role == 'employee' and act_key == 'view':
+    # Team members and system admin always have view access to their standard menus
+    if user_role in ('employee', 'team_member', 'system_admin') and act_key == 'view':
         if fk in TEAM_MEMBER_VIEW_FEATURES or canonical_feature in TEAM_MEMBER_VIEW_FEATURES:
             return True
 
@@ -184,6 +202,8 @@ def normalize_role(role):
     r = str(role).lower().strip().replace(' ', '').replace('_', '')
     if r in ['superadmin', 'super_admin', 'super admin']:
         return 'superadmin'
+    if r in ['systemadmin', 'system_admin', 'system admin']:
+        return 'system_admin'
     if r in ['teammember', 'team_member']:
         return 'employee'
     if r in ['onboardingcandidate', 'onboarding_candidate']:
@@ -273,6 +293,14 @@ def role_required(allowed_roles, permission_key=None, action=None):
                     return f(current_user, *args, **kwargs)
                 else:
                     return f(*args, **kwargs)
+
+            # System admin inherits all team member / employee access, plus asset/devices/software management
+            if user_role == 'system_admin':
+                if any(r in allowed_roles_norm for r in ['employee', 'team_member', 'teammember']):
+                    allowed_roles_norm.append('system_admin')
+                if any(r in allowed_roles_norm for r in ['admin', 'hr']):
+                    if any(seg in request.path for seg in ['asset', 'device', 'software', 'inventory', 'hardware']):
+                        allowed_roles_norm.append('system_admin')
 
             # If dynamic permission is specified, check permission
             if permission_key and not has_permission(permission_key, action):

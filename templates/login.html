@@ -167,6 +167,8 @@
                         window.location.href = "/access-control";
                     } else if (data.is_onboarding) {
                         window.location.href = "/onboarding/joinee-dashboard";
+                    } else if (data.is_system_admin) {
+                        window.location.href = "/system-admin/system-access";
                     } else {
                         window.location.href = "/dashboard";
                     }
@@ -211,28 +213,36 @@
             updateBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Updating...';
 
             try {
-                const response = await fetch("/change-password", {
+                const response = await fetch("/api/change-password", {
                     method: "POST",
-                    body: new URLSearchParams({
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-Requested-With": "XMLHttpRequest",
+                        "Accept": "application/json"
+                    },
+                    body: JSON.stringify({
                         "new_password": newPass,
                         "confirm_password": confirmPass
-                    }),
-                    headers: { "Content-Type": "application/x-www-form-urlencoded" }
+                    })
                 });
 
-                if (response.redirected) {
-                    window.location.href = response.url;
-                } else {
-                    const data = await response.json();
-                    if (data.success) {
-                        window.location.href = "/dashboard";
+                const data = await response.json();
+                if (response.ok && data.success) {
+                    if (data.is_system_admin) {
+                        window.location.href = "/system-admin/system-access";
+                    } else if (data.is_superadmin) {
+                        window.location.href = "/access-control";
+                    } else if (data.is_onboarding) {
+                        window.location.href = "/onboarding/joinee-dashboard";
                     } else {
-                        modalError.textContent = data.error || "Failed to update password";
-                        modalError.style.display = "block";
+                        window.location.href = data.redirect_url || "/dashboard";
                     }
+                } else {
+                    modalError.textContent = data.error || "Failed to update password";
+                    modalError.style.display = "block";
                 }
             } catch (err) {
-                modalError.textContent = "Connection error";
+                modalError.textContent = err.message || "Connection error";
                 modalError.style.display = "block";
             } finally {
                 updateBtn.disabled = false;

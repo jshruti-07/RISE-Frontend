@@ -28,6 +28,8 @@ def create_app():
     from app.onboarding_ui import onboarding_bp
     from app.offboarding_ui import offboarding_ui_bp
     from app.routes.superadmin import superadmin_bp
+    from app.routes.exit_portal import exit_portal_bp
+    from app.routes.system_admin import system_admin_bp
 
     # Register blueprints
     app.register_blueprint(auth_bp)
@@ -40,6 +42,8 @@ def create_app():
     app.register_blueprint(main_bp)
     app.register_blueprint(onboarding_bp)
     app.register_blueprint(superadmin_bp)
+    app.register_blueprint(system_admin_bp)
+    app.register_blueprint(exit_portal_bp)
     app.register_blueprint(offboarding_ui_bp, url_prefix='/offboarding')
 
     @app.before_request

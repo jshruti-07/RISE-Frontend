@@ -26,7 +26,7 @@ def software():
     return render_template('software.html', BASE_URL=BASE_URL)
 
 @admin_bp.route('/api/software', methods=['GET', 'POST'])
-@role_required(['admin'])
+@role_required(['admin', 'superadmin', 'system_admin'])
 def api_software():
     if request.method == 'POST':
         res = requests.post(f"{BASE_URL}/software", json=request.get_json(), headers=get_headers())
@@ -35,7 +35,7 @@ def api_software():
     return jsonify(res.json()), res.status_code
 
 @admin_bp.route('/api/software/<int:software_id>', methods=['GET', 'PUT', 'DELETE'])
-@role_required(['admin'])
+@role_required(['admin', 'superadmin', 'system_admin'])
 def api_software_detail(software_id):
     if request.method == 'PUT':
         res = requests.put(f"{BASE_URL}/software/{software_id}", json=request.get_json(), headers=get_headers())
@@ -77,6 +77,7 @@ def api_helpdesk_assign(ticket_id):
 
 @admin_bp.route('/reimbursement')
 @admin_bp.route('/reimbursements')
+@admin_bp.route('/expenses')
 @permission_required('reimbursements', 'view')
 def reimbursement():
     return render_template('reimbursement.html', BASE_URL=BASE_URL)
@@ -205,7 +206,7 @@ def verify_bank_admin(detail_id, action):
         return jsonify({"success": False, "error": str(e)}), 500
 
 @admin_bp.route('/api/assets', methods=['GET', 'POST'])
-@role_required(['admin', 'hr', 'superadmin'])
+@role_required(['admin', 'hr', 'superadmin', 'system_admin'])
 def api_assets():
     if request.method == 'GET':
         try:
@@ -295,7 +296,7 @@ def api_assets():
             return jsonify({"success": False, "error": str(e)}), 500
 
 @admin_bp.route('/api/assets/export', methods=['GET'])
-@role_required(['admin', 'hr', 'superadmin'])
+@role_required(['admin', 'hr', 'superadmin', 'system_admin'])
 def export_assets():
     try:
         # Fetch assets
@@ -562,7 +563,7 @@ def export_assets():
         return jsonify({"success": False, "error": "An error occurred while generating the Excel file."}), 500
 
 @admin_bp.route('/api/assets/<id>', methods=['GET', 'DELETE', 'PUT'])
-@role_required(['admin', 'hr', 'superadmin'])
+@role_required(['admin', 'hr', 'superadmin', 'system_admin'])
 def api_asset_detail(id):
     if request.method == 'GET':
         try:
@@ -593,7 +594,7 @@ def api_asset_detail(id):
             return jsonify({"success": False, "error": str(e)}), 500
 
 @admin_bp.route('/api/assets/<id>/history')
-@role_required(['admin', 'hr', 'superadmin'])
+@role_required(['admin', 'hr', 'superadmin', 'system_admin'])
 def api_asset_history(id):
     try:
         res = requests.get(f"{BASE_URL}/devices/{id}/history", headers=get_headers(), timeout=10)
@@ -604,7 +605,7 @@ def api_asset_history(id):
         return jsonify({"success": False, "error": str(e)}), 500
 
 @admin_bp.route('/api/assets/<id>/assign', methods=['POST'])
-@role_required(['admin', 'hr', 'superadmin'])
+@role_required(['admin', 'hr', 'superadmin', 'system_admin'])
 def api_assign_asset(id):
     try:
         data = request.get_json(force=True) or {}
@@ -622,7 +623,7 @@ def api_assign_asset(id):
         return jsonify({"success": False, "error": str(e)}), 500
 
 @admin_bp.route('/api/assets/<id>/return', methods=['POST'])
-@role_required(['admin', 'hr', 'superadmin'])
+@role_required(['admin', 'hr', 'superadmin', 'system_admin'])
 def api_return_asset(id):
     try:
         res = requests.post(f"{BASE_URL}/devices/{id}/return", headers=get_headers(), timeout=10)
@@ -637,7 +638,7 @@ def api_return_asset(id):
         return jsonify({"success": False, "error": str(e)}), 500
 
 @admin_bp.route('/api/assets/<id>/acceptance-status')
-@role_required(['admin', 'hr', 'superadmin'])
+@role_required(['admin', 'hr', 'superadmin', 'system_admin'])
 def api_asset_acceptance(id):
     try:
         res = requests.get(f"{BASE_URL}/devices/{id}/acceptance-status", headers=get_headers(), timeout=10)
@@ -649,14 +650,14 @@ def api_asset_acceptance(id):
 
 # --- AGREEMENT PAGE ---
 @admin_bp.route('/assets/agreement/<id>')
-@role_required(['admin', 'hr', 'manager', 'employee', 'team_member'])
+@role_required(['admin', 'hr', 'manager', 'employee', 'team_member', 'system_admin'])
 def asset_agreement_page(id):
     """Render the device usage agreement signing page."""
     from app.ui_constants import UI_LABELS
     return render_template('agreement.html', asset_id=id, labels=UI_LABELS, BASE_URL=BASE_URL)
 
 @admin_bp.route('/api/assets/<id>/agreement')
-@role_required(['admin', 'hr', 'manager', 'employee', 'team_member'])
+@role_required(['admin', 'hr', 'manager', 'employee', 'team_member', 'system_admin'])
 def api_asset_agreement(id):
     """Fetch agreement/assignment details for a device."""
     try:
@@ -682,7 +683,7 @@ def api_asset_agreement(id):
         return jsonify({"success": False, "error": str(e)}), 500
 
 @admin_bp.route('/api/assets/<id>/accept', methods=['POST'])
-@role_required(['admin', 'hr', 'manager', 'employee', 'team_member'])
+@role_required(['admin', 'hr', 'manager', 'employee', 'team_member', 'system_admin'])
 def api_accept_agreement(id):
     """Submit signed agreement."""
     try:
@@ -826,7 +827,7 @@ def api_announcement_attachment(announcement_id):
 # ── RENTAL MANAGEMENT ROUTES ─────────────────────────────────────────────────
 
 @admin_bp.route('/api/rentals/dashboard-stats', methods=['GET'])
-@role_required(['admin', 'hr'])
+@role_required(['admin', 'hr', 'superadmin', 'system_admin'])
 def api_rental_dashboard_stats():
     try:
         res = requests.get(f"{BASE_URL}/rentals/dashboard-stats", params=request.args.to_dict(), headers=get_headers(), timeout=10)
@@ -836,7 +837,7 @@ def api_rental_dashboard_stats():
 
 
 @admin_bp.route('/api/rentals/matrix', methods=['GET'])
-@role_required(['admin', 'hr'])
+@role_required(['admin', 'hr', 'superadmin', 'system_admin'])
 def api_rental_matrix():
     try:
         res = requests.get(f"{BASE_URL}/rentals/matrix", params=request.args.to_dict(), headers=get_headers(), timeout=15)
@@ -846,7 +847,7 @@ def api_rental_matrix():
 
 
 @admin_bp.route('/api/rentals/vendor-summary', methods=['GET'])
-@role_required(['admin', 'hr'])
+@role_required(['admin', 'hr', 'superadmin', 'system_admin'])
 def api_rental_vendor_summary():
     try:
         res = requests.get(f"{BASE_URL}/rentals/vendor-summary", params=request.args.to_dict(), headers=get_headers(), timeout=10)
@@ -856,7 +857,7 @@ def api_rental_vendor_summary():
 
 
 @admin_bp.route('/api/rentals/month-summary', methods=['GET'])
-@role_required(['admin', 'hr'])
+@role_required(['admin', 'hr', 'superadmin', 'system_admin'])
 def api_rental_month_summary():
     try:
         res = requests.get(f"{BASE_URL}/rentals/month-summary", params=request.args.to_dict(), headers=get_headers(), timeout=10)
@@ -866,7 +867,7 @@ def api_rental_month_summary():
 
 
 @admin_bp.route('/api/rentals/export', methods=['GET'])
-@role_required(['admin', 'hr'])
+@role_required(['admin', 'hr', 'superadmin', 'system_admin'])
 def api_rental_export():
     try:
         res = requests.get(f"{BASE_URL}/rentals/export", params=request.args.to_dict(), headers=get_headers(), timeout=60, stream=True)

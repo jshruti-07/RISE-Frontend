@@ -1,0 +1,218 @@
+{% extends 'base.html' %}
+{% block title %}HR Offboarding Dashboard &bull; Altzor{% endblock %}
+{% block page_title %}Offboarding{% endblock %}
+
+{% block content %}
+<style>
+    .metric-card {
+        background: #FFFFFF;
+        border: 1px solid #E2E8F0;
+        border-radius: 14px;
+        padding: 18px 20px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+    .metric-val {
+        font-size: 1.75rem;
+        font-weight: 700;
+        line-height: 1.1;
+        margin-top: 8px;
+    }
+    .metric-title {
+        font-size: 0.78rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: #64748B;
+        font-weight: 600;
+    }
+    .cases-card {
+        background: #FFFFFF;
+        border: 1px solid #E2E8F0;
+        border-radius: 14px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+    }
+</style>
+
+<div class="container-fluid py-4">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+        <div>
+            <h4 class="fw-bold text-dark mb-1">Employee Offboarding Dashboard</h4>
+            <p class="text-muted small mb-0">Corporate separation lifecycle, approvals, clearances, and post-employment workflow.</p>
+        </div>
+        <div>
+            <a href="{{ url_for('offboarding_ui.employee_portal') }}" class="btn btn-sm btn-outline-primary rounded-pill px-3 py-1.5 fw-semibold">
+                <i class="bi bi-file-earmark-plus me-1"></i>My Offboarding / Exit Form
+            </a>
+        </div>
+    </div>
+
+    <!-- 8 METRICS CARDS -->
+    <div class="row g-3 mb-4">
+        <!-- 1. Pending Exit Requests -->
+        <div class="col-xl-3 col-md-6">
+            <div class="metric-card">
+                <div class="d-flex justify-content-between align-items-center">
+                    <span class="metric-title">Pending Exit Requests</span>
+                    <div class="p-2 rounded-3 bg-warning bg-opacity-10 text-warning"><i class="bi bi-clock-history"></i></div>
+                </div>
+                <div class="metric-val text-dark">{{ metrics.pending_exit_requests or 0 }}</div>
+            </div>
+        </div>
+
+        <!-- 2. Employees in Notice Period -->
+        <div class="col-xl-3 col-md-6">
+            <div class="metric-card">
+                <div class="d-flex justify-content-between align-items-center">
+                    <span class="metric-title">In Notice Period</span>
+                    <div class="p-2 rounded-3 bg-primary bg-opacity-10 text-primary"><i class="bi bi-person-lines-fill"></i></div>
+                </div>
+                <div class="metric-val text-primary">{{ metrics.in_notice_period or 0 }}</div>
+            </div>
+        </div>
+
+        <!-- 3. Upcoming Last Working Days -->
+        <div class="col-xl-3 col-md-6">
+            <div class="metric-card">
+                <div class="d-flex justify-content-between align-items-center">
+                    <span class="metric-title">Upcoming LWD (14 Days)</span>
+                    <div class="p-2 rounded-3 bg-danger bg-opacity-10 text-danger"><i class="bi bi-calendar-event"></i></div>
+                </div>
+                <div class="metric-val text-danger">{{ metrics.upcoming_last_working_days or 0 }}</div>
+            </div>
+        </div>
+
+        <!-- 4. Pending Employee Consent -->
+        <div class="col-xl-3 col-md-6">
+            <div class="metric-card">
+                <div class="d-flex justify-content-between align-items-center">
+                    <span class="metric-title">Pending Consent</span>
+                    <div class="p-2 rounded-3 bg-secondary bg-opacity-10 text-secondary"><i class="bi bi-file-earmark-check"></i></div>
+                </div>
+                <div class="metric-val text-dark">{{ metrics.pending_consent or 0 }}</div>
+            </div>
+        </div>
+
+        <!-- 5. Pending IT Closure -->
+        <div class="col-xl-3 col-md-6">
+            <div class="metric-card">
+                <div class="d-flex justify-content-between align-items-center">
+                    <span class="metric-title">Pending IT Closure</span>
+                    <div class="p-2 rounded-3 bg-info bg-opacity-10 text-info"><i class="bi bi-hdd-network"></i></div>
+                </div>
+                <div class="metric-val text-info">{{ metrics.pending_it_closure or 0 }}</div>
+            </div>
+        </div>
+
+        <!-- 6. Pending HR Clearance -->
+        <div class="col-xl-3 col-md-6">
+            <div class="metric-card">
+                <div class="d-flex justify-content-between align-items-center">
+                    <span class="metric-title">Pending HR Clearance</span>
+                    <div class="p-2 rounded-3 bg-warning bg-opacity-10 text-warning"><i class="bi bi-patch-exclamation"></i></div>
+                </div>
+                <div class="metric-val text-warning">{{ metrics.pending_hr_clearance or 0 }}</div>
+            </div>
+        </div>
+
+        <!-- 7. Completed Offboarding -->
+        <div class="col-xl-3 col-md-6">
+            <div class="metric-card">
+                <div class="d-flex justify-content-between align-items-center">
+                    <span class="metric-title">Completed Cases</span>
+                    <div class="p-2 rounded-3 bg-success bg-opacity-10 text-success"><i class="bi bi-check2-all"></i></div>
+                </div>
+                <div class="metric-val text-success">{{ metrics.completed or 0 }}</div>
+            </div>
+        </div>
+
+        <!-- 8. Total Active Cases -->
+        <div class="col-xl-3 col-md-6">
+            <div class="metric-card">
+                <div class="d-flex justify-content-between align-items-center">
+                    <span class="metric-title">Active Workflows</span>
+                    <div class="p-2 rounded-3 bg-dark bg-opacity-10 text-dark"><i class="bi bi-folder-check"></i></div>
+                </div>
+                <div class="metric-val text-dark">{{ (metrics.pending_exit_requests or 0) + (metrics.in_notice_period or 0) }}</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- OFFBOARDING CASES TABLE -->
+    <div class="cases-card">
+        <div class="p-3 border-bottom d-flex justify-content-between align-items-center flex-wrap gap-2">
+            <h6 class="fw-bold text-dark mb-0"><i class="bi bi-table me-2 text-primary"></i>Offboarding Cases</h6>
+            <div class="d-flex gap-2">
+                <input type="text" id="caseSearch" class="form-control form-control-sm rounded-pill px-3" placeholder="Search employee..." style="width: 220px;" onkeyup="filterCases()">
+            </div>
+        </div>
+        <div class="p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0" id="casesTable">
+                    <thead class="table-light">
+                        <tr style="font-size: 0.82rem; color: #475569;">
+                            <th class="ps-3">Employee</th>
+                            <th>Employee ID</th>
+                            <th>Department</th>
+                            <th>Designation</th>
+                            <th>Last Working Day</th>
+                            <th>Current Stage</th>
+                            <th>Overall Status</th>
+                            <th class="text-end pe-3">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody style="font-size: 0.84rem;">
+                        {% for c in cases %}
+                        <tr>
+                            <td class="ps-3">
+                                <div class="fw-bold text-dark">{{ c.employee_name }}</div>
+                                <small class="text-muted">{{ c.personal_email or 'No personal email' }}</small>
+                            </td>
+                            <td><code>#{{ c.employee_id }}</code></td>
+                            <td>{{ c.department or '—' }}</td>
+                            <td>{{ c.designation or '—' }}</td>
+                            <td>
+                                <span class="fw-semibold text-slate-700">{{ c.proposed_last_working_day or c.last_working_day or '—' }}</span>
+                            </td>
+                            <td>
+                                <span class="badge rounded-pill px-2.5 py-1 bg-light text-secondary border font-monospace" style="font-size: 0.74rem;">
+                                    {{ c.current_stage }}
+                                </span>
+                            </td>
+                            <td>
+                                <span class="badge rounded-pill px-2.5 py-1 fw-semibold {% if c.status == 'COMPLETED' %}bg-success bg-opacity-10 text-success border border-success border-opacity-25{% elif c.status == 'NOTICE_PERIOD' %}bg-warning bg-opacity-10 text-warning border border-warning border-opacity-25{% elif c.status == 'MANAGER_REJECTED' %}bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25{% else %}bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25{% endif %}" style="font-size: 0.74rem;">
+                                    {{ c.status }}
+                                </span>
+                            </td>
+                            <td class="text-end pe-3">
+                                <a href="{{ url_for('offboarding_ui.case_detail', id=c.id) }}" class="btn btn-sm btn-outline-primary rounded-pill px-3 py-1 fw-semibold" style="font-size: 0.78rem;">
+                                    View Case <i class="bi bi-chevron-right ms-1"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="8" class="text-center text-muted py-4">No offboarding cases found.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function filterCases() {
+    const term = document.getElementById('caseSearch').value.toLowerCase();
+    const rows = document.querySelectorAll('#casesTable tbody tr');
+    rows.forEach(r => {
+        const text = r.textContent.toLowerCase();
+        r.style.display = text.includes(term) ? '' : 'none';
+    });
+}
+</script>
+{% endblock %}

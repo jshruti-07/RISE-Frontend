@@ -1,0 +1,899 @@
+{% extends 'base.html' %}
+{% block title %}My Offboarding &bull; Altzor{% endblock %}
+{% block page_title %}My Offboarding{% endblock %}
+
+{% block content %}
+<style>
+    .offb-card {
+        background: #FFFFFF;
+        border: 1px solid #E2E8F0;
+        border-radius: 14px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+    }
+    .timeline-dot-done { background-color: #22C55E; color: white; }
+    .timeline-dot-active { background-color: #3B82F6; color: white; }
+    .timeline-dot-pending { background-color: #E2E8F0; color: #64748B; }
+</style>
+
+<div class="container-fluid py-4">
+    {% if not my_case %}
+    <!-- 1. RESIGNATION SUBMISSION FORM -->
+    <div class="row justify-content-center">
+        <div class="col-lg-9 col-xl-8">
+            <div class="offb-card p-4 p-md-5">
+                <div class="d-flex align-items-center gap-3 mb-4 pb-3 border-bottom">
+                    <div class="p-3 rounded-circle bg-danger bg-opacity-10 text-danger">
+                        <i class="bi bi-door-closed fs-3"></i>
+                    </div>
+                    <div>
+                        <h4 class="fw-bold text-dark mb-1">Submit Resignation / Exit Request</h4>
+                        <p class="text-muted small mb-0">Please provide your separation details to formally initiate the corporate offboarding workflow.</p>
+                    </div>
+                </div>
+
+                <form id="resignationForm" method="POST" action="{{ url_for('offboarding_ui.submit_resignation') }}" enctype="multipart/form-data" novalidate>
+                    
+                    <!-- ========================================== -->
+                    <!-- SECTION 1 — EXIT DETAILS -->
+                    <!-- ========================================== -->
+                    <div class="mb-4 pb-3 border-bottom">
+                        <div class="d-flex align-items-center gap-2 mb-3">
+                            <span class="badge bg-primary bg-opacity-10 text-primary rounded-pill px-2.5 py-1 fw-bold" style="font-size: 0.75rem;">1</span>
+                            <h6 class="fw-bold text-dark mb-0" style="font-size: 0.95rem;">Exit Details</h6>
+                        </div>
+
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold text-slate-700" style="font-size: 0.85rem;">
+                                    Resignation Date <span class="text-danger">*</span>
+                                </label>
+                                <input type="date" name="resignation_date" id="resignation_date" class="form-control" required value="{{ today }}">
+                                <div class="invalid-feedback" style="font-size: 0.78rem;">Please select a valid resignation date.</div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold text-slate-700" style="font-size: 0.85rem;">
+                                    Proposed Last Working Day <span class="text-danger">*</span>
+                                </label>
+                                <input type="date" name="proposed_last_working_day" id="proposed_last_working_day" class="form-control" required min="{{ today }}">
+                                <div class="invalid-feedback" id="lwdFeedback" style="font-size: 0.78rem;">Proposed last working day cannot be earlier than resignation date.</div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold text-slate-700" style="font-size: 0.85rem;">
+                                    Exit Type <span class="text-danger">*</span>
+                                </label>
+                                <select name="exit_type" id="exit_type" class="form-select" required>
+                                    <option value="Voluntary Resignation" selected>Voluntary Resignation</option>
+                                    <option value="Retirement">Retirement</option>
+                                    <option value="End of Contract">End of Contract</option>
+                                    <option value="Internal Transfer">Internal Transfer</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                            </div>
+
+                            <div class="col-md-6 d-none" id="otherExitTypeWrapper">
+                                <label class="form-label fw-semibold text-slate-700" style="font-size: 0.85rem;">
+                                    Please Specify <span class="text-danger">*</span>
+                                </label>
+                                <input type="text" name="other_exit_type" id="other_exit_type" class="form-control" placeholder="Specify your exit type">
+                                <div class="invalid-feedback" style="font-size: 0.78rem;">Please specify your exit type.</div>
+                            </div>
+
+                            <div class="col-md-6" id="primaryReasonCol">
+                                <label class="form-label fw-semibold text-slate-700" style="font-size: 0.85rem;">
+                                    Primary Reason for Leaving <span class="text-danger">*</span>
+                                </label>
+                                <select name="reason" id="primary_reason" class="form-select" required>
+                                    <option value="" disabled selected>Select a primary reason</option>
+                                    <option value="Career Growth">Career Growth</option>
+                                    <option value="Better Compensation">Better Compensation</option>
+                                    <option value="New Job Opportunity">New Job Opportunity</option>
+                                    <option value="Higher Education">Higher Education</option>
+                                    <option value="Relocation">Relocation</option>
+                                    <option value="Personal / Family Reasons">Personal / Family Reasons</option>
+                                    <option value="Health / Wellbeing">Health / Wellbeing</option>
+                                    <option value="Work Environment">Work Environment</option>
+                                    <option value="Management">Management</option>
+                                    <option value="Role / Responsibilities">Role / Responsibilities</option>
+                                    <option value="Work-Life Balance">Work-Life Balance</option>
+                                    <option value="Retirement">Retirement</option>
+                                    <option value="Contract Completion">Contract Completion</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                                <div class="invalid-feedback" style="font-size: 0.78rem;">Please select a primary reason for leaving.</div>
+                            </div>
+
+                            <div class="col-md-6 d-none" id="otherReasonWrapper">
+                                <label class="form-label fw-semibold text-slate-700" style="font-size: 0.85rem;">
+                                    Please Specify Reason <span class="text-danger">*</span>
+                                </label>
+                                <input type="text" name="other_reason" id="other_reason" class="form-control" placeholder="Specify your reason for leaving">
+                                <div class="invalid-feedback" style="font-size: 0.78rem;">Please specify your reason for leaving.</div>
+                            </div>
+
+                            <div class="col-12">
+                                <label class="form-label fw-semibold text-slate-700" style="font-size: 0.85rem;">Additional Comments / Remarks (Optional)</label>
+                                <textarea name="reason_notes" class="form-control" rows="3" placeholder="Provide any additional comments, feedback, or notes for your manager and HR..."></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ========================================== -->
+                    <!-- SECTION 2 — TRANSITION & HANDOVER -->
+                    <!-- ========================================== -->
+                    <div class="mb-4 pb-3 border-bottom">
+                        <div class="d-flex align-items-center gap-2 mb-1">
+                            <span class="badge bg-primary bg-opacity-10 text-primary rounded-pill px-2.5 py-1 fw-bold" style="font-size: 0.75rem;">2</span>
+                            <h6 class="fw-bold text-dark mb-0" style="font-size: 0.95rem;">Transition &amp; Handover</h6>
+                        </div>
+                        <p class="text-muted small mb-3">This information helps your manager and HR plan your notice period and arrange knowledge transfer.</p>
+
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold text-slate-700" style="font-size: 0.85rem;">
+                                    Knowledge Transfer Required? <span class="text-danger">*</span>
+                                </label>
+                                <select name="handover_required" id="handover_required" class="form-select" required>
+                                    <option value="Yes" selected>Yes</option>
+                                    <option value="No">No</option>
+                                </select>
+                            </div>
+
+                            <div class="col-md-6" id="handoverToCol">
+                                <label class="form-label fw-semibold text-slate-700" style="font-size: 0.85rem;">
+                                    Handover To
+                                </label>
+                                <select name="handover_to" id="handover_to" class="form-select">
+                                    <option value="">Select team member for handover (Optional)</option>
+                                    {% for emp in active_employees %}
+                                    <option value="{{ emp.name }}">{{ emp.name }}{% if emp.department %} ({{ emp.department }}){% endif %}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <div class="col-12" id="handoverDetailsWrapper">
+                                <div class="row g-3">
+                                    <div class="col-12">
+                                        <label class="form-label fw-semibold text-slate-700" style="font-size: 0.85rem;">Key Projects / Responsibilities</label>
+                                        <textarea name="handover_projects" class="form-control" rows="2" placeholder="List important projects, responsibilities or activities that require handover."></textarea>
+                                    </div>
+                                    <div class="col-12">
+                                        <label class="form-label fw-semibold text-slate-700" style="font-size: 0.85rem;">Handover Notes</label>
+                                        <textarea name="handover_notes" class="form-control" rows="2" placeholder="Add important handover details, dependencies or information."></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ========================================== -->
+                    <!-- SECTION 3 — PERSONAL CONTACT INFORMATION -->
+                    <!-- ========================================== -->
+                    <div class="mb-4 pb-3 border-bottom">
+                        <div class="d-flex align-items-center gap-2 mb-1">
+                            <span class="badge bg-primary bg-opacity-10 text-primary rounded-pill px-2.5 py-1 fw-bold" style="font-size: 0.75rem;">3</span>
+                            <h6 class="fw-bold text-dark mb-0" style="font-size: 0.95rem;">Personal Contact Information</h6>
+                        </div>
+                        <p class="text-muted small mb-3">Personal contact details will be used for post-employment communication and document access after corporate email access is closed.</p>
+
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold text-slate-700" style="font-size: 0.85rem;">
+                                    Personal Email Address <span class="text-danger">*</span>
+                                </label>
+                                <input type="email" name="personal_email" id="personal_email" class="form-control" placeholder="personal.name@gmail.com" required value="{{ employee.personal_email or '' }}">
+                                <div class="invalid-feedback" id="emailFeedback" style="font-size: 0.78rem;">Please enter a valid personal email address.</div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold text-slate-700" style="font-size: 0.85rem;">
+                                    Confirm Personal Email Address <span class="text-danger">*</span>
+                                </label>
+                                <input type="email" name="confirm_personal_email" id="confirm_personal_email" class="form-control" placeholder="Re-enter personal email address" required value="{{ employee.personal_email or '' }}">
+                                <div class="invalid-feedback" id="confirmEmailFeedback" style="font-size: 0.78rem;">Personal email addresses do not match.</div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold text-slate-700" style="font-size: 0.85rem;">
+                                    Personal Contact Phone <span class="text-danger">*</span>
+                                </label>
+                                <input type="tel" name="personal_phone" id="personal_phone" class="form-control" placeholder="+91 98765 43210" required value="{{ employee.personal_phone or employee.phone or '' }}">
+                                <div class="invalid-feedback" style="font-size: 0.78rem;">Please provide a valid contact phone number.</div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold text-slate-700" style="font-size: 0.85rem;">
+                                    Alternate Contact Number (Optional)
+                                </label>
+                                <input type="tel" name="alternate_phone" id="alternate_phone" class="form-control" placeholder="+91 98765 43211">
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold text-slate-700" style="font-size: 0.85rem;">
+                                    Preferred Communication Method <span class="text-danger">*</span>
+                                </label>
+                                <select name="preferred_communication" id="preferred_communication" class="form-select" required>
+                                    <option value="Personal Email" selected>Personal Email</option>
+                                    <option value="Phone">Phone</option>
+                                    <option value="Both">Both</option>
+                                </select>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold text-slate-700" style="font-size: 0.85rem;">
+                                    May HR contact you after employment ends? <span class="text-danger">*</span>
+                                </label>
+                                <select name="post_employment_contact_consent" id="post_employment_contact_consent" class="form-select" required>
+                                    <option value="Yes" selected>Yes</option>
+                                    <option value="No">No</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ========================================== -->
+                    <!-- SECTION 4 — COMPANY ASSETS -->
+                    <!-- ========================================== -->
+                    <div class="mb-4 pb-3 border-bottom">
+                        <div class="d-flex align-items-center justify-content-between mb-2">
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="badge bg-primary bg-opacity-10 text-primary rounded-pill px-2.5 py-1 fw-bold" style="font-size: 0.75rem;">4</span>
+                                <h6 class="fw-bold text-dark mb-0" style="font-size: 0.95rem;">Company Assets</h6>
+                            </div>
+                            <span class="badge bg-light text-muted border px-2.5 py-1 small">Read-Only</span>
+                        </div>
+                        <p class="text-muted small mb-3">Your assigned company assets will be reviewed as part of the offboarding process.</p>
+
+                        {% if assigned_assets %}
+                        <div class="table-responsive rounded-3 border">
+                            <table class="table table-hover align-middle mb-0" style="font-size: 0.84rem;">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Asset Name</th>
+                                        <th>Asset ID</th>
+                                        <th>Category</th>
+                                        <th>Current Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for asset in assigned_assets %}
+                                    <tr>
+                                        <td>
+                                            <div class="fw-semibold text-dark">{{ asset.brand }} {{ asset.model }}</div>
+                                            <small class="text-muted">{{ asset.serial_number or 'No serial' }}</small>
+                                        </td>
+                                        <td><code>{{ asset.asset_id or ('AST-' ~ asset.id) }}</code></td>
+                                        <td>{{ asset.device_type or 'Hardware' }}</td>
+                                        <td>
+                                            <span class="badge bg-primary bg-opacity-10 text-primary border px-2 py-1">Assigned</span>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        {% else %}
+                        <div class="alert alert-light border rounded-3 p-3 small mb-0 text-muted d-flex align-items-center gap-2">
+                            <i class="bi bi-info-circle text-primary fs-5"></i>
+                            <div>No company assets currently assigned to your profile. Any peripheral or ID badge returns will be coordinated by HR during clearance.</div>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- ========================================== -->
+                    <!-- SECTION 5 — SUPPORTING DOCUMENTS -->
+                    <!-- ========================================== -->
+                    <div class="mb-4 pb-3 border-bottom">
+                        <div class="d-flex align-items-center gap-2 mb-1">
+                            <span class="badge bg-primary bg-opacity-10 text-primary rounded-pill px-2.5 py-1 fw-bold" style="font-size: 0.75rem;">5</span>
+                            <h6 class="fw-bold text-dark mb-0" style="font-size: 0.95rem;">Supporting Documents</h6>
+                        </div>
+                        <p class="text-muted small mb-3">Accepted formats: PDF, DOC, DOCX (Maximum file size: 10 MB per document).</p>
+
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold text-slate-700" style="font-size: 0.85rem;">
+                                    Resignation Letter Upload (Optional)
+                                </label>
+                                <input type="file" name="resignation_doc" id="resignation_doc" class="form-control" accept=".pdf,.doc,.docx">
+                                <div class="text-muted small mt-1">Upload your signed formal resignation letter.</div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold text-slate-700" style="font-size: 0.85rem;">
+                                    Additional Supporting Document (Optional)
+                                </label>
+                                <input type="file" name="supporting_doc" id="supporting_doc" class="form-control" accept=".pdf,.doc,.docx">
+                                <div class="text-muted small mt-1">Medical records, contract notice, or educational offer.</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ========================================== -->
+                    <!-- SECTION 6 — CONFIRMATION & DECLARATION -->
+                    <!-- ========================================== -->
+                    <div class="mb-4 pb-3 border-bottom">
+                        <div class="d-flex align-items-center gap-2 mb-1">
+                            <span class="badge bg-primary bg-opacity-10 text-primary rounded-pill px-2.5 py-1 fw-bold" style="font-size: 0.75rem;">6</span>
+                            <h6 class="fw-bold text-dark mb-0" style="font-size: 0.95rem;">Confirmation</h6>
+                        </div>
+                        <p class="text-muted small mb-3">Please read and acknowledge all mandatory statements before submission.</p>
+
+                        <div class="d-flex flex-column gap-2.5 p-3 rounded-3 bg-light border">
+                            <div class="form-check">
+                                <input class="form-check-input declaration-check" type="checkbox" name="confirm_accurate" id="confirm_accurate" required>
+                                <label class="form-check-label small text-slate-700 fw-semibold" for="confirm_accurate">
+                                    I confirm that the information provided in this request is accurate.
+                                </label>
+                            </div>
+
+                            <div class="form-check">
+                                <input class="form-check-input declaration-check" type="checkbox" name="confirm_active_account" id="confirm_active_account" required>
+                                <label class="form-check-label small text-slate-700 fw-semibold" for="confirm_active_account">
+                                    I understand that submitting this resignation request does not immediately deactivate my company account.
+                                </label>
+                            </div>
+
+                            <div class="form-check">
+                                <input class="form-check-input declaration-check" type="checkbox" name="confirm_approval" id="confirm_approval" required>
+                                <label class="form-check-label small text-slate-700 fw-semibold" for="confirm_approval">
+                                    I understand that my proposed last working day is subject to company approval.
+                                </label>
+                            </div>
+
+                            <div class="form-check">
+                                <input class="form-check-input declaration-check" type="checkbox" name="confirm_property_return" id="confirm_property_return" required>
+                                <label class="form-check-label small text-slate-700 fw-semibold" for="confirm_property_return">
+                                    I agree to complete the required offboarding, handover and company-property return activities.
+                                </label>
+                            </div>
+                        </div>
+                        <div class="text-danger small mt-2 d-none" id="declarationFeedback">
+                            <i class="bi bi-exclamation-circle me-1"></i>All confirmation declarations must be accepted before submitting.
+                        </div>
+                    </div>
+
+                    <!-- ========================================== -->
+                    <!-- SECTION 7 — WHAT HAPPENS NEXT? -->
+                    <!-- ========================================== -->
+                    <div class="mb-4 p-3.5 rounded-3 bg-light border">
+                        <div class="d-flex align-items-center gap-2 mb-2">
+                            <i class="bi bi-info-circle-fill text-primary"></i>
+                            <h6 class="fw-bold text-dark mb-0" style="font-size: 0.88rem; letter-spacing: 0.02em;">WHAT HAPPENS NEXT?</h6>
+                        </div>
+                        <ol class="small text-muted mb-0 ps-3" style="line-height: 1.6;">
+                            <li>Your manager reviews the resignation request.</li>
+                            <li>If approved, your offboarding process begins.</li>
+                            <li>You complete the required consent and handover tasks.</li>
+                            <li>Company assets are returned during the offboarding process.</li>
+                            <li>IT access is closed on/around your last working day according to company policy.</li>
+                            <li>HR completes the final clearance.</li>
+                            <li>Post-employment documents and communication can be accessed through the Exit Portal.</li>
+                        </ol>
+                    </div>
+
+                    <!-- SUBMIT BUTTON -->
+                    <div class="d-flex align-items-center justify-content-between pt-2">
+                        <span class="text-muted small"><span class="text-danger">*</span> Required fields</span>
+                        <button type="submit" id="submitResignationBtn" class="btn btn-primary rounded-pill px-5 py-2.5 fw-semibold shadow-sm">
+                            <i class="bi bi-send me-1"></i> Submit Resignation
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- CLIENT JAVASCRIPT FOR DYNAMIC FORM INTERACTIONS AND VALIDATIONS -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('resignationForm');
+            if (!form) return;
+
+            const exitTypeSelect = document.getElementById('exit_type');
+            const otherExitTypeWrapper = document.getElementById('otherExitTypeWrapper');
+            const otherExitTypeInput = document.getElementById('other_exit_type');
+
+            const primaryReasonSelect = document.getElementById('primary_reason');
+            const otherReasonWrapper = document.getElementById('otherReasonWrapper');
+            const otherReasonInput = document.getElementById('other_reason');
+
+            const handoverRequiredSelect = document.getElementById('handover_required');
+            const handoverToCol = document.getElementById('handoverToCol');
+            const handoverDetailsWrapper = document.getElementById('handoverDetailsWrapper');
+
+            const resignationDateInput = document.getElementById('resignation_date');
+            const proposedLwdInput = document.getElementById('proposed_last_working_day');
+            const lwdFeedback = document.getElementById('lwdFeedback');
+
+            const personalEmailInput = document.getElementById('personal_email');
+            const confirmPersonalEmailInput = document.getElementById('confirm_personal_email');
+            const confirmEmailFeedback = document.getElementById('confirmEmailFeedback');
+
+            const declarationCheckboxes = document.querySelectorAll('.declaration-check');
+            const declarationFeedback = document.getElementById('declarationFeedback');
+
+            // 1. Dynamic Exit Type (Other conditional field)
+            exitTypeSelect.addEventListener('change', function() {
+                if (this.value === 'Other') {
+                    otherExitTypeWrapper.classList.remove('d-none');
+                    otherExitTypeInput.setAttribute('required', 'required');
+                } else {
+                    otherExitTypeWrapper.classList.add('d-none');
+                    otherExitTypeInput.removeAttribute('required');
+                    otherExitTypeInput.value = '';
+                    otherExitTypeInput.classList.remove('is-invalid');
+                }
+            });
+
+            // 2. Dynamic Primary Reason (Other conditional field)
+            primaryReasonSelect.addEventListener('change', function() {
+                if (this.value === 'Other') {
+                    otherReasonWrapper.classList.remove('d-none');
+                    otherReasonInput.setAttribute('required', 'required');
+                } else {
+                    otherReasonWrapper.classList.add('d-none');
+                    otherReasonInput.removeAttribute('required');
+                    otherReasonInput.value = '';
+                    otherReasonInput.classList.remove('is-invalid');
+                }
+            });
+
+            // 3. Dynamic Knowledge Transfer Section
+            handoverRequiredSelect.addEventListener('change', function() {
+                if (this.value === 'Yes') {
+                    handoverToCol.classList.remove('d-none');
+                    handoverDetailsWrapper.classList.remove('d-none');
+                } else {
+                    handoverToCol.classList.add('d-none');
+                    handoverDetailsWrapper.classList.add('d-none');
+                }
+            });
+
+            // 4. Date validation
+            resignationDateInput.addEventListener('change', function() {
+                if (this.value) {
+                    proposedLwdInput.min = this.value;
+                    if (proposedLwdInput.value && proposedLwdInput.value < this.value) {
+                        proposedLwdInput.value = this.value;
+                    }
+                }
+            });
+
+            // 5. Email matching validation helper
+            function validateEmailMatch() {
+                const emailVal = personalEmailInput.value.trim().toLowerCase();
+                const confirmVal = confirmPersonalEmailInput.value.trim().toLowerCase();
+                if (confirmVal && emailVal !== confirmVal) {
+                    confirmPersonalEmailInput.classList.add('is-invalid');
+                    confirmEmailFeedback.style.display = 'block';
+                    return false;
+                } else {
+                    confirmPersonalEmailInput.classList.remove('is-invalid');
+                    confirmEmailFeedback.style.display = 'none';
+                    return true;
+                }
+            }
+
+            personalEmailInput.addEventListener('input', validateEmailMatch);
+            confirmPersonalEmailInput.addEventListener('input', validateEmailMatch);
+
+            // 6. Form Submission Validation
+            form.addEventListener('submit', function(e) {
+                let isValid = true;
+
+                // Validate Exit Type
+                if (exitTypeSelect.value === 'Other' && !otherExitTypeInput.value.trim()) {
+                    otherExitTypeInput.classList.add('is-invalid');
+                    isValid = false;
+                } else {
+                    otherExitTypeInput.classList.remove('is-invalid');
+                }
+
+                // Validate Primary Reason
+                if (!primaryReasonSelect.value) {
+                    primaryReasonSelect.classList.add('is-invalid');
+                    isValid = false;
+                } else if (primaryReasonSelect.value === 'Other' && !otherReasonInput.value.trim()) {
+                    otherReasonInput.classList.add('is-invalid');
+                    isValid = false;
+                } else {
+                    primaryReasonSelect.classList.remove('is-invalid');
+                    otherReasonInput.classList.remove('is-invalid');
+                }
+
+                // Validate Dates
+                if (!resignationDateInput.value) {
+                    resignationDateInput.classList.add('is-invalid');
+                    isValid = false;
+                } else {
+                    resignationDateInput.classList.remove('is-invalid');
+                }
+
+                if (!proposedLwdInput.value) {
+                    proposedLwdInput.classList.add('is-invalid');
+                    isValid = false;
+                } else if (resignationDateInput.value && proposedLwdInput.value < resignationDateInput.value) {
+                    proposedLwdInput.classList.add('is-invalid');
+                    lwdFeedback.textContent = "Proposed last working day cannot be earlier than resignation date.";
+                    isValid = false;
+                } else {
+                    proposedLwdInput.classList.remove('is-invalid');
+                }
+
+                // Validate Personal Email & Matching
+                const emailVal = personalEmailInput.value.trim();
+                const confirmVal = confirmPersonalEmailInput.value.trim();
+                if (!emailVal || !emailVal.includes('@')) {
+                    personalEmailInput.classList.add('is-invalid');
+                    isValid = false;
+                } else {
+                    personalEmailInput.classList.remove('is-invalid');
+                }
+
+                if (!confirmVal || emailVal.toLowerCase() !== confirmVal.toLowerCase()) {
+                    confirmPersonalEmailInput.classList.add('is-invalid');
+                    confirmEmailFeedback.style.display = 'block';
+                    isValid = false;
+                } else {
+                    confirmPersonalEmailInput.classList.remove('is-invalid');
+                    confirmEmailFeedback.style.display = 'none';
+                }
+
+                // Validate Phone
+                const phoneInput = document.getElementById('personal_phone');
+                if (!phoneInput.value.trim()) {
+                    phoneInput.classList.add('is-invalid');
+                    isValid = false;
+                } else {
+                    phoneInput.classList.remove('is-invalid');
+                }
+
+                // Validate Declaration Checkboxes
+                let allChecked = true;
+                declarationCheckboxes.forEach(cb => {
+                    if (!cb.checked) {
+                        allChecked = false;
+                    }
+                });
+
+                if (!allChecked) {
+                    declarationFeedback.classList.remove('d-none');
+                    isValid = false;
+                } else {
+                    declarationFeedback.classList.add('d-none');
+                }
+
+                if (!isValid) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const firstInvalid = form.querySelector('.is-invalid') || (allChecked ? null : declarationCheckboxes[0]);
+                    if (firstInvalid) {
+                        firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
+                }
+            });
+        });
+    </script>
+
+    {% else %}
+    <!-- 2. ACTIVE OFFBOARDING PROGRESS & TIMELINE VIEW -->
+    <div class="row g-4">
+        <!-- Status Banner -->
+        <div class="col-12">
+            {% if my_case.request.status in ('EXIT_REQUESTED', 'MANAGER_PENDING') %}
+            <div class="alert alert-warning py-3 px-4 rounded-3 border d-flex align-items-center gap-3">
+                <i class="bi bi-hourglass-split fs-3 text-warning"></i>
+                <div>
+                    <h6 class="fw-bold mb-1">Resignation Submitted — Awaiting Approval</h6>
+                    <p class="mb-0 small">Your resignation request has been submitted and is awaiting manager approval. Your corporate account and access remain active.</p>
+                </div>
+            </div>
+            {% elif my_case.request.status == 'MANAGER_REJECTED' %}
+            <div class="alert alert-danger py-3 px-4 rounded-3 border d-flex align-items-center gap-3">
+                <i class="bi bi-x-circle fs-3 text-danger"></i>
+                <div>
+                    <h6 class="fw-bold mb-1">Resignation Request Rejected</h6>
+                    <p class="mb-0 small">Your manager did not approve this exit request. Reason: {{ my_case.request.rejection_reason or 'No reason provided' }}.</p>
+                </div>
+            </div>
+            {% elif my_case.request.status == 'COMPLETED' %}
+            <div class="alert alert-success py-3 px-4 rounded-3 border d-flex align-items-center gap-3">
+                <i class="bi bi-check-circle-fill fs-3 text-success"></i>
+                <div>
+                    <h6 class="fw-bold mb-1">Offboarding Completed</h6>
+                    <p class="mb-0 small">Your offboarding is complete. You can access your relieving letters and service documents in the <a href="{{ url_for('exit_portal_ui.login') }}" class="fw-bold text-success text-decoration-underline">Exit Portal</a>.</p>
+                </div>
+            </div>
+            {% else %}
+            <div class="alert alert-info py-3 px-4 rounded-3 border d-flex align-items-center gap-3">
+                <i class="bi bi-calendar-check fs-3 text-primary"></i>
+                <div>
+                    <h6 class="fw-bold mb-1">Notice Period Active</h6>
+                    <p class="mb-0 small">Your resignation was approved. Your proposed Last Working Day is <strong>{{ my_case.request.last_working_day }}</strong>. Please complete your pending notice-period clearance tasks below.</p>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Left Column: Case Overview & Progress Timeline -->
+        <div class="col-lg-5">
+            <div class="offb-card p-4 h-100">
+                <h5 class="fw-bold text-dark mb-3"><i class="bi bi-diagram-3 me-2 text-primary"></i>Offboarding Progress</h5>
+                
+                <div class="d-flex flex-column gap-3 mt-4">
+                    <!-- 1. Resignation Submitted -->
+                    <div class="d-flex align-items-center justify-content-between p-2 rounded-2 bg-light">
+                        <div class="d-flex align-items-center gap-2.5">
+                            <span class="badge rounded-circle p-1.5 timeline-dot-done"><i class="bi bi-check fs-6"></i></span>
+                            <span class="fw-semibold text-slate-800" style="font-size: 0.88rem;">Resignation Submitted</span>
+                        </div>
+                        <span class="text-success small fw-semibold">&#10003; Done</span>
+                    </div>
+
+                    <!-- 2. Manager Approval -->
+                    <div class="d-flex align-items-center justify-content-between p-2 rounded-2 bg-light">
+                        <div class="d-flex align-items-center gap-2.5">
+                            <span class="badge rounded-circle p-1.5 {% if my_case.request.manager_approved_at %}timeline-dot-done{% else %}timeline-dot-active{% endif %}">
+                                {% if my_case.request.manager_approved_at %}<i class="bi bi-check fs-6"></i>{% else %}&bull;{% endif %}
+                            </span>
+                            <span class="fw-semibold text-slate-800" style="font-size: 0.88rem;">Manager Approval</span>
+                        </div>
+                        {% if my_case.request.manager_approved_at %}
+                        <span class="text-success small fw-semibold">&#10003; Approved</span>
+                        {% else %}
+                        <span class="text-warning small fw-semibold">Pending</span>
+                        {% endif %}
+                    </div>
+
+                    <!-- 3. Notice Period -->
+                    <div class="d-flex align-items-center justify-content-between p-2 rounded-2 bg-light">
+                        <div class="d-flex align-items-center gap-2.5">
+                            <span class="badge rounded-circle p-1.5 {% if my_case.request.status == 'COMPLETED' %}timeline-dot-done{% elif my_case.request.status == 'NOTICE_PERIOD' %}timeline-dot-active{% else %}timeline-dot-pending{% endif %}">
+                                {% if my_case.request.status == 'COMPLETED' %}<i class="bi bi-check fs-6"></i>{% else %}&bull;{% endif %}
+                            </span>
+                            <span class="fw-semibold text-slate-800" style="font-size: 0.88rem;">Notice Period</span>
+                        </div>
+                        <span class="text-muted small">{{ my_case.request.last_working_day }}</span>
+                    </div>
+
+                    <!-- 4. Employee Consent -->
+                    <div class="d-flex align-items-center justify-content-between p-2 rounded-2 bg-light">
+                        <div class="d-flex align-items-center gap-2.5">
+                            <span class="badge rounded-circle p-1.5 {% if my_case.consent and my_case.consent.status == 'CONSENT_COMPLETED' %}timeline-dot-done{% else %}timeline-dot-active{% endif %}">
+                                {% if my_case.consent and my_case.consent.status == 'CONSENT_COMPLETED' %}<i class="bi bi-check fs-6"></i>{% else %}&bull;{% endif %}
+                            </span>
+                            <span class="fw-semibold text-slate-800" style="font-size: 0.88rem;">Employee Consent</span>
+                        </div>
+                        {% if my_case.consent and my_case.consent.status == 'CONSENT_COMPLETED' %}
+                        <span class="text-success small fw-semibold">&#10003; Completed</span>
+                        {% else %}
+                        <span class="text-danger small fw-semibold">Action Required</span>
+                        {% endif %}
+                    </div>
+
+                    <!-- 5. Knowledge Transfer -->
+                    <div class="d-flex align-items-center justify-content-between p-2 rounded-2 bg-light">
+                        <div class="d-flex align-items-center gap-2.5">
+                            <span class="badge rounded-circle p-1.5 {% if my_case.knowledge_transfer and my_case.knowledge_transfer.status == 'COMPLETED' %}timeline-dot-done{% else %}timeline-dot-pending{% endif %}">
+                                &bull;
+                            </span>
+                            <span class="fw-semibold text-slate-800" style="font-size: 0.88rem;">Knowledge Transfer</span>
+                        </div>
+                        <span class="text-muted small">{{ my_case.knowledge_transfer.status if my_case.knowledge_transfer else 'Pending' }}</span>
+                    </div>
+
+                    <!-- 6. Asset Return -->
+                    <div class="d-flex align-items-center justify-content-between p-2 rounded-2 bg-light">
+                        <div class="d-flex align-items-center gap-2.5">
+                            <span class="badge rounded-circle p-1.5 {% if not my_case.assigned_assets %}timeline-dot-done{% else %}timeline-dot-pending{% endif %}">
+                                &bull;
+                            </span>
+                            <span class="fw-semibold text-slate-800" style="font-size: 0.88rem;">Asset Return</span>
+                        </div>
+                        {% if not my_case.assigned_assets %}
+                        <span class="text-success small fw-semibold">&#10003; Cleared</span>
+                        {% else %}
+                        <span class="text-warning small fw-semibold">{{ my_case.assigned_assets | length }} Pending</span>
+                        {% endif %}
+                    </div>
+
+                    <!-- 7. IT Access Deactivation -->
+                    <div class="d-flex align-items-center justify-content-between p-2 rounded-2 bg-light">
+                        <div class="d-flex align-items-center gap-2.5">
+                            <span class="badge rounded-circle p-1.5 {% if my_case.request.it_cleared_at %}timeline-dot-done{% else %}timeline-dot-pending{% endif %}">
+                                &bull;
+                            </span>
+                            <span class="fw-semibold text-slate-800" style="font-size: 0.88rem;">IT Deactivation</span>
+                        </div>
+                        <span class="text-muted small">{% if my_case.request.it_cleared_at %}Closed{% else %}Scheduled for LWD{% endif %}</span>
+                    </div>
+
+                    <!-- 8. Final Completion -->
+                    <div class="d-flex align-items-center justify-content-between p-2 rounded-2 bg-light">
+                        <div class="d-flex align-items-center gap-2.5">
+                            <span class="badge rounded-circle p-1.5 {% if my_case.request.status == 'COMPLETED' %}timeline-dot-done{% else %}timeline-dot-pending{% endif %}">
+                                &bull;
+                            </span>
+                            <span class="fw-semibold text-slate-800" style="font-size: 0.88rem;">Final HR Clearance</span>
+                        </div>
+                        <span class="text-muted small">{% if my_case.request.status == 'COMPLETED' %}&#10003; Completed{% else %}Pending{% endif %}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column: Action Tasks (Consent, Assets, Handover) -->
+        <div class="col-lg-7">
+            <!-- TASK 1: EMPLOYEE CONSENT FORM -->
+            <div class="offb-card p-4 mb-4">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="fw-bold text-dark mb-0"><i class="bi bi-patch-check me-2 text-primary"></i>Offboarding Consent Form</h5>
+                    {% if my_case.consent and my_case.consent.status == 'CONSENT_COMPLETED' %}
+                    <span class="badge bg-success bg-opacity-10 text-success border px-3 py-1.5 rounded-pill"><i class="bi bi-check-circle me-1"></i>Completed</span>
+                    {% else %}
+                    <span class="badge bg-danger bg-opacity-10 text-danger border px-3 py-1.5 rounded-pill"><i class="bi bi-exclamation-circle me-1"></i>Action Required</span>
+                    {% endif %}
+                </div>
+
+                {% if my_case.consent and my_case.consent.status == 'CONSENT_COMPLETED' %}
+                <div class="alert alert-light border rounded-3 p-3 small mb-0">
+                    <div class="fw-semibold text-success mb-1">&#10003; You have completed your official offboarding consent.</div>
+                    <div class="text-muted">Digital Signature: <strong>{{ my_case.consent.signature_text }}</strong> &bull; Submitted on {{ my_case.consent.submitted_at }}</div>
+                </div>
+                {% else %}
+                <p class="text-muted small mb-3">Please review and confirm the separation policies, data handling acknowledgements, and asset return conditions.</p>
+                <button type="button" class="btn btn-primary rounded-pill px-4 py-2 fw-semibold" data-bs-toggle="modal" data-bs-target="#consentModal">
+                    <i class="bi bi-pencil-square me-1"></i> Complete Consent Form
+                </button>
+                {% endif %}
+            </div>
+
+            <!-- TASK 2: COMPANY ASSET RETURN STATUS -->
+            <div class="offb-card p-4 mb-4">
+                <h5 class="fw-bold text-dark mb-3"><i class="bi bi-laptop me-2 text-primary"></i>Assigned Company Assets</h5>
+                <p class="text-muted small mb-3">Hardware and devices checked out to you. Must be inspected and returned to IT/HR before your Last Working Day.</p>
+
+                {% if my_case.assigned_assets %}
+                <div class="table-responsive rounded-3 border">
+                    <table class="table table-hover align-middle mb-0" style="font-size: 0.84rem;">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Device / Asset</th>
+                                <th>Serial No.</th>
+                                <th>Assigned Date</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for a in my_case.assigned_assets %}
+                            <tr>
+                                <td>
+                                    <div class="fw-semibold text-dark">{{ a.brand }} {{ a.model }}</div>
+                                    <small class="text-muted">{{ a.device_type or 'Hardware' }}</small>
+                                </td>
+                                <td><code>{{ a.serial_number }}</code></td>
+                                <td>{{ a.assigned_date or '—' }}</td>
+                                <td>
+                                    <span class="badge bg-warning bg-opacity-10 text-warning border px-2 py-1">Pending Return</span>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="alert alert-success bg-opacity-10 border-success rounded-3 p-3 small mb-0 text-success">
+                    <i class="bi bi-check-circle-fill me-1"></i> All company devices and hardware have been cleared and returned!
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- TASK 3: PERSONAL CONTACT DETAILS -->
+            <div class="offb-card p-4">
+                <h5 class="fw-bold text-dark mb-3"><i class="bi bi-person-lines-fill me-2 text-primary"></i>Post-Employment Communication Contact</h5>
+                <p class="text-muted small mb-2">This email will be your login credential for the Exit Portal after your corporate email is decommissioned.</p>
+                <div class="row g-2">
+                    <div class="col-md-6">
+                        <div class="p-2.5 rounded-2 bg-light border">
+                            <span class="text-muted d-block small">Personal Email</span>
+                            <span class="fw-semibold text-dark">{{ my_case.request.personal_email }}</span>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="p-2.5 rounded-2 bg-light border">
+                            <span class="text-muted d-block small">Personal Phone</span>
+                            <span class="fw-semibold text-dark">{{ my_case.request.personal_phone or '—' }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CONSENT FORM MODAL -->
+    <div class="modal fade" id="consentModal" tabindex="-1" aria-labelledby="consentModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content border-0 shadow rounded-4">
+                <div class="modal-header border-bottom px-4 py-3">
+                    <h5 class="modal-title fw-bold text-dark" id="consentModalLabel">
+                        <i class="bi bi-shield-check text-primary me-2"></i>Employee Offboarding Consent Form
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form method="POST" action="{{ url_for('offboarding_ui.submit_consent', id=my_case.request.id) }}">
+                    <div class="modal-body p-4">
+                        <p class="text-muted small mb-3">Please read each acknowledgement clause carefully and confirm your consent.</p>
+
+                        <div class="d-flex flex-column gap-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="resignation_confirmed" id="c1" required>
+                                <label class="form-check-label small fw-semibold text-dark" for="c1">
+                                    1. Resignation Confirmation: I confirm my decision to resign from Altzor Digital Solutions.
+                                </label>
+                            </div>
+
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="last_working_day_confirmed" id="c2" required>
+                                <label class="form-check-label small fw-semibold text-dark" for="c2">
+                                    2. Last Working Day: I acknowledge my agreed Last Working Day is <strong>{{ my_case.request.last_working_day }}</strong>.
+                                </label>
+                            </div>
+
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="asset_return_acknowledged" id="c3" required>
+                                <label class="form-check-label small fw-semibold text-dark" for="c3">
+                                    3. Company Asset Return: I agree to return all company-issued hardware, laptops, access cards, and peripherals in good condition.
+                                </label>
+                            </div>
+
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="confidential_info_acknowledged" id="c4" required>
+                                <label class="form-check-label small fw-semibold text-dark" for="c4">
+                                    4. Confidentiality &amp; NDA: I agree to maintain non-disclosure of all proprietary software, trade secrets, and client information.
+                                </label>
+                            </div>
+
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="data_handling_acknowledged" id="c5" required>
+                                <label class="form-check-label small fw-semibold text-dark" for="c5">
+                                    5. Company Data Handling: I confirm I will not retain, copy, or distribute any internal code, customer data, or internal documentation.
+                                </label>
+                            </div>
+
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="access_termination_acknowledged" id="c6" required>
+                                <label class="form-check-label small fw-semibold text-dark" for="c6">
+                                    6. System Access Termination: I understand that all corporate emails, Teams, VPN, and system access will be terminated upon my Last Working Day.
+                                </label>
+                            </div>
+
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="final_clearance_acknowledged" id="c7" required>
+                                <label class="form-check-label small fw-semibold text-dark" for="c7">
+                                    7. Final Settlement Clearance: I understand full and final settlement documents will be issued via the Exit Portal following final HR clearance.
+                                </label>
+                            </div>
+                        </div>
+
+                        <hr class="my-3">
+
+                        <div class="mb-2">
+                            <label class="form-label small fw-semibold text-slate-700">Digital Signature (Type Full Legal Name)</label>
+                            <input type="text" name="signature_text" class="form-control" required value="{{ current_user }}">
+                        </div>
+                    </div>
+                    <div class="modal-footer border-top px-4 py-3">
+                        <button type="button" class="btn btn-light rounded-pill px-3" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary rounded-pill px-4 fw-semibold">
+                            <i class="bi bi-check2-circle me-1"></i> Submit Official Consent
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

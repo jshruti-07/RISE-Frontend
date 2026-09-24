@@ -1,0 +1,128 @@
+{% extends 'base.html' %}
+{% block title %}System Access Management{% endblock %}
+{% block page_title %}System Access{% endblock %}
+
+{% block content %}
+<style>
+    .sa-card {
+        background: #FFFFFF;
+        border: 1px solid #E2E8F0;
+        border-radius: 14px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+    }
+    .status-badge-active { background: #DCFCE7; color: #15803D; border: 1px solid #BBF7D0; }
+    .status-badge-scheduled { background: #FEF3C7; color: #B45309; border: 1px solid #FDE68A; }
+    .status-badge-pending { background: #FFEDD5; color: #C2410C; border: 1px solid #FED7AA; }
+    .status-badge-revoked { background: #F1F5F9; color: #64748B; border: 1px solid #E2E8F0; }
+</style>
+
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+        <div>
+            <h4 class="fw-bold text-dark mb-1">Corporate System Access Management</h4>
+            <p class="text-muted small mb-0">Track application credentials, scheduled deactivations, and manual revocation confirmation.</p>
+        </div>
+        <div class="badge rounded-pill bg-light text-secondary border px-3 py-2">
+            <i class="bi bi-shield-lock me-1 text-primary"></i> System Admin Role Scope
+        </div>
+    </div>
+
+    <!-- Active Offboarding Employees Requiring IT Closure -->
+    <div class="sa-card mb-4">
+        <div class="p-3 border-bottom d-flex justify-content-between align-items-center">
+            <h6 class="fw-bold text-dark mb-0"><i class="bi bi-person-x me-2 text-danger"></i>Employees in Notice Period &amp; Offboarding IT Tasks</h6>
+            <span class="badge bg-primary bg-opacity-10 text-primary">{{ cases | length }} Cases</span>
+        </div>
+        <div class="p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr style="font-size: 0.82rem; color: #475569;">
+                            <th class="ps-3">Employee</th>
+                            <th>Department</th>
+                            <th>Proposed / LWD</th>
+                            <th>Offboarding Status</th>
+                            <th>Corporate Account</th>
+                            <th>IT Closure</th>
+                            <th class="text-end pe-3">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody style="font-size: 0.85rem;">
+                        {% for c in cases %}
+                        <tr>
+                            <td class="ps-3">
+                                <div class="fw-semibold text-dark">{{ c.employee_name }}</div>
+                                <div class="text-muted small">ID: #{{ c.employee_id }} &bull; {{ c.personal_email or 'No personal email' }}</div>
+                            </td>
+                            <td>{{ c.department or '—' }}</td>
+                            <td>
+                                <span class="fw-medium text-slate-700">{{ c.proposed_last_working_day or c.last_working_day or '—' }}</span>
+                            </td>
+                            <td>
+                                <span class="badge rounded-pill px-2.5 py-1 fw-semibold {% if c.status == 'COMPLETED' %}bg-success bg-opacity-10 text-success border border-success border-opacity-25{% elif c.status == 'NOTICE_PERIOD' %}bg-warning bg-opacity-10 text-warning border border-warning border-opacity-25{% else %}bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25{% endif %}">
+                                    {{ c.status }}
+                                </span>
+                            </td>
+                            <td>
+                                {% if c.it_cleared_at %}
+                                <span class="badge bg-secondary bg-opacity-10 text-secondary border"><i class="bi bi-x-circle me-1"></i>Deactivated</span>
+                                {% else %}
+                                <span class="badge bg-success bg-opacity-10 text-success border"><i class="bi bi-check-circle me-1"></i>Active</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if c.it_cleared_at %}
+                                <span class="text-success small fw-semibold"><i class="bi bi-check-all me-1"></i>Closed on {{ c.it_cleared_at }}</span>
+                                {% else %}
+                                <span class="text-warning small fw-semibold"><i class="bi bi-clock-history me-1"></i>Scheduled for {{ c.proposed_last_working_day or 'LWD' }}</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-end pe-3">
+                                <a href="{{ url_for('offboarding_ui.case_detail', id=c.id) }}" class="btn btn-sm btn-outline-primary rounded-pill px-3 py-1 fw-semibold" style="font-size: 0.78rem;">
+                                    Manage Systems <i class="bi bi-arrow-right ms-1"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="7" class="text-center text-muted py-4">No offboarding employees requiring IT access management at this time.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Supported Systems Catalog Checklist Reference -->
+    <div class="sa-card p-4">
+        <h6 class="fw-bold text-dark mb-3"><i class="bi bi-cpu me-2 text-primary"></i>Enterprise Systems Access Checklist Standards</h6>
+        <p class="text-muted small mb-3">The application tracks external system access closures as formal IT verification tasks. Actual deactivations are performed manually by IT administrators according to enterprise protocol.</p>
+        
+        <div class="row g-3">
+            {% set systems = [
+                ('Microsoft 365', 'Exchange Online, Outlook, Office apps suite', 'bi-windows'),
+                ('Corporate Email', 'Primary corporate mailbox & forwarders', 'bi-envelope-at'),
+                ('Microsoft Teams', 'Internal messaging, calling, and channels', 'bi-chat-dots'),
+                ('SharePoint / OneDrive', 'Corporate document storage & group libraries', 'bi-cloud-check'),
+                ('Company VPN', 'Zero-trust network access & gateways', 'bi-shield-shaded'),
+                ('GitHub / Code Repos', 'Organization membership & repository access', 'bi-github'),
+                ('Power BI / Analytics', 'Workspace reporting & database connectors', 'bi-bar-chart-steps'),
+                ('Internal Applications', 'HRMS, ERP, Ticketing, and internal dashboards', 'bi-hdd-network')
+            ] %}
+            {% for name, desc, icon in systems %}
+            <div class="col-md-3 col-sm-6">
+                <div class="border rounded-3 p-3 h-100 bg-light">
+                    <div class="d-flex align-items-center gap-2 mb-2">
+                        <i class="bi {{ icon }} text-primary fs-5"></i>
+                        <h6 class="fw-bold mb-0 text-dark" style="font-size: 0.9rem;">{{ name }}</h6>
+                    </div>
+                    <p class="text-muted mb-2" style="font-size: 0.78rem;">{{ desc }}</p>
+                    <span class="badge status-badge-active rounded-pill px-2 py-0.5" style="font-size: 0.72rem;">Tracked System</span>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

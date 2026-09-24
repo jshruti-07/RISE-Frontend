@@ -60,23 +60,26 @@ def login():
 
                 is_superadmin = str(data['user'].get('role', '')).lower() == 'superadmin'
                 is_onboarding = data['user'].get('is_onboarding', False) or str(data['user'].get('role', '')).lower() == 'onboarding_candidate'
+                is_system_admin = str(data['user'].get('role', '')).lower() == 'system_admin'
                 if request.headers.get("X-Requested-With") == "XMLHttpRequest":
                     return jsonify({
                         "success": True,
                         "password_change_required": data['user'].get("password_change_required", False),
                         "is_onboarding": is_onboarding,
-                        "is_superadmin": is_superadmin
+                        "is_superadmin": is_superadmin,
+                        "is_system_admin": is_system_admin
                     })
                 
                 if data['user'].get('password_change_required'):
                     flash("Password change required. Please set a new password to continue.", "warning")
                     return redirect(url_for('auth.change_password'))
 
-                is_onboarding = data['user'].get('is_onboarding', False) or str(data['user'].get('role', '')).lower() == 'onboarding_candidate'
                 if is_superadmin:
                     return redirect(url_for('superadmin.access_control'))
                 if is_onboarding:
                     return redirect(url_for('onboarding.joinee_dashboard'))
+                if is_system_admin:
+                    return redirect(url_for('system_admin.system_access'))
 
                 session.pop('_flashes', None)
                 return redirect(url_for('dashboard.dashboard'))
@@ -169,7 +172,12 @@ def handle_reset_password():
 @auth_bp.route('/change-password', methods=['GET', 'POST'])
 @auth_bp.route('/api/change-password', methods=['POST'])
 def change_password():
-    is_api = request.is_json or request.path.startswith('/api/') or request.headers.get('X-Requested-With') == 'XMLHttpRequest'
+    is_api = (
+        request.is_json or 
+        request.path.startswith('/api/') or 
+        request.headers.get('X-Requested-With') == 'XMLHttpRequest' or
+        'application/json' in request.headers.get('Accept', '')
+    )
     if 'token' not in session:
         if is_api:
             return jsonify({"success": False, "error": "Not authenticated. Please log in."}), 401
@@ -193,10 +201,28 @@ def change_password():
             if res.status_code == 200 and data.get("success"):
                 if data.get("token"):
                     session['token'] = data['token']
+
+                role = str(session.get('role', '')).lower().strip()
+                if role == 'system_admin':
+                    target_url = url_for('system_admin.system_access')
+                elif role == 'superadmin':
+                    target_url = url_for('superadmin.access_control')
+                elif role == 'onboarding_candidate':
+                    target_url = url_for('onboarding.joinee_dashboard')
+                else:
+                    target_url = url_for('dashboard.dashboard')
+
                 if is_api:
-                    return jsonify({"success": True, "message": "Password changed successfully!"}), 200
+                    return jsonify({
+                        "success": True, 
+                        "message": "Password changed successfully!",
+                        "redirect_url": target_url,
+                        "is_system_admin": (role == 'system_admin'),
+                        "is_superadmin": (role == 'superadmin'),
+                        "is_onboarding": (role == 'onboarding_candidate')
+                    }), 200
                 flash("Password changed successfully!", "success")
-                return redirect(url_for('dashboard.dashboard'))
+                return redirect(target_url)
             else:
                 err_msg = data.get("error", "Failed to change password")
                 if is_api:

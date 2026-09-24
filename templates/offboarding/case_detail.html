@@ -1,0 +1,762 @@
+{% extends 'base.html' %}
+{% block title %}Offboarding Case #{{ case.request.id }} &bull; {{ case.request.employee_name }}{% endblock %}
+{% block page_title %}Offboarding Case Details{% endblock %}
+
+{% block content %}
+<style>
+    .case-card {
+        background: #FFFFFF;
+        border: 1px solid #E2E8F0;
+        border-radius: 14px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+    }
+    .nav-tabs .nav-link {
+        color: #64748B;
+        font-weight: 600;
+        font-size: 0.85rem;
+        border: none;
+        border-bottom: 2px solid transparent;
+        padding: 10px 16px;
+    }
+    .nav-tabs .nav-link.active {
+        color: #2563EB;
+        border-bottom: 2px solid #2563EB;
+        background: transparent;
+    }
+</style>
+
+<div class="container-fluid py-4">
+    <!-- Header with Back Button and Employee Info -->
+    <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+        <div class="d-flex align-items-center gap-2">
+            <a href="{{ url_for('offboarding_ui.dashboard') }}" class="btn btn-sm btn-outline-secondary rounded-pill px-3 py-1 fw-semibold">
+                <i class="bi bi-arrow-left me-1"></i>Back
+            </a>
+            <h4 class="fw-bold text-dark mb-0">{{ case.request.employee_name }} &bull; Offboarding Case #{{ case.request.id }}</h4>
+        </div>
+        <div class="d-flex align-items-center gap-2">
+            <span class="badge rounded-pill px-3 py-1.5 fw-semibold {% if case.request.status == 'COMPLETED' %}bg-success bg-opacity-10 text-success border border-success border-opacity-25{% elif case.request.status == 'NOTICE_PERIOD' %}bg-warning bg-opacity-10 text-warning border border-warning border-opacity-25{% elif case.request.status == 'MANAGER_REJECTED' %}bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25{% else %}bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25{% endif %}">
+                Status: {{ case.request.status }}
+            </span>
+            <span class="badge bg-light text-secondary border px-3 py-1.5 rounded-pill">
+                Stage: {{ case.current_stage }}
+            </span>
+        </div>
+    </div>
+
+    <!-- Overview Bar Card -->
+    <div class="case-card p-4 mb-4">
+        <div class="row g-3">
+            <div class="col-md-3 col-sm-6">
+                <span class="text-muted small d-block">Department / Designation</span>
+                <span class="fw-bold text-dark">{{ case.request.department or 'General' }} &bull; {{ case.request.designation or 'Team Member' }}</span>
+            </div>
+            <div class="col-md-3 col-sm-6">
+                <span class="text-muted small d-block">Resignation / Proposed LWD</span>
+                <span class="fw-bold text-dark">{{ case.request.resignation_date or '—' }} &rarr; {{ case.request.proposed_last_working_day or case.request.last_working_day }}</span>
+            </div>
+            <div class="col-md-3 col-sm-6">
+                <span class="text-muted small d-block">Personal Email &amp; Phone</span>
+                <span class="fw-semibold text-dark">{{ case.request.personal_email }}</span>
+                <small class="text-muted d-block">{{ case.request.personal_phone or 'No phone' }}</small>
+            </div>
+            <div class="col-md-3 col-sm-6">
+                <span class="text-muted small d-block">Primary Reason</span>
+                <span class="fw-medium text-slate-800">{{ case.request.reason }}</span>
+                {% if case.request.reason_notes %}
+                <small class="text-muted d-block text-truncate" title="{{ case.request.reason_notes }}">"{{ case.request.reason_notes }}"</small>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Manager Pending Approval Banner (Actionable for Manager / Admin) -->
+        {% if case.request.status in ('EXIT_REQUESTED', 'MANAGER_PENDING') %}
+        <div class="alert alert-warning border-warning bg-opacity-10 rounded-3 p-3 mt-4 mb-0 d-flex justify-content-between align-items-center flex-wrap gap-3">
+            <div class="d-flex align-items-center gap-2">
+                <i class="bi bi-exclamation-triangle-fill text-warning fs-4"></i>
+                <div>
+                    <h6 class="fw-bold mb-0">Resignation Awaiting Manager Approval</h6>
+                    <small class="text-muted">Review the proposed Last Working Day before initiating the notice period.</small>
+                </div>
+            </div>
+            {% if session.role in ('manager', 'admin', 'hr', 'superadmin') and session.role != 'system_admin' %}
+            <div class="d-flex gap-2">
+                <button type="button" class="btn btn-sm btn-outline-danger rounded-pill px-3 py-1.5 fw-semibold" data-bs-toggle="modal" data-bs-target="#rejectModal">
+                    <i class="bi bi-x-circle me-1"></i> Reject
+                </button>
+                <button type="button" class="btn btn-sm btn-success rounded-pill px-4 py-1.5 fw-semibold" data-bs-toggle="modal" data-bs-target="#approveModal">
+                    <i class="bi bi-check-circle me-1"></i> Approve Resignation
+                </button>
+            </div>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- TABS NAVIGATION -->
+    <ul class="nav nav-tabs mb-4 border-bottom" id="caseTabs" role="tablist">
+        <li class="nav-item">
+            <button class="nav-link active" id="overview-tab" data-bs-toggle="tab" data-bs-target="#overview" type="button"><i class="bi bi-check2-circle me-1"></i>Overview &amp; Checklist</button>
+        </li>
+        <li class="nav-item">
+            <button class="nav-link" id="consent-tab" data-bs-toggle="tab" data-bs-target="#consent" type="button"><i class="bi bi-patch-check me-1"></i>Employee Consent</button>
+        </li>
+        <li class="nav-item">
+            <button class="nav-link" id="kt-tab" data-bs-toggle="tab" data-bs-target="#kt" type="button"><i class="bi bi-journal-text me-1"></i>Knowledge Transfer</button>
+        </li>
+        <li class="nav-item">
+            <button class="nav-link" id="assets-tab" data-bs-toggle="tab" data-bs-target="#assets" type="button"><i class="bi bi-laptop me-1"></i>Asset Return ({{ case.assigned_assets | length }})</button>
+        </li>
+        <li class="nav-item">
+            <button class="nav-link" id="it-tab" data-bs-toggle="tab" data-bs-target="#it" type="button"><i class="bi bi-hdd-network me-1"></i>System Admin / IT Access</button>
+        </li>
+        <li class="nav-item">
+            <button class="nav-link" id="clearance-tab" data-bs-toggle="tab" data-bs-target="#clearance" type="button"><i class="bi bi-award me-1"></i>HR Final Clearance</button>
+        </li>
+        <li class="nav-item">
+            <button class="nav-link" id="audit-tab" data-bs-toggle="tab" data-bs-target="#audit" type="button"><i class="bi bi-clock-history me-1"></i>Audit Trail</button>
+        </li>
+    </ul>
+
+    <!-- TAB CONTENTS -->
+    <div class="tab-content" id="caseTabsContent">
+
+        <!-- TAB 1: OVERVIEW & CLEARANCE SUMMARY -->
+        <div class="tab-pane fade show active" id="overview" role="tabpanel">
+            <div class="row g-4">
+                <div class="col-md-6">
+                    <div class="case-card p-4 h-100">
+                        <h6 class="fw-bold text-dark mb-3">Separation Checklist Summary</h6>
+                        <ul class="list-group list-group-flush rounded-3 border">
+                            <li class="list-group-item d-flex justify-content-between align-items-center p-3">
+                                <div>
+                                    <div class="fw-semibold text-dark">1. Manager Approval</div>
+                                    <small class="text-muted">Agreement on proposed last working day</small>
+                                </div>
+                                {% if case.request.manager_approved_at %}
+                                <span class="badge bg-success bg-opacity-10 text-success border">&#10003; Approved</span>
+                                {% else %}
+                                <span class="badge bg-warning bg-opacity-10 text-warning border">Pending</span>
+                                {% endif %}
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center p-3">
+                                <div>
+                                    <div class="fw-semibold text-dark">2. Employee Consent</div>
+                                    <small class="text-muted">7-point legal &amp; policy acknowledgements</small>
+                                </div>
+                                {% if case.consent and case.consent.status == 'CONSENT_COMPLETED' %}
+                                <span class="badge bg-success bg-opacity-10 text-success border">&#10003; Completed</span>
+                                {% else %}
+                                <span class="badge bg-danger bg-opacity-10 text-danger border">Pending</span>
+                                {% endif %}
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center p-3">
+                                <div>
+                                    <div class="fw-semibold text-dark">3. Knowledge Transfer</div>
+                                    <small class="text-muted">Replacement assignment &amp; handover</small>
+                                </div>
+                                <span class="badge bg-light text-secondary border">{{ case.knowledge_transfer.status if case.knowledge_transfer else 'Pending' }}</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center p-3">
+                                <div>
+                                    <div class="fw-semibold text-dark">4. Asset Return</div>
+                                    <small class="text-muted">Company hardware and devices</small>
+                                </div>
+                                {% if not case.assigned_assets %}
+                                <span class="badge bg-success bg-opacity-10 text-success border">&#10003; All Returned</span>
+                                {% else %}
+                                <span class="badge bg-warning bg-opacity-10 text-warning border">{{ case.assigned_assets | length }} Remaining</span>
+                                {% endif %}
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center p-3">
+                                <div>
+                                    <div class="fw-semibold text-dark">5. IT Access Closure</div>
+                                    <small class="text-muted">System accounts and corporate credentials</small>
+                                </div>
+                                {% if case.request.it_cleared_at %}
+                                <span class="badge bg-success bg-opacity-10 text-success border">&#10003; Closed</span>
+                                {% else %}
+                                <span class="badge bg-warning bg-opacity-10 text-warning border">Scheduled for LWD</span>
+                                {% endif %}
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center p-3">
+                                <div>
+                                    <div class="fw-semibold text-dark">6. HR Final Clearance</div>
+                                    <small class="text-muted">Final sign-off &amp; relieving letters</small>
+                                </div>
+                                {% if case.request.status == 'COMPLETED' %}
+                                <span class="badge bg-success bg-opacity-10 text-success border">&#10003; Completed</span>
+                                {% else %}
+                                <span class="badge bg-secondary bg-opacity-10 text-secondary border">Pending</span>
+                                {% endif %}
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="case-card p-4 h-100">
+                        <h6 class="fw-bold text-dark mb-3">Separation Key Dates</h6>
+                        <div class="p-3 bg-light rounded-3 border mb-3">
+                            <div class="row g-2">
+                                <div class="col-6">
+                                    <small class="text-muted d-block">Resignation Submitted</small>
+                                    <span class="fw-semibold text-dark">{{ case.request.resignation_date or '—' }}</span>
+                                </div>
+                                <div class="col-6">
+                                    <small class="text-muted d-block">Agreed Last Working Day</small>
+                                    <span class="fw-bold text-danger">{{ case.request.last_working_day }}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <h6 class="fw-bold text-dark mb-2 mt-4">Corporate Login &amp; Email Access Status</h6>
+                        <div class="p-3 rounded-3 border {% if case.request.it_cleared_at %}bg-secondary bg-opacity-10 text-secondary{% else %}bg-success bg-opacity-10 text-success{% endif %}">
+                            <div class="d-flex align-items-center gap-2">
+                                <i class="bi {% if case.request.it_cleared_at %}bi-slash-circle{% else %}bi-check-circle-fill{% endif %} fs-4"></i>
+                                <div>
+                                    <strong class="d-block">{% if case.request.it_cleared_at %}Corporate Account Deactivated{% else %}Corporate Account Active{% endif %}</strong>
+                                    <small>{% if case.request.it_cleared_at %}Employee must use the Exit Portal via personal email ({{ case.request.personal_email }}).{% else %}Corporate email and system access remain active during notice period until Last Working Day.{% endif %}</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 2: EMPLOYEE CONSENT -->
+        <div class="tab-pane fade" id="consent" role="tabpanel">
+            <div class="case-card p-4">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h5 class="fw-bold text-dark mb-0">Employee Offboarding Consent</h5>
+                    {% if case.consent and case.consent.status == 'CONSENT_COMPLETED' %}
+                    <span class="badge bg-success bg-opacity-10 text-success border px-3 py-1.5 rounded-pill">&#10003; Consent Completed</span>
+                    {% else %}
+                    <span class="badge bg-danger bg-opacity-10 text-danger border px-3 py-1.5 rounded-pill">Pending Employee Submission</span>
+                    {% endif %}
+                </div>
+
+                {% if case.consent and case.consent.status == 'CONSENT_COMPLETED' %}
+                <div class="border rounded-3 p-3 mb-4 bg-light">
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <small class="text-muted d-block">Consent Status</small>
+                            <span class="fw-bold text-success">{{ case.consent.status }}</span>
+                        </div>
+                        <div class="col-md-4">
+                            <small class="text-muted d-block">Submitted At</small>
+                            <span class="fw-semibold text-dark">{{ case.consent.submitted_at }}</span>
+                        </div>
+                        <div class="col-md-4">
+                            <small class="text-muted d-block">Digital Signature</small>
+                            <span class="fw-bold text-primary font-monospace">{{ case.consent.signature_text }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <h6 class="fw-bold text-dark mb-2">Confirmed Clauses:</h6>
+                <ul class="list-group list-group-flush rounded-3 border small">
+                    <li class="list-group-item"><i class="bi bi-check-circle-fill text-success me-2"></i>Resignation Confirmed</li>
+                    <li class="list-group-item"><i class="bi bi-check-circle-fill text-success me-2"></i>Last Working Day Confirmed ({{ case.request.last_working_day }})</li>
+                    <li class="list-group-item"><i class="bi bi-check-circle-fill text-success me-2"></i>Company Asset Return Acknowledged</li>
+                    <li class="list-group-item"><i class="bi bi-check-circle-fill text-success me-2"></i>Confidential Information / NDA Acknowledged</li>
+                    <li class="list-group-item"><i class="bi bi-check-circle-fill text-success me-2"></i>Company Data Handling &amp; Non-Retention Acknowledged</li>
+                    <li class="list-group-item"><i class="bi bi-check-circle-fill text-success me-2"></i>System Access Termination Acknowledged</li>
+                    <li class="list-group-item"><i class="bi bi-check-circle-fill text-success me-2"></i>Final Settlement Clearance Acknowledged</li>
+                </ul>
+                {% else %}
+                <div class="text-center py-5 text-muted">
+                    <i class="bi bi-hourglass text-warning fs-1 mb-2 d-block"></i>
+                    <h6>Awaiting Employee Consent</h6>
+                    <p class="small mb-0">The employee has been notified to complete their digital consent form.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- TAB 3: KNOWLEDGE TRANSFER -->
+        <div class="tab-pane fade" id="kt" role="tabpanel">
+            <div class="case-card p-4">
+                <h5 class="fw-bold text-dark mb-3">Knowledge Transfer &amp; Handover</h5>
+                <form method="POST" action="{{ url_for('offboarding_ui.update_kt', id=case.request.id) }}">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold text-slate-700" style="font-size: 0.85rem;">Replacement / Assigned Colleague Name</label>
+                            <input type="text" name="replacement_employee_name" class="form-control" value="{{ case.knowledge_transfer.replacement_employee_name if case.knowledge_transfer else '' }}" placeholder="Name of team member taking over">
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold text-slate-700" style="font-size: 0.85rem;">Handover Status</label>
+                            <select name="status" class="form-select">
+                                <option value="PENDING" {% if not case.knowledge_transfer or case.knowledge_transfer.status == 'PENDING' %}selected{% endif %}>PENDING</option>
+                                <option value="IN_PROGRESS" {% if case.knowledge_transfer and case.knowledge_transfer.status == 'IN_PROGRESS' %}selected{% endif %}>IN_PROGRESS</option>
+                                <option value="COMPLETED" {% if case.knowledge_transfer and case.knowledge_transfer.status == 'COMPLETED' %}selected{% endif %}>COMPLETED</option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-12">
+                            <label class="form-label fw-semibold text-slate-700" style="font-size: 0.85rem;">Pending Responsibilities &amp; Active Projects</label>
+                            <textarea name="pending_responsibilities" class="form-control" rows="3" placeholder="List active tasks and deliverables to be transferred...">{{ case.knowledge_transfer.pending_responsibilities if case.knowledge_transfer else '' }}</textarea>
+                        </div>
+
+                        <div class="col-md-12">
+                            <label class="form-label fw-semibold text-slate-700" style="font-size: 0.85rem;">Transferred Documents &amp; Credentials Links</label>
+                            <textarea name="documents_transferred" class="form-control" rows="2" placeholder="List documentation links or shared folders...">{{ case.knowledge_transfer.documents_transferred if case.knowledge_transfer else '' }}</textarea>
+                        </div>
+
+                        <div class="col-md-12">
+                            <label class="form-label fw-semibold text-slate-700" style="font-size: 0.85rem;">Handover Remarks</label>
+                            <textarea name="remarks" class="form-control" rows="2" placeholder="Manager / HR handover verification notes...">{{ case.knowledge_transfer.remarks if case.knowledge_transfer else '' }}</textarea>
+                        </div>
+
+                        <div class="col-12 mt-3">
+                            <button type="submit" class="btn btn-primary rounded-pill px-4 fw-semibold">
+                                <i class="bi bi-save me-1"></i> Save Knowledge Transfer
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- TAB 4: ASSET RETURN INTEGRATION -->
+        <div class="tab-pane fade" id="assets" role="tabpanel">
+            <div class="case-card p-4">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div>
+                        <h5 class="fw-bold text-dark mb-0">Assigned Company Assets</h5>
+                        <p class="text-muted small mb-0">Directly synchronized with the enterprise Assets module and hardware assignment registry.</p>
+                    </div>
+                    {% if not case.assigned_assets %}
+                    <span class="badge bg-success bg-opacity-10 text-success border px-3 py-1.5 rounded-pill">&#10003; All Assets Cleared</span>
+                    {% else %}
+                    <span class="badge bg-warning bg-opacity-10 text-warning border px-3 py-1.5 rounded-pill">{{ case.assigned_assets | length }} Assets Pending Return</span>
+                    {% endif %}
+                </div>
+
+                {% if case.assigned_assets %}
+                <div class="table-responsive rounded-3 border">
+                    <table class="table table-hover align-middle mb-0" style="font-size: 0.84rem;">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Asset Details</th>
+                                <th>Serial Number</th>
+                                <th>Category</th>
+                                <th>Assigned Date</th>
+                                <th>Condition</th>
+                                <th class="text-end pe-3">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for a in case.assigned_assets %}
+                            <tr>
+                                <td>
+                                    <div class="fw-bold text-dark">{{ a.brand }} {{ a.model }}</div>
+                                    <small class="text-muted">Asset ID: #{{ a.id }}</small>
+                                </td>
+                                <td><code>{{ a.serial_number }}</code></td>
+                                <td>{{ a.device_type or 'Laptop' }}</td>
+                                <td>{{ a.assigned_date or '—' }}</td>
+                                <td>{{ a.condition_notes or 'Good' }}</td>
+                                <td class="text-end pe-3">
+                                    {% if session.role in ('hr', 'admin', 'superadmin') %}
+                                    <button type="button" class="btn btn-sm btn-outline-success rounded-pill px-3 py-1 fw-semibold" 
+                                            onclick="openReturnAssetModal('{{ a.id }}', '{{ a.brand }} {{ a.model }}')">
+                                        <i class="bi bi-box-arrow-in-down me-1"></i>Process Return
+                                    </button>
+                                    {% else %}
+                                    <span class="badge bg-light text-muted">Pending Return</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center py-5 text-success">
+                    <i class="bi bi-check-circle fs-1 mb-2 d-block"></i>
+                    <h6>All Assets Cleared</h6>
+                    <p class="text-muted small mb-0">The employee has no outstanding hardware or company assets checked out.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- TAB 5: SYSTEM ADMIN IT ACCESS & DEACTIVATION -->
+        <div class="tab-pane fade" id="it" role="tabpanel">
+            <div class="case-card p-4">
+                <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+                    <div>
+                        <h5 class="fw-bold text-dark mb-0">System Admin Access Management</h5>
+                        <p class="text-muted small mb-0">Manage corporate system access statuses and perform Last Working Day deactivation.</p>
+                    </div>
+                    <div>
+                        {% if case.request.it_cleared_at %}
+                        <span class="badge bg-success bg-opacity-10 text-success border px-3 py-1.5 rounded-pill">&#10003; IT Closure Completed</span>
+                        {% else %}
+                        <span class="badge bg-warning bg-opacity-10 text-warning border px-3 py-1.5 rounded-pill"><i class="bi bi-clock me-1"></i>Deactivation Scheduled for {{ case.request.last_working_day }}</span>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Systems Table -->
+                <div class="table-responsive rounded-3 border mb-4">
+                    <table class="table table-hover align-middle mb-0" style="font-size: 0.84rem;">
+                        <thead class="table-light">
+                            <tr>
+                                <th>System / Application</th>
+                                <th>Access Status</th>
+                                <th>Last Checked</th>
+                                <th class="text-end pe-3">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for s in case.it_systems %}
+                            <tr>
+                                <td>
+                                    <div class="fw-bold text-dark">{{ s.system_name }}</div>
+                                </td>
+                                <td>
+                                    <span class="badge rounded-pill px-2.5 py-1 fw-semibold {% if s.access_status == 'REVOKED' %}bg-secondary bg-opacity-10 text-secondary border{% elif s.access_status == 'SCHEDULED' %}bg-warning bg-opacity-10 text-warning border{% else %}bg-success bg-opacity-10 text-success border{% endif %}">
+                                        {{ s.access_status }}
+                                    </span>
+                                </td>
+                                <td>{{ s.last_checked or '—' }}</td>
+                                <td class="text-end pe-3">
+                                    {% if session.role in ('system_admin', 'superadmin', 'admin') and s.access_status != 'REVOKED' %}
+                                    <button type="button" class="btn btn-sm btn-outline-danger rounded-pill px-2.5 py-0.5" style="font-size: 0.74rem;" onclick="revokeSystem('{{ s.system_name }}')">
+                                        Revoke
+                                    </button>
+                                    {% else %}
+                                    <span class="text-muted small">Confirmed</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="4" class="text-center text-muted py-3">No system access records found.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- IT DEACTIVATION CHECKLIST (Actionable for System Admin) -->
+                {% if session.role in ('system_admin', 'superadmin', 'admin') %}
+                <div class="border rounded-3 p-4 bg-light">
+                    <h6 class="fw-bold text-dark mb-2"><i class="bi bi-shield-slash me-2 text-danger"></i>Last Working Day Deactivation Confirmation</h6>
+                    <p class="text-muted small mb-3">System Admin confirms each revocation action separately. On execution, the employee's corporate login is disabled, active sessions invalidated, and post-employment credentials routed to their personal email.</p>
+
+                    <form method="POST" action="{{ url_for('offboarding_ui.it_deactivation', id=case.request.id) }}" onsubmit="return confirm('Execute IT deactivation? This will disable corporate account login.');">
+                        <div class="row g-2 mb-3">
+                            <div class="col-md-6">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="corporate_account_disabled" id="it1" checked required>
+                                    <label class="form-check-label small fw-semibold" for="it1">&#10003; Corporate account disabled</label>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="corporate_email_disabled" id="it2" checked required>
+                                    <label class="form-check-label small fw-semibold" for="it2">&#10003; Corporate email access disabled</label>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="application_access_revoked" id="it3" checked required>
+                                    <label class="form-check-label small fw-semibold" for="it3">&#10003; Application access revoked</label>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="vpn_access_revoked" id="it4" checked required>
+                                    <label class="form-check-label small fw-semibold" for="it4">&#10003; VPN access revoked</label>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="github_access_revoked" id="it5" checked required>
+                                    <label class="form-check-label small fw-semibold" for="it5">&#10003; GitHub / internal code access revoked</label>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="groups_removed" id="it6" checked required>
+                                    <label class="form-check-label small fw-semibold" for="it6">&#10003; Roles / groups removed</label>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="sessions_revoked" id="it7" checked required>
+                                    <label class="form-check-label small fw-semibold" for="it7">&#10003; Sessions / tokens revoked</label>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="licenses_removed" id="it8" checked required>
+                                    <label class="form-check-label small fw-semibold" for="it8">&#10003; Software licenses decommissioned</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label small fw-semibold">IT Deactivation Notes</label>
+                            <input type="text" name="notes" class="form-control form-control-sm" placeholder="e.g., Mailbox forwarder configured to manager. All tokens revoked.">
+                        </div>
+
+                        <button type="submit" class="btn btn-danger rounded-pill px-4 fw-semibold">
+                            <i class="bi bi-power me-1"></i> Confirm &amp; Execute IT Access Deactivation
+                        </button>
+                    </form>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- TAB 6: HR FINAL CLEARANCE -->
+        <div class="tab-pane fade" id="clearance" role="tabpanel">
+            <div class="case-card p-4">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="fw-bold text-dark mb-0">HR Final Clearance &amp; Offboarding Sign-Off</h5>
+                    {% if case.request.status == 'COMPLETED' %}
+                    <span class="badge bg-success bg-opacity-10 text-success border px-3 py-1.5 rounded-pill">&#10003; Offboarding Finalized</span>
+                    {% else %}
+                    <span class="badge bg-warning bg-opacity-10 text-warning border px-3 py-1.5 rounded-pill">Awaiting Final Clearance</span>
+                    {% endif %}
+                </div>
+
+                <p class="text-muted small mb-4">Before completing offboarding, verify that all prerequisite tasks are completed. Upon completion, the employee's status is changed to OFFBOARDED, and post-employment documents become downloadable via the Exit Portal.</p>
+
+                <!-- Mandatory Checklist Verification -->
+                <div class="p-3 rounded-3 border mb-4 bg-light">
+                    <h6 class="fw-bold text-dark mb-3">Mandatory Prerequisites Checklist:</h6>
+                    
+                    {% set consent_done = (case.consent and case.consent.status == 'CONSENT_COMPLETED') %}
+                    {% set assets_done = (case.assigned_assets | length == 0) %}
+                    {% set it_done = (case.request.it_cleared_at is not none) %}
+                    {% set can_complete = (consent_done and assets_done and it_done and case.request.status != 'COMPLETED') %}
+
+                    <div class="d-flex flex-column gap-2 small">
+                        <div class="d-flex align-items-center gap-2">
+                            {% if case.request.manager_approved_at %}<i class="bi bi-check-circle-fill text-success fs-5"></i>{% else %}<i class="bi bi-x-circle-fill text-danger fs-5"></i>{% endif %}
+                            <span class="fw-semibold">Manager Approval:</span> {% if case.request.manager_approved_at %}Approved on {{ case.request.manager_approved_at }}{% else %}<span class="text-danger">Pending</span>{% endif %}
+                        </div>
+
+                        <div class="d-flex align-items-center gap-2">
+                            {% if consent_done %}<i class="bi bi-check-circle-fill text-success fs-5"></i>{% else %}<i class="bi bi-x-circle-fill text-danger fs-5"></i>{% endif %}
+                            <span class="fw-semibold">Employee Consent:</span> {% if consent_done %}Completed on {{ case.consent.submitted_at }}{% else %}<span class="text-danger">Pending submission</span>{% endif %}
+                        </div>
+
+                        <div class="d-flex align-items-center gap-2">
+                            {% if assets_done %}<i class="bi bi-check-circle-fill text-success fs-5"></i>{% else %}<i class="bi bi-x-circle-fill text-danger fs-5"></i>{% endif %}
+                            <span class="fw-semibold">Asset Return:</span> {% if assets_done %}All assets cleared{% else %}<span class="text-danger">{{ case.assigned_assets | length }} asset(s) not returned</span>{% endif %}
+                        </div>
+
+                        <div class="d-flex align-items-center gap-2">
+                            {% if it_done %}<i class="bi bi-check-circle-fill text-success fs-5"></i>{% else %}<i class="bi bi-x-circle-fill text-danger fs-5"></i>{% endif %}
+                            <span class="fw-semibold">System Admin IT Closure:</span> {% if it_done %}Confirmed on {{ case.request.it_cleared_at }}{% else %}<span class="text-danger">Pending IT deactivation</span>{% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                {% if session.role in ('hr', 'admin', 'superadmin') and session.role != 'system_admin' %}
+                    {% if case.request.status == 'COMPLETED' %}
+                    <div class="alert alert-success rounded-3 p-3">
+                        <i class="bi bi-check2-all me-1"></i> This offboarding case was finalized by <strong>{{ case.request.hr_cleared_by }}</strong> on <strong>{{ case.request.hr_cleared_at }}</strong>.
+                    </div>
+                    {% elif can_complete %}
+                    <button type="button" class="btn btn-success rounded-pill px-4 py-2 fw-semibold" data-bs-toggle="modal" data-bs-target="#completeModal">
+                        <i class="bi bi-check-circle me-1"></i> Complete Offboarding
+                    </button>
+                    {% else %}
+                    <div class="alert alert-danger rounded-3 p-3 small mb-0">
+                        <i class="bi bi-exclamation-triangle-fill me-1"></i> Cannot complete offboarding yet. Please resolve all pending items shown above.
+                    </div>
+                    {% endif %}
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- TAB 7: AUDIT LOG -->
+        <div class="tab-pane fade" id="audit" role="tabpanel">
+            <div class="case-card p-4">
+                <h5 class="fw-bold text-dark mb-3">Chronological Offboarding Audit Trail</h5>
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0" style="font-size: 0.84rem;">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Timestamp</th>
+                                <th>Actor</th>
+                                <th>Role</th>
+                                <th>Action</th>
+                                <th>Details</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for log in case.audit %}
+                            <tr>
+                                <td class="text-muted" style="white-space: nowrap;">{{ log.performed_at }}</td>
+                                <td class="fw-semibold text-dark">{{ log.performed_by_name or 'System' }}</td>
+                                <td>
+                                    <span class="badge bg-light text-secondary border px-2 py-0.5" style="font-size: 0.72rem;">
+                                        {{ (log.role or 'system') | upper }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25 rounded-pill px-2 py-0.5">
+                                        {{ log.action }}
+                                    </span>
+                                </td>
+                                <td>{{ log.notes or log.new_value or '—' }}</td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="5" class="text-center text-muted py-4">No audit logs recorded yet.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL 1: APPROVE RESIGNATION -->
+<div class="modal fade" id="approveModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow rounded-4">
+            <div class="modal-header border-bottom px-4 py-3">
+                <h5 class="modal-title fw-bold text-dark">Approve Resignation</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="POST" action="{{ url_for('offboarding_ui.manager_review', id=case.request.id) }}">
+                <input type="hidden" name="decision" value="APPROVED">
+                <div class="modal-body p-4 text-center">
+                    <div class="p-3 rounded-circle bg-success bg-opacity-10 text-success d-inline-flex mb-3">
+                        <i class="bi bi-check-circle fs-2"></i>
+                    </div>
+                    <h5 class="fw-bold text-dark mb-2">Approve this resignation and start the offboarding process?</h5>
+                    <p class="text-muted small mb-0">The employee status will become NOTICE_PERIOD. Corporate access will remain active through their notice period.</p>
+                </div>
+                <div class="modal-footer border-top px-4 py-3">
+                    <button type="button" class="btn btn-light rounded-pill px-3" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-success rounded-pill px-4 fw-semibold">Approve</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL 2: REJECT RESIGNATION -->
+<div class="modal fade" id="rejectModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow rounded-4">
+            <div class="modal-header border-bottom px-4 py-3">
+                <h5 class="modal-title fw-bold text-dark">Reject Resignation</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="POST" action="{{ url_for('offboarding_ui.manager_review', id=case.request.id) }}">
+                <input type="hidden" name="decision" value="REJECTED">
+                <div class="modal-body p-4">
+                    <label class="form-label fw-semibold small text-slate-700">Rejection Reason <span class="text-danger">*</span></label>
+                    <textarea name="rejection_reason" class="form-control" rows="3" placeholder="Provide reason for rejecting this resignation request..." required></textarea>
+                </div>
+                <div class="modal-footer border-top px-4 py-3">
+                    <button type="button" class="btn btn-light rounded-pill px-3" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-danger rounded-pill px-4 fw-semibold">Reject Resignation</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL 3: RETURN ASSET -->
+<div class="modal fade" id="returnAssetModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow rounded-4">
+            <div class="modal-header border-bottom px-4 py-3">
+                <h5 class="modal-title fw-bold text-dark">Process Asset Return</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="returnAssetForm" method="POST">
+                <div class="modal-body p-4">
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold small text-slate-700">Device</label>
+                        <input type="text" id="modalDeviceLabel" class="form-control bg-light" readonly>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold small text-slate-700">Return Status</label>
+                        <select name="return_status" class="form-select" required>
+                            <option value="Returned" selected>Returned (Available in inventory)</option>
+                            <option value="Damaged">Damaged</option>
+                            <option value="Lost">Lost</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold small text-slate-700">Condition Notes / Remarks</label>
+                        <textarea name="remarks" class="form-control" rows="2" placeholder="e.g. Returned with charger and bag. Normal wear and tear."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer border-top px-4 py-3">
+                    <button type="button" class="btn btn-light rounded-pill px-3" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary rounded-pill px-4 fw-semibold">Confirm Asset Return</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL 4: COMPLETE OFFBOARDING -->
+<div class="modal fade" id="completeModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow rounded-4">
+            <div class="modal-header border-bottom px-4 py-3">
+                <h5 class="modal-title fw-bold text-dark">Finalize Employee Offboarding</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="POST" action="{{ url_for('offboarding_ui.complete_case', id=case.request.id) }}">
+                <div class="modal-body p-4 text-center">
+                    <div class="p-3 rounded-circle bg-success bg-opacity-10 text-success d-inline-flex mb-3">
+                        <i class="bi bi-award fs-2"></i>
+                    </div>
+                    <h5 class="fw-bold text-dark mb-2">Complete this employee's offboarding?</h5>
+                    <p class="text-muted small mb-0">The employee status will become OFFBOARDED. Historical records remain safely archived, and post-employment documents will be accessible via the Exit Portal.</p>
+                </div>
+                <div class="modal-footer border-top px-4 py-3">
+                    <button type="button" class="btn btn-light rounded-pill px-3" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-success rounded-pill px-4 fw-semibold">Complete Offboarding</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+function openReturnAssetModal(deviceId, deviceLabel) {
+    document.getElementById('modalDeviceLabel').value = deviceLabel;
+    document.getElementById('returnAssetForm').action = "/offboarding/cases/{{ case.request.id }}/assets/" + deviceId + "/return";
+    new bootstrap.Modal(document.getElementById('returnAssetModal')).show();
+}
+
+function revokeSystem(systemName) {
+    if (!confirm('Mark ' + systemName + ' access as REVOKED?')) return;
+    fetch('/offboarding/cases/{{ case.request.id }}/it-access/' + encodeURIComponent(systemName), {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ access_status: 'REVOKED' })
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.success) {
+            window.location.reload();
+        } else {
+            alert('Failed: ' + (data.error || 'Unknown error'));
+        }
+    })
+    .catch(err => alert('Error: ' + err.message));
+}
+</script>
+{% endblock %}

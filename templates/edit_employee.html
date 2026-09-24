@@ -104,6 +104,7 @@
                             <option value="" disabled {% if not employee.role %}selected{% endif %}>Select Role</option>
                             <option value="admin" {% if employee.role == 'admin' %}selected{% endif %}>Admin</option>
                             <option value="superadmin" {% if employee.role == 'superadmin' %}selected{% endif %}>Super Admin</option>
+                            <option value="system_admin" {% if employee.role == 'system_admin' %}selected{% endif %}>System Admin</option>
                             <option value="accounts" {% if employee.role == 'accounts' %}selected{% endif %}>Accounts</option>
                             <option value="hr" {% if employee.role == 'hr' %}selected{% endif %}>HR</option>
                             <option value="manager" {% if employee.role == 'manager' %}selected{% endif %}>Manager</option>

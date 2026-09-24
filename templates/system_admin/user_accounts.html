@@ -1,0 +1,99 @@
+{% extends 'base.html' %}
+{% block title %}User Accounts Management{% endblock %}
+{% block page_title %}User Accounts{% endblock %}
+
+{% block content %}
+<style>
+    .ua-card {
+        background: #FFFFFF;
+        border: 1px solid #E2E8F0;
+        border-radius: 14px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+    }
+</style>
+
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+        <div>
+            <h4 class="fw-bold text-dark mb-1">Corporate User Accounts</h4>
+            <p class="text-muted small mb-0">System Admin credential status, account activation/deactivation control.</p>
+        </div>
+        <div class="badge rounded-pill bg-light text-secondary border px-3 py-2">
+            <i class="bi bi-people me-1 text-primary"></i> Total Accounts: {{ users | length }}
+        </div>
+    </div>
+
+    <div class="ua-card">
+        <div class="p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr style="font-size: 0.82rem; color: #475569;">
+                            <th class="ps-3">User / Username</th>
+                            <th>Employee Name</th>
+                            <th>Role</th>
+                            <th>Department</th>
+                            <th>Employment Status</th>
+                            <th>Account Status</th>
+                            <th class="text-end pe-3">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody style="font-size: 0.85rem;">
+                        {% for u in users %}
+                        <tr>
+                            <td class="ps-3">
+                                <div class="fw-semibold text-dark">{{ u.username }}</div>
+                                <div class="text-muted small">User ID #{{ u.id }}</div>
+                            </td>
+                            <td>
+                                <div class="fw-medium text-slate-800">{{ u.employee_name }}</div>
+                                <div class="text-muted small">{{ u.designation or '—' }}</div>
+                            </td>
+                            <td>
+                                <span class="badge rounded-pill px-2.5 py-1 bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25" style="font-size: 0.74rem;">
+                                    {{ u.role | upper }}
+                                </span>
+                            </td>
+                            <td>{{ u.department or '—' }}</td>
+                            <td>
+                                <span class="badge rounded-pill px-2.5 py-1 fw-semibold {% if u.employment_status == 'OFFBOARDED' %}bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25{% elif u.employment_status == 'NOTICE_PERIOD' %}bg-warning bg-opacity-10 text-warning border border-warning border-opacity-25{% else %}bg-success bg-opacity-10 text-success border border-success border-opacity-25{% endif %}" style="font-size: 0.74rem;">
+                                    {{ u.employment_status or 'ACTIVE' }}
+                                </span>
+                            </td>
+                            <td>
+                                {% if u.is_active %}
+                                <span class="badge rounded-pill bg-success bg-opacity-10 text-success border border-success border-opacity-25 px-2.5 py-1">
+                                    <i class="bi bi-check-circle-fill me-1"></i>Active
+                                </span>
+                                {% else %}
+                                <span class="badge rounded-pill bg-secondary bg-opacity-10 text-secondary border border-secondary border-opacity-25 px-2.5 py-1">
+                                    <i class="bi bi-slash-circle me-1"></i>Disabled
+                                </span>
+                                {% endif %}
+                            </td>
+                            <td class="text-end pe-3">
+                                <form method="POST" action="{{ url_for('system_admin.toggle_user_account', user_id=u.id) }}" class="d-inline" onsubmit="return confirm('Change active status for {{ u.username }}?');">
+                                    {% if u.is_active %}
+                                    <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill px-3 py-1 fw-semibold" style="font-size: 0.76rem;">
+                                        <i class="bi bi-person-slash me-1"></i>Disable
+                                    </button>
+                                    {% else %}
+                                    <button type="submit" class="btn btn-sm btn-outline-success rounded-pill px-3 py-1 fw-semibold" style="font-size: 0.76rem;">
+                                        <i class="bi bi-person-check me-1"></i>Enable
+                                    </button>
+                                    {% endif %}
+                                </form>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="7" class="text-center text-muted py-4">No user accounts found.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

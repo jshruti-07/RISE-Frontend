@@ -232,8 +232,8 @@
         </div>
 
         <div class="menu">
-            {% set is_tm = is_team_member or session.role in ['employee', 'team_member', 'teammember'] or (role in
-            ['employee', 'team_member', 'teammember']) %}
+            {% set is_tm = is_team_member or session.role in ['employee', 'team_member', 'teammember', 'system_admin'] or (role in
+            ['employee', 'team_member', 'teammember', 'system_admin']) %}
 
             <!-- ACCESS CONTROL -->
             {% if session.role == 'superadmin' %}
@@ -364,7 +364,7 @@
             {% endif %}
 
             <!-- ASSETS -->
-            {% if can('devices', 'view') or can('devices.view_all') %}
+            {% if session.role in ['system_admin', 'superadmin'] or can('devices', 'view') or can('devices.view_all') %}
             <a class="ribbon-left" style="margin-bottom: 0; display: block;" href="{{ url_for('admin.assets') }}">
                 <div class="ribbon-inner">
                     <div class="ribbon-accent-left" style="background: linear-gradient(to bottom, #93C5FD, #3B82F6);">
@@ -381,7 +381,7 @@
             {% endif %}
 
             <!-- SOFTWARE -->
-            {% if can('software', 'view') or can('devices.catalog_view') %}
+            {% if session.role in ['system_admin', 'superadmin'] or can('software', 'view') or can('devices.catalog_view') %}
             <a class="ribbon-left" style="margin-bottom: 0; display: block;" href="{{ url_for('admin.software') }}">
                 <div class="ribbon-inner">
                     <div class="ribbon-accent-left" style="background: linear-gradient(to bottom, #93C5FD, #3B82F6);">
@@ -416,7 +416,7 @@
             {% endif %}
 
             <!-- OFFBOARDING (ribbon-left: rose accent) -->
-            {% if can('employee_team_management', 'manage') or can('employees.delete') %}
+            {% if session.role in ['employee', 'team_member', 'teammember', 'manager', 'admin', 'hr', 'system_admin', 'superadmin'] or is_tm or can('offboarding', 'view') or can('employee_team_management', 'manage') or can('employees.delete') %}
             <a class="ribbon-left" style="margin-bottom: 0; display: block;"
                 href="{{ url_for('offboarding_ui.dashboard') }}">
                 <div class="ribbon-inner">
@@ -427,6 +427,60 @@
                         <div class="ribbon-text">
                             <span class="ribbon-title">OFFBOARDING</span>
                             <span class="ribbon-subtitle">Exit process</span>
+                        </div>
+                    </div>
+                </div>
+            </a>
+            {% endif %}
+
+            <!-- SYSTEM ACCESS (System Admin) -->
+            {% if session.role in ['system_admin', 'superadmin'] %}
+            <a class="ribbon-left" style="margin-bottom: 0; display: block;"
+                href="{{ url_for('system_admin.system_access') }}">
+                <div class="ribbon-inner">
+                    <div class="ribbon-accent-left" style="background: linear-gradient(to bottom, #93C5FD, #3B82F6);">
+                    </div>
+                    <div class="ribbon-content">
+                        <div class="ribbon-icon"><i class="bi bi-hdd-network"></i></div>
+                        <div class="ribbon-text">
+                            <span class="ribbon-title">SYSTEM ACCESS</span>
+                            <span class="ribbon-subtitle">Deactivation &amp; status</span>
+                        </div>
+                    </div>
+                </div>
+            </a>
+            {% endif %}
+
+            <!-- USER ACCOUNTS (System Admin) -->
+            {% if session.role in ['system_admin', 'superadmin'] %}
+            <a class="ribbon-left" style="margin-bottom: 0; display: block;"
+                href="{{ url_for('system_admin.user_accounts') }}">
+                <div class="ribbon-inner">
+                    <div class="ribbon-accent-left" style="background: linear-gradient(to bottom, #93C5FD, #3B82F6);">
+                    </div>
+                    <div class="ribbon-content">
+                        <div class="ribbon-icon"><i class="bi bi-person-badge"></i></div>
+                        <div class="ribbon-text">
+                            <span class="ribbon-title">USER ACCOUNTS</span>
+                            <span class="ribbon-subtitle">Corporate credentials</span>
+                        </div>
+                    </div>
+                </div>
+            </a>
+            {% endif %}
+
+            <!-- AUDIT LOGS (System Admin) -->
+            {% if session.role in ['system_admin', 'superadmin'] %}
+            <a class="ribbon-left" style="margin-bottom: 0; display: block;"
+                href="{{ url_for('system_admin.audit_logs') }}">
+                <div class="ribbon-inner">
+                    <div class="ribbon-accent-left" style="background: linear-gradient(to bottom, #93C5FD, #3B82F6);">
+                    </div>
+                    <div class="ribbon-content">
+                        <div class="ribbon-icon"><i class="bi bi-journal-text"></i></div>
+                        <div class="ribbon-text">
+                            <span class="ribbon-title">AUDIT LOGS</span>
+                            <span class="ribbon-subtitle">Security trail</span>
                         </div>
                     </div>
                 </div>
@@ -507,7 +561,7 @@
             <div class="topbar-right d-flex align-items-center gap-3" style="flex-shrink: 0;">
 
                 <!-- NOTIFICATIONS -->
-                {% if session.role in ['employee','hr','manager', 'admin', 'superadmin'] %}
+                {% if session.role in ['employee','hr','manager', 'admin', 'superadmin', 'system_admin'] %}
                 <a href="#" onclick="loadNotificationsPage(); return false;"
                     class="text-secondary position-relative text-decoration-none">
                     <i class="bi bi-bell" style="font-size: 1.2rem; color: #475569;"></i>
@@ -526,7 +580,9 @@
                     <span style="font-size: 0.85rem; font-weight: 600; color: #0f172a;">Good Day, {{ display_name
                         }}!</span>
                     <span style="font-size: 0.75rem; color: #64748b;">
-                        {% if session.role in ['employee', 'team_member', 'teammember'] or is_team_member %}
+                        {% if session.role == 'system_admin' %}
+                        System Admin
+                        {% elif session.role in ['employee', 'team_member', 'teammember'] or is_team_member %}
                         {{ labels.EMPLOYEE if labels else 'Team Member' }}
                         {% elif session.role == 'superadmin' %}
                         Super Admin
