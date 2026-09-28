@@ -263,14 +263,17 @@ def edit_employee(id):
         # ── Flash accurate result ─────────────────────────────────────────────
         if role_error:
             flash(f"Role update failed: {role_error}", "danger")
+        elif not basic_ok:
+            err_msg = res.text
+            try:
+                err_msg = res.json().get('error', res.text)
+            except Exception:
+                pass
+            flash(f"Failed to update employee: {err_msg}", "danger")
         elif new_role and role_changed and basic_ok:
             flash(f"{UI_LABELS['EMPLOYEE_UPDATED_SUCCESS']} (role updated to {new_role.upper()})", "success")
-        elif new_role and role_changed:
-            flash(f"Role updated to {new_role.upper()} successfully.", "success")
         elif basic_ok:
             flash(UI_LABELS['EMPLOYEE_UPDATED_SUCCESS'], "success")
-        else:
-            flash(f"Failed to update employee: {res.text}", "danger")
 
         return redirect(url_for('employees.employee_list'))
 
