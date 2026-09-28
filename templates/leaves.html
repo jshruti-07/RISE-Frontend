@@ -514,14 +514,20 @@
                                     </td>
                                     <td>
                                         {% set type_lower = (l.leave_type or '')|lower %}
+                                        {% set is_wfh = 'home' in type_lower or 'wfh' in type_lower %}
                                         {% set badge_style = 'background:#EFF6FF; color:#1D4ED8;' if 'planned' in
                                         type_lower and 'unplanned' not in type_lower else ('background:#FFFBEB;
                                         color:#B45309;' if 'unplanned' in type_lower else ('background:#F5F3FF;
-                                        color:#6D28D9;' if 'optional' in type_lower else 'background:#F1F5F9;
-                                        color:#475569;')) %}
-                                        <span class="badge px-2 py-1 rounded-pill"
+                                        color:#6D28D9;' if 'optional' in type_lower else ('background:#F0FDFA;
+                                        color:#0D9488; border:1px solid #99F6E4;' if is_wfh else 'background:#F1F5F9;
+                                        color:#475569;'))) %}
+                                        <span class="badge px-2.5 py-1 rounded-pill"
                                             style="{{ badge_style }} font-weight: 600; font-size: 0.78rem;">
+                                            {% if is_wfh %}
+                                            <i class="bi bi-house-door-fill me-1"></i>Work From Home
+                                            {% else %}
                                             {{ l.leave_type | capitalize }}
+                                            {% endif %}
                                         </span>
                                     </td>
                                     <td>
@@ -746,14 +752,20 @@
                                 <tr data-status="{{ l.status|lower }}" class="leave-row-my">
                                     <td style="padding: 12px 16px;">
                                         {% set type_lower = (l.leave_type or '')|lower %}
+                                        {% set is_wfh = 'home' in type_lower or 'wfh' in type_lower %}
                                         {% set badge_style = 'background:#EFF6FF; color:#1D4ED8;' if 'planned' in
                                         type_lower and 'unplanned' not in type_lower else ('background:#FFFBEB;
                                         color:#B45309;' if 'unplanned' in type_lower else ('background:#F5F3FF;
-                                        color:#6D28D9;' if 'optional' in type_lower else 'background:#F1F5F9;
-                                        color:#475569;')) %}
-                                        <span class="badge px-2 py-1 rounded-pill"
+                                        color:#6D28D9;' if 'optional' in type_lower else ('background:#F0FDFA;
+                                        color:#0D9488; border:1px solid #99F6E4;' if is_wfh else 'background:#F1F5F9;
+                                        color:#475569;'))) %}
+                                        <span class="badge px-2.5 py-1 rounded-pill"
                                             style="{{ badge_style }} font-weight: 600; font-size: 0.78rem;">
+                                            {% if is_wfh %}
+                                            <i class="bi bi-house-door-fill me-1"></i>Work From Home
+                                            {% else %}
                                             {{ l.leave_type | capitalize }}
+                                            {% endif %}
                                         </span>
                                     </td>
                                     <td>
@@ -1454,7 +1466,10 @@
                 const category = (l.leave_type_category || 'full_day').toLowerCase();
                 const isHalfDay = (category === 'half_day');
 
-                const title = `${l.employee_name || 'Employee'}: ${l.leave_type || 'Leave'}${isHalfDay ? ' (Half Day)' : ''}`;
+                const ltype = (l.leave_type || '').toLowerCase();
+                const isWfh = ltype.includes('home') || ltype.includes('wfh');
+                const displayType = isWfh ? 'Work From Home' : (l.leave_type || 'Leave');
+                const title = `${l.employee_name || 'Employee'}: ${displayType}${isHalfDay ? ' (Half Day)' : ''}`;
 
                 // FullCalendar end date is exclusive for allDay events
                 let end = new Date(endStr);
@@ -1467,13 +1482,14 @@
                     start: startStr,
                     end: endFormatted,
                     allDay: true,
-                    className: isHalfDay ? 'status-half-day' : `status-${status}`,
+                    className: isHalfDay ? 'status-half-day' : (isWfh ? 'status-wfh' : `status-${status}`),
                     extendedProps: {
                         isLeave: true,
+                        isWfh: isWfh,
                         leaveId: l.id || '',
                         employeeName: l.employee_name || '',
                         employeeRole: l.employee_role || '',
-                        leaveType: l.leave_type || '',
+                        leaveType: displayType,
                         category: category,
                         isHalfDay: isHalfDay,
                         totalDays: l.total_days || 1,
@@ -1569,7 +1585,8 @@
             `;
             if (actionsEl) actionsEl.innerHTML = '';
         } else if (props.isLeave) {
-            if (titleEl) titleEl.innerHTML = `<i class="bi bi-person-badge-fill me-2 text-primary"></i>Leave Application Details`;
+            const isWfh = Boolean(props.isWfh);
+            if (titleEl) titleEl.innerHTML = isWfh ? `<i class="bi bi-house-door-fill me-2 text-success"></i>Work From Home Details` : `<i class="bi bi-person-badge-fill me-2 text-primary"></i>Leave Application Details`;
 
             const empRole = (props.employeeRole || 'employee').toLowerCase();
             const roleBg = '#EEF2FF', roleFg = '#4F46E5';
@@ -1631,7 +1648,7 @@
                 <div class="row g-2 mb-3">
                     <div class="col-6">
                         <div class="p-2 bg-light rounded-3 border" style="border-color:#F1F5F9 !important;">
-                            <span class="text-muted d-block mb-1" style="font-size: 0.72rem; font-weight: 600; text-transform: uppercase;">Leave Type</span>
+                            <span class="text-muted d-block mb-1" style="font-size: 0.72rem; font-weight: 600; text-transform: uppercase;">${isWfh ? 'Request Type' : 'Leave Type'}</span>
                             <span class="fw-bold text-dark" style="font-size: 0.84rem;">${escapeHtml(props.leaveType)}</span>
                         </div>
                     </div>

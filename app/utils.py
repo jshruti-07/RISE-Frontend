@@ -475,6 +475,8 @@ def fetch_leave_balance_helper(employee_name):
                         days = (e_date - s_date).days + 1
                         
                         ltype = (leave.get("leave_type") or "").lower()
+                        if "home" in ltype or "wfh" in ltype:
+                            continue
                         if "planned" in ltype and "unplanned" not in ltype:
                             used_stats["planned"] += days
                         elif "unplanned" in ltype or "sick" in ltype:

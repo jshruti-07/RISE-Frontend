@@ -812,14 +812,24 @@ def add_leave():
         if request.form.get("leave_type_category") == "half_day":
             payload["half_day_period"] = request.form.get("half_day_period")
         
+        l_type = request.form.get("leave_type")
+        is_wfh = str(l_type).strip().lower().replace(" ", "_") in ("work_from_home", "wfh")
+        
         try:
             res = requests.post(f"{BASE_URL}/leaves", json=payload, headers=headers, timeout=10)
             if res.status_code in [200, 201]:
-                flash('Leave application submitted successfully!', 'success')
+                msg = 'Work From Home request submitted successfully!' if is_wfh else 'Leave application submitted successfully!'
+                flash(msg, 'success')
             else:
-                flash(f'Failed to submit leave: {res.text}', 'danger')
+                err_text = res.text
+                try:
+                    err_json = res.json()
+                    err_text = err_json.get('error', res.text)
+                except:
+                    pass
+                flash(f'Failed to submit request: {err_text}', 'danger')
         except Exception as e:
-            flash(f'Error submitting leave: {e}', 'danger')
+            flash(f'Error submitting request: {e}', 'danger')
             
         return redirect(url_for('work.leaves_list'))
     
@@ -856,6 +866,8 @@ def add_leave():
                             e_date = datetime.strptime(leave.get("end_date")[:10], "%Y-%m-%d")
                             days = (e_date - s_date).days + 1
                             ltype = (leave.get("leave_type") or "").lower()
+                            if "home" in ltype or "wfh" in ltype:
+                                continue
                             if "planned" in ltype and "unplanned" not in ltype: used_stats["planned"] += days
                             elif "unplanned" in ltype or "sick" in ltype: used_stats["unplanned"] += days
                             elif "optional" in ltype or "earned" in ltype: used_stats["optional"] += days
@@ -1034,9 +1046,21 @@ def attendance_view():
             'target_employee': target_employee
         }
         
+        wfh_count = 0
+        for l in leave_data:
+            ltype = str(l.get('leave_type', '')).lower()
+            if l.get('status') == 'approved' and ('wfh' in ltype or 'home' in ltype):
+                try:
+                    wfh_count += float(l.get('total_days') or l.get('days') or l.get('leave_duration') or 1)
+                except (ValueError, TypeError):
+                    wfh_count += 1
+
         attendance_metrics = {
-            'office': present_count, 'wfh': 0, 'half_day': half_day_count,
-            'absent': absent_count, 'overtime': len([a for a in attendance_data if a.get('work_status') == 'overtime']),
+            'office': present_count,
+            'wfh': int(wfh_count) if isinstance(wfh_count, float) and wfh_count.is_integer() else wfh_count,
+            'half_day': half_day_count,
+            'absent': absent_count,
+            'overtime': len([a for a in attendance_data if a.get('work_status') == 'overtime']),
             'late_login': len([a for a in attendance_data if 'late' in a.get('remarks', '').lower()])
         }
         
@@ -1082,6 +1106,8 @@ def leaves_balance():
                         e_date = datetime.strptime(leave.get("end_date")[:10], "%Y-%m-%d")
                         days = (e_date - s_date).days + 1
                         ltype = (leave.get("leave_type") or "").lower()
+                        if "home" in ltype or "wfh" in ltype:
+                            continue
                         if "planned" in ltype and "unplanned" not in ltype: used_stats["planned"] += days
                         elif "unplanned" in ltype or "sick" in ltype: used_stats["unplanned"] += days
                         elif "optional" in ltype or "earned" in ltype: used_stats["optional"] += days
