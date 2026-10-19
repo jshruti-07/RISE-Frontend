@@ -44,10 +44,11 @@
 </style>
 
 {# Compute project status counts #}
-{% set ns_proj = namespace(all=projects|length, active=0, completed=0, inactive=0) %}
+{% set ns_proj = namespace(all=projects|length, active=0, on_hold=0, completed=0, inactive=0) %}
 {% for p in projects %}
-    {% set pst = (p.status or 'active')|lower %}
+    {% set pst = (p.status or 'active')|lower|replace(' ', '_') %}
     {% if pst in ['active', 'ongoing'] %}{% set ns_proj.active = ns_proj.active + 1 %}
+    {% elif pst in ['on_hold', 'onhold'] %}{% set ns_proj.on_hold = ns_proj.on_hold + 1 %}
     {% elif pst in ['completed', 'closed'] %}{% set ns_proj.completed = ns_proj.completed + 1 %}
     {% else %}{% set ns_proj.inactive = ns_proj.inactive + 1 %}
     {% endif %}
@@ -66,11 +67,12 @@
             <!-- Top Actions Bar -->
             <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-3">
                 <!-- Status Filter Pills -->
-                <div class="d-flex align-items-center gap-2 flex-wrap">
+                <div class="d-flex align-items-center gap-2 flex-wrap" id="projectStatusFilterPills">
                     <button type="button" class="leave-filter-pill active" onclick="quickFilterProjectStatus('', this)">All ({{ ns_proj.all }})</button>
                     {% if ns_proj.active > 0 %}<button type="button" class="leave-filter-pill" onclick="quickFilterProjectStatus('active', this)">Active ({{ ns_proj.active }})</button>{% endif %}
+                    {% if ns_proj.on_hold > 0 %}<button type="button" class="leave-filter-pill" onclick="quickFilterProjectStatus('on_hold', this)">On Hold ({{ ns_proj.on_hold }})</button>{% endif %}
                     {% if ns_proj.completed > 0 %}<button type="button" class="leave-filter-pill" onclick="quickFilterProjectStatus('completed', this)">Completed ({{ ns_proj.completed }})</button>{% endif %}
-                    {% if ns_proj.inactive > 0 %}<button type="button" class="leave-filter-pill" onclick="quickFilterProjectStatus('inactive', this)">Inactive ({{ ns_proj.inactive }})</button>{% endif %}
+                    {% if ns_proj.inactive > 0 %}<button type="button" class="leave-filter-pill" onclick="quickFilterProjectStatus('inactive', this)">Other ({{ ns_proj.inactive }})</button>{% endif %}
                 </div>
 
                 <!-- Action Buttons inside card -->
@@ -124,7 +126,7 @@
                             data-name="{{ (project.name or '')|lower }}"
                             data-manager="{{ (p_mgr or '')|lower }}"
                             data-customer="{{ (project.customer_name or '')|lower }}"
-                            data-status="{{ (project.status or 'active')|lower }}"
+                            data-status="{{ (project.status or 'active')|lower|replace(' ', '_') }}"
                             style="cursor: pointer;">
                             <td style="padding: 12px 16px;">
                                 <div class="fw-bold text-slate-900" style="font-size: 0.9rem;">
@@ -142,18 +144,22 @@
                                 </div>
                             </td>
                             <td style="text-align: center;">
-                                {% set p_status = (project.status or 'active')|lower %}
+                                {% set p_status = (project.status or 'active')|lower|replace(' ', '_') %}
                                 {% if p_status in ['active', 'ongoing'] %}
                                 <span class="badge px-2.5 py-1 rounded-pill" style="background: #ECFDF5; color: #047857; border: 1px solid #A7F3D0; font-weight: 600; font-size: 0.76rem;">
-                                    {{ project.status|capitalize }}
+                                    Active
+                                </span>
+                                {% elif p_status in ['on_hold', 'onhold'] %}
+                                <span class="badge px-2.5 py-1 rounded-pill" style="background: #FFFBEB; color: #B45309; border: 1px solid #FDE68A; font-weight: 600; font-size: 0.76rem;">
+                                    On Hold
                                 </span>
                                 {% elif p_status in ['completed', 'closed'] %}
                                 <span class="badge px-2.5 py-1 rounded-pill" style="background: #EFF6FF; color: #1D4ED8; border: 1px solid #DBEAFE; font-weight: 600; font-size: 0.76rem;">
-                                    {{ project.status|capitalize }}
+                                    Completed
                                 </span>
                                 {% else %}
                                 <span class="badge px-2.5 py-1 rounded-pill" style="background: #F8FAFC; color: #64748B; border: 1px solid #E2E8F0; font-weight: 600; font-size: 0.76rem;">
-                                    {{ project.status|capitalize }}
+                                    {{ project.status|replace('_', ' ')|capitalize }}
                                 </span>
                                 {% endif %}
                             </td>
@@ -301,6 +307,17 @@
                             <label for="editAssignedManager" class="form-label">Assigned Manager *</label>
                             <select class="form-select rounded-3" id="editAssignedManager" required>
                                 <option value="">Select Manager...</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="editProjectStatus" class="form-label">Status *</label>
+                            <select class="form-select rounded-3" id="editProjectStatus" required>
+                                <option value="active">Active</option>
+                                <option value="on_hold">On Hold</option>
+                                <option value="completed">Completed</option>
                             </select>
                         </div>
                     </div>
@@ -504,10 +521,12 @@
             if (currentStatusFilter) {
                 if (currentStatusFilter === 'active') {
                     matchStatus = (pStatus === 'active' || pStatus === 'ongoing');
+                } else if (currentStatusFilter === 'on_hold') {
+                    matchStatus = (pStatus === 'on_hold' || pStatus === 'onhold' || pStatus === 'on hold');
                 } else if (currentStatusFilter === 'completed') {
                     matchStatus = (pStatus === 'completed' || pStatus === 'closed');
                 } else if (currentStatusFilter === 'inactive') {
-                    matchStatus = (pStatus !== 'active' && pStatus !== 'ongoing' && pStatus !== 'completed' && pStatus !== 'closed');
+                    matchStatus = (pStatus !== 'active' && pStatus !== 'ongoing' && pStatus !== 'completed' && pStatus !== 'closed' && pStatus !== 'on_hold' && pStatus !== 'onhold' && pStatus !== 'on hold');
                 } else {
                     matchStatus = pStatus.includes(currentStatusFilter);
                 }
@@ -1167,6 +1186,15 @@
             document.getElementById('editCustomerPhone').value = pPhone;
             document.getElementById('editCustomerEmail').value = pEmail;
 
+            const pStatus = (project.status || 'active').toLowerCase().replace(' ', '_');
+            const statusSelect = document.getElementById('editProjectStatus');
+            if (statusSelect) {
+                if (['active', 'ongoing'].includes(pStatus)) statusSelect.value = 'active';
+                else if (['on_hold', 'onhold'].includes(pStatus)) statusSelect.value = 'on_hold';
+                else if (['completed', 'closed'].includes(pStatus)) statusSelect.value = 'completed';
+                else statusSelect.value = 'active';
+            }
+
             // Populate manager dropdown
             populateManagerDropdown('editAssignedManager', pManager);
 
@@ -1204,6 +1232,7 @@
         var formData = {
             id: parseInt(projectId),
             name: document.getElementById('editProjectName').value,
+            status: document.getElementById('editProjectStatus')?.value || 'active',
             start_date: document.getElementById('editStartDate').value,
             end_date: document.getElementById('editEndDate').value,
             customer_name: document.getElementById('editCustomerName').value,

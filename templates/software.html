@@ -245,10 +245,10 @@
 
                 <!-- Action Buttons -->
                 <div class="d-flex align-items-center gap-2 flex-wrap">
-                    <button type="button" class="btn btn-soft-purple btn-sm rounded-pill px-3 shadow-sm" data-bs-toggle="modal"
-                        data-bs-target="#addSoftwareModal" style="font-size: 0.8rem; font-weight: 600;">
+                    <a href="{{ url_for('admin.add_software') }}" class="btn btn-soft-purple btn-sm rounded-pill px-3 shadow-sm"
+                        style="font-size: 0.8rem; font-weight: 600;">
                         <i class="bi bi-plus-circle me-1"></i> Add Software
-                    </button>
+                    </a>
                 </div>
             </div>
 
@@ -484,141 +484,6 @@
             </div>
         </div>
 
-    </div>
-</div>
-
-
-<!-- Add Software Modal -->
-<div class="modal fade" id="addSoftwareModal" tabindex="-1" aria-labelledby="addSoftwareModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg modal-dialog-centered">
-        <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
-
-            <!-- Hero Header -->
-            <div class="modal-software-hero text-white d-flex align-items-center justify-content-between">
-                <div class="d-flex align-items-center gap-3">
-                    <div class="modal-software-icon">
-                        <i class="bi bi-box-seam-fill"></i>
-                    </div>
-                    <div>
-                        <h4 class="mb-1 fw-bold text-white">Add New Software Asset</h4>
-                        <p class="mb-0 text-white-50 small">Register applications, developer tools, or cloud licenses
-                        </p>
-                    </div>
-                </div>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
-                    aria-label="Close"></button>
-            </div>
-
-            <!-- Modal Body -->
-            <div class="modal-body p-4 bg-light bg-opacity-30">
-                <form id="addSoftwareForm">
-                    <div class="row g-4">
-
-                        <!-- Application Name -->
-                        <div class="col-md-6">
-                            <label class="form-label-custom"><i class="bi bi-app-indicator text-primary"></i>
-                                Application Name <span class="text-danger">*</span></label>
-                            <div class="input-group input-group-custom">
-                                <span class="input-group-text"><i class="bi bi-window"></i></span>
-                                <input type="text" class="form-control" id="swAppName"
-                                    placeholder="e.g. IntelliJ IDEA, Adobe CC" required>
-                            </div>
-                        </div>
-
-                        <!-- Publisher / Vendor -->
-                        <div class="col-md-6">
-                            <label class="form-label-custom"><i class="bi bi-building text-primary"></i> Publisher /
-                                Vendor <span class="text-danger">*</span></label>
-                            <div class="input-group input-group-custom">
-                                <span class="input-group-text"><i class="bi bi-building"></i></span>
-                                <input type="text" class="form-control" id="swPublisher"
-                                    placeholder="e.g. JetBrains, Adobe Systems" required>
-                            </div>
-                        </div>
-
-                        <!-- Category -->
-                        <div class="col-md-6">
-                            <label class="form-label-custom"><i class="bi bi-tags text-primary"></i> Category <span
-                                    class="text-danger">*</span></label>
-                            <div class="input-group input-group-custom">
-                                <span class="input-group-text"><i class="bi bi-grid"></i></span>
-                                <select class="form-select" id="swCategory" required>
-                                    <option value="Developer Tools">Developer Tools</option>
-                                    <option value="Productivity">Productivity</option>
-                                    <option value="Security">Security</option>
-                                    <option value="Design">Design</option>
-                                    <option value="Cloud Services">Cloud Services</option>
-                                    <option value="Others">Others</option>
-                                </select>
-                            </div>
-                        </div>
-
-                        <!-- Version -->
-                        <div class="col-md-6">
-                            <label class="form-label-custom"><i class="bi bi-hash text-primary"></i> Version <span
-                                    class="text-danger">*</span></label>
-                            <div class="input-group input-group-custom">
-                                <span class="input-group-text"><i class="bi bi-cpu"></i></span>
-                                <input type="text" class="form-control" id="swVersion"
-                                    placeholder="e.g. v2026.1, Enterprise 4.0" required>
-                            </div>
-                        </div>
-
-                        <!-- License Type -->
-                        <div class="col-md-6">
-                            <label class="form-label-custom"><i class="bi bi-key-fill text-primary"></i> License Type
-                                <span class="text-danger">*</span></label>
-                            <div class="input-group input-group-custom">
-                                <span class="input-group-text"><i class="bi bi-shield-check"></i></span>
-                                <select class="form-select" id="swLicenseType" required>
-                                    <option value="Per Seat License">Per Seat License</option>
-                                    <option value="Subscription (Annual)">Subscription (Annual)</option>
-                                    <option value="Volume License">Volume License</option>
-                                    <option value="Open Source / Free">Open Source / Free</option>
-                                </select>
-                            </div>
-                        </div>
-
-
-
-                        <!-- License Status (Interactive Pill Options) -->
-                        <div class="col-12">
-                            <label class="form-label-custom"><i class="bi bi-activity text-primary"></i> License
-                                Status</label>
-                            <div class="status-pill-group">
-                                <label class="status-pill-option active-active">
-                                    <input type="radio" name="swStatusRadio" value="Active" checked>
-                                    <span><i class="bi bi-check-circle-fill me-1"></i> Active</span>
-                                </label>
-                                <label class="status-pill-option active-pending">
-                                    <input type="radio" name="swStatusRadio" value="Renewal Soon">
-                                    <span><i class="bi bi-clock-history me-1"></i> Renewal Soon</span>
-                                </label>
-                                <label class="status-pill-option active-expired">
-                                    <input type="radio" name="swStatusRadio" value="Expired">
-                                    <span><i class="bi bi-exclamation-triangle-fill me-1"></i> Expired</span>
-                                </label>
-                            </div>
-                        </div>
-
-                    </div>
-                </form>
-            </div>
-
-            <!-- Modal Footer -->
-            <div class="modal-footer border-0 p-4 bg-white d-flex justify-content-between align-items-center">
-                <span class="text-muted small"><i class="bi bi-info-circle me-1"></i> New software will immediately
-                    reflect in asset inventory</span>
-                <div class="d-flex gap-2">
-                    <button type="button" class="btn btn-light rounded-pill px-4 fw-semibold"
-                        data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-save-software" onclick="saveNewSoftware()">
-                        <i class="bi bi-check-lg me-1"></i> Save Software Asset
-                    </button>
-                </div>
-            </div>
-
-        </div>
     </div>
 </div>
 

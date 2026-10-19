@@ -25,8 +25,27 @@ def helpdesk():
 def software():
     return render_template('software.html', BASE_URL=BASE_URL)
 
+@admin_bp.route('/software/add', methods=['GET', 'POST'])
+@role_required(['admin', 'superadmin', 'system_admin', 'hr'])
+def add_software():
+    if request.method == 'POST':
+        try:
+            data = request.get_json() if request.is_json else request.form.to_dict()
+            res = requests.post(f"{BASE_URL}/software", json=data, headers=get_headers())
+            if request.is_json:
+                return jsonify(res.json()), res.status_code
+            if res.status_code in (200, 201):
+                flash("Software asset added successfully!", "success")
+                return redirect(url_for('admin.software'))
+            flash("Failed to add software: " + res.text, "danger")
+        except Exception as e:
+            if request.is_json:
+                return jsonify({"error": str(e)}), 500
+            flash(f"Error: {e}", "danger")
+    return render_template('add_software.html', BASE_URL=BASE_URL)
+
 @admin_bp.route('/api/software', methods=['GET', 'POST'])
-@role_required(['admin', 'superadmin', 'system_admin'])
+@role_required(['admin', 'superadmin', 'system_admin', 'hr'])
 def api_software():
     if request.method == 'POST':
         res = requests.post(f"{BASE_URL}/software", json=request.get_json(), headers=get_headers())
@@ -35,7 +54,7 @@ def api_software():
     return jsonify(res.json()), res.status_code
 
 @admin_bp.route('/api/software/<int:software_id>', methods=['GET', 'PUT', 'DELETE'])
-@role_required(['admin', 'superadmin', 'system_admin'])
+@role_required(['admin', 'superadmin', 'system_admin', 'hr'])
 def api_software_detail(software_id):
     if request.method == 'PUT':
         res = requests.put(f"{BASE_URL}/software/{software_id}", json=request.get_json(), headers=get_headers())

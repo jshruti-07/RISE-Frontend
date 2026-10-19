@@ -346,6 +346,48 @@ def update_project():
     except Exception as e: 
         return jsonify({"success": False, "error": str(e)}), 500
 
+@projects_bp.route('/update_project_status', methods=['POST'])
+@role_required(['admin', 'hr', 'manager', 'superadmin'])
+def update_project_status():
+    try:
+        data = request.get_json() or {}
+        project_id = data.get('id') or data.get('project_id')
+        new_status = data.get('status')
+        if not project_id or not new_status:
+            return jsonify({"success": False, "error": "Project ID and status are required"}), 400
+
+        valid_statuses = {
+            'active': 'Active',
+            'on_hold': 'On Hold',
+            'completed': 'Completed'
+        }
+        normalized = new_status.lower().strip().replace(' ', '_')
+        if normalized not in valid_statuses:
+            return jsonify({"success": False, "error": f"Invalid status: {new_status}"}), 400
+
+        res = requests.put(
+            f"{BASE_URL}/projects/{project_id}",
+            json={'status': normalized},
+            headers=get_headers(),
+            timeout=10
+        )
+        if res.status_code == 200:
+            return jsonify({
+                "success": True,
+                "message": f"Project status updated to {valid_statuses[normalized]}",
+                "status": normalized,
+                "label": valid_statuses[normalized]
+            })
+        err_body = res.text
+        try:
+            err_json = res.json()
+            err_body = err_json.get('error') or err_json.get('message') or err_body
+        except Exception:
+            pass
+        return jsonify({"success": False, "error": f"Backend failed: {err_body}"}), res.status_code
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
 @projects_bp.route('/delete_project/<int:project_id>', methods=['POST'])
 @permission_required('projects', 'manage')
 def delete_project(project_id):

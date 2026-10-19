@@ -1,0 +1,288 @@
+{% extends "base.html" %}
+{% block title %}Add Software{% endblock %}
+{% block page_title %}Add Software Asset{% endblock %}
+
+{% block content %}
+<style>
+    .hd-dashboard-card {
+        background: #FFFFFF;
+        border: 1px solid #E8ECF4;
+        border-radius: 16px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+        overflow: hidden;
+    }
+
+    .form-section-title {
+        font-size: 0.95rem;
+        font-weight: 700;
+        color: #1E293B;
+        padding-bottom: 8px;
+        margin-bottom: 16px;
+        border-bottom: 1px solid #F1F5F9;
+    }
+
+    .form-label {
+        font-size: 0.82rem;
+        font-weight: 600;
+        color: #475569;
+        margin-bottom: 5px;
+    }
+
+    .form-control, .form-select {
+        border-radius: 8px;
+        border: 1px solid #E2E8F0;
+        font-size: 0.86rem;
+        padding: 8px 12px;
+    }
+
+    .form-control:focus, .form-select:focus {
+        border-color: #A5B4FC;
+        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.12);
+    }
+
+    .custom-radio-card {
+        padding: 12px 18px;
+        border: 1px solid #E2E8F0;
+        border-radius: 10px;
+        background: #FFFFFF;
+        transition: all 0.2s ease;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .custom-radio-card:hover {
+        border-color: #CBD5E1;
+        background-color: #F8FAFC;
+    }
+
+    .custom-radio-card input:checked + span {
+        font-weight: 600;
+    }
+
+    .custom-radio-card.active-selected {
+        border-color: #10B981;
+        background: #F0FDF4;
+    }
+
+    .custom-radio-card.renewal-selected {
+        border-color: #F59E0B;
+        background: #FFFBEB;
+    }
+
+    .custom-radio-card.expired-selected {
+        border-color: #EF4444;
+        background: #FEF2F2;
+    }
+</style>
+
+<div class="container-fluid py-4">
+    <!-- Header Outside Card -->
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h4 class="fw-bold text-dark mb-0">Add New Software Asset</h4>
+        <a href="{{ url_for('admin.software') }}" class="btn btn-outline-secondary btn-sm rounded-pill px-3 fw-semibold">
+            <i class="bi bi-arrow-left me-1"></i> Back to Software
+        </a>
+    </div>
+
+    <div class="hd-dashboard-card">
+        <div class="p-4">
+            <!-- Information Banner -->
+            <div class="mb-4 p-3 rounded-3 border" style="background-color: #F8FAFC; border-color: #E8ECF4 !important;">
+                <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                    <div>
+                        <h6 class="mb-0 fw-bold text-dark" style="font-size: 0.88rem;">
+                            <i class="bi bi-box-seam-fill text-primary me-1"></i> Software License & Asset Registration
+                        </h6>
+                        <small class="text-muted">Register developer tools, productivity suites, design software, or cloud licenses in your IT inventory</small>
+                    </div>
+                    <div class="d-flex align-items-center gap-2 flex-wrap">
+                        <span class="badge rounded-pill bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25 px-3 py-1.5 fw-semibold" style="font-size: 0.78rem;">
+                            <i class="bi bi-shield-check me-1"></i> Asset Catalog
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Error/Alert Display -->
+            <div id="alertBox" class="alert alert-danger d-none rounded-3 py-2 px-3 small" role="alert"></div>
+
+            <!-- Add Software Form -->
+            <form id="addSoftwareForm" onsubmit="handleSoftwareSubmit(event)">
+                <!-- Software Overview Section -->
+                <div class="form-section-title">
+                    <i class="bi bi-app-indicator me-1 text-primary"></i> Software Information
+                </div>
+
+                <div class="row g-3 mb-4">
+                    <div class="col-md-6">
+                        <label for="swAppName" class="form-label">Application Name <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="swAppName" name="name"
+                            placeholder="e.g. IntelliJ IDEA, Adobe Creative Cloud, Slack" required>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="swPublisher" class="form-label">Publisher / Vendor <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="swPublisher" name="publisher"
+                            placeholder="e.g. JetBrains, Adobe Systems, Microsoft" required>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="swCategory" class="form-label">Category <span class="text-danger">*</span></label>
+                        <select class="form-select" id="swCategory" name="category" required>
+                            <option value="" disabled selected>Select Category</option>
+                            <option value="Developer Tools">Developer Tools</option>
+                            <option value="Productivity">Productivity</option>
+                            <option value="Security">Security</option>
+                            <option value="Design">Design</option>
+                            <option value="Cloud Services">Cloud Services</option>
+                            <option value="Communication">Communication</option>
+                            <option value="Others">Others</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="swVersion" class="form-label">Version <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="swVersion" name="version"
+                            placeholder="e.g. v2026.1, Enterprise 4.0, Latest" required>
+                    </div>
+                </div>
+
+                <!-- Licensing & Status Section -->
+                <div class="form-section-title">
+                    <i class="bi bi-key-fill me-1 text-primary"></i> Licensing & Status
+                </div>
+
+                <div class="row g-3 mb-4">
+                    <div class="col-md-6">
+                        <label for="swLicenseType" class="form-label">License Type <span class="text-danger">*</span></label>
+                        <select class="form-select" id="swLicenseType" name="license_type" required>
+                            <option value="" disabled selected>Select License Model</option>
+                            <option value="Per Seat License">Per Seat License</option>
+                            <option value="Subscription (Annual)">Subscription (Annual)</option>
+                            <option value="Volume License">Volume License</option>
+                            <option value="Open Source / Free">Open Source / Free</option>
+                            <option value="Enterprise Site License">Enterprise Site License</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-12">
+                        <label class="form-label d-block mb-2">License Status <span class="text-danger">*</span></label>
+                        <div class="d-flex gap-3 flex-wrap">
+                            <label class="custom-radio-card active-selected" for="statusActive" id="cardActive">
+                                <input class="form-check-input mt-0" type="radio" name="swStatusRadio" id="statusActive" value="Active" checked onchange="updateRadioSelection()">
+                                <span class="form-check-label" style="font-size: 0.86rem; color: #047857;">
+                                    <i class="bi bi-check-circle-fill text-success me-1"></i> Active
+                                </span>
+                            </label>
+                            <label class="custom-radio-card" for="statusRenewal" id="cardRenewal">
+                                <input class="form-check-input mt-0" type="radio" name="swStatusRadio" id="statusRenewal" value="Renewal Soon" onchange="updateRadioSelection()">
+                                <span class="form-check-label" style="font-size: 0.86rem; color: #B45309;">
+                                    <i class="bi bi-clock-history text-warning me-1"></i> Renewal Soon
+                                </span>
+                            </label>
+                            <label class="custom-radio-card" for="statusExpired" id="cardExpired">
+                                <input class="form-check-input mt-0" type="radio" name="swStatusRadio" id="statusExpired" value="Expired" onchange="updateRadioSelection()">
+                                <span class="form-check-label" style="font-size: 0.86rem; color: #DC2626;">
+                                    <i class="bi bi-exclamation-triangle-fill text-danger me-1"></i> Expired
+                                </span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Form Action Buttons -->
+                <div class="d-flex align-items-center gap-2 pt-3 border-top" style="border-color: #F1F5F9 !important;">
+                    <button type="submit" id="submitBtn" class="btn btn-soft-purple btn-sm rounded-pill px-4 shadow-sm" style="font-size: 0.85rem; font-weight: 600;">
+                        <i class="bi bi-check-circle me-1"></i> <span id="submitBtnText">Save Software Asset</span>
+                    </button>
+                    <a href="{{ url_for('admin.software') }}" class="btn btn-light btn-sm rounded-pill px-4 border" style="font-size: 0.85rem; font-weight: 600; color: #64748B;">
+                        Cancel
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    function updateRadioSelection() {
+        const activeRadio = document.querySelector('input[name="swStatusRadio"]:checked');
+        const cardActive = document.getElementById('cardActive');
+        const cardRenewal = document.getElementById('cardRenewal');
+        const cardExpired = document.getElementById('cardExpired');
+
+        [cardActive, cardRenewal, cardExpired].forEach(c => {
+            if (c) c.classList.remove('active-selected', 'renewal-selected', 'expired-selected');
+        });
+
+        if (activeRadio) {
+            if (activeRadio.value === 'Active' && cardActive) cardActive.classList.add('active-selected');
+            if (activeRadio.value === 'Renewal Soon' && cardRenewal) cardRenewal.classList.add('renewal-selected');
+            if (activeRadio.value === 'Expired' && cardExpired) cardExpired.classList.add('expired-selected');
+        }
+    }
+
+    async function handleSoftwareSubmit(event) {
+        event.preventDefault();
+
+        const submitBtn = document.getElementById('submitBtn');
+        const submitBtnText = document.getElementById('submitBtnText');
+        const alertBox = document.getElementById('alertBox');
+
+        alertBox.classList.add('d-none');
+        alertBox.textContent = '';
+
+        const name = document.getElementById('swAppName').value.trim();
+        const publisher = document.getElementById('swPublisher').value.trim();
+        const category = document.getElementById('swCategory').value;
+        const version = document.getElementById('swVersion').value.trim();
+        const licenseType = document.getElementById('swLicenseType').value;
+        const statusRadio = document.querySelector('input[name="swStatusRadio"]:checked');
+        const status = statusRadio ? statusRadio.value : 'Active';
+
+        if (!name || !publisher || !category || !version || !licenseType) {
+            alertBox.textContent = 'Please fill in all required fields marked with *';
+            alertBox.classList.remove('d-none');
+            return;
+        }
+
+        // Disable button with spinner
+        submitBtn.disabled = true;
+        submitBtnText.innerHTML = '<span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span> Saving...';
+
+        try {
+            const res = await fetch('/api/software', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    name,
+                    publisher,
+                    category,
+                    version,
+                    license_type: licenseType,
+                    status
+                })
+            });
+
+            const data = await res.json().catch(() => ({}));
+
+            if (res.ok && data.success !== false) {
+                // Navigate back to software screen
+                window.location.href = "{{ url_for('admin.software') }}";
+            } else {
+                throw new Error(data.error || 'Failed to save software asset');
+            }
+        } catch (err) {
+            console.error('Error adding software:', err);
+            alertBox.textContent = err.message || 'An unexpected error occurred while saving.';
+            alertBox.classList.remove('d-none');
+            submitBtn.disabled = false;
+            submitBtnText.textContent = 'Save Software Asset';
+        }
+    }
+</script>
+{% endblock %}
