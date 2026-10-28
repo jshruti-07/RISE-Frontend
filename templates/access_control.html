@@ -1068,13 +1068,23 @@
 
         try {
             // Update all underlying permissions in this action bundle concurrently
-            const updatePromises = permIds.map(permId =>
-                fetch(`/api/admin/permissions/${permId}/role/${role}`, {
+            const updatePromises = permIds.map(async permId => {
+                const res = await fetch(`/api/admin/permissions/${permId}/role/${role}`, {
                     method: 'PATCH',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ is_granted: isGranted })
-                }).then(res => res.json())
-            );
+                });
+                let data;
+                try {
+                    data = await res.json();
+                } catch (parseErr) {
+                    data = { success: false, error: `Server responded with HTTP ${res.status}` };
+                }
+                if (!res.ok && data.success !== false) {
+                    data.success = false;
+                }
+                return data;
+            });
 
             const results = await Promise.all(updatePromises);
             const failed = results.find(r => !r.success);
@@ -1109,7 +1119,7 @@
                 });
             }
             updateModuleCountUI(modName);
-            showToast('Network Error', 'Could not reach server to update permissions', 'danger');
+            showToast('Network Error', err.message || 'Could not reach server to update permissions', 'danger');
         }
     }
 

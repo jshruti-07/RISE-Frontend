@@ -1215,26 +1215,39 @@ def approve_timesheet():
     if not (has_permission('timesheets', 'manage') or has_permission('timesheets.manage')):
         return jsonify({"success": False, "error": "Access denied. You do not have permission to manage timesheets."}), 403
     try:
-        data = request.json
+        data = request.json or {}
         ts_id = data.get('timesheet_id')
+        comments = data.get('comments') or data.get('comment') or ''
         if not ts_id:
             return jsonify({"success": False, "error": "Timesheet ID required"}), 400
             
-        # 1. Primary endpoint: POST /timesheets/<id>/approve/
-        res = requests.post(f"{BASE_URL}/timesheets/{ts_id}/approve/", headers=get_headers(), timeout=10)
-        if res.status_code in [200, 201]:
-            return jsonify({"success": True}), 200
+        payload = {"comments": comments, "action": "approved", "status": "approved"}
         
-        # 2. Fallbacks: PATCH /timesheets/<id>/review or PATCH /timesheets/<id>
-        res = requests.patch(f"{BASE_URL}/timesheets/{ts_id}/review", json={"status": "approved"}, headers=get_headers(), timeout=10)
+        # 1. Primary endpoint: POST /timesheets/<id>/approve
+        backend_url = f"{BASE_URL.rstrip('/')}/timesheets/{ts_id}/approve"
+        res = requests.post(backend_url, json=payload, headers=get_headers(), timeout=10)
         if res.status_code in [200, 201]:
-            return jsonify({"success": True}), 200
-            
-        res = requests.patch(f"{BASE_URL}/timesheets/{ts_id}", json={"status": "approved"}, headers=get_headers(), timeout=10)
+            try:
+                return jsonify(res.json()), 200
+            except Exception:
+                return jsonify({"success": True}), 200
+        
+        # 2. Fallback: PATCH /timesheets/<id>/review
+        fallback_url = f"{BASE_URL.rstrip('/')}/timesheets/{ts_id}/review"
+        res = requests.patch(fallback_url, json=payload, headers=get_headers(), timeout=10)
         if res.status_code in [200, 201]:
-            return jsonify({"success": True}), 200
+            try:
+                return jsonify(res.json()), 200
+            except Exception:
+                return jsonify({"success": True}), 200
 
-        return jsonify({"success": False, "error": res.text}), res.status_code
+        try:
+            err_json = res.json()
+            err_msg = err_json.get('error') or err_json.get('message') or res.text
+        except Exception:
+            err_msg = res.text
+
+        return jsonify({"success": False, "error": err_msg}), res.status_code
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 500
 
@@ -1244,28 +1257,38 @@ def reject_timesheet():
     if not (has_permission('timesheets', 'manage') or has_permission('timesheets.manage')):
         return jsonify({"success": False, "error": "Access denied. You do not have permission to manage timesheets."}), 403
     try:
-        data = request.json
+        data = request.json or {}
         ts_id = data.get('timesheet_id')
         reason = data.get('rejection_reason') or data.get('reason') or ''
         if not ts_id:
             return jsonify({"success": False, "error": "Timesheet ID required"}), 400
             
-        # 1. Primary endpoint: POST /timesheets/<id>/reject/
-        payload = {"reason": reason, "status": "rejected", "rejection_reason": reason}
-        res = requests.post(f"{BASE_URL}/timesheets/{ts_id}/reject/", json=payload, headers=get_headers(), timeout=10)
+        # 1. Primary endpoint: POST /timesheets/<id>/reject
+        payload = {"reason": reason, "status": "rejected", "action": "rejected", "rejection_reason": reason, "comments": reason}
+        backend_url = f"{BASE_URL.rstrip('/')}/timesheets/{ts_id}/reject"
+        res = requests.post(backend_url, json=payload, headers=get_headers(), timeout=10)
         if res.status_code in [200, 201]:
-            return jsonify({"success": True}), 200
+            try:
+                return jsonify(res.json()), 200
+            except Exception:
+                return jsonify({"success": True}), 200
             
-        # 2. Fallbacks: PATCH /timesheets/<id>/review or PATCH /timesheets/<id>
-        res = requests.patch(f"{BASE_URL}/timesheets/{ts_id}/review", json=payload, headers=get_headers(), timeout=10)
+        # 2. Fallback: PATCH /timesheets/<id>/review
+        fallback_url = f"{BASE_URL.rstrip('/')}/timesheets/{ts_id}/review"
+        res = requests.patch(fallback_url, json=payload, headers=get_headers(), timeout=10)
         if res.status_code in [200, 201]:
-            return jsonify({"success": True}), 200
-            
-        res = requests.patch(f"{BASE_URL}/timesheets/{ts_id}", json=payload, headers=get_headers(), timeout=10)
-        if res.status_code in [200, 201]:
-            return jsonify({"success": True}), 200
+            try:
+                return jsonify(res.json()), 200
+            except Exception:
+                return jsonify({"success": True}), 200
 
-        return jsonify({"success": False, "error": res.text}), res.status_code
+        try:
+            err_json = res.json()
+            err_msg = err_json.get('error') or err_json.get('message') or res.text
+        except Exception:
+            err_msg = res.text
+
+        return jsonify({"success": False, "error": err_msg}), res.status_code
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 500
 
