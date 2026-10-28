@@ -8,7 +8,7 @@ except ImportError:
 from flask import Blueprint, render_template, redirect, url_for, request, flash, session, jsonify, send_file
 from datetime import datetime, timedelta
 from calendar import monthrange
-from app.utils import BASE_URL, get_headers, role_required, fetch_leave_balance_helper
+from app.utils import BASE_URL, get_headers, role_required, fetch_leave_balance_helper, has_permission
 from app.api_helpers import (
     names_match,
     extract_list,
@@ -30,6 +30,9 @@ work_bp = Blueprint('work', __name__)
 @work_bp.route('/timesheets')
 @role_required(['admin', 'employee', 'hr', 'manager'])
 def timesheets_list():
+    if not (has_permission('timesheets', 'view') or has_permission('timesheets.view')):
+        flash("You do not have permission to view timesheets.", "danger")
+        return redirect(url_for('dashboard.dashboard'))
     try:
         # 1. Fetch ALL projects
         projects_db = []
@@ -130,7 +133,7 @@ def timesheets_list():
                 if proj_name in project_manager_map and project_manager_map[proj_name] != '-':
                     t['manager_name'] = project_manager_map[proj_name]
             
-            # Visibility Logic
+            # Visibility Logic (Preserves team-based data restrictions)
             show = False
             if user_role in ['admin', 'hr', 'superadmin']:
                 show = True
@@ -182,6 +185,9 @@ def timesheets_list():
 @work_bp.route('/hr-missing-timesheets')
 @role_required(['hr', 'admin'])
 def hr_missing_timesheets():
+    if not has_permission('timesheets', 'view'):
+        flash("You do not have permission to view timesheets.", "danger")
+        return redirect(url_for('dashboard.dashboard'))
     try:
         start_date_str = request.args.get('start_date')
         end_date_str = request.args.get('end_date')
@@ -354,10 +360,11 @@ def timesheet_detail(timesheet_id):
         is_regarding_mgr = names_match(manager_name, current_user) or names_match(manager_name, session.get('user'))
 
         applicant_role = str(timesheet.get('owner_role') or timesheet.get('employee_role') or 'employee').lower().strip()
+        has_manage = has_permission('timesheets', 'manage') or has_permission('timesheets.manage')
         if applicant_role in ['hr', 'manager']:
-            can_review = (user_role in ['admin', 'superadmin']) and not is_own
+            can_review = has_manage and (user_role in ['admin', 'superadmin']) and not is_own
         else:
-            can_review = (user_role in ['admin', 'superadmin'] or (user_role == 'manager' and is_regarding_mgr)) and not is_own
+            can_review = has_manage and (user_role in ['admin', 'superadmin'] or (user_role == 'manager' and is_regarding_mgr)) and not is_own
 
         return render_template(
             "timesheet_detail.html",
@@ -1205,6 +1212,8 @@ def get_pending_timesheets():
 @work_bp.route('/manager/timesheets/approve', methods=['POST'])
 @role_required(['admin', 'hr', 'manager'])
 def approve_timesheet():
+    if not (has_permission('timesheets', 'manage') or has_permission('timesheets.manage')):
+        return jsonify({"success": False, "error": "Access denied. You do not have permission to manage timesheets."}), 403
     try:
         data = request.json
         ts_id = data.get('timesheet_id')
@@ -1232,6 +1241,8 @@ def approve_timesheet():
 @work_bp.route('/manager/timesheets/reject', methods=['POST'])
 @role_required(['admin', 'hr', 'manager'])
 def reject_timesheet():
+    if not (has_permission('timesheets', 'manage') or has_permission('timesheets.manage')):
+        return jsonify({"success": False, "error": "Access denied. You do not have permission to manage timesheets."}), 403
     try:
         data = request.json
         ts_id = data.get('timesheet_id')
@@ -1284,6 +1295,8 @@ def bulk_delete_timesheets_route():
 @work_bp.route('/timesheets/bulk-approve', methods=['POST'])
 @role_required(['admin', 'hr', 'manager'])
 def bulk_approve_timesheets_route():
+    if not (has_permission('timesheets', 'manage') or has_permission('timesheets.manage')):
+        return jsonify({"success": False, "error": "Access denied. You do not have permission to manage timesheets."}), 403
     try:
         data = request.get_json() or {}
         res = requests.post(f"{BASE_URL}/timesheets/bulk-approve", json=data, headers=get_headers(), timeout=15)
@@ -1296,6 +1309,8 @@ def bulk_approve_timesheets_route():
 @work_bp.route('/timesheets/bulk-reject', methods=['POST'])
 @role_required(['admin', 'hr', 'manager'])
 def bulk_reject_timesheets_route():
+    if not (has_permission('timesheets', 'manage') or has_permission('timesheets.manage')):
+        return jsonify({"success": False, "error": "Access denied. You do not have permission to manage timesheets."}), 403
     try:
         data = request.get_json() or {}
         res = requests.post(f"{BASE_URL}/timesheets/bulk-reject", json=data, headers=get_headers(), timeout=15)

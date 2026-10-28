@@ -290,8 +290,7 @@
             {% endif %}
 
             <!-- TIMESHEETS -->
-            {% if is_tm or can('timesheets', 'view') or can('projects', 'view') or can('projects.create') or
-            can('employees', 'view') %}
+            {% if is_tm or can('timesheets', 'view') or can('timesheets.view') %}
             <a class="ribbon-left" style="margin-bottom: 0; display: block;"
                 href="{{ url_for('work.timesheets_list') }}">
                 <div class="ribbon-inner">

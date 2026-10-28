@@ -182,7 +182,7 @@
                         <span class="badge rounded-pill bg-light text-dark border px-2.5 py-1.5 fw-semibold" style="font-size: 0.8rem;">
                             <span id="selectedCountText">0</span> selected
                         </span>
-                        {% if session.role in ['admin', 'manager', 'hr', 'superadmin'] %}
+                        {% if (session.role in ['admin', 'manager', 'hr', 'superadmin']) and (can('timesheets', 'manage') or can('timesheets.manage')) %}
                         <button type="button" class="btn btn-sm btn-success rounded-pill px-3 shadow-sm" id="bulkApproveBtn" style="font-size: 0.8rem; font-weight: 600;">
                             <i class="bi bi-check-circle me-1"></i> Approve Selected
                         </button>
@@ -339,10 +339,11 @@
                                 <div class="d-inline-flex align-items-center gap-1.5 justify-content-center">
                                     {% set is_own = t.is_own or (t.employee_name|names_match(session.get('employee_name'))) %}
                                     {% set is_regarding_mgr = (manager_name and (manager_name|names_match(session.get('employee_name')) or manager_name|names_match(session.get('user')))) %}
+                                    {% set has_manage = can('timesheets', 'manage') or can('timesheets.manage') %}
                                     {% if emp_role in ['hr', 'manager'] %}
-                                        {% set can_review_timesheet = (session.role in ['admin', 'superadmin']) and not is_own %}
+                                        {% set can_review_timesheet = has_manage and (session.role in ['admin', 'superadmin']) and not is_own %}
                                     {% else %}
-                                        {% set can_review_timesheet = (session.role in ['admin', 'superadmin'] or (session.role == 'manager' and is_regarding_mgr)) and not is_own %}
+                                        {% set can_review_timesheet = has_manage and (session.role in ['admin', 'superadmin'] or (session.role == 'manager' and is_regarding_mgr)) and not is_own %}
                                     {% endif %}
 
                                     <!-- Edit Icon Button (Logo only) -->

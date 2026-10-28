@@ -450,6 +450,7 @@
         'employee_team': { title: 'People & Organization', icon: 'bi-people-fill', color: '#4F46E5', bg: '#EEF2FF', tag: 'people' },
         'employees': { title: 'People & Organization', icon: 'bi-people-fill', color: '#4F46E5', bg: '#EEF2FF', tag: 'people' },
         'attendance': { title: 'Attendance Management', icon: 'bi-calendar-check-fill', color: '#059669', bg: '#ECFDF5' },
+        'timesheets': { title: 'Timesheets', icon: 'bi-clock-history', color: '#0284C7', bg: '#F0F9FF' },
         'leave': { title: 'Leave Management', icon: 'bi-calendar2-range-fill', color: '#D97706', bg: '#FEF3C7' },
         'projects': { title: 'Projects & Work', icon: 'bi-kanban-fill', color: '#2563EB', bg: '#EFF6FF' },
         'devices': { title: 'Device & Asset Management', icon: 'bi-laptop-fill', color: '#7C3AED', bg: '#F5F3FF' },
@@ -553,6 +554,7 @@
                 return 'Project Records';
             }
 
+            if (modKey === 'timesheets') return 'Timesheets';
             if (modKey === 'bank') return 'Bank Details';
             if (modKey === 'documents') return 'Employee Documents';
             if (modKey === 'helpdesk') return 'Helpdesk & Support';
@@ -586,7 +588,8 @@
         const FEATURE_ORDER_BY_MODULE = {
             'people_org': ['Employee & Team Management', 'Departments', 'Designations'],
             'company_info': ['Announcements', 'Holidays Calendar', 'Company Policies'],
-            'devices': ['Devices & Assets', 'Inventory & Stock', 'Reimbursement Claims']
+            'devices': ['Devices & Assets', 'Inventory & Stock', 'Reimbursement Claims'],
+            'timesheets': ['Timesheets']
         };
 
         let resultFeatures = Object.values(featureMap).map(f => {
@@ -737,7 +740,8 @@
 
         const DESIRED_MODULE_ORDER = [
             'people_org',       // 1. People & Organization
-            'devices',          // 2. Device & Asset Management
+            'timesheets',       // 2. Timesheets
+            'devices',          // 3. Device & Asset Management
             'company_info',     // 3. Company Information
             'auth',             // 4. Authentication & Security
             'bank',             // 5. Banking & Financial Info
